@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+*.ilk
+*.pdb
+build/Debug
+build/Release
+build/Production
+build/.vs

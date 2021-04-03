@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="window">
+      <UniqueIdentifier>{1179fc23-6819-40b0-a9c6-9cbc57b682a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\YuYu\common\Win32\yy_window.cpp">
+      <Filter>window</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
