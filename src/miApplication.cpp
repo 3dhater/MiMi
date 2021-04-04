@@ -1,4 +1,7 @@
 ﻿#include "miApplication.h"
+#include "miGUIManager.h"
+#include "yy_color.h"
+#include "yy_gui.h"
 
 miApplication * g_app = 0;
 
@@ -135,9 +138,11 @@ miApplication::miApplication() {
 	g_app = this;
 	m_dt = 0.f;
 	m_gpu = 0;
+	m_GUIManager = 0;
 }
 
 miApplication::~miApplication() {
+	if (m_GUIManager) delete m_GUIManager;
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
 	if (m_inputContext) yyDestroy(m_inputContext);
@@ -206,8 +211,16 @@ bool miApplication::Init(const char* videoDriver) {
 vidOk:
 
 	m_gpu = yyGetVideoDriverAPI();
-	m_gpu->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);
+	m_gpu->UseVSync(true);
+	yyColor clColor;
+	clColor.setAsByteRed(118);
+	clColor.setAsByteGreen(118);
+	clColor.setAsByteBlue(118);
+	m_gpu->SetClearColor(clColor.m_data[0], clColor.m_data[1], clColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
+
+	m_GUIManager = new miGUIManager;
+	yyGUIRebuild();
 
 	return true;
 }
@@ -252,8 +265,13 @@ void miApplication::MainLoop() {
 #else
 #error For windows
 #endif
+		POINT cursorPoint;
+		GetCursorPos(&cursorPoint);
+		ScreenToClient(m_window->m_hWnd, &cursorPoint);
+		m_inputContext->m_cursorCoords.x = (f32)cursorPoint.x;
+		m_inputContext->m_cursorCoords.y = (f32)cursorPoint.y;
 
-		//yyGUIUpdate(m_dt);
+		yyGUIUpdate(m_dt);
 
 		while (yyPollEvent(currentEvent))
 		{
@@ -268,7 +286,7 @@ void miApplication::MainLoop() {
 				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
 					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize,
 						v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
-					//yyGUIRebuild();
+					yyGUIRebuild();
 				}
 			}break;
 			}
@@ -284,7 +302,7 @@ void miApplication::MainLoop() {
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
 
-			//yyGUIDrawAll();
+			yyGUIDrawAll();
 			m_gpu->EndDraw();
 			m_gpu->SwapBuffers();
 		}

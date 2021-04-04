@@ -9,5 +9,9 @@
     <ClCompile Include="..\..\YuYu\common\Win32\yy_window.cpp">
       <Filter>window</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\miGUIManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\miGUIManager.h" />
   </ItemGroup>
 </Project>

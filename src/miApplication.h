@@ -5,6 +5,8 @@
 #include "yy_window.h"
 #include "yy_input.h"
 
+class miGUIManager;
+
 class miApplication
 {
 	yyInputContext * m_inputContext;
@@ -12,11 +14,14 @@ class miApplication
 	yyWindow*        m_window;
 	yyVideoDriverAPI* m_gpu;
 
-	f32 m_dt;
+
+	miGUIManager* m_GUIManager;
 
 public:
 	miApplication();
 	~miApplication();
+	
+	f32 m_dt;
 
 	bool Init(const char* videoDriver);
 	void MainLoop();

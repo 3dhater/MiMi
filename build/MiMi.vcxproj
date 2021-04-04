@@ -29,9 +29,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\YuYu\common\Win32\yy_window.cpp" />
     <ClCompile Include="..\src\miApplication.cpp" />
+    <ClCompile Include="..\src\miGUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miApplication.h" />
+    <ClInclude Include="..\src\miGUIManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
