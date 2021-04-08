@@ -1,5 +1,6 @@
 ﻿#include "miApplication.h"
 #include "miGUIManager.h"
+#include "miViewport.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 
@@ -139,9 +140,11 @@ miApplication::miApplication() {
 	m_dt = 0.f;
 	m_gpu = 0;
 	m_GUIManager = 0;
+	m_viewport = 0;
 }
 
 miApplication::~miApplication() {
+	if (m_viewport) delete m_viewport;
 	if (m_GUIManager) delete m_GUIManager;
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
@@ -212,6 +215,8 @@ vidOk:
 
 	m_gpu = yyGetVideoDriverAPI();
 	m_gpu->UseVSync(true);
+	yySetDefaultTexture(yyGetTextureResource("../res/gui/white.dds", false, false, true));
+
 	yyColor clColor;
 	clColor.setAsByteRed(118);
 	clColor.setAsByteGreen(118);
@@ -220,9 +225,16 @@ vidOk:
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 
 	m_GUIManager = new miGUIManager;
+
+	m_viewport = new miViewport;
+
 	yyGUIRebuild();
 
 	return true;
+}
+
+yyWindow* miApplication::GetWindowMain() {
+	return m_window;
 }
 
 void miApplication::MainLoop() {
@@ -302,10 +314,27 @@ void miApplication::MainLoop() {
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
 
+			DrawViewports();
+
 			yyGUIDrawAll();
 			m_gpu->EndDraw();
 			m_gpu->SwapBuffers();
 		}
 		}
 	}
+}
+
+void miApplication::DrawViewports() {
+	if (!m_viewport)
+		return;
+	m_viewport->m_activeCamera->Update();
+
+	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::View, m_viewport->m_activeCamera->m_viewMatrix);
+	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, m_viewport->m_activeCamera->m_projectionMatrix);
+	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, 
+		m_viewport->m_activeCamera->m_projectionMatrix * m_viewport->m_activeCamera->m_viewMatrix);
+	m_gpu->DrawLine3D(v4f(-10.f, 0.f, 0.f, 0.f), v4f(10.f, 0.f, 0.f, 0.f), ColorRed);
+	m_gpu->DrawLine3D(v4f(0.f, -10.f, 0.f, 0.f), v4f(0.f, 10.f, 0.f, 0.f), ColorGreen);
+	m_gpu->DrawLine3D(v4f(0.f, 0.f, -10.f, 0.f), v4f(0.f, 0.f, 10.f, 0.f), ColorBlue);
+	
 }

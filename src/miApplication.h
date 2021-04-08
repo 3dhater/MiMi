@@ -4,8 +4,10 @@
 #include "yy.h"
 #include "yy_window.h"
 #include "yy_input.h"
+#include "math\math.h"
 
 class miGUIManager;
+struct miViewport;
 
 class miApplication
 {
@@ -17,6 +19,8 @@ class miApplication
 
 	miGUIManager* m_GUIManager;
 
+	miViewport * m_viewport;
+
 public:
 	miApplication();
 	~miApplication();
@@ -25,6 +29,8 @@ public:
 
 	bool Init(const char* videoDriver);
 	void MainLoop();
+	void DrawViewports();
+	yyWindow* GetWindowMain();
 
 	friend void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click);
 	friend void updateInputContext();

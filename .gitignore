@@ -37,3 +37,4 @@ build/Release
 build/Production
 build/.vs
 *.db
+*.opendb
