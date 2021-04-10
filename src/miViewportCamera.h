@@ -36,6 +36,12 @@ struct miViewportCamera
 	void Reset();
 
 	v4f m_rect;
+
+	void PanMove();
+	void Rotate();
+	void RotateZ();
+	void Zoom();
+	void ChangeFOV();
 };
 
 #endif

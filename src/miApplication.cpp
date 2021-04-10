@@ -183,6 +183,7 @@ vidOk:
 	m_GUIManager = new miGUIManager;
 
 	m_viewport = new miViewport;
+	m_activeViewport = m_viewport;
 
 	yyGUIRebuild();
 
@@ -203,6 +204,8 @@ void miApplication::MainLoop() {
 	while (yyRun(&m_dt))
 	{
 		_updateKeyboardModifier();
+		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
+	
 
 		m_isCursorInWindow = false;
 
@@ -288,9 +291,34 @@ void miApplication::_updateKeyboardModifier() {
 }
 
 void miApplication::UpdateViewports() {
-	if (m_isViewportInFocus)
+	if (!m_isCursorInGUI)
 	{
+		if(m_inputContext->m_wheelDelta)
+			m_activeViewport->m_activeCamera->Zoom();
 	}
+
+	if (m_isCursorMove && m_isViewportInFocus)
+	{
+		if (m_inputContext->m_isMMBHold)
+		{
+			switch (m_keyboardModifier)
+			{
+			default:
+				m_activeViewport->m_activeCamera->PanMove();
+				break;
+			case miKeyboardModifier::Alt:
+				m_activeViewport->m_activeCamera->Rotate();
+				break;
+			case miKeyboardModifier::CtrlAlt:
+				m_activeViewport->m_activeCamera->ChangeFOV();
+				break;
+			case miKeyboardModifier::ShiftCtrlAlt:
+				m_activeViewport->m_activeCamera->RotateZ();
+				break;
+			}
+		}
+	}
+
 
 	if (m_isCursorInWindow && !m_isCursorInGUI)
 	{

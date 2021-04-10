@@ -34,9 +34,12 @@ class miApplication
 	miGUIManager* m_GUIManager;
 
 	miViewport * m_viewport;
+	miViewport * m_activeViewport;
 
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
+	bool m_isCursorMove;
+
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
 	// только если m_isViewportInFocus == true;
 	bool m_isViewportInFocus;
@@ -55,6 +58,8 @@ public:
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
+
+	friend struct miViewportCamera;
 	friend void window_onActivate(yyWindow* window);
 	friend void log_writeToFile(const char* message);
 
