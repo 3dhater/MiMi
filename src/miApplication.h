@@ -9,6 +9,20 @@
 class miGUIManager;
 struct miViewport;
 
+enum class miKeyboardModifier : u32
+{
+	None,
+	Ctrl,
+	Alt,
+	Shift,
+	ShiftAlt,
+	ShiftCtrl,
+	ShiftCtrlAlt,
+	CtrlAlt,
+
+	END
+};
+
 class miApplication
 {
 	yyInputContext * m_inputContext;
@@ -21,6 +35,14 @@ class miApplication
 
 	miViewport * m_viewport;
 
+	bool m_isCursorInWindow;
+	bool m_isCursorInGUI;
+	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
+	// только если m_isViewportInFocus == true;
+	bool m_isViewportInFocus;
+	miKeyboardModifier  m_keyboardModifier;
+	void _updateKeyboardModifier();
+
 public:
 	miApplication();
 	~miApplication();
@@ -29,13 +51,13 @@ public:
 
 	bool Init(const char* videoDriver);
 	void MainLoop();
+	void UpdateViewports();
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
-	friend void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click);
-	friend void updateInputContext();
-	friend void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character);
+	friend void window_onActivate(yyWindow* window);
 	friend void log_writeToFile(const char* message);
+
 };
 
 #endif

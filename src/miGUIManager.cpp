@@ -68,7 +68,7 @@ void gui_mainMenu_buttonOnClick(yyGUIElement* elem, s32 m_id) {
 
 void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_hide;
-	gui_mainMenu_groupOnMouseLeave(g_guiManager->m_mainMenu_backgroundPB, g_guiManager->m_mainMenu_backgroundPB->m_id);
+	
 	g_guiManager->m_selectedMenuItemID  = -1;
 	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
 	{
@@ -76,6 +76,10 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 		item->m_button->SetColor(ColorWhite, 0);
 	}
 	g_guiManager->HideMenu();
+
+	g_guiManager->m_isMainMenuInCursor = false;
+	g_guiManager->m_mainMenu_group->m_onMouseLeave(g_guiManager->m_mainMenu_group, g_guiManager->m_mainMenu_group->m_id);
+	//gui_mainMenu_groupOnMouseLeave(g_guiManager->m_mainMenu_backgroundPB, g_guiManager->m_mainMenu_backgroundPB->m_id);
 }
 void gui_mainMenu_backgroundPB_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
 	auto window = g_app->GetWindowMain();
@@ -169,13 +173,11 @@ void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id) {
 
 	if (g_guiManager->m_isMainMenuActive)
 		return;
-//	g_guiManager->SetSelectedMainMenuItemID(-1);
 	g_guiManager->m_isMainMenuInCursor = false;
 	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
 	{
 		auto item = g_guiManager->m_mainMenu_items.at(i);
 		item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_lessOpacity;
-		//item->m_text->m_onDraw = gui_mainMenu_textOnDraw_lessOpacity;
 
 		item->m_button->m_activeAreaRect_global = item->m_activeArea_noActive;
 		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_noActive;
@@ -232,6 +234,7 @@ miGUIManager::miGUIManager(){
 		yyGetTextureResource("../res/gui/white.dds", false, false, true), -1, m_mainMenu_drawGroup, 0);;
 	m_mainMenu_windowBackgroundPB->m_color = ColorDarkGray;
 	m_mainMenu_windowBackgroundPB->m_color.m_data[3] = 0.f;
+	m_mainMenu_windowBackgroundPB->SetVisible(false);
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
 

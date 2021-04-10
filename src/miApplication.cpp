@@ -33,73 +33,28 @@ void window_onCLose(yyWindow* window) {
 	yyQuit();
 }
 
-void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click) {
-	g_app->m_inputContext->m_cursorCoords.x = (f32)x;
-	g_app->m_inputContext->m_cursorCoords.y = (f32)y;
-
-	g_app->m_inputContext->m_mouseDelta.x = (f32)x - g_app->m_inputContext->m_cursorCoordsOld.x;
-	g_app->m_inputContext->m_mouseDelta.y = (f32)y - g_app->m_inputContext->m_cursorCoordsOld.y;
-
-	g_app->m_inputContext->m_cursorCoordsOld = g_app->m_inputContext->m_cursorCoords;
-
-	if (click & yyWindow_mouseClickMask_LMB_DOWN)
-	{
-		g_app->m_inputContext->m_isLMBDown = true;
-		g_app->m_inputContext->m_isLMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_UP)
-	{
-		g_app->m_inputContext->m_isLMBHold = false;
-		g_app->m_inputContext->m_isLMBUp = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_DOUBLE)
-	{
-		g_app->m_inputContext->m_isLMBDbl = true;
-	}
-
-	if (click & yyWindow_mouseClickMask_RMB_DOWN)
-	{
-		g_app->m_inputContext->m_isRMBDown = true;
-		g_app->m_inputContext->m_isRMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_RMB_UP)
-	{
-		g_app->m_inputContext->m_isRMBHold = false;
-	}
-}
-
 void window_callbackOnSize(yyWindow* window) {
 }
 
-void updateInputContext() {
-	g_app->m_inputContext->m_isLMBDbl = false;
-	g_app->m_inputContext->m_isLMBDown = false;
-	g_app->m_inputContext->m_isRMBDown = false;
-	g_app->m_inputContext->m_isLMBUp = false;
-	g_app->m_inputContext->m_mouseDelta.x = 0.f;
-	g_app->m_inputContext->m_mouseDelta.y = 0.f;
-	g_app->m_inputContext->m_cursorCoordsForGUI = g_app->m_inputContext->m_cursorCoords;
-	memset(g_app->m_inputContext->m_key_pressed, 0, sizeof(u8) * 256);
-	memset(g_app->m_inputContext->m_key_hit, 0, sizeof(u8) * 256);
-}
-
-void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character) {
-	if (isPress)
+void window_onActivate(yyWindow* window) {
+	switch (g_app->m_keyboardModifier) {
+	case miKeyboardModifier::None:
+	case miKeyboardModifier::Ctrl:
+	case miKeyboardModifier::Shift:
+	case miKeyboardModifier::ShiftCtrl:
+	case miKeyboardModifier::END:
+	default:
+		break;
+	case miKeyboardModifier::Alt:
+	case miKeyboardModifier::ShiftAlt:
+	case miKeyboardModifier::ShiftCtrlAlt:
+	case miKeyboardModifier::CtrlAlt:
 	{
-		if (key < 256)
-		{
-			g_app->m_inputContext->m_key_hold[key] = 1;
-			g_app->m_inputContext->m_key_hit[key] = 1;
-		}
+		g_app->m_keyboardModifier = miKeyboardModifier::None;
 	}
-	else
-	{
-		if (key < 256)
-		{
-			g_app->m_inputContext->m_key_hold[key] = 0;
-			g_app->m_inputContext->m_key_pressed[key] = 1;
-		}
+	break;
 	}
+	g_app->m_isViewportInFocus = false;
 }
 
 int main(int argc, char* argv[]) {
@@ -141,6 +96,8 @@ miApplication::miApplication() {
 	m_gpu = 0;
 	m_GUIManager = 0;
 	m_viewport = 0;
+	m_keyboardModifier = miKeyboardModifier::None;
+	m_isViewportInFocus = false;
 }
 
 miApplication::~miApplication() {
@@ -177,11 +134,10 @@ bool miApplication::Init(const char* videoDriver) {
 
 	yySetMainWindow(m_window);
 	m_window->m_onClose = window_onCLose;
-	m_window->m_onMouseButton = window_callbackMouse;
-	m_window->m_onKeyboard = window_callbackKeyboard;
 	m_window->m_onSize = window_callbackOnSize;
 	m_window->m_onMaximize = window_callbackOnSize;
 	m_window->m_onRestore = window_callbackOnSize;
+	m_window->m_onActivate = window_onActivate;
 
 	if (!yyInitVideoDriver(videoDriver, m_window))
 	{
@@ -244,15 +200,17 @@ void miApplication::MainLoop() {
 
 	yyEvent currentEvent;
 
-	bool run = true;
-	while (run)
+	while (yyRun(&m_dt))
 	{
-		static u64 t1 = 0;
-		u64 t2 = yyGetTime();
-		f32 m_tick = f32(t2 - t1);
-		t1 = t2;
-		m_dt = m_tick / 1000.f;
+		_updateKeyboardModifier();
 
+		m_isCursorInWindow = false;
+
+		if (math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
+			v4f(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y)))
+		{
+			m_isCursorInWindow = true;
+		}
 
 		++fps_counter;
 		fps_timer += m_dt;
@@ -263,27 +221,8 @@ void miApplication::MainLoop() {
 			fps = fps_counter;
 			fps_counter = 0;
 		}
-
-		updateInputContext();
-
-#ifdef YY_PLATFORM_WINDOWS
-		MSG msg;
-		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
-		{
-			GetMessage(&msg, NULL, 0, 0);
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-#else
-#error For windows
-#endif
-		POINT cursorPoint;
-		GetCursorPos(&cursorPoint);
-		ScreenToClient(m_window->m_hWnd, &cursorPoint);
-		m_inputContext->m_cursorCoords.x = (f32)cursorPoint.x;
-		m_inputContext->m_cursorCoords.y = (f32)cursorPoint.y;
-
-		yyGUIUpdate(m_dt);
+		
+		m_isCursorInGUI = yyGUIUpdate(m_dt);
 
 		while (yyPollEvent(currentEvent))
 		{
@@ -307,10 +246,11 @@ void miApplication::MainLoop() {
 		switch (*m_engineContext->m_state)
 		{
 		default:
-			run = false;
 			break;
 		case yySystemState::Run:
 		{
+			UpdateViewports();
+
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
 
@@ -321,6 +261,48 @@ void miApplication::MainLoop() {
 			m_gpu->SwapBuffers();
 		}
 		}
+	}
+}
+
+void miApplication::_updateKeyboardModifier() {
+	s32 ctrl_shift_alt = 0;
+	if (m_inputContext->IsKeyHold(yyKey::K_LALT) || m_inputContext->IsKeyHold(yyKey::K_RALT))
+		ctrl_shift_alt |= 1;
+	if (m_inputContext->IsKeyHold(yyKey::K_LSHIFT) || m_inputContext->IsKeyHold(yyKey::K_RSHIFT))
+		ctrl_shift_alt |= 2;
+	if (m_inputContext->IsKeyHold(yyKey::K_LCTRL) || m_inputContext->IsKeyHold(yyKey::K_RCTRL))
+		ctrl_shift_alt |= 4;
+
+	switch (ctrl_shift_alt)
+	{
+	default:
+	case 0:  m_keyboardModifier = miKeyboardModifier::None;          break;
+	case 1:  m_keyboardModifier = miKeyboardModifier::Alt;           break;
+	case 2:  m_keyboardModifier = miKeyboardModifier::Shift;         break;
+	case 3:  m_keyboardModifier = miKeyboardModifier::ShiftAlt;      break;
+	case 4:  m_keyboardModifier = miKeyboardModifier::Ctrl;          break;
+	case 5:  m_keyboardModifier = miKeyboardModifier::CtrlAlt;       break;
+	case 6:  m_keyboardModifier = miKeyboardModifier::ShiftCtrl;     break;
+	case 7:  m_keyboardModifier = miKeyboardModifier::ShiftCtrlAlt;  break;
+	}
+}
+
+void miApplication::UpdateViewports() {
+	if (m_isViewportInFocus)
+	{
+	}
+
+	if (m_isCursorInWindow && !m_isCursorInGUI)
+	{
+		if (m_inputContext->m_isMMBDown || m_inputContext->m_isLMBDown)
+		{
+			m_isViewportInFocus = true;
+		}
+	}
+
+	if (m_inputContext->m_isLMBUp || m_inputContext->m_isMMBUp)
+	{
+		m_isViewportInFocus = false;
 	}
 }
 
