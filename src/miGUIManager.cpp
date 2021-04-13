@@ -328,9 +328,9 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	newButton->m_id = id;
 	reg = uvregion2;
 	newButton->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &reg);
-	newButton->SetOpacity(0.25f, 0);
+	/*newButton->SetOpacity(0.25f, 0);
 	newButton->SetOpacity(0.25f, 1);
-	newButton->SetOpacity(0.25f, 2);
+	newButton->SetOpacity(0.25f, 2);*/
 	newButton->m_onClick = onClick;
 	newButton->m_isAnimated = true;
 	newButton->m_onMouseEnter = gui_mainMenu_buttonOnMouseEnter;
