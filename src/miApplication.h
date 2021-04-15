@@ -4,10 +4,12 @@
 #include "yy.h"
 #include "yy_window.h"
 #include "yy_input.h"
+#include "yy_material.h"
 #include "math\math.h"
 
+#include "miViewport.h"
+
 class miGUIManager;
-struct miViewport;
 
 enum class miKeyboardModifier : u32
 {
@@ -33,8 +35,11 @@ class miApplication
 
 	miGUIManager* m_GUIManager;
 
-	miViewport * m_viewport;
-	miViewport * m_activeViewport;
+	yyResource* m_gridModel_perspective1;
+	yyResource* m_gridModel_perspective2;
+	yyMaterial m_gridModelMaterial;
+	void _initGrid();
+
 
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
@@ -45,6 +50,13 @@ class miApplication
 	bool m_isViewportInFocus;
 	miKeyboardModifier  m_keyboardModifier;
 	void _updateKeyboardModifier();
+	void _callViewportOnSize();
+
+	miViewportLayout* m_activeViewportLayout;
+	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
+	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
+	void _initViewports();
+
 
 public:
 	miApplication();
@@ -60,6 +72,7 @@ public:
 
 
 	friend struct miViewportCamera;
+	friend struct miViewport;
 	friend void window_onActivate(yyWindow* window);
 	friend void log_writeToFile(const char* message);
 

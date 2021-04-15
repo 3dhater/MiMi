@@ -17,17 +17,17 @@ void miViewportCamera::Update() {
 	{
 		math::makePerspectiveRHMatrix(m_projectionMatrix, m_fov, m_aspect, m_near, m_far);
 
-		v3f newCameraPosition = v3f(0.f, m_positionPlatform.w, 0.f);
+		m_positionCamera = v3f(0.f, m_positionPlatform.w, 0.f);
 
 		Mat4 MX(Quat(m_rotationPlatform.x, 0.f, 0.f));
 		Mat4 MY(Quat(0.f, m_rotationPlatform.y, 0.f));
 		//Mat4 MZ(Quat(0.f, 0.f, m_rotationPlatform.z));
 
-		newCameraPosition = math::mul(newCameraPosition, (MY * MX));
-		newCameraPosition += v3f(m_positionPlatform.x, m_positionPlatform.y, m_positionPlatform.z);
+		m_positionCamera = math::mul(m_positionCamera, (MY * MX));
+		m_positionCamera += v3f(m_positionPlatform.x, m_positionPlatform.y, m_positionPlatform.z);
 
 		Mat4 T;
-		T.m_data[3] = newCameraPosition;
+		T.m_data[3] = m_positionCamera;
 
 		Mat4 P(Quat(v4f(-m_rotationPlatform.x + math::degToRad(90.f), 0.f, 0.f, 1.f)));
 		Mat4 Y(Quat(v4f(0.f, -m_rotationPlatform.y, 0.f, 1.f)));

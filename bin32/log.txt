@@ -1,7 +1,8 @@
  Info: Init window...
-Info: Init video driver - D3D11...
-Info: featureLevel : 45056
-Info: Hardware MSAA Quality levels : 1
+Info: Init video driver - OpenGL...
+Info: Init OpenGL 3.3
+Info: Vendor: Intel
+Info: Renderer: Intel(R) HD Graphics 510
 Info: Load texture: ../res/gui/white.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt0.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt1.dds
@@ -13,3 +14,4 @@ Info: Load texture: ..\res\fonts\Noto\notosans.txt6.dds
 Info: Load texture: ../res/gui/black.dds
 Info: Load texture: ../res/gui/icons.png
 Info: Destroy main window...
+Info: Destroy video driver...

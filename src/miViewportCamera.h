@@ -35,7 +35,7 @@ struct miViewportCamera
 
 	void Reset();
 
-	v4f m_rect;
+	v4f m_creationRect;
 
 	void PanMove();
 	void Rotate();
