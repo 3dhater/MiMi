@@ -5,18 +5,56 @@
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
 
-miViewport::miViewport(){
-	m_cameraPerspective = new miViewportCamera;
-	m_activeCamera = m_cameraPerspective;
+miViewport::miViewport(miViewportCameraType vct){
+	m_isCursorInRect = false;
+	
+	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
+	m_camera[Camera_Top] = new miViewportCamera(this, miViewportCameraType::Top);
+	m_camera[Camera_Bottom] = new miViewportCamera(this, miViewportCameraType::Bottom);
+	m_camera[Camera_Front] = new miViewportCamera(this, miViewportCameraType::Front);
+	m_camera[Camera_Back] = new miViewportCamera(this, miViewportCameraType::Back);
+	m_camera[Camera_Left] = new miViewportCamera(this, miViewportCameraType::Left);
+	m_camera[Camera_Right] = new miViewportCamera(this, miViewportCameraType::Right);
+
+	switch (vct)
+	{
+	default:
+	case miViewportCameraType::Perspective:
+		m_activeCamera = m_camera[Camera_Perspective];
+		break;
+	case miViewportCameraType::Left:
+		m_activeCamera = m_camera[Camera_Left];
+		break;
+	case miViewportCameraType::Right:
+		m_activeCamera = m_camera[Camera_Right];
+		break;
+	case miViewportCameraType::Top:
+		m_activeCamera = m_camera[Camera_Top];
+		break;
+	case miViewportCameraType::Bottom:
+		m_activeCamera = m_camera[Camera_Bottom];
+		break;
+	case miViewportCameraType::Front:
+		m_activeCamera = m_camera[Camera_Front];
+		break;
+	case miViewportCameraType::Back:
+		m_activeCamera = m_camera[Camera_Back];
+		break;
+	}
+
 	m_creationRect = v4f(0.f, 0.f, 1.f, 1.f);
 	m_currentRect = m_creationRect;
 	m_currentRectSize = v2f(800.f, 600.f);
+	m_cameraType = vct;
 
 	OnWindowSize();
 }
 
 miViewport::~miViewport(){
-	if (m_cameraPerspective) delete m_cameraPerspective;
+	for (s32 i = 0; i < Camera_count_; ++i)
+	{
+		if (m_camera[i]) delete m_camera[i];
+	}
 }
 
 void miViewport::OnWindowSize() {
@@ -35,6 +73,11 @@ void miViewport::OnWindowSize() {
 	m_currentRectSize.y = m_currentRect.w - m_currentRect.y;
 	m_activeCamera->m_aspect = m_currentRectSize.x / m_currentRectSize.y;
 
+	m_currentRect.x += miViewportBordeSize;
+	m_currentRect.y += miViewportBordeSize;
+	m_currentRect.z -= miViewportBordeSize;
+	m_currentRect.w -= miViewportBordeSize;
+
 	/*printf("%f %f %f %f - %f\n", 
 		m_currentRect.x, m_currentRect.y, m_currentRect.z, m_currentRect.w, windowSizeX_1);*/
 }
@@ -42,12 +85,17 @@ void miViewport::OnWindowSize() {
 void miViewport::OnDraw(yyVideoDriverAPI* gpu) {
 	m_activeCamera->Update();
 
+	gpu->UseDepth(false);
+	gpu->DrawRectangle(m_currentRect, g_app->m_color_windowClearColor, g_app->m_color_windowClearColor);
+
 	gpu->SetScissorRect(m_currentRect, g_app->m_window);
 	gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window);
 
 	bool isCameraLowerThanWorld = false;
 	if (m_activeCamera->m_positionCamera.y < 0.f)
 		isCameraLowerThanWorld = true;
+
+
 
 	gpu->SetMatrix(yyVideoDriverAPI::MatrixType::View, m_activeCamera->m_viewMatrix);
 	gpu->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, m_activeCamera->m_projectionMatrix);
@@ -61,10 +109,72 @@ void miViewport::OnDraw(yyVideoDriverAPI* gpu) {
 	gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, g_emptyMatrix);
 	gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
 		m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * g_emptyMatrix);
-	if (isCameraLowerThanWorld)
-		gpu->SetModel(g_app->m_gridModel_perspective2);
-	else
-		gpu->SetModel(g_app->m_gridModel_perspective1);
+
+	switch (m_cameraType)
+	{
+	default:
+	case miViewportCameraType::Perspective:
+		if (isCameraLowerThanWorld)
+			gpu->SetModel(g_app->m_gridModel_perspective2);
+		else
+			gpu->SetModel(g_app->m_gridModel_perspective1);
+		break;
+	case miViewportCameraType::Left: {
+		bool front = ((m_activeCamera->m_rotationPlatform.y < -math::PIHalf) &&
+			(m_activeCamera->m_rotationPlatform.y > -math::PIPlusHalf));
+
+		if (m_activeCamera->m_positionPlatform.w < 40.f)
+			front ? gpu->SetModel(g_app->m_gridModel_left1) : gpu->SetModel(g_app->m_gridModel_left2);
+		else if (m_activeCamera->m_positionPlatform.w < 140.f)
+			front ? gpu->SetModel(g_app->m_gridModel_left1_10) : gpu->SetModel(g_app->m_gridModel_left2_10);
+		else
+			front ? gpu->SetModel(g_app->m_gridModel_left1_100) : gpu->SetModel(g_app->m_gridModel_left2_100);
+	}break;
+	case miViewportCameraType::Right: {
+		bool front = ((m_activeCamera->m_rotationPlatform.y > math::PIHalf) && 
+			(m_activeCamera->m_rotationPlatform.y < math::PIPlusHalf));
+
+		if (m_activeCamera->m_positionPlatform.w < 40.f)
+			front ? gpu->SetModel(g_app->m_gridModel_left1) : gpu->SetModel(g_app->m_gridModel_left2);
+		else if (m_activeCamera->m_positionPlatform.w < 140.f)
+			front ? gpu->SetModel(g_app->m_gridModel_left1_10) : gpu->SetModel(g_app->m_gridModel_left2_10);
+		else
+			front ? gpu->SetModel(g_app->m_gridModel_left1_100) : gpu->SetModel(g_app->m_gridModel_left2_100);
+	}break;
+	case miViewportCameraType::Bottom:
+	case miViewportCameraType::Top:
+		if (m_activeCamera->m_positionPlatform.w < 40.f)
+			isCameraLowerThanWorld ? gpu->SetModel(g_app->m_gridModel_top2) : gpu->SetModel(g_app->m_gridModel_top1);
+		else if (m_activeCamera->m_positionPlatform.w < 140.f)
+			isCameraLowerThanWorld ? gpu->SetModel(g_app->m_gridModel_top2_10) : gpu->SetModel(g_app->m_gridModel_top1_10);
+		else
+			isCameraLowerThanWorld ? gpu->SetModel(g_app->m_gridModel_top2_100) : gpu->SetModel(g_app->m_gridModel_top1_100);
+		break;
+	case miViewportCameraType::Front:{
+		bool front = ((m_activeCamera->m_rotationPlatform.y > math::PIHalf) &&
+			(m_activeCamera->m_rotationPlatform.y < math::PIPlusHalf));
+
+		if (m_activeCamera->m_positionPlatform.w < 40.f)
+			front ? gpu->SetModel(g_app->m_gridModel_front1) : gpu->SetModel(g_app->m_gridModel_front2);
+		else if (m_activeCamera->m_positionPlatform.w < 140.f)
+			front ? gpu->SetModel(g_app->m_gridModel_front1_10) : gpu->SetModel(g_app->m_gridModel_front2_10);
+		else
+			front ? gpu->SetModel(g_app->m_gridModel_front1_100) : gpu->SetModel(g_app->m_gridModel_front2_100);
+	}break;
+	case miViewportCameraType::Back: {
+		bool front = ((m_activeCamera->m_rotationPlatform.y > -math::PIHalf) &&
+			(m_activeCamera->m_rotationPlatform.y < math::PIHalf));
+
+		if (m_activeCamera->m_positionPlatform.w < 40.f)
+			front ? gpu->SetModel(g_app->m_gridModel_front1) : gpu->SetModel(g_app->m_gridModel_front2);
+		else if (m_activeCamera->m_positionPlatform.w < 140.f)
+			front ? gpu->SetModel(g_app->m_gridModel_front1_10) : gpu->SetModel(g_app->m_gridModel_front2_10);
+		else
+			front ? gpu->SetModel(g_app->m_gridModel_front1_100) : gpu->SetModel(g_app->m_gridModel_front2_100);
+	}break;
+	}
+
 	gpu->SetMaterial(&g_app->m_gridModelMaterial);
+	gpu->UseDepth(true);
 	gpu->Draw();
 }

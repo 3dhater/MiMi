@@ -9,6 +9,8 @@
 
 #include "miViewport.h"
 
+#define miViewportBordeSize 1.f
+
 class miGUIManager;
 
 enum class miKeyboardModifier : u32
@@ -37,9 +39,30 @@ class miApplication
 
 	yyResource* m_gridModel_perspective1;
 	yyResource* m_gridModel_perspective2;
+	yyResource* m_gridModel_top1;
+	yyResource* m_gridModel_top2;
+	yyResource* m_gridModel_top1_10;
+	yyResource* m_gridModel_top2_10;
+	yyResource* m_gridModel_top1_100;
+	yyResource* m_gridModel_top2_100;
+	yyResource* m_gridModel_front1;
+	yyResource* m_gridModel_front2;
+	yyResource* m_gridModel_front1_10;
+	yyResource* m_gridModel_front2_10;
+	yyResource* m_gridModel_front1_100;
+	yyResource* m_gridModel_front2_100;
+	yyResource* m_gridModel_left1;
+	yyResource* m_gridModel_left2;
+	yyResource* m_gridModel_left1_10;
+	yyResource* m_gridModel_left2_10;
+	yyResource* m_gridModel_left1_100;
+	yyResource* m_gridModel_left2_100;
 	yyMaterial m_gridModelMaterial;
 	void _initGrid();
 
+
+	yyColor m_color_windowClearColor;
+	yyColor m_color_viewportBorder;
 
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;

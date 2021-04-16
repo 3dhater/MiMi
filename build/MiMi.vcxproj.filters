@@ -13,6 +13,7 @@
     <ClCompile Include="..\src\miApplication.cpp" />
     <ClCompile Include="..\src\miViewport.cpp" />
     <ClCompile Include="..\src\miViewportCamera.cpp" />
+    <ClCompile Include="..\src\miApplication_initGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

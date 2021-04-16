@@ -103,6 +103,24 @@ miApplication::miApplication() {
 	m_isViewportInFocus = false;
 	m_gridModel_perspective1 = 0;
 	m_gridModel_perspective2 = 0;
+	m_gridModel_top1 = 0;
+	m_gridModel_top2 = 0;
+	m_gridModel_top1_10 = 0;
+	m_gridModel_top2_10 = 0;
+	m_gridModel_top1_100 = 0;
+	m_gridModel_top2_100 = 0;
+	m_gridModel_front1 = 0;
+	m_gridModel_front2 = 0;
+	m_gridModel_front1_10 = 0;
+	m_gridModel_front2_10 = 0;
+	m_gridModel_front1_100 = 0;
+	m_gridModel_front2_100 = 0;
+	m_gridModel_left1 = 0;
+	m_gridModel_left2 = 0;
+	m_gridModel_left1_10 = 0;
+	m_gridModel_left2_10 = 0;
+	m_gridModel_left1_100 = 0;
+	m_gridModel_left2_100 = 0;
 
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -116,6 +134,24 @@ miApplication::~miApplication() {
 		if(m_viewportLayouts[i])
 			delete m_viewportLayouts[i];
 	}
+	if (m_gridModel_left1) m_gpu->DeleteModel(m_gridModel_left1);
+	if (m_gridModel_left2) m_gpu->DeleteModel(m_gridModel_left2);
+	if (m_gridModel_left1_10) m_gpu->DeleteModel(m_gridModel_left1_10);
+	if (m_gridModel_left2_10) m_gpu->DeleteModel(m_gridModel_left2_10);
+	if (m_gridModel_left1_100) m_gpu->DeleteModel(m_gridModel_left1_100);
+	if (m_gridModel_left2_100) m_gpu->DeleteModel(m_gridModel_left2_100);
+	if (m_gridModel_front1) m_gpu->DeleteModel(m_gridModel_front1);
+	if (m_gridModel_front2) m_gpu->DeleteModel(m_gridModel_front2);
+	if (m_gridModel_front1_10) m_gpu->DeleteModel(m_gridModel_front1_10);
+	if (m_gridModel_front2_10) m_gpu->DeleteModel(m_gridModel_front2_10);
+	if (m_gridModel_front1_100) m_gpu->DeleteModel(m_gridModel_front1_100);
+	if (m_gridModel_front2_100) m_gpu->DeleteModel(m_gridModel_front2_100);
+	if (m_gridModel_top1) m_gpu->DeleteModel(m_gridModel_top1);
+	if (m_gridModel_top2) m_gpu->DeleteModel(m_gridModel_top2);
+	if (m_gridModel_top1_10) m_gpu->DeleteModel(m_gridModel_top1_10);
+	if (m_gridModel_top2_10) m_gpu->DeleteModel(m_gridModel_top2_10);
+	if (m_gridModel_top1_100) m_gpu->DeleteModel(m_gridModel_top1_100);
+	if (m_gridModel_top2_100) m_gpu->DeleteModel(m_gridModel_top2_100);
 	if (m_gridModel_perspective1) m_gpu->DeleteModel(m_gridModel_perspective1);
 	if (m_gridModel_perspective2) m_gpu->DeleteModel(m_gridModel_perspective2);
 	if (m_GUIManager) delete m_GUIManager;
@@ -134,100 +170,18 @@ void miApplication::_initViewports() {
 			YY_PRINT_FAILED;
 			break;
 		case miViewportLayout_Full:
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f));
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
 			break;
 		case miViewportLayout_Standart:
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 0.5f, 0.5f));
-			m_viewportLayouts[i]->Add(v4f(0.5f, 0.f, 1.0f, 0.5f));
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, 0.5f, 1.0f));
-			m_viewportLayouts[i]->Add(v4f(0.5f, 0.5f, 1.0f, 1.0f));
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 0.5f, 0.5f), miViewportCameraType::Top);
+			m_viewportLayouts[i]->Add(v4f(0.5f, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, 0.5f, 1.0f), miViewportCameraType::Front);
+			m_viewportLayouts[i]->Add(v4f(0.5f, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
 			break;
 		}
 	}
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
-}
-
-void miApplication::_initGrid() {
-	{
-		yyModel model;
-		model.m_stride = sizeof(yyVertexLineModel);
-		model.m_vertexType = yyVertexType::LineModel;
-		model.m_vCount = 44;
-		model.m_vertices = (u8*)yyMemAlloc(model.m_vCount * model.m_stride);
-
-		yyVertexLineModel* vertex = (yyVertexLineModel*)model.m_vertices;
-
-		yyColor colorBase(180, 180, 180, 255);
-		v4f colorRed(1.f, 0.f, 0.f, 1.f);
-		v4f colorGreen(0.f, 1.f, 0.f, 1.f);
-
-		f32 pos = -5.f;
-		for (s32 i = 0; i < 11; ++i)
-		{
-			v4f color = colorBase.getV4f();
-
-			if (i == 5)
-				color = colorGreen;
-
-			vertex->Position.set(pos, 0.f, -5);
-			vertex->Color = color;
-			vertex++;
-			vertex->Position.set(pos, 0.f, 5);
-			vertex->Color = color;
-			vertex++;
-
-			pos += 1.f;
-		}
-
-		pos = -5.f;
-		for (s32 i = 0; i < 11; ++i)
-		{
-			v4f color = colorBase.getV4f();
-
-			if (i == 5)
-				color = colorRed;
-
-			vertex->Position.set(-5, 0.f, pos);
-			vertex->Color = color;
-			vertex++;
-			vertex->Position.set(5, 0.f, pos);
-			vertex->Color = color;
-			vertex++;
-
-			pos += 1.f;
-		}
-
-		model.m_iCount = 44;
-		model.m_indices = (u8*)yyMemAlloc(model.m_iCount * sizeof(u16));
-		u16* index = (u16*)model.m_indices;
-		for (s32 i = 0; i < model.m_iCount; ++i)
-		{
-			*index = (u16)i;
-			index++;
-		}
-
-		m_gridModel_perspective1 = m_gpu->CreateModel(&model);
-
-		vertex = (yyVertexLineModel*)model.m_vertices;
-		colorBase = yyColor(150, 150, 150, 255);
-		v4f color = colorBase.getV4f();
-		for (s32 i = 0; i < 22; ++i)
-		{
-			vertex->Color = color;
-			vertex++;
-			vertex->Color = color;
-			vertex++;
-		}
-		m_gridModel_perspective2 = m_gpu->CreateModel(&model);
-		m_gridModelMaterial.SetFogStart(1.f);
-
-		/*yyColor clColor;
-		clColor.setAsByteRed(118);
-		clColor.setAsByteGreen(118);
-		clColor.setAsByteBlue(118);
-		m_gridModelMaterial.SetFogColor(clColor);*/
-	}
 }
 
 bool miApplication::Init(const char* videoDriver) {
@@ -295,11 +249,12 @@ vidOk:
 	m_gpu->UseVSync(true);
 	yySetDefaultTexture(yyGetTextureResource("../res/gui/white.dds", false, false, true));
 
-	yyColor clColor;
-	clColor.setAsByteRed(118);
-	clColor.setAsByteGreen(118);
-	clColor.setAsByteBlue(118);
-	m_gpu->SetClearColor(clColor.m_data[0], clColor.m_data[1], clColor.m_data[2], 1.f);
+	m_color_viewportBorder = ColorYellow;
+
+	m_color_windowClearColor.setAsByteRed(118);
+	m_color_windowClearColor.setAsByteGreen(118);
+	m_color_windowClearColor.setAsByteBlue(118);
+	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 	
 	_initGrid();
@@ -418,8 +373,33 @@ void miApplication::_updateKeyboardModifier() {
 void miApplication::UpdateViewports() {
 	if (!m_isCursorInGUI)
 	{
-		if(m_inputContext->m_wheelDelta)
-			m_activeViewportLayout->m_activeViewport->m_activeCamera->Zoom();
+		for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+		{
+			auto viewport = m_activeViewportLayout->m_viewports[i];
+
+			viewport->m_isCursorInRect =
+				math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
+					viewport->m_currentRect);
+
+			if (viewport->m_isCursorInRect)
+			{
+				if(m_inputContext->m_wheelDelta)
+					viewport->m_activeCamera->Zoom();
+
+				if (m_inputContext->m_isLMBDown
+					|| m_inputContext->m_isMMBDown
+					|| m_inputContext->m_isRMBDown
+					|| m_inputContext->m_isX1MBDown
+					|| m_inputContext->m_isX2MBDown)
+				{
+					if (m_activeViewportLayout->m_activeViewport != viewport)
+					{
+						m_activeViewportLayout->m_activeViewport = viewport;
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	if (m_isCursorMove && m_isViewportInFocus)
@@ -462,7 +442,21 @@ void miApplication::UpdateViewports() {
 void miApplication::DrawViewports() {
 	for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 	{
-		m_activeViewportLayout->m_viewports[i]->OnDraw(m_gpu);
+		m_gpu->SetScissorRect(v4f(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y), m_window);
+		m_gpu->SetViewport(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y, m_window);
+
+		auto viewport = m_activeViewportLayout->m_viewports[i];
+		if (viewport == m_activeViewportLayout->m_activeViewport)
+		{
+			v4f rect = viewport->m_currentRect;
+			rect.x -= miViewportBordeSize;
+			rect.y -= miViewportBordeSize;
+			rect.z += miViewportBordeSize;
+			rect.w += miViewportBordeSize;
+			m_gpu->UseDepth(false);
+			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
+		}
+		viewport->OnDraw(m_gpu);
 	}
 
 	m_gpu->SetScissorRect(v4f(0.f,0.f, m_window->m_currentSize.x, m_window->m_currentSize.y), m_window);

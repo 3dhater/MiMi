@@ -12,11 +12,13 @@ enum class miViewportCameraType
 	Back
 };
 
+struct miViewport;
 struct miViewportCamera
 {
-	miViewportCamera();
+	miViewportCamera(miViewport*, miViewportCameraType ct);
 	~miViewportCamera();
 	
+	miViewport* m_viewport;
 	miViewportCameraType m_type;
 
 	// calculate matrices
