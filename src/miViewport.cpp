@@ -1,4 +1,5 @@
 ﻿#include "miApplication.h"
+#include "miGUIManager.h"
 #include "miViewport.h"
 #include "miViewportCamera.h"
 
@@ -6,6 +7,7 @@ extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
 
 miViewport::miViewport(miViewportCameraType vct){
+	m_index = 0;
 	m_isCursorInRect = false;
 	
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
@@ -47,14 +49,50 @@ miViewport::miViewport(miViewportCameraType vct){
 	m_currentRectSize = v2f(800.f, 600.f);
 	m_cameraType = vct;
 
+	
+
 	OnWindowSize();
 }
 
 miViewport::~miViewport(){
+	if (m_gui_group)
+		yyGUIDeleteElement(m_gui_group);
+
 	for (s32 i = 0; i < Camera_count_; ++i)
 	{
 		if (m_camera[i]) delete m_camera[i];
 	}
+}
+
+void onMouseInRect(yyGUIElement* elem, s32 m_id) {
+	miViewport* vp = (miViewport*)elem->m_userData;
+	//printf("VP: %i\n", vp->m_index);
+}
+void miViewport::Init() {
+	m_gui_group = yyGUICreateGroup(v4f(), -1, 0);
+	m_gui_group->IgnoreInput(true);
+	m_gui_group->m_ignoreSetCursorInGUI = true;
+	m_gui_group->m_useProportionalScaling = true;
+//	m_gui_group->m_onMouseInRect = onMouseInRect;
+	m_gui_group->m_userData = this;
+	m_gui_group->m_buildRect = m_creationRect;
+	m_gui_group->SetRectsFromBuildRect();
+
+	auto text = yyGUICreateText(v2f(10.f, 10.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
+		L"Text", 0);
+	text->m_align = text->AlignLeftTop;
+	text->IgnoreInput(true);
+	text->m_ignoreSetCursorInGUI = true;
+
+	m_gui_group->AddElement(text);
+}
+
+void miViewport::HideGUI() {
+	m_gui_group->SetVisible(false);
+}
+
+void miViewport::ShowGUI() {
+	m_gui_group->SetVisible(true);
 }
 
 void miViewport::OnWindowSize() {
@@ -77,6 +115,11 @@ void miViewport::OnWindowSize() {
 	m_currentRect.y += miViewportBordeSize;
 	m_currentRect.z -= miViewportBordeSize;
 	m_currentRect.w -= miViewportBordeSize;
+
+	/*m_gui_group->m_activeAreaRect = m_currentRect;
+	m_gui_group->m_activeAreaRect_global = m_currentRect;
+	m_gui_group->Rebuild();*/
+	
 
 	/*printf("%f %f %f %f - %f\n", 
 		m_currentRect.x, m_currentRect.y, m_currentRect.z, m_currentRect.w, windowSizeX_1);*/

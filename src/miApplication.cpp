@@ -182,6 +182,7 @@ void miApplication::_initViewports() {
 	}
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
+	m_activeViewportLayout->ShowGUI();
 }
 
 bool miApplication::Init(const char* videoDriver) {

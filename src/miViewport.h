@@ -10,6 +10,8 @@ struct miViewport
 	miViewport(miViewportCameraType vct);
 	~miViewport();
 
+	void Init();
+
 	void OnWindowSize();
 	void OnDraw(yyVideoDriverAPI* gpu);
 
@@ -29,6 +31,12 @@ struct miViewport
 
 	miViewportCameraType m_cameraType;
 
+	yyGUIGroup* m_gui_group;
+	yyGUIText*  m_gui_text_vpName;
+	void HideGUI();
+	void ShowGUI();
+
+	s32 m_index;
 	v4f m_creationRect;
 	v4f m_currentRect;
 	v2f m_currentRectSize;
@@ -48,13 +56,22 @@ struct miViewportLayout
 	yyArraySmall<miViewport*> m_viewports;
 	miViewport* m_activeViewport;
 
-	
+	void ShowGUI() {
+		for (u16 i = 0, sz = m_viewports.size(); i < sz; ++i)
+		{
+			m_viewports[i]->ShowGUI();
+		}
+	}
 
 	void Add(const v4f& rect, miViewportCameraType vct) {
 		miViewport* newViewport = new miViewport(vct);
 		newViewport->m_creationRect = rect;
+		newViewport->Init();
+
 		m_activeViewport = newViewport;
 		m_viewports.push_back(newViewport);
+		newViewport->m_index = m_viewports.size();
+		newViewport->HideGUI();
 	}
 };
 

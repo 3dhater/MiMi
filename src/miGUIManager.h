@@ -42,19 +42,11 @@ class miGUIManager
 
 	yyGUIFont* m_fontDefault;
 
-	v4f m_mainMenu_group_actRect_noActive;
-	v4f m_mainMenu_group_actRect_Active;
-	yyGUIGroup* m_mainMenu_group;
-	yyGUIPictureBox* m_mainMenu_backgroundPB;
-	yyGUIPictureBox* m_mainMenu_windowBackgroundPB;
+	
 
 	yyGUIDrawGroup* m_mainMenu_drawGroup;
-	bool m_isMainMenuInCursor;
 	bool m_isMainMenuActive;
-	s32 m_selectedMenuItemID;
 	s32 m_hoveredMenuItemID;
-	//yyGUIButton* m_mainMenu_button;
-	yyArraySmall<miGUIMainMenuItem*> m_mainMenu_items;
 	
 	yyArraySmall<miGUIMainMenuMenuGroup*> m_mainMenu_menus;
 	miGUIMainMenuMenuGroup* _addMainMenuItem(const wchar_t* text, //const v4f& buildRect, 
@@ -65,20 +57,23 @@ public:
 	miGUIManager();
 	~miGUIManager();
 
+	enum Font {
+		Default
+	};
+
+	yyGUIFont* GetFont(Font);
 	void ShowMenu(s32);
 	void HideMenu();
 
-	friend void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_groupOnMouseInRect(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_textOnDraw_noActive(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_textOnDraw_Active(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_buttonOnClick(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_backgroundPB_onDraw_hide(yyGUIElement* elem, s32 m_id);
-	friend void gui_mainMenu_backgroundPB_onDraw_show(yyGUIElement* elem, s32 m_id);
-
 	friend struct miGUIMainMenuMenuGroup;
+	bool m_isMainMenuInCursor;
+	yyGUIGroup* m_mainMenu_group;
+	v4f m_mainMenu_group_actRect_noActive;
+	v4f m_mainMenu_group_actRect_Active;
+	yyArraySmall<miGUIMainMenuItem*> m_mainMenu_items;
+	s32 m_selectedMenuItemID;
+	yyGUIPictureBox* m_mainMenu_backgroundPB;
+	yyGUIPictureBox* m_mainMenu_windowBackgroundPB;
 };
 
 #endif

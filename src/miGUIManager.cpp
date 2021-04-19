@@ -5,8 +5,61 @@ extern miApplication * g_app;
 miGUIManager* g_guiManager = 0;
 f32 g_guiButtonFadeSpeed = 8.0f;
 f32 g_guiBGOpacity = 0.3f;
+f32 g_guiButtonMinimumOpacity = 0.1f;
 
-void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id);
+void gui_mainMenu_buttons_onDraw(yyGUIElement* elem, s32 m_id) {
+	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
+	yyGUIButton * butt = (yyGUIButton *)elem;
+	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
+	auto op = butt->GetOpacity(0);
+	if (g_guiManager->m_isMainMenuInCursor)
+	{
+		op += v;
+		if (op > 1.0f)
+			op = 1.0f;
+		butt->SetOpacity(op, 0);
+		
+		item->m_text->m_color.m_data[3] += v;
+		if (item->m_text->m_color.m_data[3] > 1.f)
+			item->m_text->m_color.m_data[3] = 1.f;
+	}
+	else
+	{
+		op -= v;
+		if (op < g_guiButtonMinimumOpacity)
+			op = g_guiButtonMinimumOpacity;
+		butt->SetOpacity(op, 0);
+		butt->SetOpacity(op, 1);
+		butt->SetOpacity(op, 2);
+
+		item->m_text->m_color.m_data[3] -= v;
+		if (item->m_text->m_color.m_data[3] < 0.f)
+			item->m_text->m_color.m_data[3] = 0.f;
+	}
+}
+void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->m_isMainMenuInCursor = true;
+	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_Active;
+}
+void gui_mainMenu_groupOnMouseInRect(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->m_isMainMenuInCursor = true;
+	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_Active;
+	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
+	{
+		auto item = g_guiManager->m_mainMenu_items.at(i);
+		item->m_button->m_sensorRectInPixels = item->m_activeArea_Active;
+	}
+}
+void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->m_isMainMenuInCursor = false;
+	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_noActive;
+	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
+	{
+		auto item = g_guiManager->m_mainMenu_items.at(i);
+		item->m_button->m_sensorRectInPixels = item->m_activeArea_noActive;
+	}
+}
+
 
 void gui_mainMenu_backgroundPB_onDraw_hide(yyGUIElement* elem, s32 m_id) {
 	elem->IgnoreInput(true);
@@ -81,125 +134,125 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->m_mainMenu_group->m_onMouseLeave(g_guiManager->m_mainMenu_group, g_guiManager->m_mainMenu_group->m_id);
 	//gui_mainMenu_groupOnMouseLeave(g_guiManager->m_mainMenu_backgroundPB, g_guiManager->m_mainMenu_backgroundPB->m_id);
 }
-void gui_mainMenu_backgroundPB_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
-	auto window = g_app->GetWindowMain();
-	elem->m_activeAreaRect.set(0.f, 0.f, window->m_currentSize.x, window->m_currentSize.y);
-	elem->m_activeAreaRect_global = elem->m_activeAreaRect;
-	elem->m_buildingRect_global = elem->m_activeAreaRect;
-	elem->m_clipRect_global = elem->m_activeAreaRect;
-}
-void gui_mainMenu_buttonOnDraw_moreOpacity(yyGUIElement* elem, s32 m_id) {
-	auto button = (yyGUIButton*)elem;
-	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-	button->SetOpacity(button->m_color.m_data[3] + v, 0);
-	if (elem->m_color.m_data[3] > 1.f)
-	{
-		elem->m_color.m_data[3] = 1.f;
-		elem->m_onDraw = 0;
-	}
-}
-void gui_mainMenu_buttonOnDraw_lessOpacity(yyGUIElement* elem, s32 m_id) {
-	auto button = (yyGUIButton*)elem;
-	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-	button->SetOpacity(button->m_color.m_data[3] - v, 0);
-	if (elem->m_color.m_data[3] < 0.25f)
-	{
-		elem->m_color.m_data[3] = 0.25f;
-		elem->m_onDraw = 0;
-	}
-}
-void gui_mainMenu_textOnDraw_Active(yyGUIElement* elem, s32 m_id) {
-	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-
-	if (m_id == g_guiManager->m_selectedMenuItemID || m_id == g_guiManager->m_hoveredMenuItemID)
-	{
-		elem->m_color.m_data[2] -= v;
-		if (elem->m_color.m_data[2] < 0.f)
-			elem->m_color.m_data[2] = 0.f;
-
-		elem->m_offset.x += v * 3.5f;
-		if (elem->m_offset.x > 3.f)
-			elem->m_offset.x = 3.f;
-	}
-	else
-	{
-		elem->m_color.m_data[2] += v;
-		if (elem->m_color.m_data[2] > 1.f)
-			elem->m_color.m_data[2] = 1.f;
-
-		elem->m_offset.x -= v * 3.5f;
-		if (elem->m_offset.x < 0.f)
-			elem->m_offset.x = 0.f;
-	}
-
-	if (elem->m_color.m_data[3] < 1.f)
-		elem->m_color.m_data[3] += v;
-
-	if (elem->m_color.m_data[2] == 0.f && elem->m_color.m_data[3] == 1.f)
-		elem->m_onDraw = 0;
-}
-void gui_mainMenu_textOnDraw_noActive(yyGUIElement* elem, s32 m_id) {
-	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-
-	elem->m_color.m_data[2] += v;
-	if (elem->m_color.m_data[2] > 1.f)
-		elem->m_color.m_data[2] = 1.f;
-
-	if (!g_guiManager->m_isMainMenuInCursor)
-	{
-		elem->m_color.m_data[3] -= v;
-		if (elem->m_color.m_data[3] < 0.f)
-			elem->m_color.m_data[3] = 0.f;
-	}
-
-	elem->m_offset.x -= v;
-	if (elem->m_offset.x < 0.f)
-		elem->m_offset.x = 0.f;
-
-	if (elem->m_color.m_data[2] == 1.f && elem->m_color.m_data[3] == 0.f)
-		elem->m_onDraw = 0;
-}
-void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id) {
-	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
-	g_guiManager->m_hoveredMenuItemID = m_id;
-}
-void gui_mainMenu_buttonOnMouseLeave(yyGUIElement* elem, s32 m_id) {
-	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
-}
-
-
-void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id) {
-	g_guiManager->m_hoveredMenuItemID = -1;
-
-	if (g_guiManager->m_isMainMenuActive)
-		return;
-	g_guiManager->m_isMainMenuInCursor = false;
-	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
-	{
-		auto item = g_guiManager->m_mainMenu_items.at(i);
-		item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_lessOpacity;
-
-		item->m_button->m_activeAreaRect_global = item->m_activeArea_noActive;
-		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_noActive;
-	}
-	g_guiManager->m_mainMenu_group->m_activeAreaRect_global = g_guiManager->m_mainMenu_group_actRect_noActive;
-}
-void gui_mainMenu_groupOnMouseInRect(yyGUIElement* elem, s32 m_id) {
-	g_guiManager->m_isMainMenuInCursor = true;
-	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
-	{
-		auto item = g_guiManager->m_mainMenu_items.at(i);
-		if (item->m_button->m_color.m_data[3] < 1.f)
-			item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_moreOpacity;
-		/*if (item->m_text->m_color.m_data[3] < 1.f)
-		{
-			item->m_text->m_onDraw = gui_mainMenu_textOnDraw_moreOpacity;
-		}*/
-		item->m_button->m_activeAreaRect_global = item->m_activeArea_Active;
-		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_Active;
-	}
-	g_guiManager->m_mainMenu_group->m_activeAreaRect_global = g_guiManager->m_mainMenu_group_actRect_Active;
-}
+//void gui_mainMenu_backgroundPB_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
+//	auto window = g_app->GetWindowMain();
+//	elem->m_sensorRectInPixels.set(0.f, 0.f, window->m_currentSize.x, window->m_currentSize.y);
+//	elem->m_buildRectInPixels = elem->m_sensorRectInPixels;
+//	elem->m_clipRectInPixels = elem->m_sensorRectInPixels;
+//	elem->m_buildRectInPixelsCreation = elem->m_sensorRectInPixels;
+//}
+//void gui_mainMenu_buttonOnDraw_moreOpacity(yyGUIElement* elem, s32 m_id) {
+//	auto button = (yyGUIButton*)elem;
+//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
+//	button->SetOpacity(button->m_color.m_data[3] + v, 0);
+//	if (elem->m_color.m_data[3] > 1.f)
+//	{
+//		elem->m_color.m_data[3] = 1.f;
+//		elem->m_onDraw = 0;
+//	}
+//}
+//void gui_mainMenu_buttonOnDraw_lessOpacity(yyGUIElement* elem, s32 m_id) {
+//	auto button = (yyGUIButton*)elem;
+//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
+//	button->SetOpacity(button->m_color.m_data[3] - v, 0);
+//	if (elem->m_color.m_data[3] < 0.25f)
+//	{
+//		elem->m_color.m_data[3] = 0.25f;
+//		elem->m_onDraw = 0;
+//	}
+//}
+//void gui_mainMenu_textOnDraw_Active(yyGUIElement* elem, s32 m_id) {
+//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
+//
+//	if (m_id == g_guiManager->m_selectedMenuItemID || m_id == g_guiManager->m_hoveredMenuItemID)
+//	{
+//		elem->m_color.m_data[2] -= v;
+//		if (elem->m_color.m_data[2] < 0.f)
+//			elem->m_color.m_data[2] = 0.f;
+//
+//		elem->m_offset.x += v * 3.5f;
+//		if (elem->m_offset.x > 3.f)
+//			elem->m_offset.x = 3.f;
+//	}
+//	else
+//	{
+//		elem->m_color.m_data[2] += v;
+//		if (elem->m_color.m_data[2] > 1.f)
+//			elem->m_color.m_data[2] = 1.f;
+//
+//		elem->m_offset.x -= v * 3.5f;
+//		if (elem->m_offset.x < 0.f)
+//			elem->m_offset.x = 0.f;
+//	}
+//
+//	if (elem->m_color.m_data[3] < 1.f)
+//		elem->m_color.m_data[3] += v;
+//
+//	if (elem->m_color.m_data[2] == 0.f && elem->m_color.m_data[3] == 1.f)
+//		elem->m_onDraw = 0;
+//}
+//void gui_mainMenu_textOnDraw_noActive(yyGUIElement* elem, s32 m_id) {
+//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
+//
+//	elem->m_color.m_data[2] += v;
+//	if (elem->m_color.m_data[2] > 1.f)
+//		elem->m_color.m_data[2] = 1.f;
+//
+//	if (!g_guiManager->m_isMainMenuInCursor)
+//	{
+//		elem->m_color.m_data[3] -= v;
+//		if (elem->m_color.m_data[3] < 0.f)
+//			elem->m_color.m_data[3] = 0.f;
+//	}
+//
+//	elem->m_offset.x -= v;
+//	if (elem->m_offset.x < 0.f)
+//		elem->m_offset.x = 0.f;
+//
+//	if (elem->m_color.m_data[2] == 1.f && elem->m_color.m_data[3] == 0.f)
+//		elem->m_onDraw = 0;
+//}
+//void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id) {
+//	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
+//	g_guiManager->m_hoveredMenuItemID = m_id;
+//}
+//void gui_mainMenu_buttonOnMouseLeave(yyGUIElement* elem, s32 m_id) {
+//	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
+//}
+//
+//
+//void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id) {
+//	g_guiManager->m_hoveredMenuItemID = -1;
+//
+//	if (g_guiManager->m_isMainMenuActive)
+//		return;
+//	g_guiManager->m_isMainMenuInCursor = false;
+//	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
+//	{
+//		auto item = g_guiManager->m_mainMenu_items.at(i);
+//		item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_lessOpacity;
+//
+//		item->m_button->m_sensorRectInPixels = item->m_activeArea_noActive;
+//		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_noActive;
+//	}
+//	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_noActive;
+//}
+//void gui_mainMenu_groupOnMouseInRect(yyGUIElement* elem, s32 m_id) {
+//	g_guiManager->m_isMainMenuInCursor = true;
+//	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
+//	{
+//		auto item = g_guiManager->m_mainMenu_items.at(i);
+//		if (item->m_button->m_color.m_data[3] < 1.f)
+//			item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_moreOpacity;
+//		/*if (item->m_text->m_color.m_data[3] < 1.f)
+//		{
+//			item->m_text->m_onDraw = gui_mainMenu_textOnDraw_moreOpacity;
+//		}*/
+//		item->m_button->m_sensorRectInPixels = item->m_activeArea_Active;
+//		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_Active;
+//	}
+//	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_Active;
+//}
 
 miGUIManager::miGUIManager(){
 	m_selectedMenuItemID = -1;
@@ -228,7 +281,8 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_backgroundPB->m_color.m_data[3] = 0.f;
 	m_mainMenu_backgroundPB->SetVisible(false);
 	m_mainMenu_backgroundPB->m_onClick = gui_mainMenu_backgroundPB_onClick;
-	m_mainMenu_backgroundPB->m_onRebuildSetRects = gui_mainMenu_backgroundPB_onRebuildSetRects;
+	m_mainMenu_backgroundPB->m_useProportionalScaling = true;
+	//m_mainMenu_backgroundPB->m_onRebuildSetRects = gui_mainMenu_backgroundPB_onRebuildSetRects;
 
 	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(100.f, 100.f, window->m_creationSize.x-100, window->m_creationSize.y-100),
 		yyGetTextureResource("../res/gui/white.dds", false, false, true), -1, m_mainMenu_drawGroup, 0);;
@@ -328,13 +382,15 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	newButton->m_id = id;
 	reg = uvregion2;
 	newButton->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &reg);
-	/*newButton->SetOpacity(0.25f, 0);
-	newButton->SetOpacity(0.25f, 1);
-	newButton->SetOpacity(0.25f, 2);*/
+	newButton->SetOpacity(g_guiButtonMinimumOpacity, 0);
+	newButton->SetOpacity(g_guiButtonMinimumOpacity, 1);
+	newButton->SetOpacity(g_guiButtonMinimumOpacity, 2);
 	newButton->m_onClick = onClick;
 	newButton->m_isAnimated = true;
+	newButton->m_onDraw = gui_mainMenu_buttons_onDraw;
 	newButton->m_onMouseEnter = gui_mainMenu_buttonOnMouseEnter;
-	newButton->m_onMouseLeave = gui_mainMenu_buttonOnMouseLeave;
+	//newButton->m_onMouseLeave = gui_mainMenu_buttonOnMouseLeave;
+
 //	reg = uvregion3;
 //	newButton->SetMouseClickTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &reg);
 	
@@ -349,15 +405,17 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	newItem->m_button->m_userData = newItem;
 	newItem->m_text->m_userData = newItem;
 	
-	auto text_w = newItem->m_text->m_buildingRect.z - newItem->m_text->m_buildingRect.x;
+	auto text_w = newItem->m_text->m_buildRectInPixels.z - newItem->m_text->m_buildRectInPixels.x;
 	
-	if (buildRect.z > m_mainMenu_group->m_activeAreaRect.z)
-		m_mainMenu_group->m_activeAreaRect.z = buildRect.z ;
+	if (buildRect.z > m_mainMenu_group->m_sensorRectInPixels.z)
+		m_mainMenu_group->m_sensorRectInPixels.z = buildRect.z ;
 
-	if (buildRect.w > m_mainMenu_group->m_activeAreaRect.w)
-		m_mainMenu_group->m_activeAreaRect.w = buildRect.w;
+	if (buildRect.w > m_mainMenu_group->m_sensorRectInPixels.w)
+		m_mainMenu_group->m_sensorRectInPixels.w = buildRect.w;
+
+	m_mainMenu_group->SetBuildRect(m_mainMenu_group->m_sensorRectInPixels);
 	
-	m_mainMenu_group_actRect_noActive = m_mainMenu_group->m_activeAreaRect;
+	m_mainMenu_group_actRect_noActive = m_mainMenu_group->m_sensorRectInPixels;
 	
 	m_mainMenu_group_actRect_Active.x = m_mainMenu_group_actRect_noActive.x;
 	m_mainMenu_group_actRect_Active.y = m_mainMenu_group_actRect_noActive.y;
@@ -366,10 +424,9 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	if (text_w + w > m_mainMenu_group_actRect_Active.z)
 		m_mainMenu_group_actRect_Active.z = text_w + w + 20.f;
 
-	m_mainMenu_group->m_activeAreaRect_global = m_mainMenu_group->m_activeAreaRect;
 
 	//newItem->m_onClick = onClick;
-	newItem->m_activeArea_noActive = newButton->m_activeAreaRect;
+	newItem->m_activeArea_noActive = newButton->m_sensorRectInPixels;
 	newItem->m_activeArea_Active = newItem->m_activeArea_noActive;
 	m_mainMenu_items.push_back(newItem);
 
@@ -385,3 +442,12 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	return newMenuGroup;
 }
 
+yyGUIFont* miGUIManager::GetFont(miGUIManager::Font f) {
+	switch (f)
+	{
+	case miGUIManager::Default:
+	default:
+		return m_fontDefault;
+		break;
+	}
+}
