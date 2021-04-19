@@ -36,6 +36,7 @@ struct miViewportCamera
 	v3f m_positionCamera; // in world
 
 	void Reset();
+	void MoveToSelection();
 
 	v4f m_creationRect;
 

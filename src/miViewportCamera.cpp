@@ -46,6 +46,10 @@ void miViewportCamera::Update() {
 	m_viewMatrix = (R*(P * Y)) * T;
 }
 
+void miViewportCamera::MoveToSelection() {
+	Reset();
+}
+
 void miViewportCamera::Reset() {
 	m_near = 0.01f;
 	m_far  = 1000.f;

@@ -38,6 +38,20 @@ void window_onCLose(yyWindow* window) {
 void window_callbackOnSize(yyWindow* window) {
 }
 
+void window_callbackOnCommand(s32 commandID) {
+	switch (commandID)
+	{
+	default:
+		break;
+	case miCommandID_CameraReset:
+		g_app->CommandCameraReset();
+		break;
+	case miCommandID_CameraMoveToSelection:
+		g_app->CommandCameraMoveToSelection();
+		break;
+	}
+}
+
 void window_onActivate(yyWindow* window) {
 	switch (g_app->m_keyboardModifier) {
 	case miKeyboardModifier::None:
@@ -126,6 +140,9 @@ miApplication::miApplication() {
 	{
 		m_viewportLayouts[i] = 0;
 	}
+
+	m_popup.AddItem(L"Camera Reset", miCommandID_CameraReset);
+	m_popup.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection);
 }
 
 miApplication::~miApplication() {
@@ -210,6 +227,7 @@ bool miApplication::Init(const char* videoDriver) {
 	}
 
 	yySetMainWindow(m_window);
+	m_window->m_onCommand = window_callbackOnCommand;
 	m_window->m_onClose = window_onCLose;
 	m_window->m_onSize = window_callbackOnSize;
 	m_window->m_onMaximize = window_callbackOnSize;
@@ -469,4 +487,12 @@ void miApplication::_callViewportOnSize() {
 	{
 		m_activeViewportLayout->m_viewports[i]->OnWindowSize();
 	}
+}
+
+void miApplication::CommandCameraReset() {
+	m_activeViewportLayout->m_activeViewport->m_activeCamera->Reset();
+}
+
+void miApplication::CommandCameraMoveToSelection() {
+
 }

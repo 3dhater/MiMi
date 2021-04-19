@@ -14,11 +14,13 @@
     <ClCompile Include="..\src\miViewport.cpp" />
     <ClCompile Include="..\src\miViewportCamera.cpp" />
     <ClCompile Include="..\src\miApplication_initGrid.cpp" />
+    <ClCompile Include="..\src\miPopup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />
     <ClInclude Include="..\src\miApplication.h" />
     <ClInclude Include="..\src\miViewport.h" />
     <ClInclude Include="..\src\miViewportCamera.h" />
+    <ClInclude Include="..\src\miPopup.h" />
   </ItemGroup>
 </Project>

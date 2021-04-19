@@ -65,7 +65,8 @@ miViewport::~miViewport(){
 
 void miViewport_onClick_cameraReset(yyGUIElement* elem, s32 m_id) {
 	miViewport* vp = (miViewport*)elem->m_userData;
-	vp->m_activeCamera->Reset();
+	//vp->m_activeCamera->Reset();
+	g_app->m_popup.Show((s32)elem->m_buildRectInPixels.x, (s32)elem->m_buildRectInPixels.y);
 }
 
 void onMouseInRect(yyGUIElement* elem, s32 m_id) {

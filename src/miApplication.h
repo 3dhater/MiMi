@@ -8,8 +8,12 @@
 #include "math\math.h"
 
 #include "miViewport.h"
+#include "miPopup.h"
 
 #define miViewportBordeSize 1.f
+
+#define miCommandID_CameraReset 1
+#define miCommandID_CameraMoveToSelection 2
 
 class miGUIManager;
 
@@ -93,6 +97,10 @@ public:
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
+	miPopup m_popup;
+	
+	void CommandCameraReset();
+	void CommandCameraMoveToSelection();
 
 	friend struct miViewportCamera;
 	friend struct miViewport;
