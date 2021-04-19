@@ -13,6 +13,7 @@ struct miPopup
 	HMENU m_hPopupMenu;
 
 	void AddItem(const wchar_t*, u32 id);
+	void AddSeparator();
 	void Show(s32 x, s32 y);
 };
 

@@ -11,6 +11,17 @@ miViewportCamera::miViewportCamera(miViewport* vp, miViewportCameraType ct){
 
 miViewportCamera::~miViewportCamera(){}
 
+void miViewportCamera::Copy(miViewportCamera* other) {
+	m_type = other->m_type;
+	m_aspect = other->m_aspect;
+	m_far = other->m_far;
+	m_fov = other->m_fov;
+	m_near = other->m_near;
+	m_positionCamera = other->m_positionCamera;
+	m_rotationPlatform = other->m_rotationPlatform;
+	m_positionPlatform = other->m_positionPlatform;
+}
+
 void miViewportCamera::Update() {
 	switch (m_type)
 	{

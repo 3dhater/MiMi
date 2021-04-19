@@ -2,7 +2,7 @@
 
 # TODO:
 
-* [ ]  viewports
+* [x]  viewports
 * [ ]  hot keys
 * [ ]  polygonal object
 * [ ]  plugins

@@ -11,6 +11,10 @@ miPopup::~miPopup() {
 	DestroyMenu(m_hPopupMenu);
 }
 
+void miPopup::AddSeparator() {
+	AppendMenu(m_hPopupMenu, MF_SEPARATOR, 0, 0);
+}
+
 void miPopup::AddItem(const wchar_t* text, u32 id) {
 	AppendMenu(m_hPopupMenu, MF_BYPOSITION | MF_STRING, id, text);
 }

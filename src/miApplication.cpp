@@ -43,12 +43,22 @@ void window_callbackOnCommand(s32 commandID) {
 	{
 	default:
 		break;
-	case miCommandID_CameraReset:
-		g_app->CommandCameraReset();
-		break;
-	case miCommandID_CameraMoveToSelection:
-		g_app->CommandCameraMoveToSelection();
-		break;
+	case miCommandID_CameraReset: g_app->PopupCameraReset(); break;
+	case miCommandID_CameraMoveToSelection: g_app->PopupCameraMoveToSelection(); break;
+	case miCommandID_ViewportViewPerspective: g_app->PopupViewportChangeView(miViewportCameraType::Perspective); break;
+	case miCommandID_ViewportViewLeft: g_app->PopupViewportChangeView(miViewportCameraType::Left); break;
+	case miCommandID_ViewportViewRight: g_app->PopupViewportChangeView(miViewportCameraType::Right); break;
+	case miCommandID_ViewportViewTop: g_app->PopupViewportChangeView(miViewportCameraType::Top); break;
+	case miCommandID_ViewportViewBottom: g_app->PopupViewportChangeView(miViewportCameraType::Bottom); break;
+	case miCommandID_ViewportViewBack: g_app->PopupViewportChangeView(miViewportCameraType::Back); break;
+	case miCommandID_ViewportViewFront: g_app->PopupViewportChangeView(miViewportCameraType::Front); break;
+	
+	case miCommandID_ViewportToggleFullView: g_app->PopupViewportToggleFullView(); break;
+	case miCommandID_ViewportToggleGrid: g_app->PopupViewportToggleGrid(); break;
+	
+	case miCommandID_ViewportDrawMaterial: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_Material); break;
+	case miCommandID_ViewportDrawMaterialWireframe: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_MaterialWireframe); break;
+	case miCommandID_ViewportDrawWireframe: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_Wireframe); break;
 	}
 }
 
@@ -104,6 +114,7 @@ int main(int argc, char* argv[]) {
 }
 
 miApplication::miApplication() {
+	m_popupViewport = 0;
 	m_inputContext = 0;
 	m_engineContext = 0;
 	m_window = 0;
@@ -141,8 +152,23 @@ miApplication::miApplication() {
 		m_viewportLayouts[i] = 0;
 	}
 
-	m_popup.AddItem(L"Camera Reset", miCommandID_CameraReset);
-	m_popup.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection);
+	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset);
+	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection);
+
+	m_popup_ViewportParameters.AddItem(L"Perspective", miCommandID_ViewportViewPerspective);
+	m_popup_ViewportParameters.AddItem(L"Top", miCommandID_ViewportViewTop);
+	m_popup_ViewportParameters.AddItem(L"Bottom", miCommandID_ViewportViewBottom);
+	m_popup_ViewportParameters.AddItem(L"Left", miCommandID_ViewportViewLeft);
+	m_popup_ViewportParameters.AddItem(L"Right", miCommandID_ViewportViewRight);
+	m_popup_ViewportParameters.AddItem(L"Front", miCommandID_ViewportViewFront);
+	m_popup_ViewportParameters.AddItem(L"Back", miCommandID_ViewportViewBack);
+	m_popup_ViewportParameters.AddSeparator();
+	m_popup_ViewportParameters.AddItem(L"Toggle full view", miCommandID_ViewportToggleFullView);
+	m_popup_ViewportParameters.AddItem(L"Toggle grid", miCommandID_ViewportToggleGrid);
+	m_popup_ViewportParameters.AddSeparator();
+	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial);
+	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe);
+	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe);
 }
 
 miApplication::~miApplication() {
@@ -475,7 +501,7 @@ void miApplication::DrawViewports() {
 			m_gpu->UseDepth(false);
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
-		viewport->OnDraw(m_gpu);
+		viewport->OnDraw();
 	}
 
 	m_gpu->SetScissorRect(v4f(0.f,0.f, m_window->m_currentSize.x, m_window->m_currentSize.y), m_window);
@@ -483,16 +509,55 @@ void miApplication::DrawViewports() {
 }
 
 void miApplication::_callViewportOnSize() {
-	for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+	for (s32 k = 0; k < miViewportLayout_Count; ++k)
 	{
-		m_activeViewportLayout->m_viewports[i]->OnWindowSize();
+		auto l = m_viewportLayouts[k];
+		for (u16 i = 0, sz = l->m_viewports.size(); i < sz; ++i)
+		{
+			l->m_viewports[i]->OnWindowSize();
+		}
 	}
 }
 
-void miApplication::CommandCameraReset() {
-	m_activeViewportLayout->m_activeViewport->m_activeCamera->Reset();
+void miApplication::ShowPopupAtCursor(miPopup* popup) {
+	popup->Show((s32)m_inputContext->m_cursorCoords.x, (s32)m_inputContext->m_cursorCoords.y);
 }
 
-void miApplication::CommandCameraMoveToSelection() {
+void miApplication::PopupCameraReset() {
+	m_popupViewport->m_activeCamera->Reset();
+}
 
+void miApplication::PopupCameraMoveToSelection() {
+
+}
+
+void miApplication::PopupViewportChangeView(miViewportCameraType ct) {
+	m_popupViewport->SetCameraType(ct);
+	m_popupViewport->m_activeCamera->Reset();
+}
+
+void miApplication::PopupViewportToggleFullView() {
+	if (m_activeViewportLayout == m_viewportLayouts[miViewportLayout_Full])
+	{
+		m_activeViewportLayout->HideGUI();
+		m_activeViewportLayout = m_previousViewportLayout;
+		m_activeViewportLayout->ShowGUI();
+	}
+	else
+	{
+		m_previousViewportLayout = m_activeViewportLayout;
+		m_activeViewportLayout->HideGUI();
+		m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Full];
+		m_activeViewportLayout->m_activeViewport->Copy(m_previousViewportLayout->m_activeViewport);
+		m_activeViewportLayout->ShowGUI();
+	}
+
+}
+
+void miApplication::PopupViewportToggleGrid() {
+	m_popupViewport->SetDrawGrid(m_popupViewport->m_drawGrid ? false : true);
+}
+
+void miApplication::PopupViewportSetDrawMode(miViewport::DrawMode dm) {
+	m_popupViewport->SetDrawMode(dm);
 }

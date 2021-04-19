@@ -11,9 +11,11 @@ struct miViewport
 	~miViewport();
 
 	void Init();
+	void Copy(miViewport*);
 
 	void OnWindowSize();
-	void OnDraw(yyVideoDriverAPI* gpu);
+	void OnDraw();
+	yyVideoDriverAPI* m_gpu;
 
 	enum {
 		Camera_Perspective = 0,
@@ -36,6 +38,7 @@ struct miViewport
 	yyGUIGroup* m_gui_group;
 	yyGUIText*  m_gui_text_vpName;
 	yyGUIButton* m_gui_button_resetCamera;
+	yyGUIButton* m_gui_button_viewport;
 	void HideGUI();
 	void ShowGUI();
 
@@ -44,6 +47,18 @@ struct miViewport
 	v4f m_currentRect;
 	v2f m_currentRectSize;
 	bool m_isCursorInRect;
+
+	enum DrawMode{
+		Draw_Material,
+		Draw_Wireframe,
+		Draw_MaterialWireframe
+	}m_drawMode;
+	void SetDrawMode(DrawMode);
+
+
+	bool m_drawGrid;
+	void SetDrawGrid(bool);
+	void _drawGrid();
 };
 
 struct miViewportLayout
@@ -63,6 +78,12 @@ struct miViewportLayout
 		for (u16 i = 0, sz = m_viewports.size(); i < sz; ++i)
 		{
 			m_viewports[i]->ShowGUI();
+		}
+	}
+	void HideGUI() {
+		for (u16 i = 0, sz = m_viewports.size(); i < sz; ++i)
+		{
+			m_viewports[i]->HideGUI();
 		}
 	}
 

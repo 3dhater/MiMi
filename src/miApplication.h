@@ -14,6 +14,18 @@
 
 #define miCommandID_CameraReset 1
 #define miCommandID_CameraMoveToSelection 2
+#define miCommandID_ViewportViewPerspective 3
+#define miCommandID_ViewportViewFront 4
+#define miCommandID_ViewportViewBack 5
+#define miCommandID_ViewportViewTop 6
+#define miCommandID_ViewportViewBottom 7
+#define miCommandID_ViewportViewLeft 8
+#define miCommandID_ViewportViewRight 9
+#define miCommandID_ViewportToggleFullView 10
+#define miCommandID_ViewportToggleGrid 11
+#define miCommandID_ViewportDrawMaterial 12
+#define miCommandID_ViewportDrawMaterialWireframe 13
+#define miCommandID_ViewportDrawWireframe 14
 
 class miGUIManager;
 
@@ -79,6 +91,7 @@ class miApplication
 	void _updateKeyboardModifier();
 	void _callViewportOnSize();
 
+
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
@@ -97,10 +110,17 @@ public:
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
-	miPopup m_popup;
+	miViewport* m_popupViewport;
+	miPopup m_popup_ViewportCamera;
+	miPopup m_popup_ViewportParameters;
+	void ShowPopupAtCursor(miPopup* popup);
 	
-	void CommandCameraReset();
-	void CommandCameraMoveToSelection();
+	void PopupCameraReset();
+	void PopupCameraMoveToSelection();
+	void PopupViewportChangeView(miViewportCameraType);
+	void PopupViewportToggleFullView();
+	void PopupViewportToggleGrid();
+	void PopupViewportSetDrawMode(miViewport::DrawMode);
 
 	friend struct miViewportCamera;
 	friend struct miViewport;

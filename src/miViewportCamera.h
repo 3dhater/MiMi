@@ -17,6 +17,8 @@ struct miViewportCamera
 {
 	miViewportCamera(miViewport*, miViewportCameraType ct);
 	~miViewportCamera();
+
+	void Copy(miViewportCamera*);
 	
 	miViewport* m_viewport;
 	miViewportCameraType m_type;
