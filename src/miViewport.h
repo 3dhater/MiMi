@@ -30,9 +30,12 @@ struct miViewport
 	miViewportCamera* m_activeCamera;
 
 	miViewportCameraType m_cameraType;
+	void SetCameraType(miViewportCameraType);
+	void SetViewportName(const wchar_t*);
 
 	yyGUIGroup* m_gui_group;
 	yyGUIText*  m_gui_text_vpName;
+	yyGUIButton* m_gui_button_resetCamera;
 	void HideGUI();
 	void ShowGUI();
 

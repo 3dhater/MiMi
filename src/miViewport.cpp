@@ -9,7 +9,9 @@ extern Mat4 g_emptyMatrix;
 miViewport::miViewport(miViewportCameraType vct){
 	m_index = 0;
 	m_isCursorInRect = false;
-	
+	m_gui_text_vpName = 0;
+	m_gui_button_resetCamera = 0;
+
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
 	m_camera[Camera_Top] = new miViewportCamera(this, miViewportCameraType::Top);
 	m_camera[Camera_Bottom] = new miViewportCamera(this, miViewportCameraType::Bottom);
@@ -48,20 +50,22 @@ miViewport::miViewport(miViewportCameraType vct){
 	m_currentRect = m_creationRect;
 	m_currentRectSize = v2f(800.f, 600.f);
 	m_cameraType = vct;
-
-	
-
 	OnWindowSize();
 }
 
 miViewport::~miViewport(){
-	if (m_gui_group)
-		yyGUIDeleteElement(m_gui_group);
+	/*if (m_gui_group)
+		yyGUIDeleteElement(m_gui_group);*/
 
 	for (s32 i = 0; i < Camera_count_; ++i)
 	{
 		if (m_camera[i]) delete m_camera[i];
 	}
+}
+
+void miViewport_onClick_cameraReset(yyGUIElement* elem, s32 m_id) {
+	miViewport* vp = (miViewport*)elem->m_userData;
+	vp->m_activeCamera->Reset();
 }
 
 void onMouseInRect(yyGUIElement* elem, s32 m_id) {
@@ -78,13 +82,68 @@ void miViewport::Init() {
 	m_gui_group->m_buildRect = m_creationRect;
 	m_gui_group->SetRectsFromBuildRect();
 
-	auto text = yyGUICreateText(v2f(10.f, 10.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
-		L"Text", 0);
-	text->m_align = text->AlignLeftTop;
-	text->IgnoreInput(true);
-	text->m_ignoreSetCursorInGUI = true;
+	m_gui_text_vpName = yyGUICreateText(v2f(10.f, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
+		L"T", 0);
+	m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
+	m_gui_text_vpName->IgnoreInput(true);
+	m_gui_text_vpName->m_ignoreSetCursorInGUI = true;
+	m_gui_group->AddElement(m_gui_text_vpName);
 
-	m_gui_group->AddElement(text);
+	v4i region(0,72,16,88);
+	m_gui_button_resetCamera = yyGUICreateButton(v4f(100.f, 2.f, 117.f, 19.f), 
+		yyGetTextureResource("../res/gui/icons.png", false, false, true), m_index, 0, &region);
+	m_gui_button_resetCamera->m_isAnimated = true;
+	region.set(24,72,40,88);
+	m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &region);
+	m_gui_group->AddElement(m_gui_button_resetCamera);
+	m_gui_button_resetCamera->SetOpacity(0.1f, 0);
+	m_gui_button_resetCamera->SetOpacity(0.1f, 1);
+	m_gui_button_resetCamera->SetOpacity(0.1f, 2);
+	m_gui_button_resetCamera->m_onClick = miViewport_onClick_cameraReset;
+	m_gui_button_resetCamera->m_userData = this;
+
+	SetCameraType(m_cameraType);
+}
+
+void miViewport::SetViewportName(const wchar_t* name) {
+	static yyStringW n;
+	n = name;
+	if (m_gui_text_vpName)
+	{
+		if (m_gui_text_vpName->m_text != n)
+			m_gui_text_vpName->SetText(name);
+	}
+}
+
+void miViewport::SetCameraType(miViewportCameraType ct) {
+	m_cameraType = ct;
+	switch (ct)
+	{
+	case miViewportCameraType::Perspective:
+		SetViewportName(L"Perspective");
+		break;
+	case miViewportCameraType::Left:
+		SetViewportName(L"Left");
+		break;
+	case miViewportCameraType::Right:
+		SetViewportName(L"Right");
+		break;
+	case miViewportCameraType::Top:
+		SetViewportName(L"Top");
+		break;
+	case miViewportCameraType::Bottom:
+		SetViewportName(L"Bottom");
+		break;
+	case miViewportCameraType::Front:
+		SetViewportName(L"Front");
+		break;
+	case miViewportCameraType::Back:
+		SetViewportName(L"Back");
+		break;
+	default:
+		SetViewportName(L"Orthogonal");
+		break;
+	}
 }
 
 void miViewport::HideGUI() {

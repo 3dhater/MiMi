@@ -77,6 +77,8 @@ void miViewportCamera::Reset() {
 		m_near = -m_far;
 		break;
 	}
+
+	m_viewport->SetCameraType(m_viewport->m_cameraType);
 }
 
 void miViewportCamera::PanMove() {
@@ -102,6 +104,9 @@ void miViewportCamera::Rotate() {
 	if (m_rotationPlatform.y > math::PIPI) m_rotationPlatform.y = 0.f;
 	if (m_rotationPlatform.x < -math::PIPI) m_rotationPlatform.x = 0.f;
 	if (m_rotationPlatform.y < -math::PIPI) m_rotationPlatform.y = 0.f;
+
+	if(m_type != miViewportCameraType::Perspective)
+		m_viewport->SetViewportName(L"Orthogonal");
 }
 
 void miViewportCamera::Zoom() {
