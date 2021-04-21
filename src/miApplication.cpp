@@ -1,6 +1,7 @@
 ﻿#include "miApplication.h"
 #include "miGUIManager.h"
 #include "miViewport.h"
+#include "miShortcutManager.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -43,22 +44,22 @@ void window_callbackOnCommand(s32 commandID) {
 	{
 	default:
 		break;
-	case miCommandID_CameraReset: g_app->PopupCameraReset(); break;
-	case miCommandID_CameraMoveToSelection: g_app->PopupCameraMoveToSelection(); break;
-	case miCommandID_ViewportViewPerspective: g_app->PopupViewportChangeView(miViewportCameraType::Perspective); break;
-	case miCommandID_ViewportViewLeft: g_app->PopupViewportChangeView(miViewportCameraType::Left); break;
-	case miCommandID_ViewportViewRight: g_app->PopupViewportChangeView(miViewportCameraType::Right); break;
-	case miCommandID_ViewportViewTop: g_app->PopupViewportChangeView(miViewportCameraType::Top); break;
-	case miCommandID_ViewportViewBottom: g_app->PopupViewportChangeView(miViewportCameraType::Bottom); break;
-	case miCommandID_ViewportViewBack: g_app->PopupViewportChangeView(miViewportCameraType::Back); break;
-	case miCommandID_ViewportViewFront: g_app->PopupViewportChangeView(miViewportCameraType::Front); break;
+	case miCommandID_CameraReset: g_app->CommandCameraReset(g_app->m_popupViewport); break;
+	case miCommandID_CameraMoveToSelection: g_app->CommandCameraMoveToSelection(g_app->m_popupViewport); break;
+	case miCommandID_ViewportViewPerspective: g_app->CommandViewportChangeView(g_app->m_popupViewport,miViewportCameraType::Perspective); break;
+	case miCommandID_ViewportViewLeft: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Left); break;
+	case miCommandID_ViewportViewRight: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Right); break;
+	case miCommandID_ViewportViewTop: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Top); break;
+	case miCommandID_ViewportViewBottom: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Bottom); break;
+	case miCommandID_ViewportViewBack: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Back); break;
+	case miCommandID_ViewportViewFront: g_app->CommandViewportChangeView(g_app->m_popupViewport, miViewportCameraType::Front); break;
 	
-	case miCommandID_ViewportToggleFullView: g_app->PopupViewportToggleFullView(); break;
-	case miCommandID_ViewportToggleGrid: g_app->PopupViewportToggleGrid(); break;
+	case miCommandID_ViewportToggleFullView: g_app->CommandViewportToggleFullView(g_app->m_popupViewport); break;
+	case miCommandID_ViewportToggleGrid: g_app->CommandViewportToggleGrid(g_app->m_popupViewport); break;
 	
-	case miCommandID_ViewportDrawMaterial: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_Material); break;
-	case miCommandID_ViewportDrawMaterialWireframe: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_MaterialWireframe); break;
-	case miCommandID_ViewportDrawWireframe: g_app->PopupViewportSetDrawMode(miViewport::DrawMode::Draw_Wireframe); break;
+	case miCommandID_ViewportDrawMaterial: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Material); break;
+	case miCommandID_ViewportDrawMaterialWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_MaterialWireframe); break;
+	case miCommandID_ViewportDrawWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Wireframe); break;
 	}
 }
 
@@ -152,23 +153,25 @@ miApplication::miApplication() {
 		m_viewportLayouts[i] = 0;
 	}
 
-	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset);
-	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection);
+	m_shortcutManager = new miShortcutManager;
 
-	m_popup_ViewportParameters.AddItem(L"Perspective", miCommandID_ViewportViewPerspective);
-	m_popup_ViewportParameters.AddItem(L"Top", miCommandID_ViewportViewTop);
-	m_popup_ViewportParameters.AddItem(L"Bottom", miCommandID_ViewportViewBottom);
-	m_popup_ViewportParameters.AddItem(L"Left", miCommandID_ViewportViewLeft);
-	m_popup_ViewportParameters.AddItem(L"Right", miCommandID_ViewportViewRight);
-	m_popup_ViewportParameters.AddItem(L"Front", miCommandID_ViewportViewFront);
-	m_popup_ViewportParameters.AddItem(L"Back", miCommandID_ViewportViewBack);
+	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraReset));
+	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraMoveToSelection));
+
+	m_popup_ViewportParameters.AddItem(L"Perspective", miCommandID_ViewportViewPerspective, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewPerspective));
+	m_popup_ViewportParameters.AddItem(L"Top", miCommandID_ViewportViewTop, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewTop));
+	m_popup_ViewportParameters.AddItem(L"Bottom", miCommandID_ViewportViewBottom, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBottom));
+	m_popup_ViewportParameters.AddItem(L"Left", miCommandID_ViewportViewLeft, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewLeft));
+	m_popup_ViewportParameters.AddItem(L"Right", miCommandID_ViewportViewRight, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewRight));
+	m_popup_ViewportParameters.AddItem(L"Front", miCommandID_ViewportViewFront, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewFront));
+	m_popup_ViewportParameters.AddItem(L"Back", miCommandID_ViewportViewBack, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBack));
 	m_popup_ViewportParameters.AddSeparator();
-	m_popup_ViewportParameters.AddItem(L"Toggle full view", miCommandID_ViewportToggleFullView);
-	m_popup_ViewportParameters.AddItem(L"Toggle grid", miCommandID_ViewportToggleGrid);
+	m_popup_ViewportParameters.AddItem(L"Toggle full view", miCommandID_ViewportToggleFullView, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleFullView));
+	m_popup_ViewportParameters.AddItem(L"Toggle grid", miCommandID_ViewportToggleGrid, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleGrid));
 	m_popup_ViewportParameters.AddSeparator();
-	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial);
-	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe);
-	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe);
+	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterial));
+	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterialWireframe));
+	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
 }
 
 miApplication::~miApplication() {
@@ -197,6 +200,7 @@ miApplication::~miApplication() {
 	if (m_gridModel_top2_100) m_gpu->DeleteModel(m_gridModel_top2_100);
 	if (m_gridModel_perspective1) m_gpu->DeleteModel(m_gridModel_perspective1);
 	if (m_gridModel_perspective2) m_gpu->DeleteModel(m_gridModel_perspective2);
+	if (m_shortcutManager) delete m_shortcutManager;
 	if (m_GUIManager) delete m_GUIManager;
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
@@ -387,6 +391,8 @@ void miApplication::MainLoop() {
 			yyGUIDrawAll();
 			m_gpu->EndDraw();
 			m_gpu->SwapBuffers();
+
+			ProcessShortcuts();
 		}
 		}
 	}
@@ -413,6 +419,23 @@ void miApplication::_updateKeyboardModifier() {
 	case 6:  m_keyboardModifier = miKeyboardModifier::ShiftCtrl;     break;
 	case 7:  m_keyboardModifier = miKeyboardModifier::ShiftCtrlAlt;  break;
 	}
+}
+
+void miApplication::ProcessShortcuts() {
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraReset)) this->CommandCameraReset(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraMoveToSelection)) this->CommandCameraMoveToSelection(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewPerspective)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Perspective);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewTop)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Top);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewBottom)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Bottom);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewLeft)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Left);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewRight)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Right);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewFront)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Front);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewBack)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Back);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleGrid)) this->CommandViewportToggleGrid(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleFullView)) this->CommandViewportToggleFullView(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterial)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Material);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterialWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_MaterialWireframe);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
 }
 
 void miApplication::UpdateViewports() {
@@ -523,20 +546,20 @@ void miApplication::ShowPopupAtCursor(miPopup* popup) {
 	popup->Show((s32)m_inputContext->m_cursorCoords.x, (s32)m_inputContext->m_cursorCoords.y);
 }
 
-void miApplication::PopupCameraReset() {
-	m_popupViewport->m_activeCamera->Reset();
+void miApplication::CommandCameraReset(miViewport* vp) {
+	vp->m_activeCamera->Reset();
 }
 
-void miApplication::PopupCameraMoveToSelection() {
-
+void miApplication::CommandCameraMoveToSelection(miViewport* vp) {
+	vp->m_activeCamera->Reset();
 }
 
-void miApplication::PopupViewportChangeView(miViewportCameraType ct) {
-	m_popupViewport->SetCameraType(ct);
-	m_popupViewport->m_activeCamera->Reset();
+void miApplication::CommandViewportChangeView(miViewport* vp, miViewportCameraType ct) {
+	vp->SetCameraType(ct);
+	vp->m_activeCamera->Reset();
 }
 
-void miApplication::PopupViewportToggleFullView() {
+void miApplication::CommandViewportToggleFullView(miViewport* vp) {
 	if (m_activeViewportLayout == m_viewportLayouts[miViewportLayout_Full])
 	{
 		m_activeViewportLayout->HideGUI();
@@ -554,10 +577,10 @@ void miApplication::PopupViewportToggleFullView() {
 
 }
 
-void miApplication::PopupViewportToggleGrid() {
-	m_popupViewport->SetDrawGrid(m_popupViewport->m_drawGrid ? false : true);
+void miApplication::CommandViewportToggleGrid(miViewport* vp) {
+	vp->SetDrawGrid(vp->m_drawGrid ? false : true);
 }
 
-void miApplication::PopupViewportSetDrawMode(miViewport::DrawMode dm) {
-	m_popupViewport->SetDrawMode(dm);
+void miApplication::CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode dm) {
+	vp->SetDrawMode(dm);
 }

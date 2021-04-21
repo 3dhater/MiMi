@@ -1,0 +1,20 @@
+# current.txt contain information about shortcuts that program will load in starting
+# Program have default values in code, if current.txt not exist, program will create new
+# When you load other_file.txt program will copy information into current.txt 
+
+# command_name keyboard_modifier{0, Alt, Ctlr, Shift, CtrlAlt, CtrlShift, ShiftAlt, CtrlShiftAlt} ANSI_keyCode{QWERTY, or code like this _80 for 'P', # for skip } IsOnRelease{1 or 0}
+
+viewport_cameraReset 0 # 0
+viewport_cameraMoveToSelection 0 Z 0
+viewport_viewPerspective 0 P 0
+viewport_viewTop 0 T 0
+viewport_viewBottom 0 # 0
+viewport_viewLeft 0 L 0
+viewport_viewRight 0 # 0
+viewport_viewFront 0 F 0
+viewport_viewBack 0 # 0
+viewport_toggleGrid 0 G 0
+viewport_toggleFullView Alt W 0
+viewport_dmMaterial 0 # 0
+viewport_dmMaterialWireframe 0 # 0
+viewport_dmWireframe 0 # 0

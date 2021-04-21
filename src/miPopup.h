@@ -11,8 +11,9 @@ struct miPopup
 	~miPopup();
 
 	HMENU m_hPopupMenu;
+	yyStringW m_text;
 
-	void AddItem(const wchar_t*, u32 id);
+	void AddItem(const wchar_t*, u32 id, const wchar_t* shortcut);
 	void AddSeparator();
 	void Show(s32 x, s32 y);
 };

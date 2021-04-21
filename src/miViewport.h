@@ -59,6 +59,7 @@ struct miViewport
 	bool m_drawGrid;
 	void SetDrawGrid(bool);
 	void _drawGrid();
+
 };
 
 struct miViewportLayout

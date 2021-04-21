@@ -2,6 +2,7 @@
 #include "miGUIManager.h"
 #include "miViewport.h"
 #include "miViewportCamera.h"
+#include "miShortcutManager.h"
 
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
@@ -364,3 +365,4 @@ void miViewport::_drawGrid() {
 	m_gpu->UseDepth(true);
 	m_gpu->Draw();
 }
+

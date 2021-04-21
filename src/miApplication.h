@@ -28,6 +28,7 @@
 #define miCommandID_ViewportDrawWireframe 14
 
 class miGUIManager;
+class miShortcutManager;
 
 enum class miKeyboardModifier : u32
 {
@@ -52,6 +53,7 @@ class miApplication
 
 
 	miGUIManager* m_GUIManager;
+	miShortcutManager* m_shortcutManager;
 
 	yyResource* m_gridModel_perspective1;
 	yyResource* m_gridModel_perspective2;
@@ -107,23 +109,26 @@ public:
 	bool Init(const char* videoDriver);
 	void MainLoop();
 	void UpdateViewports();
+	void ProcessShortcuts();
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
-	miViewport* m_popupViewport;
+	miViewport* m_popupViewport; // set this when click on button whith popup menu
 	miPopup m_popup_ViewportCamera;
 	miPopup m_popup_ViewportParameters;
 	void ShowPopupAtCursor(miPopup* popup);
 	
-	void PopupCameraReset();
-	void PopupCameraMoveToSelection();
-	void PopupViewportChangeView(miViewportCameraType);
-	void PopupViewportToggleFullView();
-	void PopupViewportToggleGrid();
-	void PopupViewportSetDrawMode(miViewport::DrawMode);
+	void CommandCameraReset(miViewport* vp);
+	void CommandCameraMoveToSelection(miViewport* vp);
+	void CommandViewportChangeView(miViewport* vp, miViewportCameraType);
+	void CommandViewportToggleFullView(miViewport* vp);
+	void CommandViewportToggleGrid(miViewport* vp);
+	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
+
 
 	friend struct miViewportCamera;
 	friend struct miViewport;
+	friend class miShortcutManager;
 	friend void window_onActivate(yyWindow* window);
 	friend void log_writeToFile(const char* message);
 

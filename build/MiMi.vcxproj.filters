@@ -15,6 +15,7 @@
     <ClCompile Include="..\src\miViewportCamera.cpp" />
     <ClCompile Include="..\src\miApplication_initGrid.cpp" />
     <ClCompile Include="..\src\miPopup.cpp" />
+    <ClCompile Include="..\src\miShortcutManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />
@@ -22,5 +23,6 @@
     <ClInclude Include="..\src\miViewport.h" />
     <ClInclude Include="..\src\miViewportCamera.h" />
     <ClInclude Include="..\src\miPopup.h" />
+    <ClInclude Include="..\src\miShortcutManager.h" />
   </ItemGroup>
 </Project>

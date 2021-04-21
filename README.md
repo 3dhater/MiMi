@@ -3,7 +3,7 @@
 # TODO:
 
 * [x]  viewports
-* [ ]  hot keys
+* [x]  shortcuts
 * [ ]  polygonal object
 * [ ]  plugins
 * [ ]  import model
