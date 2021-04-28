@@ -79,7 +79,7 @@ void miApplication::_initGrid() {
 		for (s32 i = 0; i < halfNum; ++i)
 		{
 			v4f color = half2Color.getV4f();
-
+			 
 			if (i == specColorIndex)
 				color = specColor2.getV4f();
 
@@ -121,7 +121,7 @@ void miApplication::_initGrid() {
 		}
 
 		u16* index = (u16*)model->m_indices;
-		for (s32 i = 0; i < model->m_iCount; ++i)
+		for (u32 i = 0; i < model->m_iCount; ++i)
 		{
 			*index = (u16)i;
 			index++;
@@ -133,11 +133,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -5.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 5, miViewportCameraType::Perspective);
-		m_gridModel_perspective1 = m_gpu->CreateModel(model);
+		m_gridModel_perspective1 = yyCreateModel(model);
+		m_gridModel_perspective1->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -5.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 5, miViewportCameraType::Perspective);
-		m_gridModel_perspective2 = m_gpu->CreateModel(model);
+		m_gridModel_perspective2 = yyCreateModel(model);
+		m_gridModel_perspective2->Load();
 
 		yyDestroy(model);
 	}
@@ -146,11 +148,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1 = m_gpu->CreateModel(model);
+		m_gridModel_top1 = yyCreateModel(model);
+		m_gridModel_top1->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2 = m_gpu->CreateModel(model);
+		m_gridModel_top2 = yyCreateModel(model);
+		m_gridModel_top2->Load();
 
 		yyDestroy(model);
 	}
@@ -159,11 +163,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1_10 = m_gpu->CreateModel(model);
+		m_gridModel_top1_10 = yyCreateModel(model);
+		m_gridModel_top1_10->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2_10 = m_gpu->CreateModel(model);
+		m_gridModel_top2_10 = yyCreateModel(model);
+		m_gridModel_top2_10->Load();
 
 		yyDestroy(model);
 	}
@@ -171,10 +177,12 @@ void miApplication::_initGrid() {
 		const s32 linesNum = 1002;
 		auto model = _get_model(linesNum);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1_100 = m_gpu->CreateModel(model);
+		m_gridModel_top1_100 = yyCreateModel(model);
+		m_gridModel_top1_100->Load();
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2_100 = m_gpu->CreateModel(model);
+		m_gridModel_top2_100 = yyCreateModel(model);
+		m_gridModel_top2_100->Load();
 		yyDestroy(model);
 	}
 	{
@@ -182,11 +190,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1 = m_gpu->CreateModel(model);
+		m_gridModel_front1 = yyCreateModel(model);
+		m_gridModel_front1->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2 = m_gpu->CreateModel(model);
+		m_gridModel_front2 = yyCreateModel(model);
+		m_gridModel_front2->Load();
 
 		yyDestroy(model);
 	}
@@ -195,11 +205,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1_10 = m_gpu->CreateModel(model);
+		m_gridModel_front1_10 = yyCreateModel(model);
+		m_gridModel_front1_10->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2_10 = m_gpu->CreateModel(model);
+		m_gridModel_front2_10 = yyCreateModel(model);
+		m_gridModel_front2_10->Load();
 
 		yyDestroy(model);
 	}
@@ -207,10 +219,12 @@ void miApplication::_initGrid() {
 		const s32 linesNum = 1002;
 		auto model = _get_model(linesNum);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1_100 = m_gpu->CreateModel(model);
+		m_gridModel_front1_100 = yyCreateModel(model);
+		m_gridModel_front1_100->Load();
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2_100 = m_gpu->CreateModel(model);
+		m_gridModel_front2_100 = yyCreateModel(model);
+		m_gridModel_front2_100->Load();
 		yyDestroy(model);
 	}
 	{
@@ -218,11 +232,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1 = m_gpu->CreateModel(model);
+		m_gridModel_left1 = yyCreateModel(model);
+		m_gridModel_left1->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2 = m_gpu->CreateModel(model);
+		m_gridModel_left2 = yyCreateModel(model);
+		m_gridModel_left2->Load();
 
 		yyDestroy(model);
 	}
@@ -231,11 +247,13 @@ void miApplication::_initGrid() {
 		auto model = _get_model(linesNum);
 
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1_10 = m_gpu->CreateModel(model);
+		m_gridModel_left1_10 = yyCreateModel(model);
+		m_gridModel_left1_10->Load();
 
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2_10 = m_gpu->CreateModel(model);
+		m_gridModel_left2_10 = yyCreateModel(model);
+		m_gridModel_left2_10->Load();
 
 		yyDestroy(model);
 	}
@@ -243,10 +261,13 @@ void miApplication::_initGrid() {
 		const s32 linesNum = 1002;
 		auto model = _get_model(linesNum);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1_100 = m_gpu->CreateModel(model);
+		m_gridModel_left1_100 = yyCreateModel(model);
+		m_gridModel_left1_100->Load();
+
 		colorBase = yyColor(150, 150, 150, 255);
 		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2_100 = m_gpu->CreateModel(model);
+		m_gridModel_left2_100 = yyCreateModel(model);
+		m_gridModel_left1_100->Load();
 		yyDestroy(model);
 	}
 }

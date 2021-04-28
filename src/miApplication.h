@@ -7,6 +7,9 @@
 #include "yy_material.h"
 #include "math\math.h"
 
+#include "../SDK/miSDK.h"
+#include "../SDK/miVisualObject.h"
+#include "../SDK/miSceneObject.h"
 #include "miViewport.h"
 #include "miPopup.h"
 
@@ -99,6 +102,8 @@ class miApplication
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
 	void _initViewports();
 
+	yyArraySmall<miPlugin*> m_plugins;
+	void _initPlugins();
 
 public:
 	miApplication();
@@ -113,6 +118,8 @@ public:
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
+	miViewportCamera* GetActiveCamera();
+
 	miViewport* m_popupViewport; // set this when click on button whith popup menu
 	miPopup m_popup_ViewportCamera;
 	miPopup m_popup_ViewportParameters;
@@ -125,10 +132,10 @@ public:
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
 
-
 	friend struct miViewportCamera;
 	friend struct miViewport;
 	friend class miShortcutManager;
+	friend class miVisualObjectImpl;
 	friend void window_onActivate(yyWindow* window);
 	friend void log_writeToFile(const char* message);
 

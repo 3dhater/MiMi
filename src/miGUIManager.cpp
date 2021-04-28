@@ -275,8 +275,8 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_group->m_onMouseInRect = gui_mainMenu_groupOnMouseInRect;
 	m_mainMenu_group->m_onMouseLeave = gui_mainMenu_groupOnMouseLeave;
 	
-	m_mainMenu_backgroundPB = yyGUICreatePictureBox(v4f(0.f, 0.f, window->m_creationSize.x, window->m_creationSize.y),
-		yyGetTextureResource("../res/gui/black.dds", false, false, true), -1, m_mainMenu_drawGroup, 0);
+	m_mainMenu_backgroundPB = yyGUICreatePictureBox(v4f(0.f, 0.f, (f32)window->m_creationSize.x, (f32)window->m_creationSize.y),
+		yyGetTextureFromCache("../res/gui/black.dds"), -1, m_mainMenu_drawGroup, 0);
 	m_mainMenu_backgroundPB->IgnoreInput(true);
 	m_mainMenu_backgroundPB->m_color.m_data[3] = 0.f;
 	m_mainMenu_backgroundPB->SetVisible(false);
@@ -284,8 +284,8 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_backgroundPB->m_useProportionalScaling = true;
 	//m_mainMenu_backgroundPB->m_onRebuildSetRects = gui_mainMenu_backgroundPB_onRebuildSetRects;
 
-	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(100.f, 100.f, window->m_creationSize.x-100, window->m_creationSize.y-100),
-		yyGetTextureResource("../res/gui/white.dds", false, false, true), -1, m_mainMenu_drawGroup, 0);;
+	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(100.f, 100.f, (f32)(window->m_creationSize.x-100), (f32)(window->m_creationSize.y-100)),
+		yyGetTextureFromCache("../res/gui/white.dds"), -1, m_mainMenu_drawGroup, 0);;
 	m_mainMenu_windowBackgroundPB->m_color = ColorDarkGray;
 	m_mainMenu_windowBackgroundPB->m_color.m_data[3] = 0.f;
 	m_mainMenu_windowBackgroundPB->SetVisible(false);
@@ -367,8 +367,8 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 
 	static f32 y = 0.f;
 
-	f32 w = uvregion1.z - uvregion1.x;
-	f32 h = uvregion1.w - uvregion1.y;
+	f32 w = (f32)(uvregion1.z - uvregion1.x);
+	f32 h = (f32)(uvregion1.w - uvregion1.y);
 
 	v4f buildRect;
 	buildRect.y = y;
@@ -378,10 +378,10 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	y += h;
 
 	auto newButton = yyGUICreateButton(buildRect,
-		yyGetTextureResource("../res/gui/icons.png", false, false, true), -1, m_mainMenu_drawGroup, &reg);
+		yyGetTextureFromCache("../res/gui/icons.png"), -1, m_mainMenu_drawGroup, &reg);
 	newButton->m_id = id;
 	reg = uvregion2;
-	newButton->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &reg);
+	newButton->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &reg);
 	newButton->SetOpacity(g_guiButtonMinimumOpacity, 0);
 	newButton->SetOpacity(g_guiButtonMinimumOpacity, 1);
 	newButton->SetOpacity(g_guiButtonMinimumOpacity, 2);

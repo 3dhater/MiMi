@@ -120,10 +120,10 @@ void miViewport::Init() {
 
 	v4i region(0,72,16,88);
 	m_gui_button_resetCamera = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
-		yyGetTextureResource("../res/gui/icons.png", false, false, true), m_index, 0, &region);
+		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
 	m_gui_button_resetCamera->m_isAnimated = true;
 	region.set(24,72,40,88);
-	m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &region);
+	m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
 	m_gui_group->AddElement(m_gui_button_resetCamera);
 	m_gui_button_resetCamera->SetOpacity(0.19f, 0);
 	m_gui_button_resetCamera->SetOpacity(0.19f, 1);
@@ -135,10 +135,10 @@ void miViewport::Init() {
 
 	region.set(0, 96, 16, 112);
 	m_gui_button_viewport = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
-		yyGetTextureResource("../res/gui/icons.png", false, false, true), m_index, 0, &region);
+		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
 	m_gui_button_viewport->m_isAnimated = true;
 	region.set(24, 96, 40, 112);
-	m_gui_button_viewport->SetMouseHoverTexture(yyGetTextureResource("../res/gui/icons.png", false, false, true), &region);
+	m_gui_button_viewport->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
 	m_gui_group->AddElement(m_gui_button_viewport);
 	m_gui_button_viewport->SetOpacity(0.19f, 0);
 	m_gui_button_viewport->SetOpacity(0.19f, 1);

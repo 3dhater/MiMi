@@ -1,9 +1,58 @@
  Info: Init window...
-Info: Init video driver - OpenGL...
-Info: Init OpenGL 3.3
-Info: Vendor: Intel
-Info: Renderer: Intel(R) HD Graphics 510
+Info: yyInitVideoDriver
+Info: GetAPI
+Info: GetAPIVersion
+Info: D3D11::D3D11
+Info: D3D11::Init
+Info: Init video driver - D3D11...
+Info: featureLevel : 45056
+Info: Hardware MSAA Quality levels : 1
+Info: D3D11ShaderGUI::D3D11ShaderGUI
+Info: D3D11ShaderGUI::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderSprite::D3D11ShaderSprite
+Info: D3D11ShaderSprite::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderSprite2::D3D11ShaderSprite2
+Info: D3D11ShaderSprite2::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderScreenQuad::D3D11ShaderScreenQuad
+Info: D3D11ShaderScreenQuad::init
+Info: D3D11_createShaders
+Info: D3D11ShaderSimple::D3D11ShaderSimple
+Info: D3D11ShaderSimple::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderSimpleAnimated::D3D11ShaderSimpleAnimated
+Info: D3D11ShaderSimpleAnimated::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderLine3D::D3D11ShaderLine3D
+Info: D3D11ShaderLine3D::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderLineModel::D3D11ShaderLineModel
+Info: D3D11ShaderLineModel::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderLineModelAnimated::D3D11ShaderLineModelAnimated
+Info: D3D11ShaderLineModelAnimated::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
+Info: D3D11_createConstantBuffer
+Info: D3D11ShaderRectangle::D3D11ShaderRectangle
+Info: D3D11ShaderRectangle::init
+Info: D3D11_createShaders
+Info: D3D11_createConstantBuffer
 Info: Load texture: ../res/gui/white.dds
+Info: Load plugin: plugins\stdPlugin.plg...Info: DONE (Standart plugin)
 Info: Load texture: ..\res\fonts\Noto\notosans.txt0.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt1.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt2.dds
@@ -13,5 +62,19 @@ Info: Load texture: ..\res\fonts\Noto\notosans.txt5.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt6.dds
 Info: Load texture: ../res/gui/black.dds
 Info: Load texture: ../res/gui/icons.png
+Info: yyQuit
 Info: Destroy main window...
-Info: Destroy video driver...
+Info: yyQuit
+Info: yyStop
+Info: Engine::~Engine
+Info: D3D11::~D3D11
+Info: D3D11ShaderRectangle::~D3D11ShaderRectangle
+Info: D3D11ShaderLine3D::~D3D11ShaderLine3D
+Info: D3D11ShaderSimpleAnimated::~D3D11ShaderSimpleAnimated
+Info: D3D11ShaderSimple::~D3D11ShaderSimple
+Info: D3D11ShaderScreenQuad::~D3D11ShaderScreenQuad
+Info: D3D11ShaderSprite::~D3D11ShaderSprite
+Info: D3D11ShaderSprite2::~D3D11ShaderSprite2
+Info: D3D11ShaderGUI::~D3D11ShaderGUI
+Info: D3D11ShaderLineModel::~D3D11ShaderLineModel
+Info: D3D11ShaderLineModelAnimated::~D3D11ShaderLineModelAnimated

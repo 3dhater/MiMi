@@ -2,6 +2,7 @@
 #include "miGUIManager.h"
 #include "miViewport.h"
 #include "miShortcutManager.h"
+#include "miSDK.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -180,26 +181,26 @@ miApplication::~miApplication() {
 		if(m_viewportLayouts[i])
 			delete m_viewportLayouts[i];
 	}
-	if (m_gridModel_left1) m_gpu->DeleteModel(m_gridModel_left1);
-	if (m_gridModel_left2) m_gpu->DeleteModel(m_gridModel_left2);
-	if (m_gridModel_left1_10) m_gpu->DeleteModel(m_gridModel_left1_10);
-	if (m_gridModel_left2_10) m_gpu->DeleteModel(m_gridModel_left2_10);
-	if (m_gridModel_left1_100) m_gpu->DeleteModel(m_gridModel_left1_100);
-	if (m_gridModel_left2_100) m_gpu->DeleteModel(m_gridModel_left2_100);
-	if (m_gridModel_front1) m_gpu->DeleteModel(m_gridModel_front1);
-	if (m_gridModel_front2) m_gpu->DeleteModel(m_gridModel_front2);
-	if (m_gridModel_front1_10) m_gpu->DeleteModel(m_gridModel_front1_10);
-	if (m_gridModel_front2_10) m_gpu->DeleteModel(m_gridModel_front2_10);
-	if (m_gridModel_front1_100) m_gpu->DeleteModel(m_gridModel_front1_100);
-	if (m_gridModel_front2_100) m_gpu->DeleteModel(m_gridModel_front2_100);
-	if (m_gridModel_top1) m_gpu->DeleteModel(m_gridModel_top1);
-	if (m_gridModel_top2) m_gpu->DeleteModel(m_gridModel_top2);
-	if (m_gridModel_top1_10) m_gpu->DeleteModel(m_gridModel_top1_10);
-	if (m_gridModel_top2_10) m_gpu->DeleteModel(m_gridModel_top2_10);
-	if (m_gridModel_top1_100) m_gpu->DeleteModel(m_gridModel_top1_100);
-	if (m_gridModel_top2_100) m_gpu->DeleteModel(m_gridModel_top2_100);
-	if (m_gridModel_perspective1) m_gpu->DeleteModel(m_gridModel_perspective1);
-	if (m_gridModel_perspective2) m_gpu->DeleteModel(m_gridModel_perspective2);
+	if (m_gridModel_left1) yyMegaAllocator::Destroy(m_gridModel_left1);
+	if (m_gridModel_left2) yyMegaAllocator::Destroy(m_gridModel_left2);
+	if (m_gridModel_left1_10) yyMegaAllocator::Destroy(m_gridModel_left1_10);
+	if (m_gridModel_left2_10) yyMegaAllocator::Destroy(m_gridModel_left2_10);
+	if (m_gridModel_left1_100) yyMegaAllocator::Destroy(m_gridModel_left1_100);
+	if (m_gridModel_left2_100) yyMegaAllocator::Destroy(m_gridModel_left2_100);
+	if (m_gridModel_front1) yyMegaAllocator::Destroy(m_gridModel_front1);
+	if (m_gridModel_front2) yyMegaAllocator::Destroy(m_gridModel_front2);
+	if (m_gridModel_front1_10) yyMegaAllocator::Destroy(m_gridModel_front1_10);
+	if (m_gridModel_front2_10) yyMegaAllocator::Destroy(m_gridModel_front2_10);
+	if (m_gridModel_front1_100) yyMegaAllocator::Destroy(m_gridModel_front1_100);
+	if (m_gridModel_front2_100) yyMegaAllocator::Destroy(m_gridModel_front2_100);
+	if (m_gridModel_top1) yyMegaAllocator::Destroy(m_gridModel_top1);
+	if (m_gridModel_top2) yyMegaAllocator::Destroy(m_gridModel_top2);
+	if (m_gridModel_top1_10) yyMegaAllocator::Destroy(m_gridModel_top1_10);
+	if (m_gridModel_top2_10) yyMegaAllocator::Destroy(m_gridModel_top2_10);
+	if (m_gridModel_top1_100) yyMegaAllocator::Destroy(m_gridModel_top1_100);
+	if (m_gridModel_top2_100) yyMegaAllocator::Destroy(m_gridModel_top2_100);
+	if (m_gridModel_perspective1) yyMegaAllocator::Destroy(m_gridModel_perspective1);
+	if (m_gridModel_perspective2) yyMegaAllocator::Destroy(m_gridModel_perspective2);
 	if (m_shortcutManager) delete m_shortcutManager;
 	if (m_GUIManager) delete m_GUIManager;
 	if (m_window) yyDestroy(m_window);
@@ -230,6 +231,62 @@ void miApplication::_initViewports() {
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
 	m_activeViewportLayout->ShowGUI();
+}
+
+void miApplication::_initPlugins() {
+	for (auto & entry : yy_fs::directory_iterator(L"plugins/"))
+	{
+		auto path = entry.path();
+		if (!path.has_extension())
+			continue;
+
+		auto ex = path.extension();
+		if (ex != ".plg")
+			continue;
+
+		auto lib_str = path.generic_string();
+
+		auto module = yyLoadLibrary(lib_str.c_str());
+		if (!module)
+			continue;
+
+		yyLogWriteInfo("Load plugin: %s...", lib_str.data());
+
+		miplCreatePlugin_t miplCreatePlugin = (miplCreatePlugin_t)yyGetProcAddress(module, miplCreatePlugin_funcName);
+		if (!miplCreatePlugin)
+		{
+			yyLogWriteInfo("FAIL (function %s not found)\n", miplCreatePlugin_funcName);
+			continue;
+		}
+		
+
+		auto newPlugin = miplCreatePlugin();
+		
+		bool isDebug = false;
+#ifdef YY_DEBUG
+		isDebug = true;
+#endif
+		if (newPlugin->IsDebug() && isDebug != true)
+		{
+			auto d = newPlugin->GetDestroyFunction();
+			d(newPlugin);
+			yyLogWriteInfo("FAIL (debug version)\n");
+			continue;
+		}
+
+		if (!newPlugin->Init())
+		{
+			auto d = newPlugin->GetDestroyFunction();
+			d(newPlugin);
+			yyLogWriteInfo("FAIL (can't init)\n");
+			continue;
+		}
+
+		yyLogWriteInfoW(L"DONE (%s)\n", newPlugin->GetName());
+
+		m_plugins.push_back(newPlugin);
+	}
+	m_plugins.shrink_to_fit();
 }
 
 bool miApplication::Init(const char* videoDriver) {
@@ -296,7 +353,7 @@ vidOk:
 
 	m_gpu = yyGetVideoDriverAPI();
 	m_gpu->UseVSync(true);
-	yySetDefaultTexture(yyGetTextureResource("../res/gui/white.dds", false, false, true));
+	yySetDefaultTexture(yyGetTextureFromCache("../res/gui/white.dds"));
 
 	m_color_viewportBorder = ColorYellow;
 
@@ -306,6 +363,8 @@ vidOk:
 	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 	
+	_initPlugins();
+
 	_initGrid();
 
 	m_GUIManager = new miGUIManager;
@@ -320,6 +379,10 @@ vidOk:
 
 yyWindow* miApplication::GetWindowMain() {
 	return m_window;
+}
+
+miViewportCamera* miApplication::GetActiveCamera() {
+	return m_activeViewportLayout->m_activeViewport->m_activeCamera;
 }
 
 void miApplication::MainLoop() {
@@ -338,7 +401,7 @@ void miApplication::MainLoop() {
 		m_isCursorInWindow = false;
 
 		if (math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
-			v4f(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y)))
+			v4f(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y)))
 		{
 			m_isCursorInWindow = true;
 		}
@@ -367,7 +430,7 @@ void miApplication::MainLoop() {
 			case yyEventType::Window: {
 				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
 					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize,
-						v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
+						v2f((f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y));
 					yyGUIRebuild();
 					_callViewportOnSize();
 				}
@@ -510,8 +573,8 @@ void miApplication::UpdateViewports() {
 void miApplication::DrawViewports() {
 	for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 	{
-		m_gpu->SetScissorRect(v4f(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y), m_window);
-		m_gpu->SetViewport(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y, m_window);
+		m_gpu->SetScissorRect(v4f(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y), m_window);
+		m_gpu->SetViewport(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y, m_window);
 
 		auto viewport = m_activeViewportLayout->m_viewports[i];
 		if (viewport == m_activeViewportLayout->m_activeViewport)
@@ -527,8 +590,8 @@ void miApplication::DrawViewports() {
 		viewport->OnDraw();
 	}
 
-	m_gpu->SetScissorRect(v4f(0.f,0.f, m_window->m_currentSize.x, m_window->m_currentSize.y), m_window);
-	m_gpu->SetViewport(0.f, 0.f, m_window->m_currentSize.x, m_window->m_currentSize.y, m_window);
+	m_gpu->SetScissorRect(v4f(0.f,0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y), m_window);
+	m_gpu->SetViewport(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y, m_window);
 }
 
 void miApplication::_callViewportOnSize() {
