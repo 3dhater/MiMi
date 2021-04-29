@@ -220,12 +220,13 @@ void miApplication::_initViewports() {
 		case miViewportLayout_Full:
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
 			break;
-		case miViewportLayout_Standart:
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 0.5f, 0.5f), miViewportCameraType::Top);
-			m_viewportLayouts[i]->Add(v4f(0.5f, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, 0.5f, 1.0f), miViewportCameraType::Front);
-			m_viewportLayouts[i]->Add(v4f(0.5f, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
-			break;
+		case miViewportLayout_Standart: {
+			const f32 midX = 0.4;
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
+		}break;
 		}
 	}
 
@@ -580,10 +581,10 @@ void miApplication::DrawViewports() {
 		if (viewport == m_activeViewportLayout->m_activeViewport)
 		{
 			v4f rect = viewport->m_currentRect;
-			rect.x -= miViewportBordeSize;
-			rect.y -= miViewportBordeSize;
-			rect.z += miViewportBordeSize;
-			rect.w += miViewportBordeSize;
+			rect.x -= miViewportBorderSize;
+			rect.y -= miViewportBorderSize;
+			rect.z += miViewportBorderSize;
+			rect.w += miViewportBorderSize;
 			m_gpu->UseDepth(false);
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}

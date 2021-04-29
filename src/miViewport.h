@@ -7,7 +7,7 @@
 
 struct miViewport
 {
-	miViewport(miViewportCameraType vct);
+	miViewport(miViewportCameraType vct, const v4f& rect1_0);
 	~miViewport();
 
 	void Init();
@@ -16,6 +16,11 @@ struct miViewport
 	void OnWindowSize();
 	void OnDraw();
 	yyVideoDriverAPI* m_gpu;
+
+	bool m_isOnLeftBorder;
+	bool m_isOnRightBorder;
+	bool m_isOnTopBorder;
+	bool m_isOnBottomBorder;
 
 	enum {
 		Camera_Perspective = 0,
@@ -43,7 +48,7 @@ struct miViewport
 	void ShowGUI();
 
 	s32 m_index;
-	v4f m_creationRect;
+	v4f m_creationRect; // 0;1
 	v4f m_currentRect;
 	v2f m_currentRectSize;
 	bool m_isCursorInRect;
@@ -89,9 +94,9 @@ struct miViewportLayout
 	}
 
 	void Add(const v4f& rect, miViewportCameraType vct) {
-		miViewport* newViewport = new miViewport(vct);
-		newViewport->m_creationRect = rect;
-		newViewport->Init();
+		miViewport* newViewport = new miViewport(vct, rect);
+		//newViewport->m_creationRect = rect;
+		//newViewport->Init();
 
 		m_activeViewport = newViewport;
 		m_viewports.push_back(newViewport);

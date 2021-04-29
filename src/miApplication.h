@@ -13,7 +13,11 @@
 #include "miViewport.h"
 #include "miPopup.h"
 
-#define miViewportBordeSize 1.f
+#define miViewportBorderSize 1.f
+#define miViewportLeftIndent 25.f
+#define miViewportRightIndent 200.f
+#define miViewportTopIndent 0.f
+#define miViewportBottomIndent 0.f
 
 #define miCommandID_CameraReset 1
 #define miCommandID_CameraMoveToSelection 2

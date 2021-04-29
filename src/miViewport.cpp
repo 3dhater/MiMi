@@ -7,9 +7,21 @@
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
 
-miViewport::miViewport(miViewportCameraType vct){
-	m_gpu = yyGetVideoDriverAPI();
+miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
+	m_creationRect = rect1_0;
 
+	m_isOnLeftBorder = false;
+	m_isOnRightBorder = false;
+	m_isOnTopBorder = false;
+	m_isOnBottomBorder = false;
+
+	if (m_creationRect.x == 0.f) m_isOnLeftBorder = true;
+	if (m_creationRect.y == 0.f) m_isOnTopBorder = true;
+	if (m_creationRect.z == 1.f) m_isOnRightBorder = true;
+	if (m_creationRect.w == 1.f) m_isOnBottomBorder = true;
+
+	m_gpu = yyGetVideoDriverAPI();
+	m_gui_group = 0;
 	m_drawMode = this->Draw_Material;
 	m_drawGrid = true;
 	m_index = 0;
@@ -52,10 +64,10 @@ miViewport::miViewport(miViewportCameraType vct){
 		break;
 	}
 
-	m_creationRect = v4f(0.f, 0.f, 1.f, 1.f);
 	m_currentRect = m_creationRect;
 	m_currentRectSize = v2f(800.f, 600.f);
 	m_cameraType = vct;
+	Init();
 	OnWindowSize();
 }
 
@@ -91,6 +103,37 @@ void miViewport_onClick_viewport(yyGUIElement* elem, s32 m_id) {
 	g_app->m_popupViewport = vp;
 	g_app->ShowPopupAtCursor(&g_app->m_popup_ViewportParameters);
 }
+void miViewport_onRebuildSetRects_gui_group(yyGUIElement* elem, s32 m_id) {
+	yyGUIGroup* group = (yyGUIGroup*)elem;
+	miViewport* vp = (miViewport*)elem->m_userData;
+	if (vp->m_isOnLeftBorder)
+	{
+		vp->m_gui_group->m_buildRectInPixels.x = miViewportLeftIndent;
+		vp->m_gui_group->m_clipRectInPixels.x = miViewportLeftIndent;
+		vp->m_gui_group->m_sensorRectInPixels.x = miViewportLeftIndent;
+	}
+	if (vp->m_isOnRightBorder)
+	{
+		vp->m_gui_group->m_buildRectInPixels.z -= miViewportRightIndent;
+		vp->m_gui_group->m_clipRectInPixels.z -= miViewportRightIndent;
+		vp->m_gui_group->m_sensorRectInPixels.z -= miViewportRightIndent;
+	}
+	if (vp->m_isOnTopBorder)
+	{
+		vp->m_gui_group->m_buildRectInPixels.y = miViewportTopIndent;
+		vp->m_gui_group->m_clipRectInPixels.y = miViewportTopIndent;
+		vp->m_gui_group->m_sensorRectInPixels.y = miViewportTopIndent;
+	}
+	if (vp->m_isOnBottomBorder)
+	{
+		vp->m_gui_group->m_buildRectInPixels.w -= miViewportBottomIndent;
+		vp->m_gui_group->m_clipRectInPixels.w -= miViewportBottomIndent;
+		vp->m_gui_group->m_sensorRectInPixels.w -= miViewportBottomIndent;
+	}
+	/*printf("%f %f %f %f\n", vp->m_gui_group->m_buildRectInPixels.x,
+		vp->m_gui_group->m_buildRectInPixels.y, vp->m_gui_group->m_buildRectInPixels.z,
+		vp->m_gui_group->m_buildRectInPixels.w);*/
+}
 
 void onMouseInRect(yyGUIElement* elem, s32 m_id) {
 	miViewport* vp = (miViewport*)elem->m_userData;
@@ -104,9 +147,14 @@ void miViewport::Init() {
 //	m_gui_group->m_onMouseInRect = onMouseInRect;
 	m_gui_group->m_userData = this;
 	m_gui_group->m_buildRect = m_creationRect;
+	m_gui_group->m_onRebuildSetRects = miViewport_onRebuildSetRects_gui_group;
 	m_gui_group->SetRectsFromBuildRect();
 
-	m_gui_text_vpName = yyGUICreateText(v2f(10.f, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
+	f32 vpNamePosX = 10.f;
+	/*if (m_creationRect.x == 0.f)
+		vpNamePosX += miViewportLeftIndent;*/
+
+	m_gui_text_vpName = yyGUICreateText(v2f(vpNamePosX, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
 		L"T", 0);
 	m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
 	m_gui_text_vpName->IgnoreInput(true);
@@ -115,7 +163,10 @@ void miViewport::Init() {
 	m_gui_text_vpName->m_userData = this;
 	m_gui_group->AddElement(m_gui_text_vpName);
 
-	f32 buttonPositionX = 70.f;
+	f32 buttonPositionX = 70.f ;
+	/*if (m_creationRect.x == 0.f)
+		buttonPositionX += miViewportLeftIndent;*/
+
 	f32 buttonWidth = 17.f;
 
 	v4i region(0,72,16,88);
@@ -238,15 +289,21 @@ void miViewport::OnWindowSize() {
 	if (m_creationRect.w > 0.f) m_currentRect.w = m_creationRect.w / windowSizeY_1;
 
 
+	
+
+	m_currentRect.x += miViewportBorderSize;
+	m_currentRect.y += miViewportBorderSize;
+	m_currentRect.z -= miViewportBorderSize;
+	m_currentRect.w -= miViewportBorderSize;
+
+	if (m_isOnLeftBorder) m_currentRect.x += miViewportLeftIndent;
+	if (m_isOnRightBorder) m_currentRect.z -= miViewportRightIndent;
+	if (m_isOnTopBorder) m_currentRect.y += miViewportTopIndent;
+	if (m_isOnBottomBorder) m_currentRect.w -= miViewportBottomIndent;
+
 	m_currentRectSize.x = m_currentRect.z - m_currentRect.x;
 	m_currentRectSize.y = m_currentRect.w - m_currentRect.y;
 	m_activeCamera->m_aspect = m_currentRectSize.x / m_currentRectSize.y;
-
-	m_currentRect.x += miViewportBordeSize;
-	m_currentRect.y += miViewportBordeSize;
-	m_currentRect.z -= miViewportBordeSize;
-	m_currentRect.w -= miViewportBordeSize;
-
 	/*m_gui_group->m_activeAreaRect = m_currentRect;
 	m_gui_group->m_activeAreaRect_global = m_currentRect;
 	m_gui_group->Rebuild();*/
