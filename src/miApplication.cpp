@@ -3,6 +3,7 @@
 #include "miViewport.h"
 #include "miShortcutManager.h"
 #include "miSDK.h"
+#include "miSDKImpl.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -62,6 +63,13 @@ void window_callbackOnCommand(s32 commandID) {
 	case miCommandID_ViewportDrawMaterialWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_MaterialWireframe); break;
 	case miCommandID_ViewportDrawWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Wireframe); break;
 	}
+	if (commandID >= miCommandID_for_plugins)
+	{
+		miPluginCommandIDMapNode mapNode;
+		if (g_app->m_pluginCommandID.Get(commandID - miCommandID_for_plugins, mapNode)) {
+			mapNode.m_plugin->OnPopupCommand(mapNode.m_commandID);
+		}
+	}
 }
 
 void window_onActivate(yyWindow* window) {
@@ -116,6 +124,7 @@ int main(int argc, char* argv[]) {
 }
 
 miApplication::miApplication() {
+	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
 	m_inputContext = 0;
 	m_engineContext = 0;
@@ -156,26 +165,13 @@ miApplication::miApplication() {
 
 	m_shortcutManager = new miShortcutManager;
 
-	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraReset));
-	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraMoveToSelection));
+	
 
-	m_popup_ViewportParameters.AddItem(L"Perspective", miCommandID_ViewportViewPerspective, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewPerspective));
-	m_popup_ViewportParameters.AddItem(L"Top", miCommandID_ViewportViewTop, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewTop));
-	m_popup_ViewportParameters.AddItem(L"Bottom", miCommandID_ViewportViewBottom, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBottom));
-	m_popup_ViewportParameters.AddItem(L"Left", miCommandID_ViewportViewLeft, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewLeft));
-	m_popup_ViewportParameters.AddItem(L"Right", miCommandID_ViewportViewRight, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewRight));
-	m_popup_ViewportParameters.AddItem(L"Front", miCommandID_ViewportViewFront, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewFront));
-	m_popup_ViewportParameters.AddItem(L"Back", miCommandID_ViewportViewBack, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBack));
-	m_popup_ViewportParameters.AddSeparator();
-	m_popup_ViewportParameters.AddItem(L"Toggle full view", miCommandID_ViewportToggleFullView, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleFullView));
-	m_popup_ViewportParameters.AddItem(L"Toggle grid", miCommandID_ViewportToggleGrid, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleGrid));
-	m_popup_ViewportParameters.AddSeparator();
-	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterial));
-	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterialWireframe));
-	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
+	m_sdk = new miSDKImpl;
 }
 
 miApplication::~miApplication() {
+	if (m_sdk) delete m_sdk;
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
 		if(m_viewportLayouts[i])
@@ -234,6 +230,50 @@ void miApplication::_initViewports() {
 	m_activeViewportLayout->ShowGUI();
 }
 
+void miApplication::_initPopups() {
+
+	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraReset));
+	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraMoveToSelection));
+
+	m_popup_ViewportParameters.AddItem(L"Perspective", miCommandID_ViewportViewPerspective, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewPerspective));
+	m_popup_ViewportParameters.AddItem(L"Top", miCommandID_ViewportViewTop, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewTop));
+	m_popup_ViewportParameters.AddItem(L"Bottom", miCommandID_ViewportViewBottom, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBottom));
+	m_popup_ViewportParameters.AddItem(L"Left", miCommandID_ViewportViewLeft, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewLeft));
+	m_popup_ViewportParameters.AddItem(L"Right", miCommandID_ViewportViewRight, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewRight));
+	m_popup_ViewportParameters.AddItem(L"Front", miCommandID_ViewportViewFront, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewFront));
+	m_popup_ViewportParameters.AddItem(L"Back", miCommandID_ViewportViewBack, m_shortcutManager->GetText(miShortcutCommandType::viewport_viewBack));
+	m_popup_ViewportParameters.AddSeparator();
+	m_popup_ViewportParameters.AddItem(L"Toggle full view", miCommandID_ViewportToggleFullView, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleFullView));
+	m_popup_ViewportParameters.AddItem(L"Toggle grid", miCommandID_ViewportToggleGrid, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleGrid));
+	m_popup_ViewportParameters.AddSeparator();
+	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterial));
+	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterialWireframe));
+	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
+
+	//m_popup_NewObject
+	for (u16 i = 0, sz = m_sdk->m_objectCategories.size(); i < sz; ++i)
+	{
+		auto cat = m_sdk->m_objectCategories[i];
+		
+		miPopupInfo* subMenu = 0;
+		
+		if (cat->m_objects.size())
+		{
+			subMenu = m_popup_NewObject.m_menu->CreateSubMenu(cat->m_categoryName.data());
+		}
+		else
+		{
+			m_popup_NewObject.AddItem(cat->m_categoryName.data(), 0, 0);
+		}
+
+		for (u16 k = 0, ksz = cat->m_objects.size(); k < ksz; ++k)
+		{
+			auto object = cat->m_objects[k];
+			subMenu->AddItem(object->m_objectName.data(), object->m_popupIndex, 0);
+		}
+	}
+}
+
 void miApplication::_initPlugins() {
 	for (auto & entry : yy_fs::directory_iterator(L"plugins/"))
 	{
@@ -251,7 +291,7 @@ void miApplication::_initPlugins() {
 		if (!module)
 			continue;
 
-		yyLogWriteInfo("Load plugin: %s...", lib_str.data());
+		yyLogWriteInfo("Load plugin: %s...\n", lib_str.data());
 
 		miplCreatePlugin_t miplCreatePlugin = (miplCreatePlugin_t)yyGetProcAddress(module, miplCreatePlugin_funcName);
 		if (!miplCreatePlugin)
@@ -275,7 +315,7 @@ void miApplication::_initPlugins() {
 			continue;
 		}
 
-		if (!newPlugin->Init())
+		if (!newPlugin->Init(m_sdk))
 		{
 			auto d = newPlugin->GetDestroyFunction();
 			d(newPlugin);
@@ -365,7 +405,7 @@ vidOk:
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 	
 	_initPlugins();
-
+	_initPopups();
 	_initGrid();
 
 	m_GUIManager = new miGUIManager;

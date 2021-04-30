@@ -33,9 +33,11 @@
 #define miCommandID_ViewportDrawMaterial 12
 #define miCommandID_ViewportDrawMaterialWireframe 13
 #define miCommandID_ViewportDrawWireframe 14
+#define miCommandID_for_plugins 100
 
 class miGUIManager;
 class miShortcutManager;
+class miSDKImpl;
 
 enum class miKeyboardModifier : u32
 {
@@ -51,13 +53,23 @@ enum class miKeyboardModifier : u32
 	END
 };
 
+struct miPluginCommandIDMapNode{
+	miPluginCommandIDMapNode() {
+		m_plugin = 0;
+		m_commandID = 0;
+	}
+	miPluginCommandIDMapNode(miPlugin* p, u32 id) :m_plugin(p), m_commandID(id) {}
+	miPlugin* m_plugin;
+	u32 m_commandID;
+};
+
 class miApplication
 {
 	yyInputContext * m_inputContext;
 	yyEngineContext* m_engineContext;
 	yyWindow*        m_window;
 	yyVideoDriverAPI* m_gpu;
-
+	miSDKImpl* m_sdk;
 
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
@@ -109,6 +121,12 @@ class miApplication
 	yyArraySmall<miPlugin*> m_plugins;
 	void _initPlugins();
 
+	void _initPopups();
+
+	// for every popup command ID from plugins
+	u32 m_miCommandID_for_plugins_count;
+	miBinarySearchTree<miPluginCommandIDMapNode> m_pluginCommandID;
+
 public:
 	miApplication();
 	~miApplication();
@@ -127,6 +145,7 @@ public:
 	miViewport* m_popupViewport; // set this when click on button whith popup menu
 	miPopup m_popup_ViewportCamera;
 	miPopup m_popup_ViewportParameters;
+	miPopup m_popup_NewObject;
 	void ShowPopupAtCursor(miPopup* popup);
 	
 	void CommandCameraReset(miViewport* vp);
@@ -136,11 +155,13 @@ public:
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
 
+	friend class miSDKImpl;
 	friend struct miViewportCamera;
 	friend struct miViewport;
 	friend class miShortcutManager;
 	friend class miVisualObjectImpl;
 	friend void window_onActivate(yyWindow* window);
+	friend void window_callbackOnCommand(s32 commandID);
 	friend void log_writeToFile(const char* message);
 
 };

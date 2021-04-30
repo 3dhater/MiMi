@@ -33,9 +33,12 @@ class miVisualObject;
 class miPlugin;
 struct miMatrix;
 
+#include "miBST.h"
 #include "miMath.h"
 #include "miModel.h"
 #include "miPlugin.h"
+
+typedef void(*miCallback_onClickPopup)(unsigned int id);
 
 class miSDK
 {
@@ -49,6 +52,19 @@ public:
 
 	virtual void* AllocateMemory(unsigned int size) = 0;
 	virtual void  FreeMemory(void*) = 0;
+
+	// register new object for popup when you press `Add` button
+	// return - popup command id 
+	/*  g_CommandID_Plane = sdk->RegisterNewObject(this, L"Polygonal objects", L"Plane");
+		g_CommandID_Box = sdk->RegisterNewObject(this, L"Polygonal objects", L"Box");
+		g_CommandID_Sphere = sdk->RegisterNewObject(this, L"Polygonal objects", L"Sphere");
+		g_CommandID_Point = sdk->RegisterNewObject(this, L"Light", L"Point");
+		g_CommandID_Spot = sdk->RegisterNewObject(this, L"Light", L"Spot");
+		g_CommandID_Directional = sdk->RegisterNewObject(this, L"Light", L"Directional");
+		g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");
+	*/
+	virtual unsigned int  RegisterNewObject(miPlugin*, const wchar_t* category, const wchar_t* objectName) = 0;
+
 };
 
 #endif

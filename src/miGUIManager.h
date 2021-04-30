@@ -74,6 +74,8 @@ public:
 	s32 m_selectedMenuItemID;
 	yyGUIPictureBox* m_mainMenu_backgroundPB;
 	yyGUIPictureBox* m_mainMenu_windowBackgroundPB;
+	
+	yyGUIButton*  m_button_add;
 };
 
 #endif

@@ -237,22 +237,9 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 //	}
 //	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_noActive;
 //}
-//void gui_mainMenu_groupOnMouseInRect(yyGUIElement* elem, s32 m_id) {
-//	g_guiManager->m_isMainMenuInCursor = true;
-//	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
-//	{
-//		auto item = g_guiManager->m_mainMenu_items.at(i);
-//		if (item->m_button->m_color.m_data[3] < 1.f)
-//			item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_moreOpacity;
-//		/*if (item->m_text->m_color.m_data[3] < 1.f)
-//		{
-//			item->m_text->m_onDraw = gui_mainMenu_textOnDraw_moreOpacity;
-//		}*/
-//		item->m_button->m_sensorRectInPixels = item->m_activeArea_Active;
-//		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_Active;
-//	}
-//	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_Active;
-//}
+void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->ShowPopupAtCursor(&g_app->m_popup_NewObject);
+}
 
 miGUIManager::miGUIManager(){
 	m_selectedMenuItemID = -1;
@@ -291,6 +278,22 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_windowBackgroundPB->SetVisible(false);
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
+	m_button_add = yyGUICreateButton(v4f(
+		(f32)window->m_creationSize.x - miViewportRightIndent,
+		0.f,
+		(f32)window->m_creationSize.x,
+		16.f
+	), 0, -1, 0, 0 );
+	m_button_add->SetText(L"Add", m_fontDefault, false);
+	m_button_add->m_align = yyGUIElement::Align::AlignRightTop;
+	m_button_add->SetColor(ColorDimGray, 0);
+	m_button_add->SetColor(ColorDarkGrey, 1);
+	m_button_add->SetColor(ColorGrey, 2);
+	m_button_add->m_textColor = ColorWhite;
+	m_button_add->m_textColorHover = ColorWhite;
+	m_button_add->m_textColorPress = ColorWhite;
+	m_button_add->m_isAnimated = true;
+	m_button_add->m_onClick = gui_addButton_onClick;
 
 	auto menu_file = _addMainMenuItem(L"File", 
 		v4i(0, 0, 23, 23), v4i(24, 0, 47, 23), v4i(48, 0, 71, 23), 

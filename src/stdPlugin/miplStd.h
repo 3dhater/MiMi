@@ -14,7 +14,9 @@ public:
 	virtual bool IsDebug();
 	virtual miplDestroyPlugin_t GetDestroyFunction();
 
-	virtual bool Init();
+	virtual bool Init(miSDK* sdk);
+
+	virtual void OnPopupCommand(unsigned int);
 };
 
 #endif

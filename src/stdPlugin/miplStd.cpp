@@ -52,7 +52,46 @@ miplDestroyPlugin_t miplStd::GetDestroyFunction(){
 	return miplDestroyPlugin;
 }
 
-bool miplStd::Init(){
+unsigned int g_CommandID_Plane = 0;
+unsigned int g_CommandID_Box = 0;
+unsigned int g_CommandID_Sphere = 0;
+unsigned int g_CommandID_Point = 0;
+unsigned int g_CommandID_Spot = 0;
+unsigned int g_CommandID_Directional = 0;
+unsigned int g_CommandID_FreeCamera = 0;
+
+bool miplStd::Init(miSDK* sdk){
+	g_CommandID_Plane = sdk->RegisterNewObject(this, L"Polygonal objects", L"Plane");
+	g_CommandID_Box = sdk->RegisterNewObject(this, L"Polygonal objects", L"Box");
+	g_CommandID_Sphere = sdk->RegisterNewObject(this, L"Polygonal objects", L"Sphere");
+	g_CommandID_Point = sdk->RegisterNewObject(this, L"Light", L"Point");
+	g_CommandID_Spot = sdk->RegisterNewObject(this, L"Light", L"Spot");
+	g_CommandID_Directional = sdk->RegisterNewObject(this, L"Light", L"Directional");
+	g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");
 
 	return true;
+}
+
+void miplStd::OnPopupCommand(unsigned int id) {
+	if (id == g_CommandID_Plane) {
+		printf("plane\n");
+	}
+	else if (id == g_CommandID_Box) {
+		printf("box\n");
+	}
+	else if (id == g_CommandID_Sphere) {
+		printf("sphere\n");
+	}
+	else if (id == g_CommandID_Point) {
+		printf("point\n");
+	}
+	else if (id == g_CommandID_Spot) {
+		printf("spot\n");
+	}
+	else if (id == g_CommandID_Directional) {
+		printf("directional\n");
+	}
+	else if (id == g_CommandID_FreeCamera) {
+		printf("free camera\n");
+	}
 }
