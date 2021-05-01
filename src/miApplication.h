@@ -17,7 +17,7 @@
 #define miViewportLeftIndent 25.f
 #define miViewportRightIndent 200.f
 #define miViewportTopIndent 0.f
-#define miViewportBottomIndent 0.f
+#define miViewportBottomIndent 50.f
 
 #define miCommandID_CameraReset 1
 #define miCommandID_CameraMoveToSelection 2
@@ -38,9 +38,13 @@
 class miGUIManager;
 class miShortcutManager;
 class miSDKImpl;
+class miGraphics2D;
 
-enum class miKeyboardModifier : u32
-{
+enum class miCursorBehaviorMode : u32 {
+	CommonMode
+};
+
+enum class miKeyboardModifier : u32{
 	None,
 	Ctrl,
 	Alt,
@@ -70,6 +74,8 @@ class miApplication
 	yyWindow*        m_window;
 	yyVideoDriverAPI* m_gpu;
 	miSDKImpl* m_sdk;
+
+	miGraphics2D* m_2d;
 
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
@@ -131,6 +137,10 @@ public:
 	miApplication();
 	~miApplication();
 	
+	miCursorBehaviorMode m_cursorBehaviorMode;
+	bool m_isSelectByRectangle;
+	v2f m_cursorLMBClickPosition;
+
 	f32 m_dt;
 
 	bool Init(const char* videoDriver);
@@ -155,6 +165,7 @@ public:
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
 
+	friend class miGraphics2D;
 	friend class miSDKImpl;
 	friend struct miViewportCamera;
 	friend struct miViewport;

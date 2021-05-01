@@ -4,6 +4,7 @@
 #include "miShortcutManager.h"
 #include "miSDK.h"
 #include "miSDKImpl.h"
+#include "miGraphics2D.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -94,7 +95,7 @@ void window_onActivate(yyWindow* window) {
 }
 
 int main(int argc, char* argv[]) {
-
+	
 	yyPtr<miApplication> app = yyCreate<miApplication>();
 
 	{
@@ -124,6 +125,9 @@ int main(int argc, char* argv[]) {
 }
 
 miApplication::miApplication() {
+	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
+	m_isSelectByRectangle = false;
+
 	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
 	m_inputContext = 0;
@@ -166,11 +170,12 @@ miApplication::miApplication() {
 	m_shortcutManager = new miShortcutManager;
 
 	
-
+	m_2d = 0;
 	m_sdk = new miSDKImpl;
 }
 
 miApplication::~miApplication() {
+	if (m_2d) delete m_2d;
 	if (m_sdk) delete m_sdk;
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -353,7 +358,7 @@ bool miApplication::Init(const char* videoDriver) {
 		YY_PRINT_FAILED;
 		return false;
 	}
-
+	
 	yySetMainWindow(m_window);
 	m_window->m_onCommand = window_callbackOnCommand;
 	m_window->m_onClose = window_onCLose;
@@ -410,7 +415,11 @@ vidOk:
 
 	m_GUIManager = new miGUIManager;
 
+	m_2d = new miGraphics2D;
+	m_2d->Init(m_window);
+
 	_initViewports();
+	m_2d->UpdateClip();
 
 	yyGUIRebuild();
 
@@ -458,6 +467,17 @@ void miApplication::MainLoop() {
 		}
 		
 		m_isCursorInGUI = yyGUIUpdate(m_dt);
+		if (!m_isCursorInGUI)
+		{
+			if (m_inputContext->m_cursorCoords.x >= 0 && m_inputContext->m_cursorCoords.x <= miViewportLeftIndent)
+				m_isCursorInGUI = true;
+			else if (m_inputContext->m_cursorCoords.x >= m_window->m_currentSize.x - miViewportRightIndent && m_inputContext->m_cursorCoords.x <= m_window->m_currentSize.x)
+				m_isCursorInGUI = true;
+			else if (m_inputContext->m_cursorCoords.y >= 0 && m_inputContext->m_cursorCoords.y <= miViewportTopIndent)
+				m_isCursorInGUI = true;
+			else if (m_inputContext->m_cursorCoords.y >= m_window->m_currentSize.y - miViewportBottomIndent && m_inputContext->m_cursorCoords.y <= m_window->m_currentSize.y)
+				m_isCursorInGUI = true;
+		}
 
 		while (yyPollEvent(currentEvent))
 		{
@@ -474,6 +494,7 @@ void miApplication::MainLoop() {
 						v2f((f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y));
 					yyGUIRebuild();
 					_callViewportOnSize();
+					m_2d->UpdateClip();
 				}
 			}break;
 			}
@@ -493,8 +514,29 @@ void miApplication::MainLoop() {
 			DrawViewports();
 
 			yyGUIDrawAll();
+
 			m_gpu->EndDraw();
 			m_gpu->SwapBuffers();
+
+			m_2d->BeginDraw();
+			if (m_isSelectByRectangle)
+			{
+				m_2d->DrawSelectionBox(m_cursorLMBClickPosition, m_inputContext->m_cursorCoords);
+			}
+
+			m_2d->EndDraw();
+
+			////Gdiplus::Pen  pen(Gdiplus::Color(255, 0, 0, 255));
+			//Gdiplus::SolidBrush mySolidBrush(Gdiplus::Color(200, 255, 255, 255));
+
+			//Gdiplus::Pen  pen(&mySolidBrush);
+			//pen.SetWidth(1.85f);
+			//pen.SetDashStyle(Gdiplus::DashStyleDash);
+			//Gdiplus::Region myRegion(Gdiplus::Rect(20, 30, 100, 50));
+			////gdi->SetClip(&myRegion);
+			//gdi->DrawLine(&pen, 50, 100, 200, 100);
+			//gdi->DrawLine(&pen, 50, 100, 50, 200);
+			
 
 			ProcessShortcuts();
 		}
@@ -545,6 +587,9 @@ void miApplication::ProcessShortcuts() {
 void miApplication::UpdateViewports() {
 	if (!m_isCursorInGUI)
 	{
+		if (m_inputContext->m_isLMBDown)
+			m_cursorLMBClickPosition = m_inputContext->m_cursorCoords;
+
 		for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 		{
 			auto viewport = m_activeViewportLayout->m_viewports[i];
@@ -567,6 +612,7 @@ void miApplication::UpdateViewports() {
 					if (m_activeViewportLayout->m_activeViewport != viewport)
 					{
 						m_activeViewportLayout->m_activeViewport = viewport;
+						m_2d->UpdateClip();
 						return;
 					}
 				}
@@ -576,6 +622,10 @@ void miApplication::UpdateViewports() {
 
 	if (m_isCursorMove && m_isViewportInFocus)
 	{
+		if( m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode
+			&& m_inputContext->m_isLMBHold)
+			m_isSelectByRectangle = true;
+
 		if (m_inputContext->m_isMMBHold)
 		{
 			switch (m_keyboardModifier)
@@ -593,6 +643,19 @@ void miApplication::UpdateViewports() {
 				m_activeViewportLayout->m_activeViewport->m_activeCamera->RotateZ();
 				break;
 			}
+		}
+	}
+
+	//if(m_isCursorInGUI) printf("InGUI");
+
+	if (m_isSelectByRectangle)
+	{
+		//printf("s");
+
+		if (m_inputContext->m_isLMBUp || m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		{
+			m_isSelectByRectangle = false;
+			m_isViewportInFocus = false;
 		}
 	}
 
@@ -678,7 +741,7 @@ void miApplication::CommandViewportToggleFullView(miViewport* vp) {
 		m_activeViewportLayout->m_activeViewport->Copy(m_previousViewportLayout->m_activeViewport);
 		m_activeViewportLayout->ShowGUI();
 	}
-
+	m_2d->UpdateClip();
 }
 
 void miApplication::CommandViewportToggleGrid(miViewport* vp) {
