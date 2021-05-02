@@ -40,6 +40,21 @@ struct miMatrix;
 
 typedef void(*miCallback_onClickPopup)(unsigned int id);
 
+struct v2f;
+struct v3f;
+struct v4f;
+class Mat4;
+namespace math
+{
+	miVec2 v2f_to_miVec2(const v2f& v);
+	miVec3 v3f_to_miVec3(const v3f& v);
+	miVec4 v4f_to_miVec4(const v4f& v);
+	miMatrix Mat4_to_miMatrix(const Mat4& m);
+	v2f miVec2_to_v2f(const miVec2& v);
+	v3f miVec3_to_v3f(const miVec3& v);
+	v4f miVec4_to_v4f(const miVec4& v);
+}
+
 class miSDK
 {
 public:
@@ -65,6 +80,7 @@ public:
 	*/
 	virtual unsigned int  RegisterNewObject(miPlugin*, const wchar_t* category, const wchar_t* objectName) = 0;
 
+	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) = 0;
 };
 
 #endif

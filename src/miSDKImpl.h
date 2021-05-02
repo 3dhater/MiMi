@@ -1,6 +1,8 @@
 ﻿#ifndef _MI_SDKIMPL_H_
 #define _MI_SDKIMPL_H_
 
+
+
 struct miObjectCategory_object
 {
 	yyStringW m_objectName;
@@ -44,6 +46,7 @@ public:
 	virtual void  FreeMemory(void*);
 
 	virtual unsigned int  RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName);
+	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert);
 
 	friend class miApplication;
 };

@@ -39,6 +39,7 @@ class miGUIManager;
 class miShortcutManager;
 class miSDKImpl;
 class miGraphics2D;
+struct miSelectionFrust;
 
 enum class miCursorBehaviorMode : u32 {
 	CommonMode
@@ -76,6 +77,7 @@ class miApplication
 	miSDKImpl* m_sdk;
 
 	miGraphics2D* m_2d;
+	miSelectionFrust* m_selectionFrust;
 
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
@@ -133,10 +135,14 @@ class miApplication
 	u32 m_miCommandID_for_plugins_count;
 	miBinarySearchTree<miPluginCommandIDMapNode> m_pluginCommandID;
 
+	v2f m_gpuDepthRange;
+
 public:
 	miApplication();
 	~miApplication();
-	
+
+	std::vector<miRay> g_rays;
+
 	miCursorBehaviorMode m_cursorBehaviorMode;
 	bool m_isSelectByRectangle;
 	v2f m_cursorLMBClickPosition;
@@ -171,6 +177,7 @@ public:
 	friend struct miViewport;
 	friend class miShortcutManager;
 	friend class miVisualObjectImpl;
+	friend struct miSelectionFrust;
 	friend void window_onActivate(yyWindow* window);
 	friend void window_callbackOnCommand(s32 commandID);
 	friend void log_writeToFile(const char* message);

@@ -1,7 +1,6 @@
  Info: Init window...
 Info: yyInitVideoDriver
 Info: GetAPI
-Info: GetAPIVersion
 Info: OpenGL::OpenGL
 Info: OpenGL::Init
 Info: Init video driver - OpenGL...

@@ -3,6 +3,7 @@
 #include "miViewport.h"
 #include "miViewportCamera.h"
 #include "miShortcutManager.h"
+#include "miSelectionFrust.h"
 
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
@@ -325,11 +326,31 @@ void miViewport::OnDraw() {
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::View, m_activeCamera->m_viewMatrix);
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, m_activeCamera->m_projectionMatrix);
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection,
-		m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix);
+		m_activeCamera->m_viewProjectionMatrix);
 
-	/*m_gpu->DrawLine3D(v4f(-10.f, 0.f, 0.f, 0.f), v4f(10.f, 0.f, 0.f, 0.f), ColorRed);
-	m_gpu->DrawLine3D(v4f(0.f, -10.f, 0.f, 0.f), v4f(0.f, 10.f, 0.f, 0.f), ColorGreen);
-	m_gpu->DrawLine3D(v4f(0.f, 0.f, -10.f, 0.f), v4f(0.f, 0.f, 10.f, 0.f), ColorBlue);*/
+	/*for (auto & r : g_app->g_rays)
+	{
+		m_gpu->DrawLine3D(math::miVec4_to_v4f(r.m_origin), math::miVec4_to_v4f(r.m_end), ColorWhite);
+	}*/
+
+	/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[0], g_app->m_selectionFrust->m_left[1], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[1], g_app->m_selectionFrust->m_left[2], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[2], g_app->m_selectionFrust->m_left[3], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[3], g_app->m_selectionFrust->m_left[0], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[0], g_app->m_selectionFrust->m_right[1], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[1], g_app->m_selectionFrust->m_right[2], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[2], g_app->m_selectionFrust->m_right[3], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[3], g_app->m_selectionFrust->m_right[0], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[0], g_app->m_selectionFrust->m_top[1], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[1], g_app->m_selectionFrust->m_top[2], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[2], g_app->m_selectionFrust->m_top[3], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[3], g_app->m_selectionFrust->m_top[0], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[0], g_app->m_selectionFrust->m_bottom[1], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[1], g_app->m_selectionFrust->m_bottom[2], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[2], g_app->m_selectionFrust->m_bottom[3], ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[3], g_app->m_selectionFrust->m_bottom[0], ColorWhite);*/
+	
+
 
 	if (m_drawGrid)
 	{

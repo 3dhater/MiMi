@@ -4,6 +4,9 @@
 #include <cmath>
 #include <algorithm>
 
+#define miInfinity std::numeric_limits<float>::infinity()
+#define miEpsilon std::numeric_limits<float>::epsilon()
+
 struct miVec2
 {
 	miVec2() :x(0.f), y(0.f) {}
@@ -127,6 +130,8 @@ struct miVec4
 		return true;
 	}
 };
+inline miVec2 operator*(const float& s, const miVec2& v) { return v * s; }
+inline miVec3 operator*(const float& s, const miVec3& v) { return v * s; }
 inline miVec4 operator*(const float& s, const miVec4& v) { return v * s; }
 
 struct miQuaternion
@@ -541,6 +546,54 @@ struct miMatrix{
 		mat[3 * 4 + 3] = -r3[1][1];
 
 		return true;
+	}
+};
+
+struct miRay {
+	miVec4 m_origin;
+	miVec4 m_end;
+	miVec4 m_dir;
+	miVec4 m_invDir;
+
+	void update() {
+		m_dir.x = m_end.x - m_origin.x;
+		m_dir.y = m_end.y - m_origin.y;
+		m_dir.z = m_end.z - m_origin.z;
+		m_dir.normalize2();
+		m_dir.w = 1.f;
+
+		m_invDir.x = 1.f / m_dir.x;
+		m_invDir.y = 1.f / m_dir.y;
+		m_invDir.z = 1.f / m_dir.z;
+		m_invDir.w = 1.f;
+	}
+
+	// ray-ray intersection
+	float distanceToLine(const miVec4& lineP0, const miVec4& lineP1){
+		miVec4 u = m_end - m_origin;
+		miVec4 v = lineP1 - lineP0;
+		miVec4 w = m_origin - lineP0;
+		float a = u.dot();
+		float b = u.dot(v);
+		float c = v.dot();
+		float d = u.dot(w);
+		float e = v.dot(w);
+		float D = a*c - b*b;
+		float sc, tc;
+
+		if (D < miEpsilon)
+		{
+			sc = 0.f;
+			tc = (b>c ? d / b : e / c);
+		}
+		else
+		{
+			sc = (b*e - c*d) / D;
+			tc = (a*e - b*d) / D;
+		}
+
+		miVec4 dP = w + (sc*u) - (tc*v);
+		return std::sqrt(dP.dot());
 	}
 };
 #endif

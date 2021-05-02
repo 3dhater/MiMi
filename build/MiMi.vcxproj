@@ -34,6 +34,7 @@
     <ClCompile Include="..\src\miGUIManager.cpp" />
     <ClCompile Include="..\src\miPopup.cpp" />
     <ClCompile Include="..\src\miSDKImpl.cpp" />
+    <ClCompile Include="..\src\miSelectionFrust.cpp" />
     <ClCompile Include="..\src\miShortcutManager.cpp" />
     <ClCompile Include="..\src\miViewport.cpp" />
     <ClCompile Include="..\src\miViewportCamera.cpp" />

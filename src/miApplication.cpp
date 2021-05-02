@@ -5,12 +5,46 @@
 #include "miSDK.h"
 #include "miSDKImpl.h"
 #include "miGraphics2D.h"
+#include "miSelectionFrust.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
 
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
+
+
+namespace math
+{
+	miVec2 v2f_to_miVec2(const v2f& v) { return miVec2(v.x, v.y); }
+	miVec3 v3f_to_miVec3(const v3f& v) { return miVec3(v.x, v.y, v.z); }
+	miVec4 v4f_to_miVec4(const v4f& v) { return miVec4(v.x, v.y, v.z, v.w); }
+	miMatrix Mat4_to_miMatrix(const Mat4& m) { 
+		miMatrix mi_m;
+		auto mi_m_ptr = mi_m.getPtr();
+		auto m_ptr = m.getPtrConst();
+		mi_m_ptr[0] = m_ptr[0];
+		mi_m_ptr[1] = m_ptr[1];
+		mi_m_ptr[2] = m_ptr[2];
+		mi_m_ptr[3] = m_ptr[3];
+		mi_m_ptr[4] = m_ptr[4];
+		mi_m_ptr[5] = m_ptr[5];
+		mi_m_ptr[6] = m_ptr[6];
+		mi_m_ptr[7] = m_ptr[7];
+		mi_m_ptr[8] = m_ptr[8];
+		mi_m_ptr[9] = m_ptr[9];
+		mi_m_ptr[10] = m_ptr[10];
+		mi_m_ptr[11] = m_ptr[11];
+		mi_m_ptr[12] = m_ptr[12];
+		mi_m_ptr[13] = m_ptr[13];
+		mi_m_ptr[14] = m_ptr[14];
+		mi_m_ptr[15] = m_ptr[15];
+		return mi_m; 
+	}
+	v2f miVec2_to_v2f(const miVec2& v) { return v2f(v.x, v.y); }
+	v3f miVec3_to_v3f(const miVec3& v) { return v3f(v.x, v.y, v.z); }
+	v4f miVec4_to_v4f(const miVec4& v) { return v4f(v.x, v.y, v.z, v.w); }
+}
 
 void log_writeToFile(const char* message) {
 	auto l = strlen(message);
@@ -127,6 +161,7 @@ int main(int argc, char* argv[]) {
 miApplication::miApplication() {
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
 	m_isSelectByRectangle = false;
+	m_selectionFrust = new miSelectionFrust;
 
 	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
@@ -175,6 +210,7 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+	if (m_selectionFrust) delete m_selectionFrust;
 	if (m_2d) delete m_2d;
 	if (m_sdk) delete m_sdk;
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
@@ -398,6 +434,7 @@ bool miApplication::Init(const char* videoDriver) {
 vidOk:
 
 	m_gpu = yyGetVideoDriverAPI();
+	m_gpu->GetDepthRange(&m_gpuDepthRange);
 	m_gpu->UseVSync(true);
 	yySetDefaultTexture(yyGetTextureFromCache("../res/gui/white.dds"));
 
@@ -589,13 +626,33 @@ void miApplication::UpdateViewports() {
 		{
 			m_isSelectByRectangle = false;
 			m_isViewportInFocus = false;
+
+			if (m_inputContext->m_isLMBUp)
+			{
+				Aabb aabb;
+				aabb.add(v3f((f32)m_inputContext->m_cursorCoords.x, (f32)m_inputContext->m_cursorCoords.y, 0.f));
+				aabb.add(v3f((f32)m_cursorLMBClickPosition.x, (f32)m_cursorLMBClickPosition.y, 0.f));
+
+				m_selectionFrust->createWithFrame(
+					v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+					m_activeViewportLayout->m_activeViewport->m_currentRect,
+					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+			}
 		}
 	}
 
 	if (!m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isLMBDown)
+		{
 			m_cursorLMBClickPosition = m_inputContext->m_cursorCoords;
+			miRay r;
+			m_sdk->GetRayFromScreen(&r, math::v2f_to_miVec2(m_inputContext->m_cursorCoords),
+				math::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect), 
+				math::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			
+			g_rays.push_back(r);
+		}
 
 		for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 		{

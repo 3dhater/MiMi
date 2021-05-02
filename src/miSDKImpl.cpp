@@ -50,6 +50,7 @@ miObjectCategory* miSDKImpl::_getObjectCategory(const wchar_t* category) {
 	}
 	return cat;
 }
+
 unsigned int miSDKImpl::RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName) {
 	auto cat = this->_getObjectCategory(category);
 
@@ -61,4 +62,35 @@ unsigned int miSDKImpl::RegisterNewObject(miPlugin* plugin, const wchar_t* categ
 	g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id));
 
 	return id;
+}
+
+void miSDKImpl::GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) {
+	assert(ray);
+	v2f point;
+	point.x = coords.x - viewportRect.x;
+	point.y = coords.y - viewportRect.y;
+	float pt_x = ((float)point.x / (viewportRect.z - viewportRect.x)) * 2.f - 1.f;
+	float pt_y = -((float)point.y / (viewportRect.w - viewportRect.y)) * 2.f + 1.f;
+	
+	Mat4 VPI;
+	auto VPIptr = VPI.getPtr();
+	auto VPInvertptr = VPInvert.getPtrConst();
+	for (int i = 0; i < 16; ++i) {
+		VPIptr[i] = VPInvertptr[i];
+	}
+	auto O = math::mul(v4f(pt_x, pt_y, g_app->m_gpuDepthRange.x, 1.f), VPI);
+	auto E = math::mul(v4f(pt_x, pt_y, g_app->m_gpuDepthRange.y, 1.f), VPI);
+
+	ray->m_origin.set(O.x, O.y, O.z, O.w);
+	ray->m_end.set(E.x, E.y, E.z, E.w);
+
+	ray->m_origin.w = 1.0f / ray->m_origin.w;
+	ray->m_origin.x *= ray->m_origin.w;
+	ray->m_origin.y *= ray->m_origin.w;
+	ray->m_origin.z *= ray->m_origin.w;
+
+	ray->m_end.w = 1.0f / ray->m_end.w;
+	ray->m_end.x *= ray->m_end.w;
+	ray->m_end.y *= ray->m_end.w;
+	ray->m_end.z *= ray->m_end.w;
 }

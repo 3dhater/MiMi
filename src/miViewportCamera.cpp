@@ -55,6 +55,10 @@ void miViewportCamera::Update() {
 	Mat4 R(Quat(v4f(0.f, 0.f, -m_rotationPlatform.z, 1.f)));
 
 	m_viewMatrix = (R*(P * Y)) * T;
+	m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+	m_viewProjectionInvertMatrix = m_viewProjectionMatrix;
+	m_viewProjectionInvertMatrix.invert();
+	m_frust.CalculateFrustum(m_projectionMatrix, m_viewMatrix);
 }
 
 void miViewportCamera::MoveToSelection() {
