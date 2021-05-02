@@ -45,3 +45,4 @@ build/x64/Production
 build/stdPlugin/x64/Release
 build/x64/Release
 build/stdPlugin/x64/Production
+build/stdPlugin/Debug

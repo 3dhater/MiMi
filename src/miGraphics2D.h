@@ -1,20 +1,25 @@
 ﻿#ifndef _MI_GRAPHICS2D_H_
 #define _MI_GRAPHICS2D_H_
 
-#include <objidl.h>
-#include <gdiplus.h>
-#pragma comment (lib,"Gdiplus.lib")
+//#include <objidl.h>
+//#include <gdiplus.h>
+//#pragma comment (lib,"Gdiplus.lib")
 
 class miGraphics2D 
 {
 	yyWindow* m_window;
-	Gdiplus::Graphics* m_gdi;
-	//Gdiplus::Graphics* m_gdiBuffer;
-	//Gdiplus::Bitmap* m_gdi_bitmap;
-	Gdiplus::SolidBrush* m_gdi_solidBrush_rectSelectFill;
-	Gdiplus::SolidBrush* m_gdi_solidBrush_rectSelectBorder;
-	Gdiplus::Pen* m_gdi_pen_rectSelect;
-	ULONG_PTR          m_gdiplusToken;
+
+	//Gdiplus::Graphics* m_gdi;
+	////Gdiplus::Graphics* m_gdiBuffer;
+	////Gdiplus::Bitmap* m_gdi_bitmap;
+	//Gdiplus::SolidBrush* m_gdi_solidBrush_rectSelectFill;
+	//Gdiplus::SolidBrush* m_gdi_solidBrush_rectSelectBorder;
+	//Gdiplus::Pen* m_gdi_pen_rectSelect;
+	//ULONG_PTR          m_gdiplusToken;
+
+	HPEN m_penSelRect;
+	LOGBRUSH m_lb_penSelRect;
+	HRGN m_rgn_selRect_clip;
 
 public:
 	miGraphics2D();

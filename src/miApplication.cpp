@@ -516,7 +516,6 @@ void miApplication::MainLoop() {
 			yyGUIDrawAll();
 
 			m_gpu->EndDraw();
-			m_gpu->SwapBuffers();
 
 			m_2d->BeginDraw();
 			if (m_isSelectByRectangle)
@@ -526,16 +525,7 @@ void miApplication::MainLoop() {
 
 			m_2d->EndDraw();
 
-			////Gdiplus::Pen  pen(Gdiplus::Color(255, 0, 0, 255));
-			//Gdiplus::SolidBrush mySolidBrush(Gdiplus::Color(200, 255, 255, 255));
-
-			//Gdiplus::Pen  pen(&mySolidBrush);
-			//pen.SetWidth(1.85f);
-			//pen.SetDashStyle(Gdiplus::DashStyleDash);
-			//Gdiplus::Region myRegion(Gdiplus::Rect(20, 30, 100, 50));
-			////gdi->SetClip(&myRegion);
-			//gdi->DrawLine(&pen, 50, 100, 200, 100);
-			//gdi->DrawLine(&pen, 50, 100, 50, 200);
+			m_gpu->SwapBuffers();
 			
 
 			ProcessShortcuts();
@@ -585,6 +575,23 @@ void miApplication::ProcessShortcuts() {
 }
 
 void miApplication::UpdateViewports() {
+	if (m_isSelectByRectangle)
+	{
+	//	printf("s");
+
+		if (m_inputContext->m_isLMBUp
+			|| m_inputContext->m_isRMBUp
+			|| m_inputContext->m_isRMBDown
+			|| m_inputContext->m_isMMBDown
+			|| m_inputContext->m_isX1MBDown
+			|| m_inputContext->m_isX2MBDown
+			|| m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		{
+			m_isSelectByRectangle = false;
+			m_isViewportInFocus = false;
+		}
+	}
+
 	if (!m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isLMBDown)
@@ -647,18 +654,6 @@ void miApplication::UpdateViewports() {
 	}
 
 	//if(m_isCursorInGUI) printf("InGUI");
-
-	if (m_isSelectByRectangle)
-	{
-		//printf("s");
-
-		if (m_inputContext->m_isLMBUp || m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
-		{
-			m_isSelectByRectangle = false;
-			m_isViewportInFocus = false;
-		}
-	}
-
 
 	if (m_isCursorInWindow && !m_isCursorInGUI)
 	{

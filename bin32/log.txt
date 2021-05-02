@@ -1,14 +1,70 @@
  Info: Init window...
 Info: yyInitVideoDriver
-Warning: Can't load video driver library
-Warning: Can't load video driver : vdopengl.dll
-Warning: yyIsValidVideoDriver: can't load library [E:\Code\MiMi\bin32\vdd3d11.dll]
-Warning: yyIsValidVideoDriver: can't load library [E:\Code\MiMi\bin32\vdopengl.dll]
-Warning: yyIsValidVideoDriver: can't load library [E:\Code\MiMi\bin32\yuyu.dll]
-Warning: yyIsValidVideoDriver: can't find get API function in [E:\Code\MiMi\bin32\yuyu_debug.dll]
-Error: Failed [e:\code\mimi\src\miapplication.cpp][miApplication::Init][394]:(
-Error: Failed [e:\code\mimi\src\miapplication.cpp][main][117]:(
+Info: GetAPI
+Info: GetAPIVersion
+Info: OpenGL::OpenGL
+Info: OpenGL::Init
+Info: Init video driver - OpenGL...
+Info: OpenGL::InitWindow
+Info: Init OpenGL 3.3
+Info: Vendor: Intel
+Info: Renderer: Intel(R) HD Graphics 510
+Info: OpenGLShaderGUI::OpenGLShaderGUI
+Info: OpenGLShaderGUI::init
+Info: OpenGLShaderSprite::OpenGLShaderSprite
+Info: OpenGLShaderSprite::init
+Info: OpenGLShaderSprite2::OpenGLShaderSprite2
+Info: OpenGLShaderSprite2::init
+Info: OpenGLShaderLine3D::OpenGLShaderLine3D
+Info: OpenGLShaderLine3D::init
+Info: OpenGLShaderStd::OpenGLShaderStd
+Info: OpenGLShaderStd::init
+Info: OpenGLShaderTerrain::OpenGLShaderTerrain
+Info: OpenGLShaderTerrain::init
+Info: OpenGLShaderDepth::OpenGLShaderDepth
+Info: OpenGLShaderDepth::init
+Info: OpenGLShaderSimple::OpenGLShaderSimple
+Info: OpenGLShaderSimple::init
+Info: OpenGLShaderSimpleAnimated::OpenGLShaderSimpleAnimated
+Info: OpenGLShaderSimpleAnimated::init
+Info: OpenGLShaderScreenQuad::OpenGLShaderScreenQuad
+Info: OpenGLShaderScreenQuad::init
+Info: OpenGLShaderLineModel::OpenGLShaderLineModel
+Info: OpenGLShaderLineModel::init
+Info: OpenGLShaderLineModelAnimated::OpenGLShaderLineModelAnimated
+Info: OpenGLShaderLineModelAnimated::init
+Info: OpenGLShaderRectangle::OpenGLShaderRectangle
+Info: OpenGLShaderRectangle::init
+Info: Load texture: ../res/gui/white.dds
+Info: GetVideoDriverName
+Info: Load plugin: plugins\stdPlugin.plg...
+Info: DONE (Standart plugin)
+Info: Load texture: ..\res\fonts\Noto\notosans.txt0.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt1.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt2.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt3.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt4.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt5.dds
+Info: Load texture: ..\res\fonts\Noto\notosans.txt6.dds
+Info: Load texture: ../res/gui/black.dds
+Info: Load texture: ../res/gui/icons.png
+Info: yyQuit
 Info: Destroy main window...
 Info: yyQuit
 Info: yyStop
 Info: Engine::~Engine
+Info: OpenGL::~OpenGL
+Info: Destroy video driver...
+Info: OpenGLShaderRectangle::~OpenGLShaderRectangle
+Info: OpenGLShaderLineModelAnimated::~OpenGLShaderLineModelAnimated
+Info: OpenGLShaderLineModel::~OpenGLShaderLineModel
+Info: OpenGLShaderScreenQuad::~OpenGLShaderScreenQuad
+Info: OpenGLShaderGUI::~OpenGLShaderGUI
+Info: OpenGLShaderSprite::~OpenGLShaderSprite
+Info: OpenGLShaderSprite2::~OpenGLShaderSprite2
+Info: OpenGLShaderLine3D::~OpenGLShaderLine3D
+Info: OpenGLShaderStd::~OpenGLShaderStd
+Info: OpenGLShaderTerrain::~OpenGLShaderTerrain
+Info: OpenGLShaderDepth::~OpenGLShaderDepth
+Info: OpenGLShaderSimple::~OpenGLShaderSimple
+Info: OpenGLShaderSimpleAnimated::~OpenGLShaderSimpleAnimated
