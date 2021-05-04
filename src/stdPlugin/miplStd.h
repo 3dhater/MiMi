@@ -17,6 +17,13 @@ public:
 	virtual bool Init(miSDK* sdk);
 
 	virtual void OnPopupCommand(unsigned int);
+	virtual void OnCursorMove(miSelectionFrust*);
+	virtual void OnLMBDown(miSelectionFrust*);
+	virtual void OnLMBUp(miSelectionFrust*);
+	virtual void OnCancel(miSelectionFrust*);
+	virtual void OnUpdate(miSelectionFrust*);
+
+	miSDK* m_sdk;
 };
 
 #endif

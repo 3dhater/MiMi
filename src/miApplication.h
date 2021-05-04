@@ -39,24 +39,7 @@ class miGUIManager;
 class miShortcutManager;
 class miSDKImpl;
 class miGraphics2D;
-struct miSelectionFrust;
-
-enum class miCursorBehaviorMode : u32 {
-	CommonMode
-};
-
-enum class miKeyboardModifier : u32{
-	None,
-	Ctrl,
-	Alt,
-	Shift,
-	ShiftAlt,
-	ShiftCtrl,
-	ShiftCtrlAlt,
-	CtrlAlt,
-
-	END
-};
+class miSelectionFrustImpl;
 
 struct miPluginCommandIDMapNode{
 	miPluginCommandIDMapNode() {
@@ -121,11 +104,13 @@ class miApplication
 	void _callViewportOnSize();
 
 
+
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
 	void _initViewports();
 
+	miPlugin* m_pluginActive;
 	yyArraySmall<miPlugin*> m_plugins;
 	void _initPlugins();
 
@@ -145,7 +130,10 @@ public:
 
 	miCursorBehaviorMode m_cursorBehaviorMode;
 	bool m_isSelectByRectangle;
+	bool m_isClickAndDrag;
 	v2f m_cursorLMBClickPosition;
+	v4f m_cursorLMBClickPosition3D; // intersection point
+	v4f m_cursorPosition3D;         // intersection point
 
 	f32 m_dt;
 
@@ -177,7 +165,7 @@ public:
 	friend struct miViewport;
 	friend class miShortcutManager;
 	friend class miVisualObjectImpl;
-	friend struct miSelectionFrust;
+	friend class miSelectionFrustImpl;
 	friend void window_onActivate(yyWindow* window);
 	friend void window_callbackOnCommand(s32 commandID);
 	friend void log_writeToFile(const char* message);

@@ -29,6 +29,7 @@ public:
 	void UpdateClip();
 
 	void DrawSelectionBox(const v2f& p1, const v2f& p2);
+	void DrawClickAndDrag(const v2f& p1, const v2f& p2);
 
 	void BeginDraw();
 	void EndDraw();

@@ -280,12 +280,12 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_windowBackgroundPB->SetVisible(false);
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
-	/*m_button_add = yyGUICreateButton(v4f(
+	m_button_add = yyGUICreateButton(v4f(
 		(f32)window->m_creationSize.x - miViewportRightIndent,
 		0.f,
 		(f32)window->m_creationSize.x,
 		16.f
-	), 0, -1, 0, 0 );*/
+	), 0, -1, 0, 0 );
 	if (m_button_add)
 	{
 		m_button_add->SetText(L"Add", m_fontDefault, false);
@@ -356,7 +356,7 @@ void miGUIMainMenuMenuGroup_onClick(yyGUIElement* elem, s32 m_id) {
 }
 void miGUIMainMenuMenuGroup::addButton(const wchar_t* text, const v4f& rect, s32 id, yyGUIDrawGroup* dg)
 {
-	/*yyGUIButton* newButton = yyGUICreateButton(rect, 0, id, dg, 0);
+	yyGUIButton* newButton = yyGUICreateButton(rect, 0, id, dg, 0);
 	newButton->m_isAnimated = true;
 	newButton->SetText(text, g_guiManager->m_fontDefault, false);
 	newButton->SetColor(yyColor(127, 127, 127, 255), 0);
@@ -364,7 +364,7 @@ void miGUIMainMenuMenuGroup::addButton(const wchar_t* text, const v4f& rect, s32
 	newButton->SetVisible(false);
 	newButton->SetParent(g_guiManager->m_mainMenu_windowBackgroundPB);
 	newButton->m_onClick = miGUIMainMenuMenuGroup_onClick;
-	m_buttons.push_back(newButton);*/
+	m_buttons.push_back(newButton);
 }
 
 miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,

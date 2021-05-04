@@ -19,7 +19,7 @@
     <ClCompile Include="..\src\miVisualObjectImpl.cpp" />
     <ClCompile Include="..\src\miSDKImpl.cpp" />
     <ClCompile Include="..\src\miGraphics2D.cpp" />
-    <ClCompile Include="..\src\miSelectionFrust.cpp" />
+    <ClCompile Include="..\src\miSelectionFrustImpl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

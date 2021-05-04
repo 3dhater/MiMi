@@ -45,8 +45,16 @@ public:
 	virtual void* AllocateMemory(unsigned int size);
 	virtual void  FreeMemory(void*);
 
+	virtual miKeyboardModifier GetKeyboardModifier();
+	virtual miCursorBehaviorMode GetCursorBehaviorModer();
+	virtual void SetCursorBehaviorModer(miCursorBehaviorMode);
+	virtual miVec2 GetCursorPosition2D();
+	virtual miVec3 GetCursorPosition3D();
+
 	virtual unsigned int  RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName);
 	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert);
+
+	virtual void SetActivePlugin(miPlugin*);
 
 	friend class miApplication;
 };

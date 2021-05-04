@@ -35,10 +35,30 @@ struct miMatrix;
 
 #include "miBST.h"
 #include "miMath.h"
+#include "miMesh.h"
 #include "miModel.h"
 #include "miPlugin.h"
+#include "miSelectionFrust.h"
+
+enum class miCursorBehaviorMode : unsigned int {
+	CommonMode, // select by rect
+	ClickAndDrag, // like target weld or creation new object like plane
+};
+
+enum class miKeyboardModifier : unsigned int {
+	None,
+	Ctrl,
+	Alt,
+	Shift,
+	ShiftAlt,
+	ShiftCtrl,
+	ShiftCtrlAlt,
+	CtrlAlt,
+	END
+};
 
 typedef void(*miCallback_onClickPopup)(unsigned int id);
+typedef void(miPlugin::*miCallback_onUpdate)();
 
 struct v2f;
 struct v3f;
@@ -68,6 +88,12 @@ public:
 	virtual void* AllocateMemory(unsigned int size) = 0;
 	virtual void  FreeMemory(void*) = 0;
 
+	virtual miKeyboardModifier GetKeyboardModifier() = 0;
+	virtual miCursorBehaviorMode GetCursorBehaviorModer() = 0;
+	virtual void SetCursorBehaviorModer(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
+	virtual miVec2 GetCursorPosition2D() = 0;
+	virtual miVec3 GetCursorPosition3D() = 0;
+
 	// register new object for popup when you press `Add` button
 	// return - popup command id 
 	/*  g_CommandID_Plane = sdk->RegisterNewObject(this, L"Polygonal objects", L"Plane");
@@ -81,6 +107,9 @@ public:
 	virtual unsigned int  RegisterNewObject(miPlugin*, const wchar_t* category, const wchar_t* objectName) = 0;
 
 	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) = 0;
+
+	// application will call plugin->onUpdate();
+	virtual void SetActivePlugin(miPlugin*) = 0;
 };
 
 #endif

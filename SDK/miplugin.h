@@ -7,6 +7,7 @@ typedef MI_API miPlugin* (MI_C_DECL*miplCreatePlugin_t)();
 typedef MI_API void (MI_C_DECL*miplDestroyPlugin_t)(miPlugin* plugin);
 
 class miSDK;
+class miSelectionFrust;
 
 // base class for all plugins
 class miPlugin
@@ -28,6 +29,11 @@ public:
 	virtual bool Init(miSDK* sdk) = 0;
 
 	virtual void OnPopupCommand(unsigned int) = 0;
+	virtual void OnCursorMove(miSelectionFrust*) = 0;
+	virtual void OnLMBDown(miSelectionFrust*) = 0;
+	virtual void OnLMBUp(miSelectionFrust*) = 0;
+	virtual void OnCancel(miSelectionFrust*) = 0;
+	virtual void OnUpdate(miSelectionFrust*) = 0;
 };
 
 #endif

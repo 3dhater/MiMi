@@ -4,6 +4,7 @@
 #include "miViewportCamera.h"
 #include "miShortcutManager.h"
 #include "miSelectionFrust.h"
+#include "miSDKImpl.h"
 
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
@@ -350,6 +351,10 @@ void miViewport::OnDraw() {
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[2], g_app->m_selectionFrust->m_bottom[3], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[3], g_app->m_selectionFrust->m_bottom[0], ColorWhite);*/
 	
+	/*if (g_app->m_isClickAndDrag)
+	{
+		m_gpu->DrawLine3D(g_app->m_cursorLMBClickPosition3D, g_app->m_cursorPosition3D, ColorWhite);
+	}*/
 
 
 	if (m_drawGrid)
@@ -364,6 +369,56 @@ void miViewport::SetDrawMode(DrawMode dm) {
 
 void miViewport::SetDrawGrid(bool v) {
 	m_drawGrid = v;
+}
+
+v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
+	miRay ray;
+	g_app->m_sdk->GetRayFromScreen(&ray, 
+		math::v2f_to_miVec2(cursorPosition), 
+		math::v4f_to_miVec4(m_currentRect), 
+		math::Mat4_to_miMatrix(m_activeCamera->m_viewProjectionInvertMatrix));
+	
+	v4f v;
+	miVec4 ip;
+	
+	bool isObject = false;
+	
+	/*
+		check objects on scene here
+	*/
+
+
+
+	if (!isObject)
+	{
+		switch (m_cameraType)
+		{
+		default:
+		case miViewportCameraType::Top:
+		case miViewportCameraType::Perspective:
+			ray.planeIntersection(miVec4(0.f,0.f,0.f,1.f), miVec4(0.f,1.f,0.f,1.f), ip);
+			break;
+		case miViewportCameraType::Bottom:
+			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(0.f, -1.f, 0.f, 1.f), ip);
+			break;
+		case miViewportCameraType::Left:
+			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(-1.f, 0.f, 0.f, 1.f), ip);
+			break;
+		case miViewportCameraType::Right:
+			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(1.f, 0.f, 0.f, 1.f), ip);
+			break;
+		case miViewportCameraType::Front:
+			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(0.f, 0.f, 1.f, 1.f), ip);
+			break;
+		case miViewportCameraType::Back:
+			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(0.f, 0.f, -1.f, 1.f), ip);
+			break;
+		}
+	}
+
+	v = math::miVec4_to_v4f(ip);
+
+	return v;
 }
 
 void miViewport::_drawGrid() {
@@ -385,8 +440,8 @@ void miViewport::_drawGrid() {
 			m_gpu->SetModel(g_app->m_gridModel_perspective1);
 		break;
 	case miViewportCameraType::Left: {
-		bool front = ((m_activeCamera->m_rotationPlatform.y < -math::PIHalf) &&
-			(m_activeCamera->m_rotationPlatform.y > -math::PIPlusHalf));
+		bool front = ((m_activeCamera->m_rotationPlatform.y < 0.f) &&
+			(m_activeCamera->m_rotationPlatform.y > -math::PI));
 
 		if (m_activeCamera->m_positionPlatform.w < 40.f)
 			front ? m_gpu->SetModel(g_app->m_gridModel_left1) : m_gpu->SetModel(g_app->m_gridModel_left2);
@@ -396,8 +451,8 @@ void miViewport::_drawGrid() {
 			front ? m_gpu->SetModel(g_app->m_gridModel_left1_100) : m_gpu->SetModel(g_app->m_gridModel_left2_100);
 	}break;
 	case miViewportCameraType::Right: {
-		bool front = ((m_activeCamera->m_rotationPlatform.y > math::PIHalf) &&
-			(m_activeCamera->m_rotationPlatform.y < math::PIPlusHalf));
+		bool front = ((m_activeCamera->m_rotationPlatform.y > 0.f) &&
+			(m_activeCamera->m_rotationPlatform.y < math::PI));
 
 		if (m_activeCamera->m_positionPlatform.w < 40.f)
 			front ? m_gpu->SetModel(g_app->m_gridModel_left1) : m_gpu->SetModel(g_app->m_gridModel_left2);
@@ -416,8 +471,8 @@ void miViewport::_drawGrid() {
 			isCameraLowerThanWorld ? m_gpu->SetModel(g_app->m_gridModel_top2_100) : m_gpu->SetModel(g_app->m_gridModel_top1_100);
 		break;
 	case miViewportCameraType::Front: {
-		bool front = ((m_activeCamera->m_rotationPlatform.y > math::PIHalf) &&
-			(m_activeCamera->m_rotationPlatform.y < math::PIPlusHalf));
+		bool front = ((m_activeCamera->m_rotationPlatform.y < math::PIHalf) &&
+			(m_activeCamera->m_rotationPlatform.y > -math::PIPlusHalf));
 
 		if (m_activeCamera->m_positionPlatform.w < 40.f)
 			front ? m_gpu->SetModel(g_app->m_gridModel_front1) : m_gpu->SetModel(g_app->m_gridModel_front2);
@@ -427,8 +482,9 @@ void miViewport::_drawGrid() {
 			front ? m_gpu->SetModel(g_app->m_gridModel_front1_100) : m_gpu->SetModel(g_app->m_gridModel_front2_100);
 	}break;
 	case miViewportCameraType::Back: {
-		bool front = ((m_activeCamera->m_rotationPlatform.y > -math::PIHalf) &&
-			(m_activeCamera->m_rotationPlatform.y < math::PIHalf));
+		//printf("%f\n", m_activeCamera->m_rotationPlatform.y);
+		bool front = ((m_activeCamera->m_rotationPlatform.y > math::PIHalf) &&
+			(m_activeCamera->m_rotationPlatform.y < math::PI + math::PIHalf));
 
 		if (m_activeCamera->m_positionPlatform.w < 40.f)
 			front ? m_gpu->SetModel(g_app->m_gridModel_front1) : m_gpu->SetModel(g_app->m_gridModel_front2);

@@ -81,16 +81,16 @@ void miViewportCamera::Reset() {
 		m_rotationPlatform = v3f(math::degToRad(-180.f), 0.f, 0.f);
 		break;
 	case miViewportCameraType::Left:
-		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(-180.f), 0.f);
+		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(-90.f), 0.f);
 		break;
 	case miViewportCameraType::Right:
-		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(180.f), 0.f);
+		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(90.f), 0.f);
 		break;
 	case miViewportCameraType::Back:
-		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(0.f), 0.f);
+		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(180.f), 0.f);
 		break;
 	case miViewportCameraType::Front:
-		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(180.f), 0.f);
+		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(0.f), 0.f);
 		break;
 	default:
 		m_near = -m_far;

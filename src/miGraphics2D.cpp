@@ -69,6 +69,13 @@ void miGraphics2D::UpdateClip() {
 	//m_gdi->SetClip(Gdiplus::Rect(vprect.x, vprect.y, vprect.z - vprect.x, vprect.w - vprect.y));
 }
 
+void miGraphics2D::DrawClickAndDrag(const v2f& p1, const v2f& p2) {
+	SelectObject(m_window->m_dc, m_penSelRect);
+	SetROP2(m_window->m_dc, R2_XORPEN);
+	MoveToEx(m_window->m_dc, (s32)p1.x, (s32)p1.y, 0);
+	LineTo(m_window->m_dc, (s32)p2.x, (s32)p2.y);
+}
+
 void miGraphics2D::DrawSelectionBox(const v2f& p1, const v2f& p2) {
 
 	Aabb aabb;
@@ -79,7 +86,6 @@ void miGraphics2D::DrawSelectionBox(const v2f& p1, const v2f& p2) {
 	
 	SelectObject(m_window->m_dc, m_penSelRect);
 	SetROP2(m_window->m_dc, R2_XORPEN);
-	auto penold = SelectObject(m_window->m_dc, m_penSelRect);
 	MoveToEx(m_window->m_dc, (s32)p1.x, (s32)p1.y,0);
 	LineTo(m_window->m_dc, (s32)p2.x, (s32)p1.y);
 	MoveToEx(m_window->m_dc, (s32)p1.x, (s32)p1.y, 0);

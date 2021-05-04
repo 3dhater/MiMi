@@ -31,6 +31,26 @@ void  miSDKImpl::FreeMemory(void* ptr) {
 	yyMemFree(ptr);
 }
 
+miVec2 miSDKImpl::GetCursorPosition2D() {
+	return math::v2f_to_miVec2(g_app->m_inputContext->m_cursorCoords);
+}
+miVec3 miSDKImpl::GetCursorPosition3D() {
+	return math::v3f_to_miVec3(v3f(g_app->m_cursorPosition3D.x, g_app->m_cursorPosition3D.y, g_app->m_cursorPosition3D.z));
+}
+void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
+	g_app->m_cursorBehaviorMode = m;
+}
+miCursorBehaviorMode miSDKImpl::GetCursorBehaviorModer() {
+	return g_app->m_cursorBehaviorMode;
+}
+miKeyboardModifier miSDKImpl::GetKeyboardModifier() {
+	return g_app->m_keyboardModifier;
+}
+
+void miSDKImpl::SetActivePlugin(miPlugin* p) {
+	g_app->m_pluginActive = p;
+}
+
 miObjectCategory* miSDKImpl::_getObjectCategory(const wchar_t* category) {
 	miObjectCategory* cat = 0;
 	yyStringW str = category;
@@ -93,4 +113,6 @@ void miSDKImpl::GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4&
 	ray->m_end.x *= ray->m_end.w;
 	ray->m_end.y *= ray->m_end.w;
 	ray->m_end.z *= ray->m_end.w;
+
+	ray->update();
 }

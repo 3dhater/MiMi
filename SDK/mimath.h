@@ -7,6 +7,13 @@
 #define miInfinity std::numeric_limits<float>::infinity()
 #define miEpsilon std::numeric_limits<float>::epsilon()
 
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+
 struct miVec2
 {
 	miVec2() :x(0.f), y(0.f) {}
@@ -560,7 +567,6 @@ struct miRay {
 		m_dir.y = m_end.y - m_origin.y;
 		m_dir.z = m_end.z - m_origin.z;
 		m_dir.normalize2();
-		m_dir.w = 1.f;
 
 		m_invDir.x = 1.f / m_dir.x;
 		m_invDir.y = 1.f / m_dir.y;
@@ -568,7 +574,7 @@ struct miRay {
 		m_invDir.w = 1.f;
 	}
 
-	// ray-ray intersection
+	// line-line intersection
 	float distanceToLine(const miVec4& lineP0, const miVec4& lineP1){
 		miVec4 u = m_end - m_origin;
 		miVec4 v = lineP1 - lineP0;
@@ -595,5 +601,103 @@ struct miRay {
 		miVec4 dP = w + (sc*u) - (tc*v);
 		return std::sqrt(dP.dot());
 	}
+
+	bool planeIntersection(const miVec4& planePoint, const miVec4& planeNormal, miVec4& ip) {
+		float det = (planeNormal.x*m_dir.x) + (planeNormal.y*m_dir.y) + (planeNormal.z*m_dir.z);
+		
+		if (std::fabs(det) < miEpsilon) return false;
+
+		miVec4 v;
+		v.x = planePoint.x - m_origin.x;
+		v.y = planePoint.y - m_origin.y;
+		v.z = planePoint.z - m_origin.z;
+
+		float t = (planeNormal.x*v.x) + (planeNormal.y*v.y) + (planeNormal.z*v.z);
+
+		t /= det;
+
+		ip = m_origin + t * m_dir;
+
+		return true;
+	}
+	/*
+	public static Vector lineIntersection(Vector planePoint, Vector planeNormal, Vector linePoint, Vector lineDirection) {
+    if (planeNormal.dot(lineDirection.normalize()) == 0) {
+        return null;
+    }
+
+    double t = (planeNormal.dot(planePoint) - planeNormal.dot(linePoint)) / planeNormal.dot(lineDirection.normalize());
+    return linePoint.plus(lineDirection.normalize().scale(t));
+}
+	*/
+};
+
+struct miAabb
+{
+	miAabb()
+		:
+		m_min(miVec4(FLT_MAX)),
+		m_max(miVec4(-FLT_MAX))
+	{}
+	miAabb(const miVec4& min, const miVec4& max) :m_min(min), m_max(max) { }
+
+	void add(const miVec4& point){
+		if (point.x < m_min.x) m_min.x = point.x;
+		if (point.y < m_min.y) m_min.y = point.y;
+		if (point.z < m_min.z) m_min.z = point.z;
+
+		if (point.x > m_max.x) m_max.x = point.x;
+		if (point.y > m_max.y) m_max.y = point.y;
+		if (point.z > m_max.z) m_max.z = point.z;
+	}
+
+	void add(const miVec3& point){
+		if (point.x < m_min.x) m_min.x = point.x;
+		if (point.y < m_min.y) m_min.y = point.y;
+		if (point.z < m_min.z) m_min.z = point.z;
+
+		if (point.x > m_max.x) m_max.x = point.x;
+		if (point.y > m_max.y) m_max.y = point.y;
+		if (point.z > m_max.z) m_max.z = point.z;
+	}
+
+	void add(const miAabb& box){
+		if (box.m_min.x < m_min.x) m_min.x = box.m_min.x;
+		if (box.m_min.y < m_min.y) m_min.y = box.m_min.y;
+		if (box.m_min.z < m_min.z) m_min.z = box.m_min.z;
+
+		if (box.m_max.x > m_max.x) m_max.x = box.m_max.x;
+		if (box.m_max.y > m_max.y) m_max.y = box.m_max.y;
+		if (box.m_max.z > m_max.z) m_max.z = box.m_max.z;
+	}
+
+	bool rayTest(const miRay& r){
+		float t1 = (m_min.x - r.m_origin.x)*r.m_invDir.x;
+		float t2 = (m_max.x - r.m_origin.x)*r.m_invDir.x;
+		float t3 = (m_min.y - r.m_origin.y)*r.m_invDir.y;
+		float t4 = (m_max.y - r.m_origin.y)*r.m_invDir.y;
+		float t5 = (m_min.z - r.m_origin.z)*r.m_invDir.z;
+		float t6 = (m_max.z - r.m_origin.z)*r.m_invDir.z;
+
+		float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
+		float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+
+		if (tmax < 0 || tmin > tmax) return false;
+
+		return true;
+	}
+
+	void center(miVec4& v) const{
+		v = miVec4(m_min + m_max);
+		v *= 0.5f;
+	}
+
+	float radius(const miVec4& aabb_center){return aabb_center.distance(m_max);}
+	void extent(miVec4& v) { v = miVec4(m_max - m_min); }
+	bool isEmpty() const { return (m_min == m_max); }
+	void reset() { m_min = miVec4(FLT_MAX); m_max = miVec4(-FLT_MAX); }
+
+	miVec4 m_min;
+	miVec4 m_max;
 };
 #endif

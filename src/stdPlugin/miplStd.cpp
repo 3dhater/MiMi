@@ -53,45 +53,49 @@ miplDestroyPlugin_t miplStd::GetDestroyFunction(){
 }
 
 unsigned int g_CommandID_Plane = 0;
-unsigned int g_CommandID_Box = 0;
-unsigned int g_CommandID_Sphere = 0;
-unsigned int g_CommandID_Point = 0;
-unsigned int g_CommandID_Spot = 0;
-unsigned int g_CommandID_Directional = 0;
-unsigned int g_CommandID_FreeCamera = 0;
+//unsigned int g_CommandID_Box = 0;
+//unsigned int g_CommandID_Sphere = 0;
+//unsigned int g_CommandID_Point = 0;
+//unsigned int g_CommandID_Spot = 0;
+//unsigned int g_CommandID_Directional = 0;
+//unsigned int g_CommandID_FreeCamera = 0;
 
 bool miplStd::Init(miSDK* sdk){
+	m_sdk = sdk;
 	g_CommandID_Plane = sdk->RegisterNewObject(this, L"Polygonal objects", L"Plane");
-	g_CommandID_Box = sdk->RegisterNewObject(this, L"Polygonal objects", L"Box");
+	/*g_CommandID_Box = sdk->RegisterNewObject(this, L"Polygonal objects", L"Box");
 	g_CommandID_Sphere = sdk->RegisterNewObject(this, L"Polygonal objects", L"Sphere");
 	g_CommandID_Point = sdk->RegisterNewObject(this, L"Light", L"Point");
 	g_CommandID_Spot = sdk->RegisterNewObject(this, L"Light", L"Spot");
 	g_CommandID_Directional = sdk->RegisterNewObject(this, L"Light", L"Directional");
-	g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");
+	g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
 
 	return true;
 }
 
+void miplStd::OnLMBDown(miSelectionFrust*) {
+
+}
+
+void miplStd::OnLMBUp(miSelectionFrust*) {
+
+}
+
+void miplStd::OnCancel(miSelectionFrust*) {
+	m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::CommonMode);
+	m_sdk->SetActivePlugin(nullptr);
+}
+
+void miplStd::OnCursorMove(miSelectionFrust*) {
+
+}
+void miplStd::OnUpdate(miSelectionFrust* sf) {
+}
+
 void miplStd::OnPopupCommand(unsigned int id) {
-	if (id == g_CommandID_Plane) {
-		printf("plane\n");
-	}
-	else if (id == g_CommandID_Box) {
-		printf("box\n");
-	}
-	else if (id == g_CommandID_Sphere) {
-		printf("sphere\n");
-	}
-	else if (id == g_CommandID_Point) {
-		printf("point\n");
-	}
-	else if (id == g_CommandID_Spot) {
-		printf("spot\n");
-	}
-	else if (id == g_CommandID_Directional) {
-		printf("directional\n");
-	}
-	else if (id == g_CommandID_FreeCamera) {
-		printf("free camera\n");
+	if (id == g_CommandID_Plane) 
+	{
+		m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::ClickAndDrag);
+		m_sdk->SetActivePlugin(this);
 	}
 }

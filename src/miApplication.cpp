@@ -5,7 +5,7 @@
 #include "miSDK.h"
 #include "miSDKImpl.h"
 #include "miGraphics2D.h"
-#include "miSelectionFrust.h"
+#include "miSelectionFrustImpl.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -159,9 +159,11 @@ int main(int argc, char* argv[]) {
 }
 
 miApplication::miApplication() {
+	m_pluginActive = 0;
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
 	m_isSelectByRectangle = false;
-	m_selectionFrust = new miSelectionFrust;
+	m_isClickAndDrag = false;
+	m_selectionFrust = new miSelectionFrustImpl;
 
 	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
@@ -543,6 +545,27 @@ void miApplication::MainLoop() {
 			break;
 		case yySystemState::Run:
 		{
+			if (m_pluginActive)
+			{
+				bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
+				if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
+
+				if (m_isCursorMove)
+					m_pluginActive->OnCursorMove(m_selectionFrust);
+
+				if(m_inputContext->m_isLMBDown)
+					m_pluginActive->OnLMBDown(m_selectionFrust);
+
+				if (m_inputContext->m_isLMBUp)
+					m_pluginActive->OnLMBUp(m_selectionFrust);
+
+				if (isCancel)
+					m_pluginActive->OnCancel(m_selectionFrust);
+
+				if(m_pluginActive)
+					m_pluginActive->OnUpdate(m_selectionFrust);
+			}
+
 			UpdateViewports();
 
 			m_gpu->BeginDraw();
@@ -558,6 +581,10 @@ void miApplication::MainLoop() {
 			if (m_isSelectByRectangle)
 			{
 				m_2d->DrawSelectionBox(m_cursorLMBClickPosition, m_inputContext->m_cursorCoords);
+			}
+			if (m_isClickAndDrag)
+			{
+				m_2d->DrawClickAndDrag(m_cursorLMBClickPosition, m_inputContext->m_cursorCoords);
 			}
 
 			m_2d->EndDraw();
@@ -633,10 +660,29 @@ void miApplication::UpdateViewports() {
 				aabb.add(v3f((f32)m_inputContext->m_cursorCoords.x, (f32)m_inputContext->m_cursorCoords.y, 0.f));
 				aabb.add(v3f((f32)m_cursorLMBClickPosition.x, (f32)m_cursorLMBClickPosition.y, 0.f));
 
-				m_selectionFrust->createWithFrame(
-					v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-					m_activeViewportLayout->m_activeViewport->m_currentRect,
-					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				m_selectionFrust->CreateWithFrame(
+					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+					math::v4f_to_miVec4( m_activeViewportLayout->m_activeViewport->m_currentRect),
+					math::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			}
+		}
+	}
+
+	if (m_isClickAndDrag)
+	{
+		if (m_inputContext->m_isLMBUp
+			|| m_inputContext->m_isRMBUp
+			|| m_inputContext->m_isRMBDown
+			|| m_inputContext->m_isMMBDown
+			|| m_inputContext->m_isX1MBDown
+			|| m_inputContext->m_isX2MBDown
+			|| m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		{
+			m_isClickAndDrag = false;
+			m_isViewportInFocus = false;
+
+			if (m_inputContext->m_isLMBUp)
+			{
 			}
 		}
 	}
@@ -686,9 +732,20 @@ void miApplication::UpdateViewports() {
 
 	if (m_isCursorMove && m_isViewportInFocus)
 	{
-		if( m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode
-			&& m_inputContext->m_isLMBHold)
+		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
+
+		if( m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode && m_inputContext->m_isLMBHold)
 			m_isSelectByRectangle = true;
+
+		if (m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
+		{
+			if (!m_isClickAndDrag)
+			{
+				m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
+				//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
+				m_isClickAndDrag = true;
+			}
+		}
 
 		if (m_inputContext->m_isMMBHold)
 		{

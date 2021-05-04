@@ -42,10 +42,10 @@ void miApplication::_initGrid() {
 			{
 			case miViewportCameraType::Left:
 			case miViewportCameraType::Right:
-				vertex->Position.set(pos, minimum, 0.f);
+				vertex->Position.set(0.f, minimum, pos);
 				vertex->Color = color;
 				vertex++;
-				vertex->Position.set(pos, std::abs(minimum), 0.f);
+				vertex->Position.set(0.f, std::abs(minimum), pos);
 				vertex->Color = color;
 				vertex++;
 				break;
@@ -87,10 +87,10 @@ void miApplication::_initGrid() {
 			{
 			case miViewportCameraType::Left:
 			case miViewportCameraType::Right:
-				vertex->Position.set(-minimum, pos, 0.f);
+				vertex->Position.set(0.f, pos, -minimum);
 				vertex->Color = color;
 				vertex++;
-				vertex->Position.set(minimum, pos, 0.f);
+				vertex->Position.set(0.f, pos, minimum);
 				vertex->Color = color;
 				vertex++;
 				break;

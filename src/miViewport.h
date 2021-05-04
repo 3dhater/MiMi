@@ -65,6 +65,7 @@ struct miViewport
 	void SetDrawGrid(bool);
 	void _drawGrid();
 
+	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
 };
 
 struct miViewportLayout
