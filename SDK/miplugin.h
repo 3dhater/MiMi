@@ -34,11 +34,11 @@ public:
 	virtual bool Init(miSDK* sdk) = 0;
 	
 	virtual void OnPopupCommand(unsigned int) = 0;
-	virtual void OnCursorMove(miSelectionFrust*) = 0;
-	virtual void OnLMBDown(miSelectionFrust*) = 0;
-	virtual void OnLMBUp(miSelectionFrust*) = 0;
-	virtual void OnCancel(miSelectionFrust*) = 0;
-	virtual void OnUpdate(miSelectionFrust*) = 0;
+	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) = 0;
+	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI) = 0;
+	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI) = 0;
+	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) = 0;
+	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) = 0;
 };
 
 #endif

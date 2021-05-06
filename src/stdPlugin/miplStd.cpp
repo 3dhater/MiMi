@@ -17,20 +17,13 @@ extern "C" {
 		return p;
 	}
 }
-//MI_API void MI_C_DECL miplDestroyPlugin(miPlugin* plugin) {
-//	if (plugin)
-//	{
-//		delete plugin;
-//		g_isCreated = false;
-//	}
-//}
 
 miplStd::miplStd() {
 	m_newObjectPtr = 0;
 }
 
 miplStd::~miplStd() {
-	printf("destoy plugin\n");
+//	printf("destoy plugin\n");
 	if (m_newObjectPtr) _destroyNewObject();
 }
 void miplStd::_destroyNewObject() {
@@ -65,9 +58,6 @@ bool miplStd::IsDebug() {
 #endif
 }
 
-//miplDestroyPlugin_t miplStd::GetDestroyFunction(){
-//	return miplDestroyPlugin;
-//}
 
 unsigned int g_CommandID_Plane = 0;
 //unsigned int g_CommandID_Box = 0;
@@ -91,35 +81,53 @@ bool miplStd::Init(miSDK* sdk){
 	return true;
 }
 
-void miplStd::OnLMBDown(miSelectionFrust*) {
-	if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBDown();
+void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
+	if (!isCursorInGUI)
+	{
+		m_isLMBDown = true;
+
+		if (m_sdk->GetCursorBehaviorModer() == miCursorBehaviorMode::ClickAndDrag) {
+			if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBDown();
+		}
+	}
 }
 
-void miplStd::OnLMBUp(miSelectionFrust* sf) {
-	if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBUp();
+void miplStd::OnLMBUp(miSelectionFrust* sf, bool isCursorInGUI) {
+	if (!isCursorInGUI)
+	{
+		if (m_sdk->GetCursorBehaviorModer() == miCursorBehaviorMode::ClickAndDrag) {
+			if (m_isLMBDown)
+			{
+				if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBUp();
 
-	OnCancel(sf);
+				OnCancel(sf, isCursorInGUI);
+			}
+		}
+
+		m_isLMBDown = false;
+	}
 }
 
-void miplStd::OnCancel(miSelectionFrust*) {
+void miplStd::OnCancel(miSelectionFrust*, bool isCursorInGUI) {
 	if (m_newObjectPtr) _destroyNewObject();
 	m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::CommonMode);
 	m_sdk->SetActivePlugin(nullptr);
 }
 
-void miplStd::OnCursorMove(miSelectionFrust*) {
+void miplStd::OnCursorMove(miSelectionFrust*, bool isCursorInGUI) {
 	if (m_newObjectPtr) m_newObjectPtr->OnCreationMouseMove();
 }
-void miplStd::OnUpdate(miSelectionFrust* sf) {
+void miplStd::OnUpdate(miSelectionFrust* sf, bool isCursorInGUI) {
 }
 
 void miplStd::OnPopupCommand(unsigned int id) {
-	if (id == g_CommandID_Plane) 
+
+	if (id == g_CommandID_Plane)
 	{
 		m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::ClickAndDrag);
 		m_sdk->SetActivePlugin(this);
 
-		assert(!m_newObjectPtr);
+		if (m_newObjectPtr) miDestroy(m_newObjectPtr);
 
 		//miplPolygonObjectPlane* newObject = new miplPolygonObjectPlane(m_sdk, this);
 		miplPolygonObjectPlane* newObject = (miplPolygonObjectPlane*)miMalloc(sizeof(miplPolygonObjectPlane));

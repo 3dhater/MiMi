@@ -6,6 +6,9 @@ class miplStd : public miPlugin
 	miSceneObject* m_newObjectPtr;
 	void _destroyNewObject();
 	void _saveNewObject();
+
+	bool m_isLMBDown;
+
 public:
 	miplStd();
 	virtual ~miplStd();
@@ -19,11 +22,11 @@ public:
 	virtual bool Init(miSDK* sdk);
 
 	virtual void OnPopupCommand(unsigned int);
-	virtual void OnCursorMove(miSelectionFrust*);
-	virtual void OnLMBDown(miSelectionFrust*);
-	virtual void OnLMBUp(miSelectionFrust*);
-	virtual void OnCancel(miSelectionFrust*);
-	virtual void OnUpdate(miSelectionFrust*);
+	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI);
+	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI);
+	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI);
+	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI);
+	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI);
 
 	miSDK* m_sdk;
 

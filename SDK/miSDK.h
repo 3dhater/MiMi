@@ -117,7 +117,7 @@ public:
 	// application will call plugin->onUpdate();
 	virtual void SetActivePlugin(miPlugin*) = 0;
 
-	virtual void AddObjectToScene(miSceneObject*, const char* name) = 0; 
+	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name) = 0;
 	virtual void RemoveObjectFromScene(miSceneObject*) = 0; // only remove, not delete
 };
 

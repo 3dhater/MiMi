@@ -30,4 +30,12 @@ extern "C"
 	MILIB_API void MILIB_C_DECL miFree(void*);
 }
 
+template<typename _type>
+void miDestroy(_type * ptr)
+{
+	assert(ptr);
+	ptr->~_type();
+	miFree(ptr);
+}
+
 #endif

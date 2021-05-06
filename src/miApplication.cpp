@@ -6,9 +6,12 @@
 #include "miSDKImpl.h"
 #include "miGraphics2D.h"
 #include "miSelectionFrustImpl.h"
+#include "miRootObject.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
+
+#include <map>
 
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
@@ -186,6 +189,19 @@ miApplication::miApplication() {
 	m_isSelectByRectangle = false;
 	m_isClickAndDrag = false;
 	m_selectionFrust = new miSelectionFrustImpl;
+	
+	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
+	new(m_rootObject)miRootObject(0, 0);
+	
+	miDestroy(m_rootObject);
+	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
+	new(m_rootObject)miRootObject(0, 0);
+	miDestroy(m_rootObject);
+	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
+	new(m_rootObject)miRootObject(0, 0);
+	miDestroy(m_rootObject);
+	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
+	new(m_rootObject)miRootObject(0, 0);
 
 	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
@@ -234,6 +250,11 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+	if (m_rootObject)
+	{
+		DestroyAllSceneObjects(m_rootObject);
+	}
+
 	for (s32 i = 0; i < m_plugins.size(); ++i)
 	{
 		m_plugins[i]->~miPlugin();
@@ -273,6 +294,43 @@ miApplication::~miApplication() {
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
 	if (m_inputContext) yyDestroy(m_inputContext);
+}
+
+void miApplication::RemoveObjectFromScene(miSceneObject* o) {
+	assert(o);
+	o->SetParent(0);
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true) {
+			node->m_data->SetParent(m_rootObject);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
+
+	miDestroy(o);
+}
+void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true){
+			DestroyAllSceneObjects(node->m_data);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
+
+	miDestroy(o);
 }
 
 void miApplication::_initViewports() {
@@ -578,20 +636,21 @@ void miApplication::MainLoop() {
 				bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
 				if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
 
-				if (m_isCursorMove)
-					m_pluginActive->OnCursorMove(m_selectionFrust);
-
-				if(m_inputContext->m_isLMBDown)
-					m_pluginActive->OnLMBDown(m_selectionFrust);
+				
+				if (m_inputContext->m_isLMBDown)
+					m_pluginActive->OnLMBDown(m_selectionFrust, m_isCursorInGUI);
 
 				if (m_inputContext->m_isLMBUp)
-					m_pluginActive->OnLMBUp(m_selectionFrust);
+					m_pluginActive->OnLMBUp(m_selectionFrust, m_isCursorInGUI);
 
-				if (isCancel)
-					m_pluginActive->OnCancel(m_selectionFrust);
+				if (m_isCursorMove && m_pluginActive)
+					m_pluginActive->OnCursorMove(m_selectionFrust, m_isCursorInGUI);
+
+				if (isCancel && m_pluginActive)
+					m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
 
 				if(m_pluginActive)
-					m_pluginActive->OnUpdate(m_selectionFrust);
+					m_pluginActive->OnUpdate(m_selectionFrust, m_isCursorInGUI);
 			}
 
 			UpdateViewports();
@@ -887,4 +946,63 @@ void miApplication::CommandViewportToggleGrid(miViewport* vp) {
 
 void miApplication::CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode dm) {
 	vp->SetDrawMode(dm);
+}
+
+bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
+	auto & n = o->GetName();
+	if (n == name)
+		return false;
+
+	auto children = o->GetChildren();
+	auto node = children->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true)
+		{
+			if (NameIsFree(name, node->m_data))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
+	return true;
+}
+miString miApplication::GetFreeName(const wchar_t* name) {
+	miString newName = name;
+
+	static int i = 0;
+
+	while (true) {
+		if (NameIsFree(newName, m_rootObject))
+		{
+			break;
+		}
+		else
+		{
+			newName = name;
+			newName += i++;
+		}
+	}
+
+	return newName;
+}
+
+void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
+	assert(o);
+	assert(name);
+	auto newName = this->GetFreeName(name);
+	yyLogWriteInfoW(L"Add object to scene: %s\n", newName.data());
+	o->SetName(newName.data());
+	o->SetParent(m_rootObject);
 }

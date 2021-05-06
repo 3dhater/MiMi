@@ -4,11 +4,7 @@
 #include "miRootObject.h"
 
 miRootObject::miRootObject(miSDK*, miPlugin*) {}
-miRootObject::~miRootObject() {
-}
-
-void miRootObject::SetParent(miSceneObject* o){}
-
+miRootObject::~miRootObject() {}
 
 void miRootObject::OnDraw() {}
 void miRootObject::OnCreationLMBDown() {}

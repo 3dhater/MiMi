@@ -15,7 +15,6 @@ public:
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();
-	//virtual void OnSetNewName(const char* newName);
 
 	virtual miPlugin* GetPlugin();
 };

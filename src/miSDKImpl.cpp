@@ -117,9 +117,10 @@ void miSDKImpl::GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4&
 	ray->update();
 }
 
-void miSDKImpl::AddObjectToScene(miSceneObject* o, const char* name){
-	//o->SetName(name);
+void miSDKImpl::AddObjectToScene(miSceneObject* o, const wchar_t* n){
+	g_app->AddObjectToScene(o, n);
 }
 
 void miSDKImpl::RemoveObjectFromScene(miSceneObject* o) {
+	g_app->RemoveObjectFromScene(o);
 }

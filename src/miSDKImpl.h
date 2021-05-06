@@ -56,7 +56,7 @@ public:
 
 	virtual void SetActivePlugin(miPlugin*);
 
-	virtual void AddObjectToScene(miSceneObject*, const char* name);
+	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name);
 	virtual void RemoveObjectFromScene(miSceneObject*);
 
 	friend class miApplication;

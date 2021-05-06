@@ -7,11 +7,10 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 	m_sdk = sdk;
 	m_plugin = p;
 	m_pluginImpl = (miplStd*)p;
-	m_sdk->AddObjectToScene(this, "Plane");
 }
 
 miplPolygonObjectPlane::~miplPolygonObjectPlane() {
-
+	//printf("destroy\n");
 }
 
 void miplPolygonObjectPlane::OnDraw() {
@@ -33,11 +32,8 @@ void miplPolygonObjectPlane::OnCreationLMBUp() {
 
 	if (isOk)
 	{
+		m_sdk->AddObjectToScene(this, L"Plane");
 		m_pluginImpl->_saveNewObject();
-	}
-	else
-	{
-		m_sdk->RemoveObjectFromScene(m_pluginImpl->m_newObjectPtr);
 	}
 }
 void miplPolygonObjectPlane::OnCreationMouseMove() {

@@ -40,6 +40,7 @@ class miShortcutManager;
 class miSDKImpl;
 class miGraphics2D;
 class miSelectionFrustImpl;
+class miRootObject;
 
 struct miPluginCommandIDMapNode{
 	miPluginCommandIDMapNode() {
@@ -50,6 +51,7 @@ struct miPluginCommandIDMapNode{
 	miPlugin* m_plugin;
 	u32 m_commandID;
 };
+
 
 class miApplication
 {
@@ -121,6 +123,13 @@ class miApplication
 	miBinarySearchTree<miPluginCommandIDMapNode> m_pluginCommandID;
 
 	v2f m_gpuDepthRange;
+
+	miRootObject* m_rootObject;
+	void AddObjectToScene(miSceneObject* o, const wchar_t* name);
+	miString GetFreeName(const wchar_t* name);
+	bool NameIsFree(const miString& name, miSceneObject*);
+	void DestroyAllSceneObjects(miSceneObject* o);
+	void RemoveObjectFromScene(miSceneObject* o);
 
 public:
 	miApplication();

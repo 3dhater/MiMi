@@ -9,8 +9,6 @@ public:
 	miRootObject(miSDK*, miPlugin*);
 	virtual ~miRootObject();
 
-	virtual void SetParent(miSceneObject*)override;
-
 	virtual void OnDraw();
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
