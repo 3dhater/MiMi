@@ -1,6 +1,8 @@
 ﻿#ifndef _MISDK_H_
 #define _MISDK_H_
 
+#include <cassert>
+
 #if defined _WIN32 || defined __CYGWIN__
 #define MI_PLATFORM_WINDOWS
 #else
@@ -28,17 +30,20 @@
 #define MI_DEBUG
 #endif
 
-class miSceneObject;
-class miVisualObject;
-class miPlugin;
-struct miMatrix;
 
+#include "miLib.h"
+#include "miMemory.h"
+#include "miSingleton.h"
+#include "miList.h"
+#include "miString.h"
 #include "miBST.h"
 #include "miMath.h"
 #include "miMesh.h"
 #include "miModel.h"
 #include "miPlugin.h"
 #include "miSelectionFrust.h"
+#include "miVisualObject.h"
+#include "miSceneObject.h"
 
 enum class miCursorBehaviorMode : unsigned int {
 	CommonMode, // select by rect
@@ -73,6 +78,7 @@ namespace math
 	v2f miVec2_to_v2f(const miVec2& v);
 	v3f miVec3_to_v3f(const miVec3& v);
 	v4f miVec4_to_v4f(const miVec4& v);
+	Mat4 miMatrix_to_Mat4(const miMatrix& m);
 }
 
 class miSDK
@@ -110,6 +116,9 @@ public:
 
 	// application will call plugin->onUpdate();
 	virtual void SetActivePlugin(miPlugin*) = 0;
+
+	virtual void AddObjectToScene(miSceneObject*, const char* name) = 0; 
+	virtual void RemoveObjectFromScene(miSceneObject*) = 0; // only remove, not delete
 };
 
 #endif

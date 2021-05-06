@@ -20,6 +20,7 @@
     <ClCompile Include="..\src\miSDKImpl.cpp" />
     <ClCompile Include="..\src\miGraphics2D.cpp" />
     <ClCompile Include="..\src\miSelectionFrustImpl.cpp" />
+    <ClCompile Include="..\src\miRootObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />
@@ -31,5 +32,6 @@
     <ClInclude Include="..\src\miVisualObjectImpl.h" />
     <ClInclude Include="..\src\miSDKImpl.h" />
     <ClInclude Include="..\src\miGraphics2D.h" />
+    <ClInclude Include="..\src\miRootObject.h" />
   </ItemGroup>
 </Project>

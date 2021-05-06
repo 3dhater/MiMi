@@ -44,6 +44,28 @@ namespace math
 	v2f miVec2_to_v2f(const miVec2& v) { return v2f(v.x, v.y); }
 	v3f miVec3_to_v3f(const miVec3& v) { return v3f(v.x, v.y, v.z); }
 	v4f miVec4_to_v4f(const miVec4& v) { return v4f(v.x, v.y, v.z, v.w); }
+	Mat4 miMatrix_to_Mat4(const miMatrix& m1) {
+		Mat4 m2;
+		auto p1 = m1.getPtrConst();
+		auto p2 = m2.getPtrConst();
+		p2[0] = p1[0];
+		p2[1] = p1[1];
+		p2[2] = p1[2];
+		p2[3] = p1[3];
+		p2[4] = p1[4];
+		p2[5] = p1[5];
+		p2[6] = p1[6];
+		p2[7] = p1[7];
+		p2[8] = p1[8];
+		p2[9] = p1[9];
+		p2[10] = p1[10];
+		p2[11] = p1[11];
+		p2[12] = p1[12];
+		p2[13] = p1[13];
+		p2[14] = p1[14];
+		p2[15] = p1[15];
+		return m2;
+	}
 }
 
 void log_writeToFile(const char* message) {
@@ -212,6 +234,12 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+	for (s32 i = 0; i < m_plugins.size(); ++i)
+	{
+		m_plugins[i]->~miPlugin();
+		miFree(m_plugins[i]);
+	}
+
 	if (m_selectionFrust) delete m_selectionFrust;
 	if (m_2d) delete m_2d;
 	if (m_sdk) delete m_sdk;
@@ -352,16 +380,16 @@ void miApplication::_initPlugins() {
 #endif
 		if (newPlugin->IsDebug() && isDebug != true)
 		{
-			auto d = newPlugin->GetDestroyFunction();
-			d(newPlugin);
+			newPlugin->~miPlugin();
+			miFree(newPlugin);
 			yyLogWriteInfo("FAIL (debug version)\n");
 			continue;
 		}
 
 		if (!newPlugin->Init(m_sdk))
 		{
-			auto d = newPlugin->GetDestroyFunction();
-			d(newPlugin);
+			newPlugin->~miPlugin();
+			miFree(newPlugin);
 			yyLogWriteInfo("FAIL (can't init)\n");
 			continue;
 		}

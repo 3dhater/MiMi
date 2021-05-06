@@ -46,3 +46,7 @@ build/stdPlugin/x64/Release
 build/x64/Release
 build/stdPlugin/x64/Production
 build/stdPlugin/Debug
+build/miLib/Production
+build/miLib/x64/Production
+build/miLib/Debug
+build/stdPlugin/Production

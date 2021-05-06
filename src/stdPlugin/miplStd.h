@@ -3,6 +3,9 @@
 
 class miplStd : public miPlugin
 {
+	miSceneObject* m_newObjectPtr;
+	void _destroyNewObject();
+	void _saveNewObject();
 public:
 	miplStd();
 	virtual ~miplStd();
@@ -12,7 +15,6 @@ public:
 	virtual const wchar_t* GetAuthor();
 
 	virtual bool IsDebug();
-	virtual miplDestroyPlugin_t GetDestroyFunction();
 
 	virtual bool Init(miSDK* sdk);
 
@@ -24,6 +26,8 @@ public:
 	virtual void OnUpdate(miSelectionFrust*);
 
 	miSDK* m_sdk;
+
+	friend class miplPolygonObjectPlane;
 };
 
 #endif
