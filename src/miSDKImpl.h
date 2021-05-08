@@ -40,10 +40,6 @@ public:
 	virtual ~miSDKImpl();
 
 	virtual miVisualObject* CreateVisualObject();
-	virtual void DestroyVisualObject(miVisualObject*);
-
-	virtual void* AllocateMemory(unsigned int size);
-	virtual void  FreeMemory(void*);
 
 	virtual miKeyboardModifier GetKeyboardModifier();
 	virtual miCursorBehaviorMode GetCursorBehaviorModer();

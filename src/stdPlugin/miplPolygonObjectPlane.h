@@ -7,6 +7,8 @@ class miplPolygonObjectPlane : public miSceneObject
 	miPlugin* m_plugin;
 	miplStd* m_pluginImpl;
 	miVec2 m_size;
+
+	miVisualObject* m_visualObject;
 public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();

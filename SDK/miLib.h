@@ -31,6 +31,15 @@ extern "C"
 }
 
 template<typename _type>
+_type * miCreate()
+{
+	_type * ptr = (_type*)miMalloc(sizeof(_type));
+	if (ptr)
+		new(ptr) _type();
+	return ptr;
+}
+
+template<typename _type>
 void miDestroy(_type * ptr)
 {
 	assert(ptr);

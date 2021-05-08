@@ -16,19 +16,7 @@ miSDKImpl::~miSDKImpl() {
 }
 
 miVisualObject* miSDKImpl::CreateVisualObject() {
-	return new miVisualObjectImpl;
-}
-
-void miSDKImpl::DestroyVisualObject(miVisualObject* o) {
-	delete o;
-}
-
-void* miSDKImpl::AllocateMemory(unsigned int size) {
-	return yyMemAlloc(size);
-}
-
-void  miSDKImpl::FreeMemory(void* ptr) {
-	yyMemFree(ptr);
+	return miCreate<miVisualObjectImpl>();
 }
 
 miVec2 miSDKImpl::GetCursorPosition2D() {

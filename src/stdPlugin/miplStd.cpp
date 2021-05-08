@@ -67,7 +67,7 @@ unsigned int g_CommandID_Plane = 0;
 //unsigned int g_CommandID_Directional = 0;
 //unsigned int g_CommandID_FreeCamera = 0;
 
-bool miplStd::Init(miSDK* sdk){
+int miplStd::Init(miSDK* sdk){
 	m_sdk = sdk;
 	//miSingleton<miSDK>::s_instance = sdk;
 
@@ -78,7 +78,7 @@ bool miplStd::Init(miSDK* sdk){
 	g_CommandID_Spot = sdk->RegisterNewObject(this, L"Light", L"Spot");
 	g_CommandID_Directional = sdk->RegisterNewObject(this, L"Light", L"Directional");
 	g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
-	return true;
+	return MI_SDK_VERSION;
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
@@ -129,7 +129,6 @@ void miplStd::OnPopupCommand(unsigned int id) {
 
 		if (m_newObjectPtr) miDestroy(m_newObjectPtr);
 
-		//miplPolygonObjectPlane* newObject = new miplPolygonObjectPlane(m_sdk, this);
 		miplPolygonObjectPlane* newObject = (miplPolygonObjectPlane*)miMalloc(sizeof(miplPolygonObjectPlane));
 		new(newObject)miplPolygonObjectPlane(m_sdk, this);
 

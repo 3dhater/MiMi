@@ -30,6 +30,7 @@
 #define MI_DEBUG
 #endif
 
+#define MI_SDK_VERSION 1
 
 #include "miLib.h"
 #include "miMemory.h"
@@ -87,12 +88,7 @@ public:
 	miSDK() {}
 	virtual ~miSDK() {}
 
-	// call DestroyVisualObject for destoy
 	virtual miVisualObject* CreateVisualObject() = 0;
-	virtual void DestroyVisualObject(miVisualObject*) = 0;
-
-	virtual void* AllocateMemory(unsigned int size) = 0;
-	virtual void  FreeMemory(void*) = 0;
 
 	virtual miKeyboardModifier GetKeyboardModifier() = 0;
 	virtual miCursorBehaviorMode GetCursorBehaviorModer() = 0;

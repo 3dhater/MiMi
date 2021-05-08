@@ -5,7 +5,7 @@ template<typename _type>
 class miDefaultAllocator
 {
 public:
-	miDefaultAllocator() {}
+	miDefaultAllocator(int) {}
 	~miDefaultAllocator() {}
 
 	_type* Allocate() {

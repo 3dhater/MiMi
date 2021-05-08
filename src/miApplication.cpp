@@ -444,11 +444,11 @@ void miApplication::_initPlugins() {
 			continue;
 		}
 
-		if (!newPlugin->Init(m_sdk))
+		if (newPlugin->Init(m_sdk) != MI_SDK_VERSION)
 		{
 			newPlugin->~miPlugin();
 			miFree(newPlugin);
-			yyLogWriteInfo("FAIL (can't init)\n");
+			yyLogWriteInfo("FAIL (bad version)\n");
 			continue;
 		}
 

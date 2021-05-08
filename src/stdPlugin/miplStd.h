@@ -19,7 +19,7 @@ public:
 
 	virtual bool IsDebug();
 
-	virtual bool Init(miSDK* sdk);
+	virtual int Init(miSDK* sdk);
 
 	virtual void OnPopupCommand(unsigned int);
 	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI);

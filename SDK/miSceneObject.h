@@ -11,6 +11,8 @@ protected:
 
 	miSceneObject* m_parent;
 	miList<miSceneObject*> m_children;
+	
+	miMatrix m_worldMatrix;
 public:
 	miSceneObject():m_parent(0) {}
 	virtual ~miSceneObject() {}

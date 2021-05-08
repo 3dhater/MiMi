@@ -3,14 +3,38 @@
 
 class miVisualObjectImpl : public miVisualObject
 {
-	yyResource* m_modelGPU;
-	miMatrix m_transform;
+	struct node {
+		node() {
+			m_modelGPU = 0;
+			m_modelCPU = 0;
+			m_remap = false;
+		}
+		~node() {
+			if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
+			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
+		}
+		yyResource* m_modelGPU;
+		yyModel* m_modelCPU;
+		bool m_remap;
+	};
+
+	yyArray<node*> m_nodes;
+	void _destroy();
+
+	miAabb m_aabb;
+
 public:
 	miVisualObjectImpl();
 	virtual ~miVisualObjectImpl();
 
-	virtual miMatrix* GetTransform();
-	virtual void Draw();
+	virtual void CreateNewGPUModels(miMesh*);
+	virtual size_t GetBufferCount();
+	virtual unsigned char* GetVertexBuffer(size_t index) ;
+	virtual void MarkBufferToRemap(size_t index) ;
+	virtual void RemapBuffers() ;
+
+	virtual void Draw(miMatrix*);
+	virtual miAabb GetAabb();
 };
 
 #endif

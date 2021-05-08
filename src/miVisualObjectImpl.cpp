@@ -2,56 +2,102 @@
 #include "miApplication.h"
 #include "miVisualObjectImpl.h"
 
+#include "yy_model.h"
+
 extern miApplication * g_app;
 
-void miMatrixToMat4(const miMatrix& m1, const Mat4& m2) {
-	auto p1 = m1.getPtrConst();
-	auto p2 = m2.getPtrConst();
-	p2[0] = p1[0];
-	p2[1] = p1[1];
-	p2[2] = p1[2];
-	p2[3] = p1[3];
-	p2[4] = p1[4];
-	p2[5] = p1[5];
-	p2[6] = p1[6];
-	p2[7] = p1[7];
-	p2[8] = p1[8];
-	p2[9] = p1[9];
-	p2[10] = p1[10];
-	p2[11] = p1[11];
-	p2[12] = p1[12];
-	p2[13] = p1[13];
-	p2[14] = p1[14];
-	p2[15] = p1[15];
-}
-
 miVisualObjectImpl::miVisualObjectImpl() {
-	m_modelGPU = 0;
 }
 
 miVisualObjectImpl::~miVisualObjectImpl() {
-	if (m_modelGPU)
+	_destroy();
+}
+
+void miVisualObjectImpl::_destroy() {
+	for(u32 i = 0, sz = m_nodes.size(); i < sz; ++i)
 	{
-		yyMegaAllocator::Destroy(m_modelGPU);
+		delete m_nodes[i];
 	}
 }
 
-void miVisualObjectImpl::Draw() {
-	if (!m_modelGPU)
-		return;
+void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
+	_destroy();
+	m_aabb.reset();
 
-	auto camera = g_app->GetActiveCamera();
+	const s32 triLimit = 5000;
+	s32 triangleCount = 0;
+	yyModel* softwareModel = 0;
+	yyVertexModel* verts_ptr = 0;
+	u16* inds_ptr = 0;
+	u16 index = 0;
 
-	Mat4 World;
-	miMatrixToMat4(m_transform, World);
+	auto current_polygon = mesh->m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true) {
+		
+		auto vertex_1 = current_polygon->m_verts.m_head;
+		//auto last_vertex = first_vertex->m_left;
+		auto vertex_2 = vertex_1->m_right;
+		auto vertex_3 = vertex_2->m_right;
+		while (true) {
+			
+			vertex_2 = vertex_2->m_right;
+			vertex_3 = vertex_3->m_right;
 
-	g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, 
-		camera->m_projectionMatrix * camera->m_viewMatrix * World);
-	g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
-	g_app->m_gpu->SetModel(m_modelGPU);
-	g_app->m_gpu->Draw();
+			if (vertex_3 == vertex_1)
+				break;
+		}
+
+
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
 }
 
-miMatrix* miVisualObjectImpl::GetTransform() {
-	return &m_transform;
+miAabb miVisualObjectImpl::GetAabb() {
+	return m_aabb;
+}
+
+size_t miVisualObjectImpl::GetBufferCount() {
+	return (size_t)m_nodes.size();
+}
+
+unsigned char* miVisualObjectImpl::GetVertexBuffer(size_t index) {
+	return m_nodes[index]->m_modelCPU->m_vertices;
+}
+
+void miVisualObjectImpl::MarkBufferToRemap(size_t index) {
+	m_nodes[index]->m_remap = true;
+}
+
+void miVisualObjectImpl::RemapBuffers() {
+	for (u32 i = 0, sz = m_nodes.size(); i < sz; ++i)
+	{
+		auto node = m_nodes[i];
+		if (!node->m_remap)
+			continue;
+
+		u8* verts = 0;
+		node->m_modelGPU->MapModelForWriteVerts(&verts);
+		memcpy(verts, node->m_modelCPU->m_vertices, node->m_modelCPU->m_vCount * node->m_modelCPU->m_stride);
+		node->m_modelGPU->UnmapModelForWriteVerts();
+	}
+}
+
+void miVisualObjectImpl::Draw(miMatrix* mim) {	
+	auto camera = g_app->GetActiveCamera();
+	
+	Mat4 World = math::miMatrix_to_Mat4(*mim);
+
+	for (u32 i = 0, sz = m_nodes.size(); i < sz; ++i)
+	{
+		auto node = m_nodes[i];
+
+		g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
+			camera->m_projectionMatrix * camera->m_viewMatrix * World);
+		g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
+		g_app->m_gpu->SetModel(node->m_modelGPU);
+		g_app->m_gpu->Draw();
+	}
 }

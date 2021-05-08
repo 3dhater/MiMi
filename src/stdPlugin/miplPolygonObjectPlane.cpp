@@ -7,9 +7,12 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 	m_sdk = sdk;
 	m_plugin = p;
 	m_pluginImpl = (miplStd*)p;
+	
+	m_visualObject = m_sdk->CreateVisualObject();
 }
 
 miplPolygonObjectPlane::~miplPolygonObjectPlane() {
+	if (m_visualObject) miDestroy(m_visualObject);
 	//printf("destroy\n");
 }
 
@@ -37,6 +40,6 @@ void miplPolygonObjectPlane::OnCreationLMBUp() {
 	}
 }
 void miplPolygonObjectPlane::OnCreationMouseMove() {
-
+	//printf("m");
 }
 
