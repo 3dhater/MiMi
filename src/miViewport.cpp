@@ -5,6 +5,7 @@
 #include "miShortcutManager.h"
 #include "miSelectionFrust.h"
 #include "miSDKImpl.h"
+#include "miRootObject.h"
 
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
@@ -360,6 +361,29 @@ void miViewport::OnDraw() {
 	if (m_drawGrid)
 	{
 		_drawGrid();
+	}
+
+	// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
+	_drawScene(g_app->m_rootObject);
+}
+
+void miViewport::_drawScene(miSceneObject* o) {
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true) {
+
+			node->m_data->OnUpdate(g_app->m_dt);
+			node->m_data->OnDraw();
+
+			_drawScene(node->m_data);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
 	}
 }
 

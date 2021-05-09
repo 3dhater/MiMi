@@ -30,26 +30,26 @@ class miPoolAllocator
 public:
 
 	miPoolAllocator(size_t pool_size)
-		:
-		miPoolAllocator()
 	{
+		miPoolAllocator();
+
 		assert(pool_size);
 		m_poolSize = pool_size;
 
-		m_pool = (unsigned char*)std::malloc(pool_size * sizeof(_type));
+		m_pool = (unsigned char*)miMalloc(pool_size * sizeof(_type));
 		unsigned char* p = m_pool;
 		m_firstFree = p;
 		m_freeCount = m_poolSize;
 		int count = m_poolSize;
 		while (--count) 
 		{
-			*(void**)p = (p + m_elemSize);
-			p += m_elemSize;
+			*(void**)p = (p + sizeof(_type));
+			p += sizeof(_type);
 		}
 		*(void**)p = 0;
 	}
 	~miPoolAllocator() {
-		if (m_pool) std::free(m_pool);
+		if (m_pool) miFree(m_pool);
 	}
 
 	_type* Allocate() {
@@ -62,8 +62,8 @@ public:
 
 	void Deallocate(_type* o) {
 		assert(o);
-		*(void**)ptr = m_firstFree;
-		m_firstFree = ptr;
+		*(void**)o = m_firstFree;
+		m_firstFree = o;
 		++m_freeCount;
 	}
 };

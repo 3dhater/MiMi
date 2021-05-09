@@ -7,23 +7,31 @@
 struct miEdge;
 struct miPolygon;
 
+#include "miPackOn.h"
 struct miVertex 
 {
 	miVertex() {
 		m_left = 0;
 		m_right = 0;
+		m_flags = 0;
 	}
+	~miVertex() {}
+	unsigned char m_flags;
+	enum { flag_isSelected = 1, };
 
 	miVertex* m_left;
 	miVertex* m_right;
 
 	miVec3 m_position;
-	miVec3 m_normal;
+	half m_normal[3];
+
 
 	miList<miPolygon*> m_polygons;
 	miList<miEdge*> m_edges;
 };
+#include "miPackOff.h"
 
+#include "miPackOn.h"
 struct miEdge
 {
 	miEdge() {
@@ -35,7 +43,11 @@ struct miEdge
 
 		m_polygon1 = 0;
 		m_polygon2 = 0;
+		m_flags = 0;
 	}
+	~miEdge() {}
+	unsigned char m_flags;
+	enum { flag_isSelected = 1, };
 
 	miEdge* m_left;
 	miEdge* m_right;
@@ -46,19 +58,27 @@ struct miEdge
 	miPolygon * m_polygon1;
 	miPolygon * m_polygon2;
 };
+#include "miPackOff.h"
 
+#include "miPackOn.h"
 struct miPolygon
 {
 	miPolygon() {
 		m_left = 0;
 		m_right = 0;
+		m_flags = 0;
 	}
+	~miPolygon() {}
+	unsigned char m_flags;
+	enum { flag_isSelected = 1, };
+
 	miPolygon* m_left;
 	miPolygon* m_right;
 	
 	miList<miVertex*> m_verts;
 	miList<miEdge*> m_edges;
 };
+#include "miPackOff.h"
 
 // create miPolygonCreator by yourself
 // use it when you create new model
@@ -90,7 +110,7 @@ class miPolygonCreator
 	}
 
 public:
-	miPolygonCreator():m_size(0), m_positions(0),m_normals(0){}
+	miPolygonCreator():m_size(0), m_allocated(0), m_positions(0),m_normals(0){}
 	~miPolygonCreator() {
 		if (m_positions) delete[] m_positions;
 		if (m_normals) delete[] m_normals;
@@ -113,11 +133,22 @@ public:
 	miVec3* GetNormals() { return m_normals; }
 };
 
+struct miSkeleton {
+
+};
+
 struct miMesh
 {
+	miMesh() {
+		m_first_polygon = 0;
+		m_first_edge = 0;
+		m_first_vertex = 0;
+		m_skeleton = 0;
+	}
 	miPolygon* m_first_polygon;
 	miEdge* m_first_edge;
 	miVertex* m_first_vertex;
+	miSkeleton* m_skeleton;
 };
 
 template<typename _polygon_allocator_type, typename _edge_allocator_type, typename _vertex_allocator_type>
@@ -125,10 +156,6 @@ struct miMeshBuilder
 {
 	// polyCount/edgeCount/vertexCount for miPoolAllocator
 	miMeshBuilder(int polyCount, int edgeCount, int vertexCount) {
-		m_first_polygon = 0;
-		m_first_edge = 0;
-		m_first_vertex = 0;
-
 		m_allocatorPolygon = (_polygon_allocator_type*)miMalloc(sizeof(_polygon_allocator_type));
 		m_allocatorEdge = (_edge_allocator_type*)miMalloc(sizeof(_edge_allocator_type));
 		m_allocatorVertex = (_vertex_allocator_type*)miMalloc(sizeof(_vertex_allocator_type));
@@ -150,12 +177,13 @@ struct miMeshBuilder
 
 	void DeleteMesh() {
 		_delete_edges();
-		if (m_first_polygon)
+		if (m_mesh.m_first_polygon)
 		{
-			auto p = m_first_polygon;
+			auto p = m_mesh.m_first_polygon;
 			auto last = p->m_left;
 			while (true) {
 				auto next = p->m_right;
+				p->~miPolygon();
 				m_allocatorPolygon->Deallocate(p);
 				if (p == last)
 					break;
@@ -164,12 +192,13 @@ struct miMeshBuilder
 		}
 
 
-		if (m_first_vertex)
+		if (m_mesh.m_first_vertex)
 		{
-			auto v = m_first_vertex;
+			auto v = m_mesh.m_first_vertex;
 			auto last = v->m_left;
 			while (true) {
 				auto next = v->m_right;
+				v->~miVertex();
 				m_allocatorVertex->Deallocate(v);
 				if (v == last)
 					break;
@@ -194,6 +223,8 @@ struct miMeshBuilder
 
 
 		miPolygon* newPolygon = m_allocatorPolygon->Allocate();
+		new(newPolygon)miPolygon();
+
 
 		auto positions = pc->GetPositions();
 		auto normals = pc->GetNormals();
@@ -202,17 +233,20 @@ struct miMeshBuilder
 		{
 			miVertex* newVertex = 0;
 			
-
 			if (weld)
 			{
-				_set_hash(positions[i]);
+				_set_hash(&positions[i]);
 
 				auto find_result = m_weldMap.find(m_vertsMapHash);
 				if (find_result == m_weldMap.end())
 				{
 					newVertex = m_allocatorVertex->Allocate();
+					new(newVertex)miVertex();
 					newVertex->m_position = positions[i];
-					newVertex->m_normal = normals[i];
+					
+					newVertex->m_normal[0] = normals[i].x;
+					newVertex->m_normal[1] = normals[i].y;
+					newVertex->m_normal[2] = normals[i].z;
 
 					m_weldMap[m_vertsMapHash] = newVertex;
 					_add_vertex_to_list(newVertex);
@@ -225,8 +259,12 @@ struct miMeshBuilder
 			else
 			{
 				newVertex = m_allocatorVertex->Allocate();
+				new(newVertex)miVertex();
 				newVertex->m_position = positions[i];
-				newVertex->m_normal = normals[i];
+				
+				newVertex->m_normal[0] = normals[i].x;
+				newVertex->m_normal[1] = normals[i].y;
+				newVertex->m_normal[2] = normals[i].z;
 
 				_add_vertex_to_list(newVertex);
 			}
@@ -236,27 +274,27 @@ struct miMeshBuilder
 			newPolygon->m_verts.push_back(newVertex);
 		}
 
-		if (!m_first_polygon)
+		if (!m_mesh.m_first_polygon)
 		{
-			m_first_polygon = newPolygon;
-			m_first_polygon->m_right = m_first_polygon;
-			m_first_polygon->m_left = m_first_polygon;
+			m_mesh.m_first_polygon = newPolygon;
+			m_mesh.m_first_polygon->m_right = m_mesh.m_first_polygon;
+			m_mesh.m_first_polygon->m_left = m_mesh.m_first_polygon;
 		}
 		else
 		{
-			auto last = m_first_polygon->m_left;
+			auto last = m_mesh.m_first_polygon->m_left;
 			last->m_right = newPolygon;
-			node->m_left = last;
-			node->m_right = m_first_polygon;
-			m_first_polygon->m_left = newPolygon;
+			newPolygon->m_left = last;
+			newPolygon->m_right = m_mesh.m_first_polygon;
+			m_mesh.m_first_polygon->m_left = newPolygon;
 		}
 	}
 	void CreateEdges() {
-		if (m_first_edge)
+		if (m_mesh.m_first_edge)
 			_delete_edges();
-		if (!m_first_polygon)
+		if (!m_mesh.m_first_polygon)
 			return;
-		auto current_polygon = m_first_polygon;
+		auto current_polygon = m_mesh.m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
 		while (true) {
 			auto next_polygon = current_polygon->m_right;
@@ -265,21 +303,24 @@ struct miMeshBuilder
 			auto next_vertex = current_vertex->m_right;
 			auto last_vertex = current_vertex->m_left;
 			while (true) {
-				miVertex* v1 = current_vertex;
-				miVertex* v2 = next_vertex;
+				miVertex* v1 = current_vertex->m_data;
+				miVertex* v2 = next_vertex->m_data;
 
 				// пусть вершина с адресом значение которого меньше
 				//  будет на первом месте.
 				if (v2 < v1)
 				{
-					v1 = next_vertex;
-					v2 = current_vertex;
+					v1 = next_vertex->m_data;
+					v2 = current_vertex->m_data;
 				}
 
 				miEdge* newEdge = nullptr;
-				bool create_new = true;
 				if (v1->m_edges.m_head) // find exist edge
 				{
+					// я ищу рёбра в списке у вершины, так как v1 и v2
+					//  отсортированы по значению адреса, и v1 всегда
+					//   будет иметь возможность хранить уже ранее 
+					//    созданное ребро.
 					auto current_edge = v1->m_edges.m_head;
 					auto last_edge = current_edge->m_left;
 					while (true) {
@@ -287,8 +328,7 @@ struct miMeshBuilder
 						if (current_edge->m_data->m_vertex1 == v1
 							&& current_edge->m_data->m_vertex2 == v2)
 						{
-							create_new = false;
-							newEdge = current_edge;
+							newEdge = current_edge->m_data;
 							break;
 						}
 
@@ -298,9 +338,10 @@ struct miMeshBuilder
 					}
 				}
 
-				if (create_new)
+				if (!newEdge)
 				{
 					newEdge = m_allocatorEdge->Allocate();
+					new(newEdge)miEdge();
 					newEdge->m_vertex1 = v1;
 					newEdge->m_vertex2 = v2;
 					_add_edge_to_list(newEdge);
@@ -346,41 +387,41 @@ private:
 		if (ptr[11] == 0) m_vertsMapHash += (ptr[11] + 1); else m_vertsMapHash += ptr[11];
 	}
 	void _add_vertex_to_list(miVertex* newVertex) {
-		if (!m_first_vertex)
+		if (!m_mesh.m_first_vertex)
 		{
-			m_first_vertex = newVertex;
-			m_first_vertex->m_right = m_first_vertex;
-			m_first_vertex->m_left = m_first_vertex;
+			m_mesh.m_first_vertex = newVertex;
+			m_mesh.m_first_vertex->m_right = m_mesh.m_first_vertex;
+			m_mesh.m_first_vertex->m_left = m_mesh.m_first_vertex;
 		}
 		else
 		{
-			auto last = m_first_vertex->m_left;
+			auto last = m_mesh.m_first_vertex->m_left;
 			last->m_right = newVertex;
-			node->m_left = last;
-			node->m_right = m_first_vertex;
-			m_first_vertex->m_left = newVertex;
+			newVertex->m_left = last;
+			newVertex->m_right = m_mesh.m_first_vertex;
+			m_mesh.m_first_vertex->m_left = newVertex;
 		}
 	}
 	void _add_edge_to_list(miEdge* newEdge) {
-		if (!m_first_edge)
+		if (!m_mesh.m_first_edge)
 		{
-			m_first_edge = newEdge;
-			m_first_edge->m_right = m_first_edge;
-			m_first_edge->m_left = m_first_edge;
+			m_mesh.m_first_edge = newEdge;
+			m_mesh.m_first_edge->m_right = m_mesh.m_first_edge;
+			m_mesh.m_first_edge->m_left = m_mesh.m_first_edge;
 		}
 		else
 		{
-			auto last = m_first_edge->m_left;
+			auto last = m_mesh.m_first_edge->m_left;
 			last->m_right = newEdge;
-			node->m_left = last;
-			node->m_right = m_first_edge;
-			m_first_edge->m_left = newEdge;
+			newEdge->m_left = last;
+			newEdge->m_right = m_mesh.m_first_edge;
+			m_mesh.m_first_edge->m_left = newEdge;
 		}
 	}
 	void _delete_edges() {
-		if (m_first_polygon)
+		if (m_mesh.m_first_polygon)
 		{
-			auto p = m_first_polygon;
+			auto p = m_mesh.m_first_polygon;
 			auto last = p->m_left;
 			while (true) {
 				auto next = p->m_right;
@@ -390,9 +431,9 @@ private:
 				p = next;
 			}
 		}
-		if (m_first_vertex)
+		if (m_mesh.m_first_vertex)
 		{
-			auto v = m_first_vertex;
+			auto v = m_mesh.m_first_vertex;
 			auto last = v->m_left;
 			while (true) {
 				auto next = v->m_right;
@@ -402,18 +443,19 @@ private:
 				v = next;
 			}
 		}
-		if (m_first_edge)
+		if (m_mesh.m_first_edge)
 		{
-			auto e = m_first_edge;
+			auto e = m_mesh.m_first_edge;
 			auto last = e->m_left;
 			while (true) {
 				auto next = e->m_right;
+				e->~miEdge();
 				m_allocatorEdge->Deallocate(e);
 				if (e == last)
 					break;
 				e = next;
 			}
-			m_first_edge = 0;
+			m_mesh.m_first_edge = 0;
 		}
 	}
 };

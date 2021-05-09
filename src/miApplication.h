@@ -131,6 +131,8 @@ class miApplication
 	void DestroyAllSceneObjects(miSceneObject* o);
 	void RemoveObjectFromScene(miSceneObject* o);
 
+	miEditMode m_editMode;
+
 public:
 	miApplication();
 	~miApplication();

@@ -5,7 +5,7 @@ class miplStd : public miPlugin
 {
 	miSceneObject* m_newObjectPtr;
 	void _destroyNewObject();
-	void _saveNewObject();
+	void _dropNewObject();
 
 	bool m_isLMBDown;
 

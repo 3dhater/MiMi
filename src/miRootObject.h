@@ -10,6 +10,8 @@ public:
 	virtual ~miRootObject();
 
 	virtual void OnDraw();
+	virtual void OnUpdate(float dt);
+	virtual void OnCreation();
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();

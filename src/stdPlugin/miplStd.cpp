@@ -34,7 +34,7 @@ void miplStd::_destroyNewObject() {
 		m_newObjectPtr = 0;
 	}
 }
-void miplStd::_saveNewObject() {
+void miplStd::_dropNewObject() {
 	m_newObjectPtr = 0;
 }
 
@@ -131,6 +131,7 @@ void miplStd::OnPopupCommand(unsigned int id) {
 
 		miplPolygonObjectPlane* newObject = (miplPolygonObjectPlane*)miMalloc(sizeof(miplPolygonObjectPlane));
 		new(newObject)miplPolygonObjectPlane(m_sdk, this);
+		newObject->OnCreation();
 
 		m_newObjectPtr = newObject;
 	}

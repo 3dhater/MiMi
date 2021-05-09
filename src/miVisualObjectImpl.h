@@ -5,23 +5,27 @@ class miVisualObjectImpl : public miVisualObject
 {
 	struct node {
 		node() {
-			m_modelGPU = 0;
-			m_modelCPU = 0;
+			m_modelGPU_p = 0;
+			m_modelCPU_p = 0;
+			m_texture = 0;
 			m_remap = false;
 		}
 		~node() {
-			if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
-			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
+			if (m_modelGPU_p) yyMegaAllocator::Destroy(m_modelGPU_p);
+			if (m_modelCPU_p) yyMegaAllocator::Destroy(m_modelCPU_p);
 		}
-		yyResource* m_modelGPU;
-		yyModel* m_modelCPU;
+		yyResource* m_modelGPU_p;
+		yyResource* m_texture;
+		yyModel* m_modelCPU_p;
 		bool m_remap;
 	};
 
 	yyArray<node*> m_nodes;
 	void _destroy();
+	void _createSoftwareModel_polys();
 
 	miAabb m_aabb;
+	miMesh* m_mesh;
 
 public:
 	miVisualObjectImpl();

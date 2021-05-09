@@ -8,12 +8,17 @@ class miplPolygonObjectPlane : public miSceneObject
 	miplStd* m_pluginImpl;
 	miVec2 m_size;
 
+	miPolygonCreator* m_polygonCreator;
+	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilder;
+
 	miVisualObject* m_visualObject;
 public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();
 
 	virtual void OnDraw();
+	virtual void OnUpdate(float dt);
+	virtual void OnCreation();
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();

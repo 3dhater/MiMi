@@ -19,6 +19,9 @@ miVisualObject* miSDKImpl::CreateVisualObject() {
 	return miCreate<miVisualObjectImpl>();
 }
 
+miEditMode miSDKImpl::GetEditMode() {return g_app->m_editMode;}
+void miSDKImpl::SetEditMode(miEditMode em) {g_app->m_editMode = em;}
+
 miVec2 miSDKImpl::GetCursorPosition2D() {
 	return math::v2f_to_miVec2(g_app->m_inputContext->m_cursorCoords);
 }

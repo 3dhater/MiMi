@@ -183,7 +183,9 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
+
 miApplication::miApplication() {
+	m_editMode = miEditMode::Object;
 	m_pluginActive = 0;
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
 	m_isSelectByRectangle = false;

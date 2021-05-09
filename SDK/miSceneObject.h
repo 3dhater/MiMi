@@ -40,7 +40,9 @@ public:
 
 	// when app need to draw this object
 	virtual void OnDraw() = 0;
+	virtual void OnUpdate(float dt) = 0;
 	// when plugin create object
+	virtual void OnCreation() = 0; // when press button\menu command
 	virtual void OnCreationLMBDown() = 0;
 	virtual void OnCreationLMBUp() = 0;
 	virtual void OnCreationMouseMove() = 0;

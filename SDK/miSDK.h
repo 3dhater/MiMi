@@ -32,6 +32,9 @@
 
 #define MI_SDK_VERSION 1
 
+
+#include "umHalf.h"
+
 #include "miLib.h"
 #include "miMemory.h"
 #include "miSingleton.h"
@@ -45,6 +48,13 @@
 #include "miSelectionFrust.h"
 #include "miVisualObject.h"
 #include "miSceneObject.h"
+
+enum class miEditMode: unsigned int {
+	Vertex, 
+	Edge,
+	Polygon,
+	Object,
+};
 
 enum class miCursorBehaviorMode : unsigned int {
 	CommonMode, // select by rect
@@ -95,6 +105,9 @@ public:
 	virtual void SetCursorBehaviorModer(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
 	virtual miVec2 GetCursorPosition2D() = 0;
 	virtual miVec3 GetCursorPosition3D() = 0;
+
+	virtual miEditMode GetEditMode() = 0;
+	virtual void SetEditMode(miEditMode) = 0;
 
 	// register new object for popup when you press `Add` button
 	// return - popup command id 

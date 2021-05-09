@@ -64,6 +64,7 @@ struct miViewport
 	bool m_drawGrid;
 	void SetDrawGrid(bool);
 	void _drawGrid();
+	void _drawScene(miSceneObject*);
 
 	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
 };
