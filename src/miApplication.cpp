@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
-	m_currentViewportDrawCamera = 0;
+	m_currentViewportDraw = 0;
 	m_editMode = miEditMode::Object;
 	m_pluginActive = 0;
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;

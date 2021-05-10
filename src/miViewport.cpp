@@ -25,7 +25,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 
 	m_gpu = yyGetVideoDriverAPI();
 	m_gui_group = 0;
-	m_drawMode = this->Draw_Material;
+	m_drawMode = this->Draw_MaterialWireframe;
 	m_drawGrid = true;
 	m_index = 0;
 	m_isCursorInRect = false;
@@ -364,7 +364,9 @@ void miViewport::OnDraw() {
 	}
 
 	// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
-	g_app->m_currentViewportDrawCamera = m_activeCamera;
+	//g_app->m_currentViewportDrawCamera = m_activeCamera;
+	g_app->m_currentViewportDraw = this;
+
 	_drawScene(g_app->m_rootObject);
 }
 
