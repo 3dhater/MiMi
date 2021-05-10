@@ -352,10 +352,10 @@ void miViewport::OnDraw() {
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[2], g_app->m_selectionFrust->m_bottom[3], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[3], g_app->m_selectionFrust->m_bottom[0], ColorWhite);*/
 	
-	/*if (g_app->m_isClickAndDrag)
+	if (g_app->m_isClickAndDrag)
 	{
 		m_gpu->DrawLine3D(g_app->m_cursorLMBClickPosition3D, g_app->m_cursorPosition3D, ColorWhite);
-	}*/
+	}
 
 
 	if (m_drawGrid)
@@ -364,6 +364,7 @@ void miViewport::OnDraw() {
 	}
 
 	// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
+	g_app->m_currentViewportDrawCamera = m_activeCamera;
 	_drawScene(g_app->m_rootObject);
 }
 

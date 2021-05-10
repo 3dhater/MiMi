@@ -135,17 +135,6 @@ struct miCameraFrustum
 	}
 };
 
-enum class miViewportCameraType
-{
-	Perspective,
-	Left,
-	Right,
-	Top,
-	Bottom,
-	Front,
-	Back
-};
-
 struct miViewport;
 struct miViewportCamera
 {

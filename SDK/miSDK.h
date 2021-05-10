@@ -49,7 +49,17 @@
 #include "miVisualObject.h"
 #include "miSceneObject.h"
 
-enum class miEditMode: unsigned int {
+enum class miViewportCameraType : unsigned int {
+	Perspective,
+	Left,
+	Right,
+	Top,
+	Bottom,
+	Front,
+	Back
+};
+
+enum class miEditMode : unsigned int {
 	Vertex, 
 	Edge,
 	Polygon,
@@ -100,11 +110,14 @@ public:
 
 	virtual miVisualObject* CreateVisualObject() = 0;
 
+	virtual miViewportCameraType GetActiveViewportCameraType() = 0;
+
 	virtual miKeyboardModifier GetKeyboardModifier() = 0;
 	virtual miCursorBehaviorMode GetCursorBehaviorModer() = 0;
 	virtual void SetCursorBehaviorModer(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
 	virtual miVec2 GetCursorPosition2D() = 0;
 	virtual miVec3 GetCursorPosition3D() = 0;
+	virtual miVec3 GetCursorPosition3DFirstClick() = 0;
 
 	virtual miEditMode GetEditMode() = 0;
 	virtual void SetEditMode(miEditMode) = 0;

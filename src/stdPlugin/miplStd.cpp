@@ -109,7 +109,11 @@ void miplStd::OnLMBUp(miSelectionFrust* sf, bool isCursorInGUI) {
 }
 
 void miplStd::OnCancel(miSelectionFrust*, bool isCursorInGUI) {
-	if (m_newObjectPtr) _destroyNewObject();
+	if (m_newObjectPtr)
+	{
+		m_sdk->RemoveObjectFromScene(m_newObjectPtr);
+		_destroyNewObject();
+	}
 	m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::CommonMode);
 	m_sdk->SetActivePlugin(nullptr);
 }

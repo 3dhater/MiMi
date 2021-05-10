@@ -19,6 +19,8 @@ miVisualObject* miSDKImpl::CreateVisualObject() {
 	return miCreate<miVisualObjectImpl>();
 }
 
+miViewportCameraType miSDKImpl::GetActiveViewportCameraType() { return g_app->m_activeViewportLayout->m_activeViewport->m_cameraType; }
+
 miEditMode miSDKImpl::GetEditMode() {return g_app->m_editMode;}
 void miSDKImpl::SetEditMode(miEditMode em) {g_app->m_editMode = em;}
 
@@ -27,6 +29,9 @@ miVec2 miSDKImpl::GetCursorPosition2D() {
 }
 miVec3 miSDKImpl::GetCursorPosition3D() {
 	return math::v3f_to_miVec3(v3f(g_app->m_cursorPosition3D.x, g_app->m_cursorPosition3D.y, g_app->m_cursorPosition3D.z));
+}
+miVec3 miSDKImpl::GetCursorPosition3DFirstClick() {
+	return math::v3f_to_miVec3(v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z));
 }
 void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
 	g_app->m_cursorBehaviorMode = m;

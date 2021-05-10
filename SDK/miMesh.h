@@ -205,6 +205,7 @@ struct miMeshBuilder
 				v = next;
 			}
 		}
+		new(&m_mesh)miMesh();
 	}
 
 	miMesh m_mesh;
@@ -216,6 +217,12 @@ struct miMeshBuilder
 	std::unordered_map<std::string, miVertex*> m_weldMap;
 	std::string m_vertsMapHash;
 
+	void Begin() {
+		m_weldMap.clear();
+	}
+	void End(){
+		CreateEdges();
+	}
 	void AddPolygon(miPolygonCreator* pc, bool weld) {
 		auto polygonVertexCount = pc->Size();
 		if (polygonVertexCount < 3)
@@ -372,19 +379,34 @@ struct miMeshBuilder
 private:
 	void _set_hash(miVec3* position) {
 		m_vertsMapHash.clear();
-		char * ptr = (char*)position;
-		if (ptr[0] == 0) m_vertsMapHash += (ptr[0] + 1); else m_vertsMapHash += ptr[0];
-		if (ptr[1] == 0) m_vertsMapHash += (ptr[1] + 1); else m_vertsMapHash += ptr[1];
-		if (ptr[2] == 0) m_vertsMapHash += (ptr[2] + 1); else m_vertsMapHash += ptr[2];
-		if (ptr[3] == 0) m_vertsMapHash += (ptr[3] + 1); else m_vertsMapHash += ptr[3];
-		if (ptr[4] == 0) m_vertsMapHash += (ptr[4] + 1); else m_vertsMapHash += ptr[4];
-		if (ptr[5] == 0) m_vertsMapHash += (ptr[5] + 1); else m_vertsMapHash += ptr[5];
-		if (ptr[6] == 0) m_vertsMapHash += (ptr[6] + 1); else m_vertsMapHash += ptr[6];
-		if (ptr[7] == 0) m_vertsMapHash += (ptr[7] + 1); else m_vertsMapHash += ptr[7];
-		if (ptr[8] == 0) m_vertsMapHash += (ptr[8] + 1); else m_vertsMapHash += ptr[8];
-		if (ptr[9] == 0) m_vertsMapHash += (ptr[9] + 1); else m_vertsMapHash += ptr[9];
-		if (ptr[10] == 0) m_vertsMapHash += (ptr[10] + 1); else m_vertsMapHash += ptr[10];
-		if (ptr[11] == 0) m_vertsMapHash += (ptr[11] + 1); else m_vertsMapHash += ptr[11];
+		char * ptr = (char *)position->data();
+		char bytes[13];
+		bytes[0] = ptr[0];
+		bytes[1] = ptr[1];
+		bytes[2] = ptr[2];
+		bytes[3] = ptr[3];
+		bytes[4] = ptr[4];
+		bytes[5] = ptr[5];
+		bytes[6] = ptr[6];
+		bytes[7] = ptr[7];
+		bytes[8] = ptr[8];
+		bytes[9] = ptr[9];
+		bytes[10] = ptr[10];
+		bytes[11] = ptr[11];
+		if (bytes[0] == 0) bytes[0] = 1;
+		if (bytes[1] == 0) bytes[1] = 1;
+		if (bytes[2] == 0) bytes[2] = 1;
+		if (bytes[3] == 0) bytes[3] = 1;
+		if (bytes[4] == 0) bytes[4] = 1;
+		if (bytes[5] == 0) bytes[5] = 1;
+		if (bytes[6] == 0) bytes[6] = 1;
+		if (bytes[7] == 0) bytes[7] = 1;
+		if (bytes[8] == 0) bytes[8] = 1;
+		if (bytes[9] == 0) bytes[9] = 1;
+		if (bytes[10] == 0) bytes[10] = 1;
+		if (bytes[11] == 0) bytes[11] = 1;
+		bytes[12] = 0;
+		m_vertsMapHash = bytes;
 	}
 	void _add_vertex_to_list(miVertex* newVertex) {
 		if (!m_mesh.m_first_vertex)

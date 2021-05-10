@@ -8,6 +8,10 @@ class miplPolygonObjectPlane : public miSceneObject
 	miplStd* m_pluginImpl;
 	miVec2 m_size;
 
+	miVec3 m_firstPoint;
+	miAabb m_creationAabb;
+	bool m_isLMBDown;
+
 	miPolygonCreator* m_polygonCreator;
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilder;
 

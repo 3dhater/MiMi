@@ -185,6 +185,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_currentViewportDrawCamera = 0;
 	m_editMode = miEditMode::Object;
 	m_pluginActive = 0;
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
@@ -314,8 +315,6 @@ void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 			node = node->m_right;
 		}
 	}
-
-	miDestroy(o);
 }
 void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 	auto node = o->GetChildren()->m_head;
@@ -633,7 +632,10 @@ void miApplication::MainLoop() {
 			break;
 		case yySystemState::Run:
 		{
-			if (m_pluginActive)
+			auto old_active_viewport = m_activeViewportLayout->m_activeViewport;
+			UpdateViewports();
+		
+			if (m_pluginActive  /*&& (m_activeViewportLayout->m_activeViewport == old_active_viewport)*/)
 			{
 				bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
 				if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
@@ -655,7 +657,6 @@ void miApplication::MainLoop() {
 					m_pluginActive->OnUpdate(m_selectionFrust, m_isCursorInGUI);
 			}
 
-			UpdateViewports();
 
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
@@ -685,6 +686,9 @@ void miApplication::MainLoop() {
 		}
 		}
 	}
+
+	if (m_pluginActive)
+		m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
 }
 
 void miApplication::_updateKeyboardModifier() {
@@ -812,14 +816,19 @@ void miApplication::UpdateViewports() {
 					{
 						m_activeViewportLayout->m_activeViewport = viewport;
 						m_2d->UpdateClip();
-						return;
 					}
 				}
 			}
 		}
 	}
 
-	if (m_isCursorMove && m_isViewportInFocus)
+	if (m_inputContext->m_isLMBDown)
+	{
+		m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
+		//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
+	}
+
+	if (m_isCursorMove /*&& m_isViewportInFocus*/)
 	{
 		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
 
@@ -830,7 +839,6 @@ void miApplication::UpdateViewports() {
 		{
 			if (!m_isClickAndDrag)
 			{
-				m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
 				//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
 				m_isClickAndDrag = true;
 			}

@@ -41,11 +41,14 @@ public:
 
 	virtual miVisualObject* CreateVisualObject();
 
+	virtual miViewportCameraType GetActiveViewportCameraType();
+
 	virtual miKeyboardModifier GetKeyboardModifier();
 	virtual miCursorBehaviorMode GetCursorBehaviorModer();
 	virtual void SetCursorBehaviorModer(miCursorBehaviorMode);
 	virtual miVec2 GetCursorPosition2D();
 	virtual miVec3 GetCursorPosition3D();
+	virtual miVec3 GetCursorPosition3DFirstClick();
 	virtual miEditMode GetEditMode();
 	virtual void SetEditMode(miEditMode);
 

@@ -106,7 +106,7 @@ class miApplication
 	void _callViewportOnSize();
 
 
-
+	miViewportCamera* m_currentViewportDrawCamera;
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
