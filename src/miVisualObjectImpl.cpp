@@ -169,11 +169,11 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 	auto last_polygon = current_polygon->m_left;
 	while (true) {
 
-		miVec4 color(1.f,0.f,0.f,1.f);
+		miVec4 color(0.f,0.f,0.f,0.0f);
 		if (g_app->m_editMode == miEditMode::Polygon)
 		{
 			if (current_polygon->m_flags & miPolygon::flag_isSelected)
-				color.set(1.0f, 0.f, 0.f, 0.f);
+				color.set(1.0f, 0.f, 0.f, 1.f);
 		}
 
 		auto vertex_1 = current_polygon->m_verts.m_head;

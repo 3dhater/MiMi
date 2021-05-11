@@ -93,7 +93,7 @@ void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
 }
 
 void miplStd::OnLMBUp(miSelectionFrust* sf, bool isCursorInGUI) {
-	if (!isCursorInGUI)
+	if (m_isLMBDown)
 	{
 		if (m_sdk->GetCursorBehaviorModer() == miCursorBehaviorMode::ClickAndDrag) {
 			if (m_isLMBDown)
