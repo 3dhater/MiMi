@@ -9,13 +9,18 @@ class miplPolygonObjectPlane : public miSceneObject
 	miVec2 m_size;
 
 	miVec3 m_firstPoint;
+	miVec3 m_secondPoint;
 	miAabb m_creationAabb;
 	bool m_isLMBDown;
 
 	miPolygonCreator* m_polygonCreator;
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilder;
 
+	miViewportCameraType m_viewportCameraType;
+
 	miVisualObject* m_visualObject;
+
+	void _generate();
 public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();

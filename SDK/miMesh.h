@@ -23,6 +23,7 @@ struct miVertex
 	miVertex* m_right;
 
 	miVec3 m_position;
+	miVec2 m_tCoords;
 	half m_normal[3];
 
 
@@ -89,48 +90,56 @@ class miPolygonCreator
 	int m_allocated;
 	miVec3* m_positions;
 	miVec3* m_normals;
+	miVec2* m_tcoords;
 
 	void _reallocate(int size) {
 		miVec3* newPositions = new miVec3[size];
 		miVec3* newNormals = new miVec3[size];
+		miVec2* newtCoords = new miVec2[size];
 
 		for (int i = 0; i < m_size; ++i)
 		{
 			newPositions[i] = m_positions[i];
 			newNormals[i] = m_normals[i];
+			newtCoords[i] = m_tcoords[i];
 		}
 
 		delete[] m_positions;
 		delete[] m_normals;
+		delete[] m_tcoords;
 
 		m_positions = newPositions;
 		m_normals = newNormals;
+		m_tcoords = newtCoords;
 
 		m_allocated = size;
 	}
 
 public:
-	miPolygonCreator():m_size(0), m_allocated(0), m_positions(0),m_normals(0){}
+	miPolygonCreator():m_size(0), m_allocated(0), m_positions(0),m_normals(0), m_tcoords(0){}
 	~miPolygonCreator() {
 		if (m_positions) delete[] m_positions;
 		if (m_normals) delete[] m_normals;
+		if (m_tcoords) delete[] m_tcoords;
 	}
 
 	void Clear() { m_size = 0; }
 	int Size() { return m_size; }
 
-	void Add(const miVec3& position, const miVec3& normal) {
+	void Add(const miVec3& position, const miVec3& normal, const miVec2& tCoords) {
 		if (m_size == m_allocated)
 		{
 			_reallocate(m_allocated + (int)std::ceil(((2.f + (float)m_allocated) * 0.5f)));
 		}
 		m_positions[m_size] = position;
 		m_normals[m_size] = normal;
+		m_tcoords[m_size] = tCoords;
 		++m_size;
 	}
 
 	miVec3* GetPositions() { return m_positions; }
 	miVec3* GetNormals() { return m_normals; }
+	miVec2* GetTCoords() { return m_tcoords; }
 };
 
 struct miSkeleton {
@@ -235,6 +244,7 @@ struct miMeshBuilder
 
 		auto positions = pc->GetPositions();
 		auto normals = pc->GetNormals();
+		auto tCoords = pc->GetTCoords();
 
 		for (int i = 0; i < polygonVertexCount; ++i)
 		{
@@ -250,6 +260,7 @@ struct miMeshBuilder
 					newVertex = m_allocatorVertex->Allocate();
 					new(newVertex)miVertex();
 					newVertex->m_position = positions[i];
+					newVertex->m_tCoords = tCoords[i];
 					
 					newVertex->m_normal[0] = normals[i].x;
 					newVertex->m_normal[1] = normals[i].y;
@@ -268,7 +279,8 @@ struct miMeshBuilder
 				newVertex = m_allocatorVertex->Allocate();
 				new(newVertex)miVertex();
 				newVertex->m_position = positions[i];
-				
+				newVertex->m_tCoords = tCoords[i];
+
 				newVertex->m_normal[0] = normals[i].x;
 				newVertex->m_normal[1] = normals[i].y;
 				newVertex->m_normal[2] = normals[i].z;
