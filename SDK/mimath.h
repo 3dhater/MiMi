@@ -556,6 +556,35 @@ struct miMatrix{
 	}
 };
 
+namespace mimath 
+{
+	inline miVec4 mul(const miVec4& vec, const miMatrix& mat){
+		return miVec4
+		(
+			mat[0u].x * vec.x + mat[1u].x * vec.y + mat[2u].x * vec.z + mat[3u].x * vec.w,
+			mat[0u].y * vec.x + mat[1u].y * vec.y + mat[2u].y * vec.z + mat[3u].y * vec.w,
+			mat[0u].z * vec.x + mat[1u].z * vec.y + mat[2u].z * vec.z + mat[3u].z * vec.w,
+			mat[0u].w * vec.x + mat[1u].w * vec.y + mat[2u].w * vec.z + mat[3u].w * vec.w
+		);
+	}
+	inline miVec3 mul(const miVec3& vec, const miMatrix& mat){
+		return miVec3
+		(
+			mat[0u].x * vec.x + mat[1u].x * vec.y + mat[2u].x * vec.z + mat[3u].x,
+			mat[0u].y * vec.x + mat[1u].y * vec.y + mat[2u].y * vec.z + mat[3u].y,
+			mat[0u].z * vec.x + mat[1u].z * vec.y + mat[2u].z * vec.z + mat[3u].z
+		);
+	}
+	inline miVec3 mulBasis(const miVec3& vec, const miMatrix& mat){
+		return miVec3
+		(
+			mat[0u].x * vec.x + mat[1u].x * vec.y + mat[2u].x * vec.z,
+			mat[0u].y * vec.x + mat[1u].y * vec.y + mat[2u].y * vec.z,
+			mat[0u].z * vec.x + mat[1u].z * vec.y + mat[2u].z * vec.z
+		);
+	}
+}
+
 struct miRay {
 	miVec4 m_origin;
 	miVec4 m_end;

@@ -3,25 +3,35 @@
 
 class miVisualObjectImpl : public miVisualObject
 {
-	struct node {
-		node() {
+	struct model_node_GPU {
+		model_node_GPU() {
 			m_modelGPU = 0;
-			m_modelCPU = 0;
-			m_remap = false;
+		//	m_remap = false;
 		}
-		~node() {
+		~model_node_GPU() {
 			if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
-			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
 		}
 		yyResource* m_modelGPU;
+		//bool m_remap;
+	};
+	struct model_node_CPU {
+		model_node_CPU() {
+			m_modelCPU = 0;
+		}
+		~model_node_CPU() {
+			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
+		}
 		yyModel* m_modelCPU;
-		bool m_remap;
 	};
 	
 	yyResource* m_texture;
 
-	yyArray<node*> m_nodes_polygons;
-	yyArray<node*> m_nodes_edges;
+	yyArray<model_node_GPU*> m_nodes_polygons_GPU;
+	yyArray<model_node_CPU*> m_nodes_polygons_CPU;
+	
+	yyArray<model_node_GPU*> m_nodes_edges_GPU;
+	yyArray<model_node_CPU*> m_nodes_edges_CPU;
+
 	void _destroy();
 	void _createSoftwareModel_polys();
 	void _createSoftwareModel_edges();
@@ -37,8 +47,10 @@ public:
 	virtual void CreateNewGPUModels(miMesh*);
 	virtual size_t GetBufferCount();
 	virtual unsigned char* GetVertexBuffer(size_t index) ;
-	virtual void MarkBufferToRemap(size_t index) ;
+	//virtual void MarkBufferToRemap(size_t index) ;
 	virtual void RemapBuffers() ;
+	//virtual void UpdateCPUModelsOnly(miMesh*);
+	//virtual void RemapAllBuffers();
 
 	virtual void Draw(miMatrix*);
 	virtual miAabb GetAabb();

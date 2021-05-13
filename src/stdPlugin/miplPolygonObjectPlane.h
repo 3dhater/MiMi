@@ -21,6 +21,8 @@ class miplPolygonObjectPlane : public miSceneObject
 	miVisualObject* m_visualObject;
 
 	void _generate();
+	bool m_needToCreateNewGPUBuffers;
+
 public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();

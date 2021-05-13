@@ -1,2 +1,3 @@
-﻿  miplStd.cpp
+﻿  miplPolygonObjectPlane.cpp
+e:\code\mimi\src\stdplugin\miplpolygonobjectplane.cpp(59): warning C4018: '<' : signed/unsigned mismatch
   stdPlugin.vcxproj -> E:\Code\MiMi\build\stdPlugin\../../bin32/plugins/stdPlugin.plg

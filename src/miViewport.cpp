@@ -367,6 +367,7 @@ void miViewport::OnDraw() {
 	//g_app->m_currentViewportDrawCamera = m_activeCamera;
 	g_app->m_currentViewportDraw = this;
 
+	g_app->m_gpu->UseDepth(true);
 	_drawScene(g_app->m_rootObject);
 }
 
@@ -401,9 +402,9 @@ void miViewport::SetDrawGrid(bool v) {
 v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 	miRay ray;
 	g_app->m_sdk->GetRayFromScreen(&ray, 
-		math::v2f_to_miVec2(cursorPosition), 
-		math::v4f_to_miVec4(m_currentRect), 
-		math::Mat4_to_miMatrix(m_activeCamera->m_viewProjectionInvertMatrix));
+		mimath::v2f_to_miVec2(cursorPosition),
+		mimath::v4f_to_miVec4(m_currentRect),
+		mimath::Mat4_to_miMatrix(m_activeCamera->m_viewProjectionInvertMatrix));
 	
 	v4f v;
 	miVec4 ip;
@@ -443,7 +444,7 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 		}
 	}
 
-	v = math::miVec4_to_v4f(ip);
+	v = mimath::miVec4_to_v4f(ip);
 
 	return v;
 }

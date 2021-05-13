@@ -90,8 +90,15 @@ struct v2f;
 struct v3f;
 struct v4f;
 class Mat4;
-namespace math
+namespace mimath
 {
+	const float PI = static_cast<float>(3.14159265358979323846);
+	const float PIHalf = static_cast<float>(3.14159265358979323846 * 0.5);
+	const float PIPlusHalf = static_cast<float>(3.14159265358979323846 + PIHalf);
+	const float PIPI = 6.2831853f;
+	inline float degToRad(float degrees) { return degrees * (PI / 180.f); }
+	inline float radToDeg(float radians) { return radians * (180.f / PI); }
+
 	miVec2 v2f_to_miVec2(const v2f& v);
 	miVec3 v3f_to_miVec3(const v3f& v);
 	miVec4 v4f_to_miVec4(const v4f& v);

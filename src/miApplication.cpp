@@ -17,7 +17,7 @@ miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
 
 
-namespace math
+namespace mimath
 {
 	miVec2 v2f_to_miVec2(const v2f& v) { return miVec2(v.x, v.y); }
 	miVec3 v3f_to_miVec3(const v3f& v) { return miVec3(v.x, v.y, v.z); }
@@ -348,8 +348,8 @@ void miApplication::_initViewports() {
 			break;
 		case miViewportLayout_Standart: {
 			const f32 midX = 0.4;
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top);
-			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Left);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Right);
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front);
 			m_viewportLayouts[i]->Add(v4f(midX, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
 		}break;
@@ -755,8 +755,8 @@ void miApplication::UpdateViewports() {
 
 				m_selectionFrust->CreateWithFrame(
 					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-					math::v4f_to_miVec4( m_activeViewportLayout->m_activeViewport->m_currentRect),
-					math::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+					mimath::v4f_to_miVec4( m_activeViewportLayout->m_activeViewport->m_currentRect),
+					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
 			}
 		}
 	}
@@ -786,9 +786,9 @@ void miApplication::UpdateViewports() {
 		{
 			m_cursorLMBClickPosition = m_inputContext->m_cursorCoords;
 			miRay r;
-			m_sdk->GetRayFromScreen(&r, math::v2f_to_miVec2(m_inputContext->m_cursorCoords),
-				math::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect), 
-				math::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			m_sdk->GetRayFromScreen(&r, mimath::v2f_to_miVec2(m_inputContext->m_cursorCoords),
+				mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
+				mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
 			
 			g_rays.push_back(r);
 		}
@@ -885,6 +885,10 @@ void miApplication::DrawViewports() {
 	{
 		m_gpu->SetScissorRect(v4f(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y), m_window);
 		m_gpu->SetViewport(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y, m_window);
+		m_gpu->SetEyePosition(
+			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.x,
+			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.y,
+			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.z);
 
 		auto viewport = m_activeViewportLayout->m_viewports[i];
 		if (viewport == m_activeViewportLayout->m_activeViewport)
