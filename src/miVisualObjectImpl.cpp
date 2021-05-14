@@ -97,7 +97,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 		}
 
 		auto vpos = mimath::miVec3_to_v3f(current_vertex->m_position);
-		float size = 0.1f;
+		float size = 1.f;
 
 		if (m_mesh->m_skeleton)
 		{
@@ -599,7 +599,7 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 			g_app->m_gpu->SetTexture(0, m_texture);
 
 			default_polygon_material.m_cullBackFace = true;
-			g_app->m_gpu->SetMaterial(&default_polygon_material);
+			yySetMaterial(default_polygon_material);
 
 			g_app->m_gpu->Draw();
 		}

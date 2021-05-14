@@ -30,7 +30,7 @@ void miViewportCamera::Update() {
 	break;
 	default:
 		f32 zoom = m_positionPlatform.w;
-
+		m_near = -m_far;
 		math::makeOrthoRHMatrix(m_projectionMatrix, 
 			zoom * m_aspect,
 			zoom,
@@ -89,7 +89,7 @@ void miViewportCamera::MoveToSelection() {
 }
 
 void miViewportCamera::Reset() {
-	m_near = 0.01f;
+	m_near = 0.0001f;
 	m_far  = 1000.f;
 	m_fov  = math::degToRad(90.f);
 	m_aspect = 800.f / 600.f;

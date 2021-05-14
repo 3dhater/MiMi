@@ -886,10 +886,7 @@ void miApplication::DrawViewports() {
 	{
 		m_gpu->SetScissorRect(v4f(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y), m_window);
 		m_gpu->SetViewport(0.f, 0.f, (f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y, m_window);
-		m_gpu->SetEyePosition(
-			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.x,
-			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.y,
-			m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera.z);
+		//yySetEyePosition(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionCamera);
 
 		auto viewport = m_activeViewportLayout->m_viewports[i];
 		if (viewport == m_activeViewportLayout->m_activeViewport)

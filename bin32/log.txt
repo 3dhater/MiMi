@@ -45,7 +45,6 @@ Info: Add object to scene: Plane0
 Info: Add object to scene: Plane1
 Info: Add object to scene: Plane2
 Info: Add object to scene: Plane3
-Info: Add object to scene: Plane4
 Info: yyQuit
 Info: Destroy main window...
 Info: yyQuit

@@ -318,12 +318,14 @@ void miViewport::OnWindowSize() {
 
 void miViewport::OnDraw() {
 	m_activeCamera->Update();
+	yySetEyePosition(m_activeCamera->m_positionCamera);
 
 	m_gpu->UseDepth(false);
 	m_gpu->DrawRectangle(m_currentRect, g_app->m_color_windowClearColor, g_app->m_color_windowClearColor);
 
 	m_gpu->SetScissorRect(m_currentRect, g_app->m_window);
 	m_gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window);
+
 
 	yySetMatrix(yyMatrixType::View, m_activeCamera->m_viewMatrix);
 	yySetMatrix(yyMatrixType::Projection, m_activeCamera->m_projectionMatrix);
@@ -523,7 +525,7 @@ void miViewport::_drawGrid() {
 	}break;
 	}
 
-	m_gpu->SetMaterial(&g_app->m_gridModelMaterial);
+	yySetMaterial(g_app->m_gridModelMaterial);
 	m_gpu->UseDepth(true);
 	m_gpu->Draw();
 }
