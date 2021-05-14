@@ -39,10 +39,6 @@ Info: Load texture: ..\res\fonts\Noto\notosans.txt5.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt6.dds
 Info: Load texture: ../res/gui/black.dds
 Info: Load texture: ../res/gui/icons.png
-Info: Add object to scene: Plane
-Info: Load texture: ../res/exit.png
-Info: Add object to scene: Plane0
-Info: Add object to scene: Plane1
 Info: yyQuit
 Info: Destroy main window...
 Info: yyQuit

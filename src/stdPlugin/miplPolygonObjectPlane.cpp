@@ -409,7 +409,7 @@ void miplPolygonObjectPlane::_generate() {
 		m_viewportCameraType,
 		m_creationAabb, m_firstPoint, 
 		m_size,
-		20, 20);
+		90, 90);
 	
 	m_meshBuilder->End();
 

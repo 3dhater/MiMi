@@ -6,13 +6,11 @@ class miVisualObjectImpl : public miVisualObject
 	struct model_node_GPU {
 		model_node_GPU() {
 			m_modelGPU = 0;
-		//	m_remap = false;
 		}
 		~model_node_GPU() {
 			if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
 		}
 		yyResource* m_modelGPU;
-		//bool m_remap;
 	};
 	struct model_node_CPU {
 		model_node_CPU() {
@@ -31,6 +29,9 @@ class miVisualObjectImpl : public miVisualObject
 	
 	yyArray<model_node_GPU*> m_nodes_edges_GPU;
 	yyArray<model_node_CPU*> m_nodes_edges_CPU;
+
+	yyArray<model_node_GPU*> m_nodes_verts_GPU;
+	yyArray<model_node_CPU*> m_nodes_verts_CPU;
 
 	void _destroy();
 	void _createSoftwareModel_polys();

@@ -8,7 +8,7 @@
 void miApplication::_initGrid() {
 	auto _get_model = [&](s32 linesNum)->yyModel*{
 		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLineModel);
+		model->m_stride = sizeof(yyVertexLine);
 		model->m_vertexType = yyVertexType::LineModel;
 		model->m_vCount = linesNum * 2;
 		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
@@ -26,7 +26,7 @@ void miApplication::_initGrid() {
 		miViewportCameraType ct
 		) 
 	{
-		auto vertex = (yyVertexLineModel*)model->m_vertices;
+		auto vertex = (yyVertexLine*)model->m_vertices;
 		f32 pos = minimum;
 
 		const s32 halfNum = linesNum / 2;
