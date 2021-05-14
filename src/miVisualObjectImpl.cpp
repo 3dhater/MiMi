@@ -97,7 +97,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 		}
 
 		auto vpos = mimath::miVec3_to_v3f(current_vertex->m_position);
-		float size = 0.2f;
+		float size = 0.1f;
 
 		if (m_mesh->m_skeleton)
 		{

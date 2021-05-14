@@ -16,7 +16,7 @@
 #define miViewportBorderSize 1.f
 #define miViewportLeftIndent 25.f
 #define miViewportRightIndent 200.f
-#define miViewportTopIndent 0.f
+#define miViewportTopIndent 25.f
 #define miViewportBottomIndent 50.f
 
 #define miCommandID_CameraReset 1
@@ -61,7 +61,9 @@ class miApplication
 	yyVideoDriverAPI* m_gpu;
 	miSDKImpl* m_sdk;
 
+	// draw selection rectangle and other things
 	miGraphics2D* m_2d;
+
 	miSelectionFrust* m_selectionFrust;
 
 	miGUIManager* m_GUIManager;

@@ -281,15 +281,15 @@ miGUIManager::miGUIManager(){
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
 	m_button_add = yyGUICreateButton(v4f(
-		(f32)window->m_creationSize.x - miViewportRightIndent,
+		(f32)window->m_creationSize.x * 0.5f,
 		0.f,
-		(f32)window->m_creationSize.x,
-		16.f
+		((f32)window->m_creationSize.x * 0.5f) + 30.f,
+		miViewportTopIndent
 	), 0, -1, 0, 0 );
 	if (m_button_add)
 	{
 		m_button_add->SetText(L"Add", m_fontDefault, false);
-		m_button_add->m_align = yyGUIElement::Align::AlignRightTop;
+		m_button_add->m_align = yyGUIElement::Align::AlignCenterTop;
 		m_button_add->SetColor(ColorDimGray, 0);
 		m_button_add->SetColor(ColorDarkGrey, 1);
 		m_button_add->SetColor(ColorGrey, 2);
