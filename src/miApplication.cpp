@@ -315,6 +315,7 @@ void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 			node = node->m_right;
 		}
 	}
+	UpdateSceneAabb();
 }
 void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 	auto node = o->GetChildren()->m_head;
@@ -348,8 +349,8 @@ void miApplication::_initViewports() {
 			break;
 		case miViewportLayout_Standart: {
 			const f32 midX = 0.4;
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Left);
-			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Right);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front);
 			m_viewportLayouts[i]->Add(v4f(midX, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
 		}break;
@@ -928,7 +929,7 @@ void miApplication::CommandCameraReset(miViewport* vp) {
 }
 
 void miApplication::CommandCameraMoveToSelection(miViewport* vp) {
-	vp->m_activeCamera->Reset();
+	vp->m_activeCamera->MoveToSelection();
 }
 
 void miApplication::CommandViewportChangeView(miViewport* vp, miViewportCameraType ct) {
@@ -1019,4 +1020,26 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	yyLogWriteInfoW(L"Add object to scene: %s\n", newName.data());
 	o->SetName(newName.data());
 	o->SetParent(m_rootObject);
+}
+
+void miApplication::_buildSceneAabb(miSceneObject* o) {
+	m_sceneAabb.add(*o->GetAABB());
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true) {
+			_buildSceneAabb(node->m_data);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
+}
+void miApplication::UpdateSceneAabb() {
+	m_sceneAabb.reset();
+	if(m_rootObject)
+		_buildSceneAabb(m_rootObject);
 }

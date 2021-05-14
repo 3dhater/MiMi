@@ -325,9 +325,9 @@ void miViewport::OnDraw() {
 	m_gpu->SetScissorRect(m_currentRect, g_app->m_window);
 	m_gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window);
 
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::View, m_activeCamera->m_viewMatrix);
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, m_activeCamera->m_projectionMatrix);
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection,
+	yySetMatrix(yyMatrixType::View, m_activeCamera->m_viewMatrix);
+	yySetMatrix(yyMatrixType::Projection, m_activeCamera->m_projectionMatrix);
+	yySetMatrix(yyMatrixType::ViewProjection,
 		m_activeCamera->m_viewProjectionMatrix);
 
 	/*for (auto & r : g_app->g_rays)
@@ -450,8 +450,8 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 }
 
 void miViewport::_drawGrid() {
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, g_emptyMatrix);
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
+	yySetMatrix(yyMatrixType::World, g_emptyMatrix);
+	yySetMatrix(yyMatrixType::WorldViewProjection,
 		m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * g_emptyMatrix);
 
 	bool isCameraLowerThanWorld = false;

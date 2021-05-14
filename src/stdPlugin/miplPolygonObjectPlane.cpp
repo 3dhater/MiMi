@@ -409,13 +409,18 @@ void miplPolygonObjectPlane::_generate() {
 		m_viewportCameraType,
 		m_creationAabb, m_firstPoint, 
 		m_size,
-		200, 200);
+		20, 20);
 	
 	m_meshBuilder->End();
 
 	if (m_meshBuilder->m_mesh.m_first_polygon)
 	{
 		m_visualObject->CreateNewGPUModels(&m_meshBuilder->m_mesh);
+		
+		// object can contain a lot of m_visualObject
+		// build aabb here
+		m_aabb = m_visualObject->GetAabb();
+
 		m_needToCreateNewGPUBuffers = false;
 	}
 }

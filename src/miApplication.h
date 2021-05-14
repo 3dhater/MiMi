@@ -105,6 +105,9 @@ class miApplication
 	void _updateKeyboardModifier();
 	void _callViewportOnSize();
 
+	miAabb m_sceneAabb;
+	miAabb m_selectionAabb;
+	void _buildSceneAabb(miSceneObject*);
 
 	//miViewportCamera* m_currentViewportDrawCamera;
 	miViewport* m_currentViewportDraw;
@@ -170,6 +173,8 @@ public:
 	void CommandViewportToggleFullView(miViewport* vp);
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
+
+	void UpdateSceneAabb();
 
 	friend class miGraphics2D;
 	friend class miSDKImpl;

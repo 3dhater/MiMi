@@ -62,7 +62,30 @@ void miViewportCamera::Update() {
 }
 
 void miViewportCamera::MoveToSelection() {
-	Reset();
+	if (!g_app->m_selectionAabb.isEmpty())
+	{
+		miVec4 e;
+		g_app->m_selectionAabb.extent(e);
+
+		miVec4 c;
+		g_app->m_selectionAabb.center(c);
+		m_positionPlatform = mimath::miVec4_to_v4f(-c);
+		m_positionPlatform.w = e.length();
+	}
+	else if (!g_app->m_sceneAabb.isEmpty())
+	{
+		miVec4 e;
+		g_app->m_sceneAabb.extent(e);
+
+		miVec4 c;
+		g_app->m_sceneAabb.center(c);
+		m_positionPlatform = mimath::miVec4_to_v4f(-c);
+		m_positionPlatform.w = e.length();
+	}
+	else
+	{
+		Reset();
+	}
 }
 
 void miViewportCamera::Reset() {

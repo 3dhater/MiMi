@@ -441,9 +441,9 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		{
 			auto node = m_nodes_polygons_GPU[i];
 
-			g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
+			yySetMatrix(yyMatrixType::WorldViewProjection,
 				camera->m_projectionMatrix * camera->m_viewMatrix * World);
-			g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
+			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			g_app->m_gpu->SetTexture(0, m_texture);
 
@@ -461,9 +461,9 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		{
 			auto node = m_nodes_edges_GPU[i];
 
-			g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
+			yySetMatrix(yyMatrixType::WorldViewProjection,
 				camera->m_projectionMatrix * camera->m_viewMatrix * World);
-			g_app->m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
+			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			//		g_app->m_gpu->SetMaterial();
 			g_app->m_gpu->SetTexture(0, m_texture);

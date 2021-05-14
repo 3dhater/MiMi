@@ -583,6 +583,8 @@ namespace mimath
 			mat[0u].z * vec.x + mat[1u].z * vec.y + mat[2u].z * vec.z
 		);
 	}
+	const miVec4 miVec4FltMax = miVec4(FLT_MAX);
+	const miVec4 miVec4FltMaxNeg = miVec4(-FLT_MAX);
 }
 
 struct miRay {
@@ -665,8 +667,8 @@ struct miAabb
 {
 	miAabb()
 		:
-		m_min(miVec4(FLT_MAX)),
-		m_max(miVec4(-FLT_MAX))
+		m_min(mimath::miVec4FltMax),
+		m_max(mimath::miVec4FltMaxNeg)
 	{}
 	miAabb(const miVec4& min, const miVec4& max) :m_min(min), m_max(max) { }
 
@@ -723,8 +725,11 @@ struct miAabb
 
 	float radius(const miVec4& aabb_center){return aabb_center.distance(m_max);}
 	void extent(miVec4& v) { v = miVec4(m_max - m_min); }
-	bool isEmpty() const { return (m_min == m_max); }
-	void reset() { m_min = miVec4(FLT_MAX); m_max = miVec4(-FLT_MAX); }
+	bool isEmpty() const { 
+		return ((m_min == mimath::miVec4FltMax) && (m_max == mimath::miVec4FltMaxNeg))
+			|| (m_min == m_max);
+	}
+	void reset() { m_min = mimath::miVec4FltMax; m_max = mimath::miVec4FltMaxNeg; }
 
 	miVec4 m_min;
 	miVec4 m_max;
