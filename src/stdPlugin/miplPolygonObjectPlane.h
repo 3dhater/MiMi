@@ -33,6 +33,7 @@ public:
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();
+	virtual void OnCreationEnd();
 
 	virtual miPlugin* GetPlugin();
 };

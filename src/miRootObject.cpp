@@ -12,5 +12,7 @@ void miRootObject::OnCreation() {};
 void miRootObject::OnCreationLMBDown() {}
 void miRootObject::OnCreationLMBUp() {}
 void miRootObject::OnCreationMouseMove() {}
+void miRootObject::OnCreationEnd() {}
+
 
 miPlugin* miRootObject::GetPlugin() { return 0; }

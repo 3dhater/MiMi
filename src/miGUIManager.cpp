@@ -280,10 +280,11 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_windowBackgroundPB->SetVisible(false);
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
+	float button_add_size = 30.f;
 	m_button_add = yyGUICreateButton(v4f(
-		(f32)window->m_creationSize.x * 0.5f,
+		(f32)window->m_creationSize.x * 0.5f - (button_add_size * 0.5f),
 		0.f,
-		((f32)window->m_creationSize.x * 0.5f) + 30.f,
+		((f32)window->m_creationSize.x * 0.5f) + button_add_size,
 		miViewportTopIndent
 	), 0, -1, 0, 0 );
 	if (m_button_add)

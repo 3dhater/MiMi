@@ -46,10 +46,6 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 	miVisualObjectImpl::model_node_CPU * _modelNode = 0;
 	yyVertexPoint* vertex_ptr = 0;
 	yyVertexAnimatedPoint* vertexAnimated_ptr = 0;
-	
-	u16* index = 0;
-	u16 index_base = 0;
-	u16 index_count = 1;
 
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
@@ -62,12 +58,8 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 				color.set(1.0f, 0.f, 0.f, 1.f);
 		}
 
-		size_t icount = 6 * pointLimit;
-
 		if (pointCount == 0)
 		{
-			index_base = 0;
-			index_count = 1;
 			softwareModel = yyMegaAllocator::CreateModel();
 			softwareModel->m_indexType = yyMeshIndexType::u16;
 
@@ -76,7 +68,6 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 				softwareModel->m_vertexType = yyVertexType::AnimatedPoint;
 				softwareModel->m_stride = sizeof(yyVertexAnimatedPoint);
 				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 4 * pointLimit);
-				softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * icount);
 				vertexAnimated_ptr = (yyVertexAnimatedPoint*)softwareModel->m_vertices;
 			}
 			else
@@ -84,11 +75,8 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 				softwareModel->m_vertexType = yyVertexType::Point;
 				softwareModel->m_stride = sizeof(yyVertexPoint);
 				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 4 * pointLimit);
-				softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * icount);
 				vertex_ptr = (yyVertexPoint*)softwareModel->m_vertices;
 			}
-
-			index = (u16*)softwareModel->m_indices;
 
 			_modelNode = new miVisualObjectImpl::model_node_CPU;
 			_modelNode->m_modelCPU = softwareModel;
@@ -101,63 +89,19 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 
 		if (m_mesh->m_skeleton)
 		{
-			vertexAnimated_ptr->WorldPosition = vpos;
 			vertexAnimated_ptr->Color = color;
-			vertexAnimated_ptr->Position.set(-size, -size, 0.f);
-			vertexAnimated_ptr++;
-
-			vertexAnimated_ptr->WorldPosition = vpos;
-			vertexAnimated_ptr->Color = color;
-			vertexAnimated_ptr->Position.set(-size, size, 0.f);
-			vertexAnimated_ptr++;
-
-			vertexAnimated_ptr->WorldPosition = vpos;
-			vertexAnimated_ptr->Color = color;
-			vertexAnimated_ptr->Position.set(size, size, 0.f);
-			vertexAnimated_ptr++;
-
-			vertexAnimated_ptr->WorldPosition = vpos;
-			vertexAnimated_ptr->Color = color;
-			vertexAnimated_ptr->Position.set(size, -size, 0.f);
+			vertexAnimated_ptr->Position = vpos;
 			vertexAnimated_ptr++;
 		}
 		else
 		{
-			vertex_ptr->WorldPosition = vpos;
 			vertex_ptr->Color = color;
-			vertex_ptr->Position.set(-size, -size, 0.f);
-			vertex_ptr++;
-
-			vertex_ptr->WorldPosition = vpos;
-			vertex_ptr->Color = color;
-			vertex_ptr->Position.set(-size, size, 0.f);
-			vertex_ptr++;
-
-			vertex_ptr->WorldPosition = vpos;
-			vertex_ptr->Color = color;
-			vertex_ptr->Position.set(size, size, 0.f);
-			vertex_ptr++;
-
-			vertex_ptr->WorldPosition = vpos;
-			vertex_ptr->Color = color;
-			vertex_ptr->Position.set(size, -size, 0.f);
+			vertex_ptr->Position = vpos;
 			vertex_ptr++;
 		}
 
-		
-
-		*index = index_base; index++;
-		*index = index_count; index++;
-		*index = index_count + 1; index++;
-		*index = index_base; index++;
-		*index = index_count + 1; index++;
-		*index = index_count + 2; index++;
-
-		index_base = index_count + 3;
-		index_count = index_base + 1;
-
-		_modelNode->m_modelCPU->m_vCount += 4;
-		_modelNode->m_modelCPU->m_iCount += 6;
+		_modelNode->m_modelCPU->m_vCount++;
+		_modelNode->m_modelCPU->m_iCount++;
 
 		++pointCount;
 		if (pointCount == pointLimit)
@@ -576,7 +520,8 @@ void miVisualObjectImpl::RemapBuffers() {
 void miVisualObjectImpl::Draw(miMatrix* mim) {	
 	auto camera = g_app->m_currentViewportDraw->m_activeCamera;
 	
-	Mat4 World;
+	Mat4 World = mimath::miMatrix_to_Mat4(*mim);
+
 	static yyMaterial default_polygon_material;
 	default_polygon_material.m_baseColor.set(1.f, 1.f, 1.f, 1.f);
 

@@ -361,7 +361,8 @@ miplPolygonObjectPlane::~miplPolygonObjectPlane() {
 }
 
 void miplPolygonObjectPlane::OnUpdate(float dt) {
-
+	this->m_worldMatrix.m_data[3] = m_localPosition;
+	this->m_worldMatrix.m_data[3].w = 1.f;
 }
 
 void miplPolygonObjectPlane::OnDraw() {
@@ -425,6 +426,9 @@ void miplPolygonObjectPlane::_generate() {
 	}
 }
 
+void miplPolygonObjectPlane::OnCreationEnd() {
+	m_aabb.center(this->m_localPosition);
+}
 void miplPolygonObjectPlane::OnCreationMouseMove() {
 	if (!m_polygonCreator) return;
 	if (!m_meshBuilder) return;

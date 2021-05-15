@@ -13,9 +13,13 @@ protected:
 	miList<miSceneObject*> m_children;
 	
 	miMatrix m_worldMatrix;
+	miVec4 m_localPosition;
+	miVec4 m_globalPosition;
 public:
 	miSceneObject():m_parent(0) {}
 	virtual ~miSceneObject() {}
+	
+	virtual miVec4* GetLocalPosition() { return &m_localPosition; }
 
 	virtual miAabb* GetAABB() { return &m_aabb; }
 	virtual const miString& GetName() { return m_name; }
@@ -46,7 +50,8 @@ public:
 	virtual void OnCreationLMBDown() = 0;
 	virtual void OnCreationLMBUp() = 0;
 	virtual void OnCreationMouseMove() = 0;
-	
+	virtual void OnCreationEnd() = 0;
+
 
 	virtual miPlugin* GetPlugin() = 0;
 };

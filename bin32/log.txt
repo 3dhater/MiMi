@@ -1,33 +1,10 @@
  Info: Init window...
 Info: yyInitVideoDriver
 Info: GetAPI
-Info: OpenGL::OpenGL
-Info: OpenGL::Init
-Info: Init video driver - OpenGL...
-Info: OpenGL::InitWindow
-Info: Init OpenGL 3.3
-Info: Vendor: Intel
-Info: Renderer: Intel(R) HD Graphics 510
-Info: OpenGLShaderGUI::OpenGLShaderGUI
-Info: OpenGLShaderGUI::init
-Info: OpenGLShaderSprite::OpenGLShaderSprite
-Info: OpenGLShaderSprite::init
-Info: OpenGLShaderSprite2::OpenGLShaderSprite2
-Info: OpenGLShaderSprite2::init
-Info: OpenGLShaderLine3D::OpenGLShaderLine3D
-Info: OpenGLShaderLine3D::init
-Info: OpenGLShaderTerrain::OpenGLShaderTerrain
-Info: OpenGLShaderTerrain::init
-Info: OpenGLShaderDepth::OpenGLShaderDepth
-Info: OpenGLShaderDepth::init
-Info: OpenGLShaderSimple::OpenGLShaderSimple
-Info: OpenGLShaderSimpleAnimated::init
-Info: OpenGLShaderScreenQuad::OpenGLShaderScreenQuad
-Info: OpenGLShaderScreenQuad::init
-Info: OpenGLShaderRectangle::OpenGLShaderRectangle
-Info: OpenGLShaderRectangle::init
+Info: Init video driver - D3D11...
+Info: featureLevel : 45056
+Info: Hardware MSAA Quality levels : 1
 Info: Load texture: ../res/gui/white.dds
-Info: GetVideoDriverName
 Info: Load plugin: plugins\stdPlugin.plg...
 Info: DONE (Standart plugin)
 Info: Load texture: ..\res\fonts\Noto\notosans.txt0.dds
@@ -41,24 +18,8 @@ Info: Load texture: ../res/gui/black.dds
 Info: Load texture: ../res/gui/icons.png
 Info: Add object to scene: Plane
 Info: Load texture: ../res/exit.png
-Info: Add object to scene: Plane0
-Info: Add object to scene: Plane1
-Info: Add object to scene: Plane2
-Info: Add object to scene: Plane3
 Info: yyQuit
 Info: Destroy main window...
 Info: yyQuit
 Info: yyStop
 Info: Engine::~Engine
-Info: OpenGL::~OpenGL
-Info: Destroy video driver...
-Info: OpenGLShaderRectangle::~OpenGLShaderRectangle
-Info: OpenGLShaderScreenQuad::~OpenGLShaderScreenQuad
-Info: OpenGLShaderGUI::~OpenGLShaderGUI
-Info: OpenGLShaderSprite::~OpenGLShaderSprite
-Info: OpenGLShaderSprite2::~OpenGLShaderSprite2
-Info: OpenGLShaderLine3D::~OpenGLShaderLine3D
-Info: OpenGLShaderTerrain::~OpenGLShaderTerrain
-Info: OpenGLShaderDepth::~OpenGLShaderDepth
-Info: OpenGLShaderSimple::~OpenGLShaderSimple
-Info: OpenGLShaderSimpleAnimated::~OpenGLShaderSimpleAnimated
