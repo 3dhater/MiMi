@@ -140,6 +140,8 @@ class miApplication
 
 	miEditMode m_editMode;
 
+	void _update_transforms(miSceneObject* o);
+
 public:
 	miApplication();
 	~miApplication();

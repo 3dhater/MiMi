@@ -668,6 +668,8 @@ void miApplication::MainLoop() {
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
 
+			_update_transforms(m_rootObject);
+
 			DrawViewports();
 
 			yyGUIDrawAll();
@@ -696,6 +698,24 @@ void miApplication::MainLoop() {
 
 	if (m_pluginActive)
 		m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
+}
+
+void miApplication::_update_transforms(miSceneObject* o) {
+	o->UpdateTransform();
+
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true) {
+			_update_transforms(node->m_data);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
 }
 
 void miApplication::_updateKeyboardModifier() {

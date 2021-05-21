@@ -5,7 +5,7 @@ struct miCameraFrustum
 {
 	v4f m_planes[6u];
 
-	bool pointInFrustum(const v4f& point)
+	bool PointInFrustum(const v4f& point)
 	{
 		for (s32 i = 0; i < 6; ++i)
 		{
@@ -20,7 +20,55 @@ struct miCameraFrustum
 		return true;
 	}
 
-	bool sphereInFrustum(f32 radius, const v4f& position)
+	bool PointInFrustum(const miVec4& point)
+	{
+		
+		if ((
+			m_planes[0].x * point.x +
+			m_planes[0].y * point.y +
+			m_planes[0].z * point.z +
+			m_planes[0].w)
+			< 0.f)
+			return false;
+		if ((
+			m_planes[1].x * point.x +
+			m_planes[1].y * point.y +
+			m_planes[1].z * point.z +
+			m_planes[1].w)
+			< 0.f)
+			return false;
+		if ((
+			m_planes[2].x * point.x +
+			m_planes[2].y * point.y +
+			m_planes[2].z * point.z +
+			m_planes[2].w)
+			< 0.f)
+			return false;
+		if ((
+			m_planes[3].x * point.x +
+			m_planes[3].y * point.y +
+			m_planes[3].z * point.z +
+			m_planes[3].w)
+			< 0.f)
+			return false;
+		if ((
+			m_planes[4].x * point.x +
+			m_planes[4].y * point.y +
+			m_planes[4].z * point.z +
+			m_planes[4].w)
+			< 0.f)
+			return false;
+		if ((
+			m_planes[5].x * point.x +
+			m_planes[5].y * point.y +
+			m_planes[5].z * point.z +
+			m_planes[5].w)
+			< 0.f)
+			return false;
+		return true;
+	}
+
+	bool SphereInFrustum(f32 radius, const miVec4& position)
 	{
 		for (u32 i = 0u; i < 6u; ++i)
 		{

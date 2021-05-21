@@ -40,6 +40,9 @@ struct miViewport
 	void SetCameraType(miViewportCameraType);
 	void SetViewportName(const wchar_t*);
 
+	void _frustum_cull(miSceneObject*);
+	yyArraySimple<miSceneObject*> m_visibleObjects;
+
 	yyGUIGroup* m_gui_group;
 	yyGUIText*  m_gui_text_vpName;
 	yyGUIButton* m_gui_button_resetCamera;
@@ -65,7 +68,7 @@ struct miViewport
 	void SetDrawGrid(bool);
 	void _drawGrid();
 	void _drawAabb(const miAabb&, const miVec4& color);
-	void _drawScene(miSceneObject*);
+	void _drawScene();
 
 	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
 };

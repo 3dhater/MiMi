@@ -98,7 +98,6 @@ struct miVec4
 	float operator[](int index)const {  return (&x)[index]; }
 	float& operator[](int index) {  return (&x)[index]; }
 
-	void add(float _x, float _y, float _z, float _w) { x += _x; y += _y; z += _z; w += _w; }
 	void set(float _x, float _y, float _z, float _w) { x = _x; y = _y; z = _z; w = _w; }
 	void set(float val) { x = y = z = w = val; }
 	void operator+=(const miVec4& v) { x += v.x; y += v.y; z += v.z; w += v.w; }
@@ -774,7 +773,11 @@ struct miAabb
 		v *= 0.5f;
 	}
 
-	float radius(const miVec4& aabb_center){return aabb_center.distance(m_max);}
+	float radius(){
+		auto c =  miVec4(m_min + m_max);
+		c *= 0.5f;
+		return c.distance(m_max);
+	}
 	void extent(miVec4& v) { v = miVec4(m_max - m_min); }
 	bool isEmpty() const { 
 		return ((m_min == mimath::miVec4FltMax) && (m_max == mimath::miVec4FltMaxNeg))

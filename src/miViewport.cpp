@@ -316,9 +316,39 @@ void miViewport::OnWindowSize() {
 		m_currentRect.x, m_currentRect.y, m_currentRect.z, m_currentRect.w, windowSizeX_1);*/
 }
 
+void miViewport::_frustum_cull(miSceneObject* o) {
+	if (o != g_app->m_rootObject)
+	{
+		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()))
+		{
+			m_visibleObjects.push_back(o);
+		}
+		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABB()->radius(), *o->GetGlobalPosition()))
+		{
+			m_visibleObjects.push_back(o);
+		}
+	}
+
+
+	auto node = o->GetChildren()->m_head;
+	if (node)
+	{
+		auto last = node->m_left;
+		while (true) {
+			_frustum_cull(node->m_data);
+
+			if (node == last)
+				break;
+
+			node = node->m_right;
+		}
+	}
+}
+
 void miViewport::OnDraw() {
 	m_activeCamera->Update();
 	yySetEyePosition(m_activeCamera->m_positionCamera);
+
 
 	m_gpu->UseDepth(false);
 	m_gpu->DrawRectangle(m_currentRect, g_app->m_color_windowClearColor, g_app->m_color_windowClearColor);
@@ -370,10 +400,17 @@ void miViewport::OnDraw() {
 	g_app->m_currentViewportDraw = this;
 
 	g_app->m_gpu->UseDepth(true);
-	_drawScene(g_app->m_rootObject);
+
+	m_visibleObjects.clear();
+	_frustum_cull(g_app->m_rootObject);
+
+	printf("%i\n", (s32)m_visibleObjects.m_size);
+
+	if(m_visibleObjects.m_size)
+		_drawScene();
 }
 
-void miViewport::_drawScene(miSceneObject* o) {
+void miViewport::_drawScene() {
 
 	static f32 a = 0.f;
 
@@ -384,31 +421,24 @@ void miViewport::_drawScene(miSceneObject* o) {
 
 	miQuaternion q(miVec4(0.f, a, 0.f, 0.f));
 
-	auto node = o->GetChildren()->m_head;
-	if (node)
+	for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
 	{
-		auto last = node->m_left;
-		while (true) {
-			
-			auto rm = node->m_data->GetRotationMatrix();
-			rm->setRotation(q);
+		auto object = m_visibleObjects.m_data[i];
 
-			auto taabb = node->m_data->GetAABBTransformed();
-			taabb->transform(node->m_data->GetAABB(), rm, node->m_data->GetGlobalPosition());
+		object->GetLocalPosition()->set(a,0.f,0.f,0.f);
 
-			node->m_data->UpdateTransform();
-			node->m_data->OnUpdate(g_app->m_dt);
-			node->m_data->OnDraw();
-			
-			_drawAabb(*node->m_data->GetAABBTransformed(), *node->m_data->GetEdgeColor());
+		auto rm = object->GetRotationMatrix();
+		rm->setRotation(q);
 
-			_drawScene(node->m_data);
+		auto taabb = object->GetAABBTransformed();
+		taabb->transform(object->GetAABB(), rm, object->GetGlobalPosition());
 
-			if (node == last)
-				break;
+		object->UpdateTransform();
+		object->OnUpdate(g_app->m_dt);
+		object->OnDraw();
 
-			node = node->m_right;
-		}
+		_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
+
 	}
 }
 
