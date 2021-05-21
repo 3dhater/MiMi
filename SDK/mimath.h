@@ -98,6 +98,7 @@ struct miVec4
 	float operator[](int index)const {  return (&x)[index]; }
 	float& operator[](int index) {  return (&x)[index]; }
 
+	void add(float _x, float _y, float _z, float _w) { x += _x; y += _y; z += _z; w += _w; }
 	void set(float _x, float _y, float _z, float _w) { x = _x; y = _y; z = _z; w = _w; }
 	void set(float val) { x = y = z = w = val; }
 	void operator+=(const miVec4& v) { x += v.x; y += v.y; z += v.z; w += v.w; }
@@ -311,6 +312,9 @@ struct miMatrix{
 			xy + wz, 1.0f - (xx + zz), yz - wx,
 			xz - wy, yz + wx, 1.0f - (xx + yy));
 	}
+
+	void setTranslation(const miVec3& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
+	void setTranslation(const miVec4& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
 
 	float * getPtr() { return reinterpret_cast<float*>(&m_data); }
 	float * getPtrConst()const { return (float*)&m_data; }
@@ -671,6 +675,53 @@ struct miAabb
 		m_max(mimath::miVec4FltMaxNeg)
 	{}
 	miAabb(const miVec4& min, const miVec4& max) :m_min(min), m_max(max) { }
+
+	/*
+	Transforming Axis-Aligned Bounding Boxes
+	by Jim Arvo
+	from "Graphics Gems", Academic Press, 1990
+	*/
+	void transform(miAabb* original, miMatrix* matrix, miVec4* position) {
+		float  a, b;
+		float  Amin[3], Amax[3];
+		float  Bmin[3], Bmax[3];
+		int    i, j;
+
+		/*Copy box A into a min array and a max array for easy reference.*/
+		Amin[0] = original->m_min.x;  Amax[0] = original->m_max.x;
+		Amin[1] = original->m_min.y;  Amax[1] = original->m_max.y;
+		Amin[2] = original->m_min.z;  Amax[2] = original->m_max.z;
+
+		/* Take care of translation by beginning at T. */
+		Bmin[0] = Bmax[0] = position->x;
+		Bmin[1] = Bmax[1] = position->y;
+		Bmin[2] = Bmax[2] = position->z;
+
+		/* Now find the extreme points by considering the product of the */
+		/* min and max with each component of M.  */
+		for (i = 0; i < 3; i++)
+		{
+			for (j = 0; j < 3; j++)
+			{
+				a = (float)(matrix->m_data[i][j] * Amin[j]);
+				b = (float)(matrix->m_data[i][j] * Amax[j]);
+				if (a < b)
+				{
+					Bmin[i] += a;
+					Bmax[i] += b;
+				}
+				else
+				{
+					Bmin[i] += b;
+					Bmax[i] += a;
+				}
+			}
+		}
+		/* Copy the result into the new box. */
+		m_min.x = Bmin[0];  m_max.x = Bmax[0];
+		m_min.y = Bmin[1];  m_max.y = Bmax[1];
+		m_min.z = Bmin[2];  m_max.z = Bmax[2];
+	}
 
 	void add(const miVec4& point){
 		if (point.x < m_min.x) m_min.x = point.x;

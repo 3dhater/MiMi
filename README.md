@@ -4,7 +4,7 @@
 
 * [x]  viewports
 * [x]  shortcuts
-* [ ]  polygonal object
+* [x]  polygonal object
 * [ ]  plugins
 * [ ]  import model
 * [ ]  edit model

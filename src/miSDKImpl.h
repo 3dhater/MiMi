@@ -39,7 +39,7 @@ public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
 
-	virtual miVisualObject* CreateVisualObject();
+	virtual miVisualObject* CreateVisualObject(miSceneObject* parent);
 
 	virtual miViewportCameraType GetActiveViewportCameraType();
 

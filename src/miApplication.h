@@ -99,6 +99,7 @@ class miApplication
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
 	bool m_isCursorMove;
+	bool m_isGUIInputFocus;
 
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
 	// только если m_isViewportInFocus == true;

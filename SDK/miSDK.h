@@ -115,7 +115,7 @@ public:
 	miSDK() {}
 	virtual ~miSDK() {}
 
-	virtual miVisualObject* CreateVisualObject() = 0;
+	virtual miVisualObject* CreateVisualObject(miSceneObject* parent) = 0;
 
 	virtual miViewportCameraType GetActiveViewportCameraType() = 0;
 

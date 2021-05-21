@@ -63,7 +63,7 @@ void miGraphics2D::UpdateClip() {
 	////m_gdi_bitmap = new Gdiplus::Bitmap((s32)m_window->m_currentSize.x, (s32)m_window->m_currentSize.y);
 	////m_gdiBuffer = Gdiplus::Graphics::FromImage(m_gdi_bitmap);
 
-	m_rgn_selRect_clip = CreateRectRgn(vprect.x, vprect.y, vprect.z, vprect.w);
+	m_rgn_selRect_clip = CreateRectRgn((int)vprect.x, (int)vprect.y, (int)vprect.z, (int)vprect.w);
 	
 	ExtSelectClipRgn(m_window->m_dc, m_rgn_selRect_clip, RGN_COPY);
 	//m_gdi->SetClip(Gdiplus::Rect(vprect.x, vprect.y, vprect.z - vprect.x, vprect.w - vprect.y));

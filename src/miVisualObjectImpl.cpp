@@ -129,7 +129,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 	auto last_edge = current_edge->m_left;
 	while (true) {
 
-		miVec4 color(1.f);
+		miVec4 color = *m_parentSceneObject->GetEdgeColor();
 		if (g_app->m_editMode == miEditMode::Edge)
 		{
 			if (current_edge->m_flags & miEdge::flag_isSelected)

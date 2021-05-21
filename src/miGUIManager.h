@@ -7,13 +7,13 @@ struct miGUIMainMenuItem
 {
 	miGUIMainMenuItem() {
 		m_button = 0;
-		m_text = 0;
+		//m_text = 0;
 		//m_onClick = 0;
 	}
 	~miGUIMainMenuItem() {
 	}
 	yyGUIButton* m_button;
-	yyGUIText* m_text;
+	//yyGUIText* m_text;
 	v4f m_activeArea_noActive;
 	v4f m_activeArea_Active;
 	//yyGUICallback m_onClick;
@@ -50,7 +50,7 @@ class miGUIManager
 	
 	yyArraySmall<miGUIMainMenuMenuGroup*> m_mainMenu_menus;
 	miGUIMainMenuMenuGroup* _addMainMenuItem(const wchar_t* text, //const v4f& buildRect, 
-		const v4i& uvregion1, const v4i& uvregion2, const v4i& uvregion3,
+		const v4f& uvregion1, const v4f& uvregion2, const v4f& uvregion3,
 		s32 id, yyGUICallback onClick);
 
 public:
@@ -76,6 +76,7 @@ public:
 	yyGUIPictureBox* m_mainMenu_windowBackgroundPB;
 	
 	yyGUIButton*  m_button_add;
+	yyGUITextInput* m_textInput_rename;
 };
 
 #endif

@@ -172,11 +172,11 @@ void miViewport::Init() {
 
 	f32 buttonWidth = 17.f;
 
-	v4i region(0,72,16,88);
+	v4f region(0.f,72.f,16.f,88.f);
 	m_gui_button_resetCamera = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
 		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
 	m_gui_button_resetCamera->m_isAnimated = true;
-	region.set(24,72,40,88);
+	region.set(24.f,72.f,40.f,88.f);
 	m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
 	m_gui_group->AddElement(m_gui_button_resetCamera);
 	m_gui_button_resetCamera->SetOpacity(0.19f, 0);
@@ -187,11 +187,11 @@ void miViewport::Init() {
 
 	buttonPositionX += buttonWidth;
 
-	region.set(0, 96, 16, 112);
+	region.set(0.f, 96.f, 16.f, 112.f);
 	m_gui_button_viewport = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
 		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
 	m_gui_button_viewport->m_isAnimated = true;
-	region.set(24, 96, 40, 112);
+	region.set(24.f, 96.f, 40.f, 112.f);
 	m_gui_button_viewport->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
 	m_gui_group->AddElement(m_gui_button_viewport);
 	m_gui_button_viewport->SetOpacity(0.19f, 0);
@@ -337,22 +337,22 @@ void miViewport::OnDraw() {
 		m_gpu->DrawLine3D(math::miVec4_to_v4f(r.m_origin), math::miVec4_to_v4f(r.m_end), ColorWhite);
 	}*/
 
-	/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[0], g_app->m_selectionFrust->m_left[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[1], g_app->m_selectionFrust->m_left[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[2], g_app->m_selectionFrust->m_left[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_left[3], g_app->m_selectionFrust->m_left[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[0], g_app->m_selectionFrust->m_right[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[1], g_app->m_selectionFrust->m_right[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[2], g_app->m_selectionFrust->m_right[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_right[3], g_app->m_selectionFrust->m_right[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[0], g_app->m_selectionFrust->m_top[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[1], g_app->m_selectionFrust->m_top[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[2], g_app->m_selectionFrust->m_top[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_top[3], g_app->m_selectionFrust->m_top[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[0], g_app->m_selectionFrust->m_bottom[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[1], g_app->m_selectionFrust->m_bottom[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[2], g_app->m_selectionFrust->m_bottom[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_bottom[3], g_app->m_selectionFrust->m_bottom[0], ColorWhite);*/
+	/*m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[0]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[1]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[1]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[2]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[2]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[3]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[3]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_left[0]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[0]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[1]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[1]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[2]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[2]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[3]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[3]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_right[0]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[0]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[1]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[1]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[2]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[2]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[3]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[3]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_top[0]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[0]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[1]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[1]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[2]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[2]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[3]), ColorWhite);
+	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[3]), mimath::miVec4_to_v4f(g_app->m_selectionFrust->m_bottom[0]), ColorWhite);*/
 	
 	if (g_app->m_isClickAndDrag)
 	{
@@ -374,14 +374,33 @@ void miViewport::OnDraw() {
 }
 
 void miViewport::_drawScene(miSceneObject* o) {
+
+	static f32 a = 0.f;
+
+	a += 0.001f;
+
+	if (a > 10.f)
+		a = 0.f;
+
+	miQuaternion q(miVec4(0.f, a, 0.f, 0.f));
+
 	auto node = o->GetChildren()->m_head;
 	if (node)
 	{
 		auto last = node->m_left;
 		while (true) {
+			
+			auto rm = node->m_data->GetRotationMatrix();
+			rm->setRotation(q);
 
+			auto taabb = node->m_data->GetAABBTransformed();
+			taabb->transform(node->m_data->GetAABB(), rm, node->m_data->GetGlobalPosition());
+
+			node->m_data->UpdateTransform();
 			node->m_data->OnUpdate(g_app->m_dt);
 			node->m_data->OnDraw();
+			
+			_drawAabb(*node->m_data->GetAABBTransformed(), *node->m_data->GetEdgeColor());
 
 			_drawScene(node->m_data);
 
@@ -449,6 +468,44 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 	v = mimath::miVec4_to_v4f(ip);
 
 	return v;
+}
+
+void miViewport::_drawAabb(const miAabb& aabb, const miVec4& _color) {
+	auto & p1 = aabb.m_min;
+	auto & p2 = aabb.m_max;
+
+	yyColor color;
+	color.m_data[0] = _color.x;
+	color.m_data[1] = _color.y;
+	color.m_data[2] = _color.z;
+	color.m_data[3] = 1.f;
+
+	color = ColorWhite;
+
+	v4f positionOffset;
+
+	v4f v1 = mimath::miVec4_to_v4f(p1);
+	v4f v2 = mimath::miVec4_to_v4f(p2);
+
+	v4f v3(p1.x, p1.y, p2.z, 1.f);
+	v4f v4(p2.x, p1.y, p1.z, 1.f);
+	v4f v5(p1.x, p2.y, p1.z, 1.f);
+	v4f v6(p1.x, p2.y, p2.z, 1.f);
+	v4f v7(p2.x, p1.y, p2.z, 1.f);
+	v4f v8(p2.x, p2.y, p1.z, 1.f);
+
+	m_gpu->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
+	m_gpu->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
+	m_gpu->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
+	m_gpu->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
+	m_gpu->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
+	m_gpu->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
+	m_gpu->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
+	m_gpu->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
+	m_gpu->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
 }
 
 void miViewport::_drawGrid() {

@@ -15,8 +15,10 @@ miSDKImpl::~miSDKImpl() {
 	}
 }
 
-miVisualObject* miSDKImpl::CreateVisualObject() {
-	return miCreate<miVisualObjectImpl>();
+miVisualObject* miSDKImpl::CreateVisualObject(miSceneObject* parent) {
+	auto o = miCreate<miVisualObjectImpl>();
+	o->m_parentSceneObject = parent;
+	return o;
 }
 
 miViewportCameraType miSDKImpl::GetActiveViewportCameraType() { return g_app->m_activeViewportLayout->m_activeViewport->m_cameraType; }

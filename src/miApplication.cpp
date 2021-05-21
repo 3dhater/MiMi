@@ -12,6 +12,7 @@
 #include "yy_model.h"
 
 #include <map>
+#include <ctime>
 
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
@@ -185,6 +186,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_isGUIInputFocus = false;
 	m_currentViewportDraw = 0;
 	m_editMode = miEditMode::Object;
 	m_pluginActive = 0;
@@ -571,6 +573,7 @@ void miApplication::MainLoop() {
 
 	while (yyRun(&m_dt))
 	{
+
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
 	
@@ -605,6 +608,7 @@ void miApplication::MainLoop() {
 			else if (m_inputContext->m_cursorCoords.y >= m_window->m_currentSize.y - miViewportBottomIndent && m_inputContext->m_cursorCoords.y <= m_window->m_currentSize.y)
 				m_isCursorInGUI = true;
 		}
+		m_isGUIInputFocus = yyGUIIsInputFocus();
 
 		while (yyPollEvent(currentEvent))
 		{
@@ -634,7 +638,9 @@ void miApplication::MainLoop() {
 		case yySystemState::Run:
 		{
 			auto old_active_viewport = m_activeViewportLayout->m_activeViewport;
-			UpdateViewports();
+			
+			if (!m_isGUIInputFocus)
+				UpdateViewports();
 		
 			if (m_pluginActive  /*&& (m_activeViewportLayout->m_activeViewport == old_active_viewport)*/)
 			{
@@ -682,8 +688,8 @@ void miApplication::MainLoop() {
 
 			m_gpu->SwapBuffers();
 			
-
-			ProcessShortcuts();
+			if(!m_isGUIInputFocus)
+				ProcessShortcuts();
 		}
 		}
 	}
@@ -733,10 +739,38 @@ void miApplication::ProcessShortcuts() {
 }
 
 void miApplication::UpdateViewports() {
+	if (m_isViewportInFocus)
+	{
+		if (m_inputContext->m_isLMBUp)
+		{
+			if (m_isSelectByRectangle)
+			{
+				Aabb aabb;
+				aabb.add(v3f(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y, 0.f));
+				aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
+
+				m_selectionFrust->CreateWithFrame(
+					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
+					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			}
+			else
+			{
+				const f32 _size = 2.f;
+				m_selectionFrust->CreateWithFrame(
+					miVec4(
+						m_inputContext->m_cursorCoords.x - _size, 
+						m_inputContext->m_cursorCoords.y - _size, 
+						m_inputContext->m_cursorCoords.x + _size,
+						m_inputContext->m_cursorCoords.y + _size),
+					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
+					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			}
+		}
+	}
+
 	if (m_isSelectByRectangle)
 	{
-	//	printf("s");
-
 		if (m_inputContext->m_isLMBUp
 			|| m_inputContext->m_isRMBUp
 			|| m_inputContext->m_isRMBDown
@@ -747,18 +781,6 @@ void miApplication::UpdateViewports() {
 		{
 			m_isSelectByRectangle = false;
 			m_isViewportInFocus = false;
-
-			if (m_inputContext->m_isLMBUp)
-			{
-				Aabb aabb;
-				aabb.add(v3f((f32)m_inputContext->m_cursorCoords.x, (f32)m_inputContext->m_cursorCoords.y, 0.f));
-				aabb.add(v3f((f32)m_cursorLMBClickPosition.x, (f32)m_cursorLMBClickPosition.y, 0.f));
-
-				m_selectionFrust->CreateWithFrame(
-					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-					mimath::v4f_to_miVec4( m_activeViewportLayout->m_activeViewport->m_currentRect),
-					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
-			}
 		}
 	}
 
@@ -923,10 +945,12 @@ void miApplication::ShowPopupAtCursor(miPopup* popup) {
 
 void miApplication::CommandCameraReset(miViewport* vp) {
 	vp->m_activeCamera->Reset();
+	_callViewportOnSize();
 }
 
 void miApplication::CommandCameraMoveToSelection(miViewport* vp) {
 	vp->m_activeCamera->MoveToSelection();
+	_callViewportOnSize();
 }
 
 void miApplication::CommandViewportChangeView(miViewport* vp, miViewportCameraType ct) {
@@ -939,6 +963,7 @@ void miApplication::CommandViewportToggleFullView(miViewport* vp) {
 	{
 		m_activeViewportLayout->HideGUI();
 		m_activeViewportLayout = m_previousViewportLayout;
+		m_activeViewportLayout->m_activeViewport->Copy(m_viewportLayouts[miViewportLayout_Full]->m_activeViewport);
 		m_activeViewportLayout->ShowGUI();
 	}
 	else
@@ -1010,6 +1035,132 @@ miString miApplication::GetFreeName(const wchar_t* name) {
 	return newName;
 }
 
+const yyColor g_colors[] = {
+	ColorRed,
+	ColorAliceBlue,
+	ColorAqua,
+	ColorAquamarine,
+	ColorAzure,
+	ColorBeige,
+	ColorBisque,
+	ColorBlanchedAlmond,
+	ColorBlue,
+	ColorBlueViolet,
+	ColorBrown,
+	ColorBurlyWood,
+	ColorCadetBlue,
+	ColorChartreuse,
+	ColorCoral,
+	ColorCornflowerBlue,
+	ColorCornsilk,
+	ColorCrimson,
+	ColorCyan,
+	ColorDarkBlue,
+	ColorDarkCyan,
+	ColorDarkGoldenRod,
+	ColorDarkKhaki,
+	ColorDarkMagenta,
+	ColorDarkOliveGreen,
+	ColorDarkOrange,
+	ColorDarkOrchid,
+	ColorDarkRed,
+	ColorDarkSalmon,
+	ColorDarkSeaGreen,
+	ColorDarkSlateBlue,
+	ColorDarkTurquoise,
+	ColorDarkViolet,
+	ColorDeepPink,
+	ColorDeepSkyBlue,
+	ColorDodgerBlue,
+	ColorFireBrick,
+	ColorForestGreen,
+	ColorFuchsia,
+	ColorGainsboro,
+	ColorGold,
+	ColorGoldenRod,
+	ColorGreen,
+	ColorGreenYellow,
+	ColorHoneyDew,
+	ColorHotPink,
+	ColorIndianRed,
+	ColorIndigo,
+	ColorIvory,
+	ColorKhaki,
+	ColorLavender,
+	ColorLavenderBlush,
+	ColorLawnGreen,
+	ColorLemonChiffon,
+	ColorLightBlue,
+	ColorLightCoral,
+	ColorLightCyan,
+	ColorLightGoldenRodYellow,
+	ColorLightGreen,
+	ColorLightPink,
+	ColorLightSalmon,
+	ColorLightSeaGreen,
+	ColorLightSkyBlue,
+	ColorLightSteelBlue,
+	ColorLightYellow,
+	ColorLime,
+	ColorLimeGreen,
+	ColorLinen,
+	ColorMagenta,
+	ColorMaroon,
+	ColorMediumAquaMarine,
+	ColorMediumBlue,
+	ColorMediumOrchid,
+	ColorMediumPurple,
+	ColorMediumSeaGreen,
+	ColorMediumSlateBlue,
+	ColorMediumSpringGreen,
+	ColorMediumTurquoise,
+	ColorMediumVioletRed,
+	ColorMidnightBlue,
+	ColorMintCream,
+	ColorMistyRose,
+	ColorMoccasin,
+	ColorNavy,
+	ColorOldLace,
+	ColorOlive,
+	ColorOliveDrab,
+	ColorOrange,
+	ColorOrangeRed,
+	ColorOrchid,
+	ColorPaleGoldenRod,
+	ColorPaleGreen,
+	ColorPaleTurquoise,
+	ColorPaleVioletRed,
+	ColorPapayaWhip,
+	ColorPeachPuff,
+	ColorPeru,
+	ColorPink,
+	ColorPlum,
+	ColorPowderBlue,
+		ColorPurple,
+		ColorRebeccaPurple,
+		ColorRed,
+		ColorRosyBrown,
+		ColorRoyalBlue,
+		ColorSaddleBrown,
+		ColorSalmon,
+		ColorSandyBrown,
+		ColorSeaGreen,
+		ColorSeaShell,
+		ColorSienna,
+		ColorSkyBlue,
+		ColorSlateBlue,
+		ColorSpringGreen,
+		ColorSteelBlue,
+		ColorTan,
+		ColorTeal,
+		ColorThistle,
+		ColorTomato,
+		ColorTurquoise,
+		ColorViolet,
+		ColorYellow,
+		ColorYellowGreen,
+};
+
 void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	assert(o);
 	assert(name);
@@ -1017,6 +1168,17 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	yyLogWriteInfoW(L"Add object to scene: %s\n", newName.data());
 	o->SetName(newName.data());
 	o->SetParent(m_rootObject);
+	
+	miVec4 ec(1.f);
+
+	std::srand(std::time(0));
+	int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));
+
+	ec.x = g_colors[result].m_data[0];
+	ec.y = g_colors[result].m_data[1];
+	ec.z = g_colors[result].m_data[2];
+
+	o->SetEdgeColor(ec);
 }
 
 void miApplication::_buildSceneAabb(miSceneObject* o) {

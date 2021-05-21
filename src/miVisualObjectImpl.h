@@ -40,6 +40,10 @@ class miVisualObjectImpl : public miVisualObject
 
 	miAabb m_aabb;
 	miMesh* m_mesh;
+	
+	miSceneObject* m_parentSceneObject;
+
+	friend class miSDKImpl;
 
 public:
 	miVisualObjectImpl();

@@ -226,6 +226,8 @@ struct miMeshBuilder
 	std::unordered_map<std::string, miVertex*> m_weldMap;
 	std::string m_vertsMapHash;
 
+	miVec4 m_position;
+
 	void Begin() {
 		m_weldMap.clear();
 	}

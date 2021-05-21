@@ -19,9 +19,9 @@ void gui_mainMenu_buttons_onDraw(yyGUIElement* elem, s32 m_id) {
 			op = 1.0f;
 		butt->SetOpacity(op, 0);
 		
-		item->m_text->m_color.m_data[3] += v;
+		/*item->m_text->m_color.m_data[3] += v;
 		if (item->m_text->m_color.m_data[3] > 1.f)
-			item->m_text->m_color.m_data[3] = 1.f;
+			item->m_text->m_color.m_data[3] = 1.f;*/
 	}
 	else
 	{
@@ -32,9 +32,9 @@ void gui_mainMenu_buttons_onDraw(yyGUIElement* elem, s32 m_id) {
 		butt->SetOpacity(op, 1);
 		butt->SetOpacity(op, 2);
 
-		item->m_text->m_color.m_data[3] -= v;
-		if (item->m_text->m_color.m_data[3] < 0.f)
-			item->m_text->m_color.m_data[3] = 0.f;
+		//item->m_text->m_color.m_data[3] -= v;
+		//if (item->m_text->m_color.m_data[3] < 0.f)
+		//	item->m_text->m_color.m_data[3] = 0.f;
 	}
 }
 void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id) {
@@ -246,6 +246,7 @@ miGUIManager::miGUIManager(){
 	m_hoveredMenuItemID = -1;
 
 	m_button_add = 0;
+	m_textInput_rename = 0;
 		 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -282,15 +283,14 @@ miGUIManager::miGUIManager(){
 
 	float button_add_size = 30.f;
 	m_button_add = yyGUICreateButton(v4f(
-		(f32)window->m_creationSize.x * 0.5f - (button_add_size * 0.5f),
+		23.f,
 		0.f,
-		((f32)window->m_creationSize.x * 0.5f) + button_add_size,
-		miViewportTopIndent
+		23.f + button_add_size,
+		miViewportTopIndent 
 	), 0, -1, 0, 0 );
 	if (m_button_add)
 	{
 		m_button_add->SetText(L"Add", m_fontDefault, false);
-		m_button_add->m_align = yyGUIElement::Align::AlignCenterTop;
 		m_button_add->SetColor(ColorDimGray, 0);
 		m_button_add->SetColor(ColorDarkGrey, 1);
 		m_button_add->SetColor(ColorGrey, 2);
@@ -301,13 +301,29 @@ miGUIManager::miGUIManager(){
 		m_button_add->m_onClick = gui_addButton_onClick;
 	}
 
+	m_textInput_rename = yyGUICreateTextInput(
+		v4f(
+			window->m_creationSize.x - miViewportRightIndent,
+			0.f,
+			window->m_creationSize.x,
+			15.f
+		),
+		m_fontDefault,
+		L"",
+		0);
+	m_textInput_rename->m_align = m_textInput_rename->AlignRightTop;
+	m_textInput_rename->UseDefaultText(L"Object name", yyColor(0.813f));
+	/*m_textInput->m_bgColor.set(1.f, 0.f, 0.f, 0.1f);
+	m_textInput->m_bgColorHover.set(0.f, 1.f, 0.f, 0.1f);
+	m_textInput->m_bgColorActive.set(0.f, 0.f, 1.f, 0.1f);*/
+
 	auto menu_file = _addMainMenuItem(L"File", 
-		v4i(0, 0, 23, 23), v4i(24, 0, 47, 23), v4i(48, 0, 71, 23), 
+		v4f(0.f, 0.f, 23.f, 23.f), v4f(24.f, 0.f, 47.f, 23.f), v4f(48.f, 0.f, 71.f, 23.f),
 		g_buttonID_File, gui_mainMenu_buttonOnClick);
 	menu_file->addButton(L"New scene", v4f(0.f, 0.f, 100.f, 30.f), g_buttonID_File_NewScene, m_mainMenu_drawGroup);
 
 	auto menu_settings = _addMainMenuItem(L"Settings",
-		v4i(0, 24, 23, 47), v4i(24, 24, 47, 47), v4i(0, 0, 0, 0),
+		v4f(0.f, 24.f, 23.f, 47.f), v4f(24.f, 24.f, 47.f, 47.f), v4f(0.f, 0.f, 0.f, 0.f),
 		g_buttonID_Settings, gui_mainMenu_buttonOnClick);
 	/*_addMainMenuItem(L"Help",
 		v4i(0, 48, 23, 71), v4i(24, 48, 47, 71), v4i(0, 0, 0, 0),
@@ -370,9 +386,9 @@ void miGUIMainMenuMenuGroup::addButton(const wchar_t* text, const v4f& rect, s32
 
 miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	//const v4f& buildRect, 
-	const v4i& uvregion1, const v4i& uvregion2, const v4i& uvregion3,
+	const v4f& uvregion1, const v4f& uvregion2, const v4f& uvregion3,
 	s32 id, yyGUICallback onClick) {
-	v4i reg = uvregion1;
+	v4f reg = uvregion1;
 
 	static f32 y = 0.f;
 
@@ -406,15 +422,15 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 
 	miGUIMainMenuItem * newItem = new miGUIMainMenuItem;
 	newItem->m_button = newButton;
-	newItem->m_text = yyGUICreateText(v2f(buildRect.x + w, buildRect.y + (h * 0.3f)), m_fontDefault, text, m_mainMenu_drawGroup);
+	/*newItem->m_text = yyGUICreateText(v2f(buildRect.x + w, buildRect.y + (h * 0.3f)), m_fontDefault, text, m_mainMenu_drawGroup);
 	newItem->m_text->IgnoreInput(true);
 	newItem->m_text->m_color.m_data[3] = 0.f;
-	newItem->m_text->m_id = id;
+	newItem->m_text->m_id = id;*/
 
 	newItem->m_button->m_userData = newItem;
-	newItem->m_text->m_userData = newItem;
+	//newItem->m_text->m_userData = newItem;
 	
-	auto text_w = newItem->m_text->m_buildRectInPixels.z - newItem->m_text->m_buildRectInPixels.x;
+	//auto text_w = newItem->m_text->m_buildRectInPixels.z - newItem->m_text->m_buildRectInPixels.x;
 	
 	if (buildRect.z > m_mainMenu_group->m_sensorRectInPixels.z)
 		m_mainMenu_group->m_sensorRectInPixels.z = buildRect.z ;
@@ -430,8 +446,8 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	m_mainMenu_group_actRect_Active.y = m_mainMenu_group_actRect_noActive.y;
 	m_mainMenu_group_actRect_Active.w = m_mainMenu_group_actRect_noActive.w;
 
-	if (text_w + w > m_mainMenu_group_actRect_Active.z)
-		m_mainMenu_group_actRect_Active.z = text_w + w + 20.f;
+	/*if (text_w + w > m_mainMenu_group_actRect_Active.z)
+		m_mainMenu_group_actRect_Active.z = text_w + w + 20.f;*/
 
 
 	//newItem->m_onClick = onClick;
