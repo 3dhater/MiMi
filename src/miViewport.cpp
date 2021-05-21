@@ -31,7 +31,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	m_isCursorInRect = false;
 	m_gui_text_vpName = 0;
 	m_gui_button_resetCamera = 0;
-	m_gui_button_viewport = 0;
+	//m_gui_button_viewport = 0;
 
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
 	m_camera[Camera_Top] = new miViewportCamera(this, miViewportCameraType::Top);
@@ -160,10 +160,11 @@ void miViewport::Init() {
 	m_gui_text_vpName = yyGUICreateText(v2f(vpNamePosX, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
 		L"T", 0);
 	m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
-	m_gui_text_vpName->IgnoreInput(true);
+	m_gui_text_vpName->IgnoreInput(false);
 	//m_gui_text_vpName->m_onClick = miViewport_onClick_viewportName;
-	m_gui_text_vpName->m_ignoreSetCursorInGUI = true;
+	m_gui_text_vpName->m_ignoreSetCursorInGUI = false;
 	m_gui_text_vpName->m_userData = this;
+	m_gui_text_vpName->m_onClick = miViewport_onClick_viewport;
 	m_gui_group->AddElement(m_gui_text_vpName);
 
 	f32 buttonPositionX = 70.f ;
@@ -187,7 +188,7 @@ void miViewport::Init() {
 
 	buttonPositionX += buttonWidth;
 
-	region.set(0.f, 96.f, 16.f, 112.f);
+	/*region.set(0.f, 96.f, 16.f, 112.f);
 	m_gui_button_viewport = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
 		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
 	m_gui_button_viewport->m_isAnimated = true;
@@ -198,7 +199,7 @@ void miViewport::Init() {
 	m_gui_button_viewport->SetOpacity(0.19f, 1);
 	m_gui_button_viewport->SetOpacity(0.19f, 2);
 	m_gui_button_viewport->m_onClick = miViewport_onClick_viewport;
-	m_gui_button_viewport->m_userData = this;
+	m_gui_button_viewport->m_userData = this;*/
 	
 	buttonPositionX += buttonWidth;
 
@@ -405,6 +406,8 @@ void miViewport::OnDraw() {
 	_frustum_cull(g_app->m_rootObject);
 
 	//printf("%i\n", (s32)m_visibleObjects.m_size);
+
+	g_app->m_gpu->UseDepth(true);
 
 	if(m_visibleObjects.m_size)
 		_drawScene();

@@ -61,6 +61,8 @@ class miApplication
 	yyVideoDriverAPI* m_gpu;
 	miSDKImpl* m_sdk;
 
+	yyCursor* m_cursors[(u32)yyCursorType::_count];
+
 	// draw selection rectangle and other things
 	miGraphics2D* m_2d;
 
@@ -141,6 +143,9 @@ class miApplication
 	miEditMode m_editMode;
 
 	void _update_transforms(miSceneObject* o);
+
+	void _select_multiple_objects();
+	void _select_single_object();
 
 public:
 	miApplication();

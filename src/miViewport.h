@@ -46,7 +46,7 @@ struct miViewport
 	yyGUIGroup* m_gui_group;
 	yyGUIText*  m_gui_text_vpName;
 	yyGUIButton* m_gui_button_resetCamera;
-	yyGUIButton* m_gui_button_viewport;
+	//yyGUIButton* m_gui_button_viewport;
 	void HideGUI();
 	void ShowGUI();
 

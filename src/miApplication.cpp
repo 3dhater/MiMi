@@ -252,9 +252,19 @@ miApplication::miApplication() {
 	
 	m_2d = 0;
 	m_sdk = new miSDKImpl;
+
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursors[i] = 0;
+	}
 }
 
 miApplication::~miApplication() {
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		if (m_cursors[i])delete m_cursors[i];
+	}
+
 	if (m_rootObject)
 	{
 		DestroyAllSceneObjects(m_rootObject);
@@ -479,6 +489,30 @@ bool miApplication::Init(const char* videoDriver) {
 	yyLogSetInfoOutput(log_onInfo);
 	yyLogSetWarningOutput(log_onWarning);
 
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursors[i] = new yyCursor((yyCursorType)i);
+
+		switch ((yyCursorType)i)
+		{
+		default:
+		case yyCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		}
+		yySetCursor((yyCursorType)i, m_cursors[i]);
+	}
+
 	m_window = yyCreate<yyWindow>();
 	u32 windowStyle = 0;
 	if (!m_window->init(800, 600, windowStyle))
@@ -573,6 +607,7 @@ void miApplication::MainLoop() {
 
 	while (yyRun(&m_dt))
 	{
+		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
 
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
@@ -758,6 +793,13 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
 }
 
+void miApplication::_select_multiple_objects() {
+
+}
+void miApplication::_select_single_object() {
+
+}
+
 void miApplication::UpdateViewports() {
 	if (m_isViewportInFocus)
 	{
@@ -773,6 +815,8 @@ void miApplication::UpdateViewports() {
 					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
 					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
 					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+
+				_select_multiple_objects();
 			}
 			else
 			{
@@ -785,6 +829,8 @@ void miApplication::UpdateViewports() {
 						m_inputContext->m_cursorCoords.y + _size),
 					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
 					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+
+				_select_single_object();
 			}
 		}
 	}
