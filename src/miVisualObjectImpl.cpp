@@ -551,7 +551,8 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 	}
 
 	if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Wireframe
-		|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe)
+		|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe
+		|| g_app->m_editMode == miEditMode::Edge)
 	{
 		for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i)
 		{
@@ -567,7 +568,7 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		}
 	}
 
-	//if ()
+	if ( g_app->m_editMode == miEditMode::Vertex )
 	{
 		auto Vi = camera->m_viewMatrix;
 		Vi.m_data[3].set(0.f, 0.f, 0.f, 1.f);
