@@ -197,16 +197,6 @@ miApplication::miApplication() {
 	
 	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
 	new(m_rootObject)miRootObject(0, 0);
-	
-	miDestroy(m_rootObject);
-	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
-	new(m_rootObject)miRootObject(0, 0);
-	miDestroy(m_rootObject);
-	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
-	new(m_rootObject)miRootObject(0, 0);
-	miDestroy(m_rootObject);
-	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
-	new(m_rootObject)miRootObject(0, 0);
 
 	m_miCommandID_for_plugins_count = 0;
 	m_popupViewport = 0;
@@ -371,6 +361,8 @@ void miApplication::_initViewports() {
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
 	m_activeViewportLayout->ShowGUI();
+
+	m_viewportUnderCursor = m_activeViewportLayout->m_activeViewport;
 }
 
 void miApplication::_initPopups() {
@@ -645,6 +637,19 @@ void miApplication::MainLoop() {
 		}
 		m_isGUIInputFocus = yyGUIIsInputFocus();
 
+		if (m_isCursorMove && m_isCursorInWindow && !m_isCursorInGUI && !m_isGUIInputFocus)
+		{
+			m_viewportUnderCursor = m_activeViewportLayout->m_activeViewport;
+
+			m_sdk->GetRayFromScreen(
+				&m_rayCursor, 
+				mimath::v2f_to_miVec2(m_inputContext->m_cursorCoords),
+				mimath::v4f_to_miVec4(m_viewportUnderCursor->m_currentRect),
+				mimath::Mat4_to_miMatrix(m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix)
+			);
+			_get_objects_under_cursor();
+		}
+
 		while (yyPollEvent(currentEvent))
 		{
 			switch (currentEvent.m_type)
@@ -793,11 +798,121 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
 }
 
-void miApplication::_select_multiple_objects() {
+void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
+	miVec4 ip;
+	f32 d = 0.f;
+	if (o->IsRayIntersect(&m_rayCursor, &ip, &d))
+	{
+		o->m_cursorIntersectionPointDistance = d;
+		o->m_cursorIntersectionPoint = ip;
+		m_objectsUnderCursor.push_back(o);
+	}
 
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_get_objects_under_cursor_(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
 }
-void miApplication::_select_single_object() {
 
+void miApplication::_get_objects_under_cursor() {
+	m_objectsUnderCursor.clear();
+	_get_objects_under_cursor_(m_rootObject);
+
+	struct _pred{
+		bool operator() (miSceneObject* a, miSceneObject* b) const{
+			return a->GetDistanceToCursorIP() > b->GetDistanceToCursorIP();
+		}
+	};
+	m_objectsUnderCursor.sort_insertion(_pred());
+}
+
+void miApplication::_deselect_all(miSceneObject* o) {
+	o->DeselectAll(m_editMode);
+	auto node = o->GetChildren()->m_head;
+	if (node){
+		auto last = node->m_left;
+		while (true) {
+			_deselect_all(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+}
+
+void miApplication::_select_all(miSceneObject* o) {
+	o->SelectAll(m_editMode);
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_select_all(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+}
+
+void miApplication::DeselectAll() {
+	_deselect_all(m_rootObject);
+}
+
+void miApplication::SelectAll() {
+	_select_all(m_rootObject);
+}
+
+void miApplication::_select_multiple() {
+	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
+		DeselectAll();
+
+	for (u32 i = 0; i < m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_size; ++i)
+	{
+		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
+	}
+}
+
+void miApplication::_select_single_call(miSceneObject* o) {
+	if(o->IsSelected())
+		o->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
+	
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_select_all(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+}
+
+void miApplication::_select_single() {
+	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
+		DeselectAll();
+
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		_select_single_call(m_rootObject);
+		break;
+	case miEditMode::Object:
+	default:
+		if (m_objectsUnderCursor.m_size)
+		{
+			m_objectsUnderCursor.m_data[0]->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
+		}
+		break;
+	}
 }
 
 void miApplication::UpdateViewports() {
@@ -816,7 +931,7 @@ void miApplication::UpdateViewports() {
 					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
 					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
 
-				_select_multiple_objects();
+				_select_multiple();
 			}
 			else
 			{
@@ -830,7 +945,7 @@ void miApplication::UpdateViewports() {
 					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
 					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
 
-				_select_single_object();
+				_select_single();
 			}
 		}
 	}
@@ -892,6 +1007,8 @@ void miApplication::UpdateViewports() {
 
 			if (viewport->m_isCursorInRect)
 			{
+				m_viewportUnderCursor = viewport;
+
 				if(m_inputContext->m_wheelDelta)
 					viewport->m_activeCamera->Zoom();
 

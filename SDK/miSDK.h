@@ -35,20 +35,6 @@
 
 #include "umHalf.h"
 
-#include "miLib.h"
-#include "miMemory.h"
-#include "miSingleton.h"
-#include "miList.h"
-#include "miString.h"
-#include "miBST.h"
-#include "miMath.h"
-#include "miMesh.h"
-#include "miModel.h"
-#include "miPlugin.h"
-#include "miSelectionFrust.h"
-#include "miVisualObject.h"
-#include "miSceneObject.h"
-
 enum class miViewportCameraType : unsigned int {
 	Perspective,
 	Left,
@@ -60,7 +46,7 @@ enum class miViewportCameraType : unsigned int {
 };
 
 enum class miEditMode : unsigned int {
-	Vertex, 
+	Vertex,
 	Edge,
 	Polygon,
 	Object,
@@ -82,6 +68,22 @@ enum class miKeyboardModifier : unsigned int {
 	CtrlAlt,
 	END
 };
+
+#include "miLib.h"
+#include "miMemory.h"
+#include "miSingleton.h"
+#include "miList.h"
+#include "miString.h"
+#include "miBST.h"
+#include "miMath.h"
+#include "miMesh.h"
+#include "miModel.h"
+#include "miPlugin.h"
+#include "miSelectionFrust.h"
+#include "miVisualObject.h"
+#include "miSceneObject.h"
+
+
 
 typedef void(*miCallback_onClickPopup)(unsigned int id);
 typedef void(miPlugin::*miCallback_onUpdate)();

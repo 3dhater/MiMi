@@ -116,6 +116,7 @@ class miApplication
 
 	//miViewportCamera* m_currentViewportDrawCamera;
 	miViewport* m_currentViewportDraw;
+	miViewport* m_viewportUnderCursor;
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
@@ -144,12 +145,24 @@ class miApplication
 
 	void _update_transforms(miSceneObject* o);
 
-	void _select_multiple_objects();
-	void _select_single_object();
+	void _select_multiple();
+	void _select_single();
+	void _select_single_call(miSceneObject* o);
+	void _deselect_all(miSceneObject* o);
+	void _select_all(miSceneObject* o);
+	
+	miRay m_rayCursor;
+	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
+	void _get_objects_under_cursor_(miSceneObject*);
+	void _get_objects_under_cursor();
+
 
 public:
 	miApplication();
 	~miApplication();
+
+	void SelectAll();
+	void DeselectAll();
 
 	std::vector<miRay> g_rays;
 

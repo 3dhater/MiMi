@@ -88,9 +88,9 @@ void miplPolygonObjectPlane_generate(
 	segment_size_h = size.y / (float)y_segments;
 	segment_size_w = size.x / (float)x_segments;
 
-	for (int h_i = 0; h_i < y_segments; ++h_i)
+	for (unsigned int h_i = 0; h_i < y_segments; ++h_i)
 	{
-		for (int w_i = 0; w_i < x_segments; ++w_i)
+		for (unsigned int w_i = 0; w_i < x_segments; ++w_i)
 		{
 			switch (ct)
 			{
@@ -362,6 +362,38 @@ miplPolygonObjectPlane::~miplPolygonObjectPlane() {
 	if (m_visualObject) miDestroy(m_visualObject);
 	//printf("destroy\n");
 }
+
+//bool miplPolygonObjectPlane::IsRayIntersect(miRay* ray, miVec4* ip, float* d) {
+//	return false;
+//}
+
+int miplPolygonObjectPlane::GetVisualObjectCount() {
+	return 1;
+}
+miVisualObject* miplPolygonObjectPlane::GetVisualObject(int) {
+	return m_visualObject;
+}
+
+//void miplPolygonObjectPlane::SelectSingle(miSelectionFrust* sf) {
+//	/*switch(editmode){*/
+//}
+//
+//void miplPolygonObjectPlane::Select(miSelectionFrust* sf) {
+//	/*switch(editmode){*/
+//}
+//
+//void miplPolygonObjectPlane::Deselect(miSelectionFrust*) {
+//	/*switch(editmode){*/
+//}
+//
+//void miplPolygonObjectPlane::SelectAll() {
+//	/*switch(editmode){*/
+//}
+//
+//void miplPolygonObjectPlane::DeselectAll() {
+//	m_isSelected = false;
+//	/*switch(editmode){*/
+//}
 
 void miplPolygonObjectPlane::OnUpdate(float dt) {
 	/*this->m_worldMatrix.m_data[3] = m_localPosition;

@@ -14,6 +14,8 @@
 #undef min
 #endif
 
+struct miVec4;
+
 struct miVec2
 {
 	miVec2() :x(0.f), y(0.f) {}
@@ -84,11 +86,15 @@ struct miVec3
 	miVec3 operator-()const { miVec3 r; r.x = -x; r.y = -y; r.z = -z; return r; }
 	float length() const { return std::sqrt(length2()); }
 	float length2() const { return dot(*this); }
+
+	void add(const miVec4&);
 };
 
 struct miVec4
 {
 	miVec4() :x(0.f), y(0.f), z(0.f), w(0.f) {}
+	miVec4(const miVec4& _v) :x(_v.x), y(_v.y), z(_v.z), w(_v.w) {}
+	miVec4(const miVec3& _v) :x(_v.x), y(_v.y), z(_v.z), w(0.f) {}
 	miVec4(float _v) :x(_v), y(_v), z(_v), w(_v) {}
 	miVec4(float _x, float _y, float _z, float _w) :x(_x), y(_y), z(_z), w(_w) {}
 	float x, y, z, w;
@@ -120,6 +126,13 @@ struct miVec4
 		if (len > 0)
 			len = 1.0f / len;
 		x *= len; y *= len; z *= len; w *= len;
+	}
+	miVec4 cross1(const miVec4& a)const {
+		return miVec4(
+			(y * a.z) - (z * a.y),
+			(z * a.x) - (x * a.z),
+			(x * a.y) - (y * a.x),
+			0.f);
 	}
 	void cross2(const miVec4& a, miVec4& out)const {
 		out.x = (y * a.z) - (z * a.y);
@@ -591,10 +604,33 @@ namespace mimath
 }
 
 struct miRay {
+	miRay() {
+		m_kz = 0;
+		m_kx = 0;
+		m_ky = 0;
+
+		m_Sx = 0.f;
+		m_Sy = 0.f;
+		m_Sz = 0.f;
+	}
+
 	miVec4 m_origin;
 	miVec4 m_end;
 	miVec4 m_dir;
 	miVec4 m_invDir;
+
+	int m_kz;
+	int m_kx;
+	int m_ky;
+
+	float m_Sx;
+	float m_Sy;
+	float m_Sz;
+
+	int max_dim(const miVec4& v){
+		return (v.x > v.y) ? ((v.x > v.z)
+			? 0 : 2) : ((v.y > v.z) ? 1 : 2);
+	}
 
 	void update() {
 		m_dir.x = m_end.x - m_origin.x;
@@ -606,6 +642,33 @@ struct miRay {
 		m_invDir.y = 1.f / m_dir.y;
 		m_invDir.z = 1.f / m_dir.z;
 		m_invDir.w = 1.f;
+
+		m_kz = max_dim
+		(
+			miVec4
+			(
+				std::abs(m_dir.x),
+				std::abs(m_dir.y),
+				std::abs(m_dir.z),
+				1.f
+			)
+		);
+
+		m_kx = m_kz + 1;
+		if (m_kx == 3)
+			m_kx = 0;
+
+		m_ky = m_kx + 1;
+		if (m_ky == 3)
+			m_ky = 0;
+
+		auto dir_data = m_dir.cdata();
+		if (dir_data[m_kz])
+			std::swap(m_kx, m_ky);
+
+		m_Sx = dir_data[m_kx] / dir_data[m_kz];
+		m_Sy = dir_data[m_ky] / dir_data[m_kz];
+		m_Sz = 1.f / dir_data[m_kz];
 	}
 
 	// line-line intersection
@@ -788,4 +851,11 @@ struct miAabb
 	miVec4 m_min;
 	miVec4 m_max;
 };
+
+inline
+void miVec3::add(const miVec4& v) {
+	this->x += v.x;
+	this->y += v.y;
+	this->z += v.z;
+}
 #endif

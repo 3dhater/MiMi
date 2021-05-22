@@ -16,3 +16,25 @@ void miRootObject::OnCreationEnd() {}
 
 
 miPlugin* miRootObject::GetPlugin() { return 0; }
+
+int miRootObject::GetVisualObjectCount() { return 0; }
+miVisualObject* miRootObject::GetVisualObject(int){ return 0; }
+
+//void miRootObject::SelectSingle(miSelectionFrust*) {
+//}
+//
+//void miRootObject::Select(miSelectionFrust*){
+//}
+//
+//void miRootObject::Deselect(miSelectionFrust*) {
+//}
+//
+//void miRootObject::SelectAll() {
+//}
+//
+//void miRootObject::DeselectAll() {
+//}
+
+//bool miRootObject::IsRayIntersect(miRay*, miVec4* ip, float* d) {
+//	return false;
+//}

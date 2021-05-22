@@ -589,3 +589,89 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		}
 	}
 }
+
+bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
+	assert(sf);
+	return false;
+}
+
+void miVisualObjectImpl::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	assert(sf);
+
+}
+
+void miVisualObjectImpl::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	assert(sf);
+
+}
+
+void miVisualObjectImpl::SelectAll() {
+
+}
+
+void miVisualObjectImpl::DeselectAll() {
+
+}
+
+bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
+	if (!m_mesh)
+		return false;
+	assert(r);
+	assert(ip);
+	assert(d);
+	if (!m_mesh->m_first_polygon)
+		return false;
+
+	auto rM = this->m_parentSceneObject->GetRotationMatrix();
+	auto position = this->m_parentSceneObject->GetGlobalPosition();
+
+	auto current_polygon = m_mesh->m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true) {
+
+		miVec4 color(0.f, 0.f, 0.f, 0.0f);
+		if (g_app->m_editMode == miEditMode::Polygon)
+		{
+			if (current_polygon->m_flags & miPolygon::flag_isSelected)
+				color.set(1.0f, 0.f, 0.f, 1.f);
+		}
+
+		auto vertex_1 = current_polygon->m_verts.m_head;
+		auto vertex_2 = vertex_1->m_right;
+		auto vertex_3 = vertex_2->m_right;
+		while (true) {
+			auto p1 = vertex_1->m_data->m_position;
+			auto p2 = vertex_2->m_data->m_position;
+			auto p3 = vertex_3->m_data->m_position;
+
+			p1.add(*position);
+			p2.add(*position);
+			p3.add(*position);
+
+			miTriangle tri(p1,p2,p3);
+			f32 U = 0.f;
+			f32 V = 0.f;
+			f32 W = 0.f;
+			if (tri.rayTest_MT(*r, true, *d, U, V, W))
+			{
+				//printf("a");
+				return true;
+			}
+			
+
+			// ===============================
+			vertex_2 = vertex_2->m_right;
+			vertex_3 = vertex_3->m_right;
+
+			if (vertex_3 == vertex_1)
+				break;
+		}
+
+
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+
+	return false;
+}

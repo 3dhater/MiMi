@@ -24,6 +24,14 @@ public:
 	virtual void Draw(miMatrix*) = 0;
 
 	virtual miAabb GetAabb() = 0;
+
+	virtual bool IsInSelectionFrust(miSelectionFrust* sf) = 0;
+	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
+	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
+	virtual void SelectAll() = 0;
+	virtual void DeselectAll() = 0;
+
+	virtual bool IsRayIntersect(miRay* r, miVec4* ip, float* d) = 0;
 };
 
 #endif
