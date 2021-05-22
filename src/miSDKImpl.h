@@ -52,6 +52,8 @@ public:
 	virtual miEditMode GetEditMode();
 	virtual void SetEditMode(miEditMode);
 
+	virtual void UpdateSceneAabb();
+
 	virtual unsigned int  RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName);
 	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert);
 

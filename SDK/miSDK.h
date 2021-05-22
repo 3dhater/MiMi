@@ -130,6 +130,8 @@ public:
 
 	virtual miEditMode GetEditMode() = 0;
 	virtual void SetEditMode(miEditMode) = 0;
+	
+	virtual void UpdateSceneAabb() = 0;
 
 	// register new object for popup when you press `Add` button
 	// return - popup command id 

@@ -45,6 +45,9 @@ miCursorBehaviorMode miSDKImpl::GetCursorBehaviorModer() {
 miKeyboardModifier miSDKImpl::GetKeyboardModifier() {
 	return g_app->m_keyboardModifier;
 }
+void miSDKImpl::UpdateSceneAabb() {
+	g_app->UpdateSceneAabb();
+}
 
 void miSDKImpl::SetActivePlugin(miPlugin* p) {
 	g_app->m_pluginActive = p;

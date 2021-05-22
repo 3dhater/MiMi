@@ -1367,7 +1367,7 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 }
 
 void miApplication::_buildSceneAabb(miSceneObject* o) {
-	m_sceneAabb.add(*o->GetAABB());
+	m_sceneAabb.add(*o->GetAABBTransformed());
 	auto node = o->GetChildren()->m_head;
 	if (node)
 	{
