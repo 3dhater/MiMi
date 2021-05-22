@@ -1,19 +1,7 @@
 ﻿#ifndef _MI_SELFRUST_H_
 #define _MI_SELFRUST_H_
 
-/*
-e   end
-2---3
-|   |
-1---0
-o   origin
-*/
-class miSelectionFrust
-{
-public:
-	miSelectionFrust() {}
-	virtual ~miSelectionFrust() {}
-
+struct miSelectionFrustData {
 	miVec4 m_left[4];
 	miVec4 m_top[4];
 	miVec4 m_right[4];
@@ -36,6 +24,22 @@ public:
 	miVec4 m_BN;
 	miVec4 m_FrontN;
 	miVec4 m_BackN;
+};
+
+/*
+e   end
+2---3
+|   |
+1---0
+o   origin
+*/
+class miSelectionFrust
+{
+public:
+	miSelectionFrust() {}
+	virtual ~miSelectionFrust() {}
+
+	miSelectionFrustData m_data;
 
 	virtual void CreateWithAabb(const miAabb& aabb) = 0;
 	virtual void CreateWithFrame(const miVec4& frame, const miVec4& vp_rect, const miMatrix& VP_invert) = 0;

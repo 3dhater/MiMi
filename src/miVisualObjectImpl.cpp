@@ -592,7 +592,33 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 
 bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 	assert(sf);
-	return false;
+	if (!m_mesh->m_first_edge)
+		return false;
+	auto rM = this->m_parentSceneObject->GetRotationMatrix();
+	auto position = this->m_parentSceneObject->GetGlobalPosition();
+
+	bool result = false;
+
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+	
+	while (true) {
+
+		if (sf->LineInFrust(
+				mimath::mul(current_edge->m_vertex1->m_position, *rM) + *position,
+				mimath::mul(current_edge->m_vertex2->m_position, *rM) + *position)
+			)
+		{
+			result = true;
+			break;
+		}
+
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+
+	return result;
 }
 
 void miVisualObjectImpl::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
@@ -626,21 +652,12 @@ bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
 	auto position = this->m_parentSceneObject->GetGlobalPosition();
 
 	if (!this->m_parentSceneObject->GetAABBTransformed()->rayTest(*r))
-	{
 		return false;
-	}
 
 	auto current_polygon = m_mesh->m_first_polygon;
 	auto last_polygon = current_polygon->m_left;
+	
 	while (true) {
-
-		miVec4 color(0.f, 0.f, 0.f, 0.0f);
-		if (g_app->m_editMode == miEditMode::Polygon)
-		{
-			if (current_polygon->m_flags & miPolygon::flag_isSelected)
-				color.set(1.0f, 0.f, 0.f, 1.f);
-		}
-
 		auto vertex_1 = current_polygon->m_verts.m_head;
 		auto vertex_2 = vertex_1->m_right;
 		auto vertex_3 = vertex_2->m_right;

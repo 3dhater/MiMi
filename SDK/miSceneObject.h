@@ -121,7 +121,14 @@ public:
 		{
 		default:
 		case miEditMode::Object: {
-			m_isSelected = true;
+			if (km == miKeyboardModifier::Alt)
+			{
+				m_isSelected = false;
+			}
+			else
+			{
+				m_isSelected = true;
+			}
 		}break;
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
@@ -144,7 +151,14 @@ public:
 			{
 				if (GetVisualObject(i)->IsInSelectionFrust(sf))
 				{
-					m_isSelected = true;
+					if (km == miKeyboardModifier::Alt)
+					{
+						m_isSelected = false;
+					}
+					else
+					{
+						m_isSelected = true;
+					}
 					break;
 				}
 			}

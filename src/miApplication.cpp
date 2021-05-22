@@ -807,7 +807,7 @@ void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
 		o->m_cursorIntersectionPoint = ip;
 		m_objectsUnderCursor.push_back(o);
 
-		wprintf(L"%s", o->GetName().data());
+		//wprintf(L"%s", o->GetName().data());
 	}
 
 	auto node = o->GetChildren()->m_head;
@@ -835,6 +835,7 @@ void miApplication::_get_objects_under_cursor() {
 }
 
 void miApplication::_deselect_all(miSceneObject* o) {
+	YY_DEBUG_PRINT_FUNC;
 	o->DeselectAll(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node){
@@ -849,6 +850,7 @@ void miApplication::_deselect_all(miSceneObject* o) {
 }
 
 void miApplication::_select_all(miSceneObject* o) {
+	YY_DEBUG_PRINT_FUNC;
 	o->SelectAll(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node) {
@@ -863,11 +865,14 @@ void miApplication::_select_all(miSceneObject* o) {
 }
 
 void miApplication::DeselectAll() {
+	YY_DEBUG_PRINT_FUNC;
 	_deselect_all(m_rootObject);
+	_update_selected_objects_array();
 }
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
+	_update_selected_objects_array();
 }
 
 void miApplication::_select_multiple() {
@@ -878,6 +883,7 @@ void miApplication::_select_multiple() {
 	{
 		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
 	}
+	_update_selected_objects_array();
 }
 
 void miApplication::_select_single_call(miSceneObject* o) {
@@ -888,7 +894,7 @@ void miApplication::_select_single_call(miSceneObject* o) {
 	if (node) {
 		auto last = node->m_left;
 		while (true) {
-			_select_all(node->m_data);
+			_select_single_call(node->m_data);
 			if (node == last)
 				break;
 			node = node->m_right;
@@ -897,6 +903,7 @@ void miApplication::_select_single_call(miSceneObject* o) {
 }
 
 void miApplication::_select_single() {
+	printf("1\n");
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
 
@@ -911,10 +918,33 @@ void miApplication::_select_single() {
 	default:
 		if (m_objectsUnderCursor.m_size)
 		{
+			printf("2\n");
 			m_objectsUnderCursor.m_data[0]->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
+			_update_selected_objects_array();
 		}
 		break;
 	}
+}
+
+void miApplication::_update_selected_objects_array(miSceneObject* o) {
+	if (o->IsSelected())
+		m_selectedObjects.push_back(o);
+
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_update_selected_objects_array(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+}
+void miApplication::_update_selected_objects_array() {
+	m_selectedObjects.clear();
+	_update_selected_objects_array(m_rootObject);
+	printf("selected objects: %u\n", m_selectedObjects.m_size);
 }
 
 void miApplication::UpdateViewports() {
@@ -1221,129 +1251,28 @@ miString miApplication::GetFreeName(const wchar_t* name) {
 }
 
 const yyColor g_colors[] = {
-	ColorRed,
-	ColorAliceBlue,
-	ColorAqua,
-	ColorAquamarine,
-	ColorAzure,
-	ColorBeige,
-	ColorBisque,
-	ColorBlanchedAlmond,
-	ColorBlue,
-	ColorBlueViolet,
-	ColorBrown,
-	ColorBurlyWood,
-	ColorCadetBlue,
-	ColorChartreuse,
-	ColorCoral,
-	ColorCornflowerBlue,
-	ColorCornsilk,
-	ColorCrimson,
-	ColorCyan,
-	ColorDarkBlue,
-	ColorDarkCyan,
-	ColorDarkGoldenRod,
-	ColorDarkKhaki,
-	ColorDarkMagenta,
-	ColorDarkOliveGreen,
-	ColorDarkOrange,
-	ColorDarkOrchid,
-	ColorDarkRed,
-	ColorDarkSalmon,
-	ColorDarkSeaGreen,
-	ColorDarkSlateBlue,
-	ColorDarkTurquoise,
-	ColorDarkViolet,
-	ColorDeepPink,
-	ColorDeepSkyBlue,
-	ColorDodgerBlue,
-	ColorFireBrick,
-	ColorForestGreen,
-	ColorFuchsia,
-	ColorGainsboro,
-	ColorGold,
-	ColorGoldenRod,
-	ColorGreen,
-	ColorGreenYellow,
-	ColorHoneyDew,
-	ColorHotPink,
-	ColorIndianRed,
-	ColorIndigo,
-	ColorIvory,
-	ColorKhaki,
-	ColorLavender,
-	ColorLavenderBlush,
-	ColorLawnGreen,
-	ColorLemonChiffon,
-	ColorLightBlue,
-	ColorLightCoral,
-	ColorLightCyan,
-	ColorLightGoldenRodYellow,
-	ColorLightGreen,
-	ColorLightPink,
-	ColorLightSalmon,
-	ColorLightSeaGreen,
-	ColorLightSkyBlue,
-	ColorLightSteelBlue,
-	ColorLightYellow,
-	ColorLime,
-	ColorLimeGreen,
-	ColorLinen,
-	ColorMagenta,
-	ColorMaroon,
-	ColorMediumAquaMarine,
-	ColorMediumBlue,
-	ColorMediumOrchid,
-	ColorMediumPurple,
-	ColorMediumSeaGreen,
-	ColorMediumSlateBlue,
-	ColorMediumSpringGreen,
-	ColorMediumTurquoise,
-	ColorMediumVioletRed,
-	ColorMidnightBlue,
-	ColorMintCream,
-	ColorMistyRose,
-	ColorMoccasin,
-	ColorNavy,
-	ColorOldLace,
-	ColorOlive,
-	ColorOliveDrab,
-	ColorOrange,
-	ColorOrangeRed,
-	ColorOrchid,
-	ColorPaleGoldenRod,
-	ColorPaleGreen,
-	ColorPaleTurquoise,
-	ColorPaleVioletRed,
-	ColorPapayaWhip,
-	ColorPeachPuff,
-	ColorPeru,
-	ColorPink,
-	ColorPlum,
-	ColorPowderBlue,
-		ColorPurple,
-		ColorRebeccaPurple,
-		ColorRed,
-		ColorRosyBrown,
-		ColorRoyalBlue,
-		ColorSaddleBrown,
-		ColorSalmon,
-		ColorSandyBrown,
-		ColorSeaGreen,
-		ColorSeaShell,
-		ColorSienna,
-		ColorSkyBlue,
-		ColorSlateBlue,
-		ColorSpringGreen,
-		ColorSteelBlue,
-		ColorTan,
-		ColorTeal,
-		ColorThistle,
-		ColorTomato,
-		ColorTurquoise,
-		ColorViolet,
-		ColorYellow,
-		ColorYellowGreen,
+	ColorRed,	ColorAliceBlue,	ColorAqua,	ColorAquamarine,	ColorAzure,	ColorBeige,
+	ColorBisque,	ColorBlanchedAlmond,	ColorBlue,	ColorBlueViolet,	ColorBrown,	ColorBurlyWood,
+	ColorCadetBlue,	ColorChartreuse,	ColorCoral,	ColorCornflowerBlue,	ColorCornsilk,	ColorCrimson,
+	ColorCyan,	ColorDarkBlue,	ColorDarkCyan,	ColorDarkGoldenRod,	ColorDarkKhaki,	ColorDarkMagenta,
+	ColorDarkOliveGreen,	ColorDarkOrange,	ColorDarkOrchid,	ColorDarkRed,	ColorDarkSalmon,
+	ColorDarkSeaGreen,	ColorDarkSlateBlue,	ColorDarkTurquoise,	ColorDarkViolet,	ColorDeepPink,
+	ColorDeepSkyBlue,	ColorDodgerBlue,	ColorFireBrick,	ColorForestGreen,	ColorFuchsia,
+	ColorGainsboro,	ColorGold,	ColorGoldenRod,	ColorGreen,	ColorGreenYellow,	ColorHoneyDew,
+	ColorHotPink,	ColorIndianRed,	ColorIndigo,	ColorIvory,	ColorKhaki,	ColorLavender,
+	ColorLavenderBlush,	ColorLawnGreen,	ColorLemonChiffon,	ColorLightBlue,	ColorLightCoral,
+	ColorLightCyan,	ColorLightGoldenRodYellow,	ColorLightGreen,	ColorLightPink,	ColorLightSalmon,
+	ColorLightSeaGreen,	ColorLightSkyBlue,	ColorLightSteelBlue,	ColorLightYellow,	ColorLime,
+	ColorLimeGreen,	ColorLinen,	ColorMagenta,	ColorMaroon,	ColorMediumAquaMarine,	ColorMediumBlue,
+	ColorMediumOrchid,	ColorMediumPurple,	ColorMediumSeaGreen,	ColorMediumSlateBlue,	ColorMediumSpringGreen,
+	ColorMediumTurquoise,	ColorMediumVioletRed,	ColorMidnightBlue,	ColorMintCream,	ColorMistyRose,
+	ColorMoccasin,	ColorNavy,	ColorOldLace,	ColorOlive,	ColorOliveDrab,	ColorOrange,	ColorOrangeRed,
+	ColorOrchid,	ColorPaleGoldenRod,	ColorPaleGreen,	ColorPaleTurquoise,	ColorPaleVioletRed,	ColorPapayaWhip,
+	ColorPeachPuff,	ColorPeru,	ColorPink,	ColorPlum,	ColorPowderBlue,		ColorPurple,		ColorRebeccaPurple,
+		ColorRed,		ColorRosyBrown,		ColorRoyalBlue,		ColorSaddleBrown,		ColorSalmon,		ColorSandyBrown,
+		ColorSeaGreen,		ColorSeaShell,		ColorSienna,		ColorSkyBlue,		ColorSlateBlue,		ColorSpringGreen,
+		ColorSteelBlue,		ColorTan,		ColorTeal,		ColorThistle,		ColorTomato,		ColorTurquoise,
+		ColorViolet,		ColorYellow,		ColorYellowGreen,
 };
 
 void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
@@ -1358,6 +1287,8 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 
 	std::srand(std::time(0));
 	int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));
+
+	yyLogWriteInfo("Color index: %i\n", result);
 
 	ec.x = g_colors[result].m_data[0];
 	ec.y = g_colors[result].m_data[1];

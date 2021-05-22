@@ -428,11 +428,11 @@ void miViewport::_drawScene() {
 	{
 		auto object = m_visibleObjects.m_data[i];
 
-		//object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
+		object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
 
 
 		auto rm = object->GetRotationMatrix();
-		//rm->setRotation(q);
+		rm->setRotation(q);
 
 		auto taabb = object->GetAABBTransformed();
 		taabb->transform(object->GetAABB(), rm, object->GetGlobalPosition());
@@ -441,7 +441,8 @@ void miViewport::_drawScene() {
 		object->OnUpdate(g_app->m_dt);
 		object->OnDraw();
 
-		_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
+		if(object->IsSelected())
+			_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
 	}
 	//g_app->UpdateSceneAabb();
 }

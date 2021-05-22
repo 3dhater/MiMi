@@ -88,6 +88,7 @@ struct miVec3
 	float length2() const { return dot(*this); }
 
 	void add(const miVec4&);
+	miVec3 operator+(const miVec4& v)const;
 };
 
 struct miVec4
@@ -859,4 +860,14 @@ void miVec3::add(const miVec4& v) {
 	this->y += v.y;
 	this->z += v.z;
 }
+
+inline
+miVec3 miVec3::operator+(const miVec4& v)const { 
+	miVec3 r; 
+	r.x = x + v.x; 
+	r.y = y + v.y; 
+	r.z = z + v.z; 
+	return r; 
+}
+
 #endif

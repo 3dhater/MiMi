@@ -155,6 +155,9 @@ class miApplication
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
 	void _get_objects_under_cursor_(miSceneObject*);
 	void _get_objects_under_cursor();
+	yyArraySimple<miSceneObject*> m_selectedObjects;
+	void _update_selected_objects_array();
+	void _update_selected_objects_array(miSceneObject*);
 
 
 public:
