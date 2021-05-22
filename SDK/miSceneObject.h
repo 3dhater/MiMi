@@ -102,6 +102,17 @@ public:
 
 	virtual int GetVisualObjectCount() = 0;
 	virtual miVisualObject* GetVisualObject(int) = 0;
+	virtual void UpdateAabb() {
+		m_aabb.reset();
+		for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+			m_aabb.add(GetVisualObject(i)->GetAabb());
+		}
+		//m_aabb.m_min += m_globalPosition;//no
+		//m_aabb.m_max += m_globalPosition;//no
+		// m_aabb must be in space center
+	}
+
 
 	// select object
 	//  or select one vertex/edge/polygon using miSelectionFrust

@@ -625,6 +625,11 @@ bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
 	auto rM = this->m_parentSceneObject->GetRotationMatrix();
 	auto position = this->m_parentSceneObject->GetGlobalPosition();
 
+	if (!this->m_parentSceneObject->GetAABBTransformed()->rayTest(*r))
+	{
+		return false;
+	}
+
 	auto current_polygon = m_mesh->m_first_polygon;
 	auto last_polygon = current_polygon->m_left;
 	while (true) {
@@ -640,9 +645,9 @@ bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
 		auto vertex_2 = vertex_1->m_right;
 		auto vertex_3 = vertex_2->m_right;
 		while (true) {
-			auto p1 = vertex_1->m_data->m_position;
-			auto p2 = vertex_2->m_data->m_position;
-			auto p3 = vertex_3->m_data->m_position;
+			auto p1 = mimath::mul( vertex_1->m_data->m_position, *rM );
+			auto p2 = mimath::mul(vertex_2->m_data->m_position, *rM);
+			auto p3 = mimath::mul(vertex_3->m_data->m_position, *rM);
 
 			p1.add(*position);
 			p2.add(*position);

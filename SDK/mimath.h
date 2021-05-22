@@ -636,6 +636,7 @@ struct miRay {
 		m_dir.x = m_end.x - m_origin.x;
 		m_dir.y = m_end.y - m_origin.y;
 		m_dir.z = m_end.z - m_origin.z;
+		m_dir.w = 1.f;
 		m_dir.normalize2();
 
 		m_invDir.x = 1.f / m_dir.x;

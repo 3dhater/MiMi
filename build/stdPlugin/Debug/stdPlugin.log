@@ -1,5 +1,6 @@
-﻿  miplStd.cpp
-  miplPolygonObjectPlane.cpp
+﻿  miplPolygonObjectPlane.cpp
   Generating Code...
-     Creating library ../../bin32/plugins/stdPlugin.lib and object ../../bin32/plugins/stdPlugin.exp
+  Compiling...
+  miplStd.cpp
+  Generating Code...
   stdPlugin.vcxproj -> E:\Code\MiMi\build\stdPlugin\../../bin32/plugins/stdPlugin.plg

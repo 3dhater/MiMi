@@ -637,10 +637,10 @@ void miApplication::MainLoop() {
 		}
 		m_isGUIInputFocus = yyGUIIsInputFocus();
 
-		if (m_isCursorMove && m_isCursorInWindow && !m_isCursorInGUI && !m_isGUIInputFocus)
+		if (
+			//m_isCursorMove && 
+			m_isCursorInWindow && !m_isCursorInGUI && !m_isGUIInputFocus)
 		{
-			m_viewportUnderCursor = m_activeViewportLayout->m_activeViewport;
-
 			m_sdk->GetRayFromScreen(
 				&m_rayCursor, 
 				mimath::v2f_to_miVec2(m_inputContext->m_cursorCoords),
@@ -806,6 +806,8 @@ void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
 		o->m_cursorIntersectionPointDistance = d;
 		o->m_cursorIntersectionPoint = ip;
 		m_objectsUnderCursor.push_back(o);
+
+		wprintf(L"%s", o->GetName().data());
 	}
 
 	auto node = o->GetChildren()->m_head;

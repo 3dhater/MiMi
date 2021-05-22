@@ -455,16 +455,18 @@ void miplPolygonObjectPlane::_generate() {
 		
 		m_localPosition = m_meshBuilder->m_position;
 		
+
 		// object can contain a lot of m_visualObject
 		// build aabb here
-		m_aabb = m_visualObject->GetAabb();
+		//m_aabb = m_visualObject->GetAabb();
+		this->UpdateTransform(); // for m_globalPosition;
+		this->UpdateAabb();
 
 		m_needToCreateNewGPUBuffers = false;
 	}
 }
 
 void miplPolygonObjectPlane::OnCreationEnd() {
-	m_aabb.center(this->m_localPosition);
 }
 void miplPolygonObjectPlane::OnCreationMouseMove() {
 	if (!m_polygonCreator) return;
