@@ -7,6 +7,29 @@ f32 g_guiButtonFadeSpeed = 8.0f;
 f32 g_guiBGOpacity = 0.3f;
 f32 g_guiButtonMinimumOpacity = 0.1f;
 
+bool gui_textInput_onChar(wchar_t c) {
+	if(c >= 0 && c <= 0x1f)
+		return false;
+	return true;
+}
+void gui_textInput_onEnter(yyGUIElement* elem, s32 m_id) {
+	yyGUITextInput* ti = (yyGUITextInput*)elem;
+	if (ti->m_textElement->m_text.size())
+	{
+		if (g_app->m_selectedObjects.m_size == 1)
+		{
+			auto newName = g_app->GetFreeName(ti->m_textElement->m_text.data());
+			g_app->m_selectedObjects.m_data[0]->SetName(newName.data());
+		}
+	}
+	g_app->update_selected_objects_array();
+}
+void gui_textInput_onEscape(yyGUIElement* elem, s32 m_id) {
+	yyGUITextInput* ti = (yyGUITextInput*)elem;
+	ti->DeleteAll();
+	g_app->update_selected_objects_array();
+}
+
 void gui_mainMenu_buttons_onDraw(yyGUIElement* elem, s32 m_id) {
 	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
 	yyGUIButton * butt = (yyGUIButton *)elem;
@@ -313,6 +336,9 @@ miGUIManager::miGUIManager(){
 		0);
 	m_textInput_rename->m_align = m_textInput_rename->AlignRightTop;
 	m_textInput_rename->UseDefaultText(L"Object name", yyColor(0.813f));
+	m_textInput_rename->m_onCharacter = gui_textInput_onChar;
+	m_textInput_rename->m_onEnter = gui_textInput_onEnter;
+	m_textInput_rename->m_onEscape = gui_textInput_onEscape;
 	/*m_textInput->m_bgColor.set(1.f, 0.f, 0.f, 0.1f);
 	m_textInput->m_bgColorHover.set(0.f, 1.f, 0.f, 0.1f);
 	m_textInput->m_bgColorActive.set(0.f, 0.f, 1.f, 0.1f);*/

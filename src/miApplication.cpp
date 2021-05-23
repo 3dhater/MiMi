@@ -867,12 +867,12 @@ void miApplication::_select_all(miSceneObject* o) {
 void miApplication::DeselectAll() {
 	YY_DEBUG_PRINT_FUNC;
 	_deselect_all(m_rootObject);
-	_update_selected_objects_array();
+	update_selected_objects_array();
 }
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
-	_update_selected_objects_array();
+	update_selected_objects_array();
 }
 
 void miApplication::_select_multiple() {
@@ -883,7 +883,7 @@ void miApplication::_select_multiple() {
 	{
 		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
 	}
-	_update_selected_objects_array();
+	update_selected_objects_array();
 }
 
 void miApplication::_select_single_call(miSceneObject* o) {
@@ -903,7 +903,6 @@ void miApplication::_select_single_call(miSceneObject* o) {
 }
 
 void miApplication::_select_single() {
-	printf("1\n");
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
 
@@ -918,9 +917,8 @@ void miApplication::_select_single() {
 	default:
 		if (m_objectsUnderCursor.m_size)
 		{
-			printf("2\n");
 			m_objectsUnderCursor.m_data[0]->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
-			_update_selected_objects_array();
+			update_selected_objects_array();
 		}
 		break;
 	}
@@ -941,10 +939,19 @@ void miApplication::_update_selected_objects_array(miSceneObject* o) {
 		}
 	}
 }
-void miApplication::_update_selected_objects_array() {
+void miApplication::update_selected_objects_array() {
 	m_selectedObjects.clear();
 	_update_selected_objects_array(m_rootObject);
 	printf("selected objects: %u\n", m_selectedObjects.m_size);
+	m_GUIManager->m_textInput_rename->DeleteAll();
+	if (m_selectedObjects.m_size == 1)
+	{
+		m_GUIManager->m_textInput_rename->SetText(L"%s", m_selectedObjects.m_data[0]->m_name.data());
+	}
+	else if (m_selectedObjects.m_size > 1)
+	{
+		m_GUIManager->m_textInput_rename->SetText(L"Many objects");
+	}
 }
 
 void miApplication::UpdateViewports() {

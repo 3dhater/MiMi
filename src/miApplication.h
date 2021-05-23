@@ -136,7 +136,6 @@ class miApplication
 
 	miRootObject* m_rootObject;
 	void AddObjectToScene(miSceneObject* o, const wchar_t* name);
-	miString GetFreeName(const wchar_t* name);
 	bool NameIsFree(const miString& name, miSceneObject*);
 	void DestroyAllSceneObjects(miSceneObject* o);
 	void RemoveObjectFromScene(miSceneObject* o);
@@ -155,8 +154,6 @@ class miApplication
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
 	void _get_objects_under_cursor_(miSceneObject*);
 	void _get_objects_under_cursor();
-	yyArraySimple<miSceneObject*> m_selectedObjects;
-	void _update_selected_objects_array();
 	void _update_selected_objects_array(miSceneObject*);
 
 
@@ -166,6 +163,11 @@ public:
 
 	void SelectAll();
 	void DeselectAll();
+
+	miString GetFreeName(const wchar_t* name);
+
+	yyArraySimple<miSceneObject*> m_selectedObjects;
+	void update_selected_objects_array();
 
 	std::vector<miRay> g_rays;
 
