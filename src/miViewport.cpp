@@ -67,6 +67,33 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 		break;
 	}
 
+	switch (vct)
+	{
+	case miViewportCameraType::Perspective:
+	case miViewportCameraType::Top:
+		m_rayTestTiangles[0].v1 = miVec4(-999999.f, 0.f, -999999.f, 0.f);
+		m_rayTestTiangles[0].v2 = miVec4(-999999.f, 0.f, 999999.f, 0.f);
+		m_rayTestTiangles[0].v3 = miVec4(999999.f,0.f, 999999.f, 0.f);
+		m_rayTestTiangles[0].update();
+		m_rayTestTiangles[1].v1 = miVec4(-999999.f, 0.f, -999999.f, 0.f);
+		m_rayTestTiangles[1].v2 = miVec4(999999.f, 0.f, 999999.f, 0.f);
+		m_rayTestTiangles[1].v3 = miVec4(999999.f, 0.f, -999999.f, 0.f);
+		m_rayTestTiangles[1].update();
+		break;
+	case miViewportCameraType::Left:
+		break;
+	case miViewportCameraType::Right:
+		break;
+	case miViewportCameraType::Bottom:
+		break;
+	case miViewportCameraType::Front:
+		break;
+	case miViewportCameraType::Back:
+		break;
+	default:
+		break;
+	}
+
 	m_currentRect = m_creationRect;
 	m_currentRectSize = v2f(800.f, 600.f);
 	m_cameraType = vct;
@@ -428,11 +455,11 @@ void miViewport::_drawScene() {
 	{
 		auto object = m_visibleObjects.m_data[i];
 
-		object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
+		//object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
 
 
 		auto rm = object->GetRotationMatrix();
-		rm->setRotation(q);
+		//rm->setRotation(q);
 
 		auto taabb = object->GetAABBTransformed();
 		taabb->transform(object->GetAABB(), rm, object->GetGlobalPosition());
@@ -475,12 +502,22 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 
 	if (!isObject)
 	{
+		f32 T = 0.f;
+		f32 U = 0.f;
+		f32 V = 0.f;
+		f32 W = 0.f;
 		switch (m_cameraType)
 		{
 		default:
 		case miViewportCameraType::Top:
 		case miViewportCameraType::Perspective:
-			ray.planeIntersection(miVec4(0.f,0.f,0.f,1.f), miVec4(0.f,1.f,0.f,1.f), ip);
+			// another way
+			if (!m_rayTestTiangles[0].rayTest_MT(ray, true, T, U, V, W))
+			{
+				m_rayTestTiangles[1].rayTest_MT(ray, true, T, U, V, W);
+			}
+			ip = ray.m_origin + T * ray.m_dir;
+			//ray.planeIntersection(miVec4(0.f,0.f,0.f,1.f), miVec4(0.f,1.f,0.f,1.f), ip);
 			break;
 		case miViewportCameraType::Bottom:
 			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(0.f, -1.f, 0.f, 1.f), ip);
@@ -498,6 +535,7 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 			ray.planeIntersection(miVec4(0.f, 0.f, 0.f, 1.f), miVec4(0.f, 0.f, -1.f, 1.f), ip);
 			break;
 		}
+
 	}
 
 	v = mimath::miVec4_to_v4f(ip);

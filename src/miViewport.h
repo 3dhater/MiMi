@@ -22,6 +22,8 @@ struct miViewport
 	bool m_isOnTopBorder;
 	bool m_isOnBottomBorder;
 
+	miTriangle m_rayTestTiangles[2];
+
 	enum {
 		Camera_Perspective = 0,
 		Camera_Top,
