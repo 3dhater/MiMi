@@ -29,6 +29,10 @@ void gui_textInput_onEscape(yyGUIElement* elem, s32 m_id) {
 	ti->DeleteAll();
 	g_app->update_selected_objects_array();
 }
+void gui_textInput_onLMB(yyGUIElement* elem, s32 m_id) {
+	yyGUITextInput* ti = (yyGUITextInput*)elem;
+	ti->SelectAll();
+}
 
 void gui_mainMenu_buttons_onDraw(yyGUIElement* elem, s32 m_id) {
 	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
@@ -339,6 +343,7 @@ miGUIManager::miGUIManager(){
 	m_textInput_rename->m_onCharacter = gui_textInput_onChar;
 	m_textInput_rename->m_onEnter = gui_textInput_onEnter;
 	m_textInput_rename->m_onEscape = gui_textInput_onEscape;
+	//m_textInput_rename->m_onClickLMB = gui_textInput_onLMB; // need other callback like onActivate
 	/*m_textInput->m_bgColor.set(1.f, 0.f, 0.f, 0.1f);
 	m_textInput->m_bgColorHover.set(0.f, 1.f, 0.f, 0.1f);
 	m_textInput->m_bgColorActive.set(0.f, 0.f, 1.f, 0.1f);*/

@@ -50,3 +50,4 @@ build/miLib/Production
 build/miLib/x64/Production
 build/miLib/Debug
 build/stdPlugin/Production
+bin32/log.txt

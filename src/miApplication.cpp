@@ -599,7 +599,7 @@ void miApplication::MainLoop() {
 
 	while (yyRun(&m_dt))
 	{
-		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+	//	yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
 
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
@@ -1073,7 +1073,34 @@ void miApplication::UpdateViewports() {
 		//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
 	}
 
-	if (m_isCursorMove /*&& m_isViewportInFocus*/)
+	static bool is_pan_move = false;
+	if (m_inputContext->m_isMMBHold && m_isViewportInFocus)
+	{
+		switch (m_keyboardModifier)
+		{
+		default:
+			is_pan_move = true;
+			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Size]);
+			m_cursors[(u32)yyCursorType::Size]->Activate();
+			break;
+		case miKeyboardModifier::Alt:
+			break;
+		case miKeyboardModifier::CtrlAlt:
+			break;
+		case miKeyboardModifier::ShiftCtrlAlt:
+			break;
+		}
+	}
+	else
+	{
+		if (is_pan_move)
+		{
+			is_pan_move = false;
+			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+			m_cursors[(u32)yyCursorType::Arrow]->Activate();
+		}
+	}
+	if (m_isCursorMove && m_isViewportInFocus)
 	{
 		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
 
