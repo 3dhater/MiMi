@@ -2,6 +2,7 @@
 #define _MI_SCOBJ_H_
 
 class miApplication;
+class miPluginGUI;
 
 // base class for all scene objects
 // children classed must be implemented in plugins
@@ -23,6 +24,8 @@ protected:
 
 	miVec4 m_edgeColor;
 
+	miPluginGUI* m_guiObjects;
+
 	bool m_isSelected;
 	float m_distanceToCamera; // not implemented
 	float m_cursorIntersectionPointDistance;
@@ -30,6 +33,7 @@ protected:
 	friend class miApplication;
 public:
 	miSceneObject(){
+		m_guiObjects = 0;
 		m_parent = 0;
 		m_isSelected = false;
 		m_distanceToCamera = 0.f;
@@ -37,6 +41,7 @@ public:
 	}
 	virtual ~miSceneObject() {}
 
+	virtual miPluginGUI* GetGuiObjects() { return m_guiObjects; }
 	virtual float GetDistanceToCamera() { return m_distanceToCamera; }
 	virtual float GetDistanceToCursorIP() { return m_cursorIntersectionPointDistance; }
 	virtual miVec4* GetCursorIntersectionPoint() { return &m_cursorIntersectionPoint; }

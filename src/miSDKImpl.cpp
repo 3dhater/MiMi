@@ -2,6 +2,7 @@
 #include "miApplication.h"
 #include "miSDKImpl.h"
 #include "miVisualObjectImpl.h"
+#include "miPluginGUIImpl.h"
 
 extern miApplication * g_app;
 
@@ -13,6 +14,12 @@ miSDKImpl::~miSDKImpl() {
 	{
 		delete m_objectCategories[i];
 	}
+}
+
+miPluginGUI* miSDKImpl::CreatePluginGUI(miPluginGUIType t) {
+	miPluginGUIImpl * new_gui = miCreate<miPluginGUIImpl>();
+	new_gui->_init(t);
+	return new_gui;
 }
 
 miVisualObject* miSDKImpl::CreateVisualObject(miSceneObject* parent) {
@@ -73,7 +80,15 @@ miObjectCategory* miSDKImpl::_getObjectCategory(const wchar_t* category) {
 	return cat;
 }
 
-unsigned int miSDKImpl::RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName) {
+unsigned int miSDKImpl::RegisterNewObject(
+	miPlugin* plugin, 
+	const wchar_t* category, 
+	const wchar_t* objectName) 
+{
+	assert(plugin);
+	assert(category);
+	assert(objectName);
+
 	auto cat = this->_getObjectCategory(category);
 
 	unsigned int id = g_app->m_miCommandID_for_plugins_count;
@@ -86,7 +101,12 @@ unsigned int miSDKImpl::RegisterNewObject(miPlugin* plugin, const wchar_t* categ
 	return id;
 }
 
-void miSDKImpl::GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) {
+void miSDKImpl::GetRayFromScreen(
+	miRay* ray, 
+	const miVec2& coords, 
+	const miVec4& viewportRect, 
+	const miMatrix& VPInvert) 
+{
 	assert(ray);
 	v2f point;
 	point.x = coords.x - viewportRect.x;

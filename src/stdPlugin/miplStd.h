@@ -9,6 +9,8 @@ class miplStd : public miPlugin
 
 	bool m_isLMBDown;
 
+	miPluginGUI* m_gui_for_plane;
+
 public:
 	miplStd();
 	virtual ~miplStd();
@@ -19,7 +21,8 @@ public:
 
 	virtual bool IsDebug();
 
-	virtual int Init(miSDK* sdk);
+	virtual void Init(miSDK* sdk);
+	virtual int CheckVersion();
 
 	virtual void OnPopupCommand(unsigned int);
 	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI);

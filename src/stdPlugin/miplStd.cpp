@@ -6,6 +6,8 @@
 
 static bool g_isCreated = false;
 
+void miplStd_initGuiForPlane(miPluginGUI*);
+
 extern "C" {
 	MI_API miPlugin* MI_C_DECL miplCreatePlugin() {
 		if (g_isCreated)
@@ -20,6 +22,7 @@ extern "C" {
 
 miplStd::miplStd() {
 	m_newObjectPtr = 0;
+	m_gui_for_plane = 0;
 }
 
 miplStd::~miplStd() {
@@ -67,9 +70,16 @@ unsigned int g_CommandID_Plane = 0;
 //unsigned int g_CommandID_Directional = 0;
 //unsigned int g_CommandID_FreeCamera = 0;
 
-int miplStd::Init(miSDK* sdk){
+int miplStd::CheckVersion() {
+	return MI_SDK_VERSION;
+}
+
+void miplStd::Init(miSDK* sdk){
 	m_sdk = sdk;
 	//miSingleton<miSDK>::s_instance = sdk;
+
+	m_gui_for_plane = sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
+	miplStd_initGuiForPlane(m_gui_for_plane);
 
 	g_CommandID_Plane = sdk->RegisterNewObject(this, L"Polygonal objects", L"Plane");
 	/*g_CommandID_Box = sdk->RegisterNewObject(this, L"Polygonal objects", L"Box");
@@ -78,7 +88,6 @@ int miplStd::Init(miSDK* sdk){
 	g_CommandID_Spot = sdk->RegisterNewObject(this, L"Light", L"Spot");
 	g_CommandID_Directional = sdk->RegisterNewObject(this, L"Light", L"Directional");
 	g_CommandID_FreeCamera = sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
-	return MI_SDK_VERSION;
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
@@ -136,6 +145,7 @@ void miplStd::OnPopupCommand(unsigned int id) {
 		miplPolygonObjectPlane* newObject = (miplPolygonObjectPlane*)miMalloc(sizeof(miplPolygonObjectPlane));
 		new(newObject)miplPolygonObjectPlane(m_sdk, this);
 		newObject->OnCreation();
+		newObject->m_guiObjects = m_gui_for_plane;
 
 		m_newObjectPtr = newObject;
 	}

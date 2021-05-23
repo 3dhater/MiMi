@@ -204,6 +204,7 @@ public:
 
 	void UpdateSceneAabb();
 
+	friend class miPluginGUIImpl;
 	friend class miGraphics2D;
 	friend class miSDKImpl;
 	friend struct miViewportCamera;

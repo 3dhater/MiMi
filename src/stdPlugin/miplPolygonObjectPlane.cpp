@@ -3,6 +3,14 @@
 #include "miplStd.h"
 #include "miplPolygonObjectPlane.h"
 
+const wchar_t* miplStd_plane_text_onSelectObject(miSceneObject* object) {
+	return object->GetName().data();
+}
+
+void miplStd_initGuiForPlane(miPluginGUI* gui) {
+	gui->AddText(miVec2(), L"Some information", miplStd_plane_text_onSelectObject);
+}
+
 void miplPolygonObjectPlane_generate(
 	miPolygonCreator* pc, 
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * mb,
@@ -363,10 +371,6 @@ miplPolygonObjectPlane::~miplPolygonObjectPlane() {
 	//printf("destroy\n");
 }
 
-//bool miplPolygonObjectPlane::IsRayIntersect(miRay* ray, miVec4* ip, float* d) {
-//	return false;
-//}
-
 int miplPolygonObjectPlane::GetVisualObjectCount() {
 	return 1;
 }
@@ -374,30 +378,8 @@ miVisualObject* miplPolygonObjectPlane::GetVisualObject(int) {
 	return m_visualObject;
 }
 
-//void miplPolygonObjectPlane::SelectSingle(miSelectionFrust* sf) {
-//	/*switch(editmode){*/
-//}
-//
-//void miplPolygonObjectPlane::Select(miSelectionFrust* sf) {
-//	/*switch(editmode){*/
-//}
-//
-//void miplPolygonObjectPlane::Deselect(miSelectionFrust*) {
-//	/*switch(editmode){*/
-//}
-//
-//void miplPolygonObjectPlane::SelectAll() {
-//	/*switch(editmode){*/
-//}
-//
-//void miplPolygonObjectPlane::DeselectAll() {
-//	m_isSelected = false;
-//	/*switch(editmode){*/
-//}
 
 void miplPolygonObjectPlane::OnUpdate(float dt) {
-	/*this->m_worldMatrix.m_data[3] = m_localPosition;
-	this->m_worldMatrix.m_data[3].w = 1.f;*/
 }
 
 void miplPolygonObjectPlane::OnDraw() {

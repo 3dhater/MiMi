@@ -32,6 +32,7 @@
     <ClCompile Include="..\src\miApplication_initGrid.cpp" />
     <ClCompile Include="..\src\miGraphics2D.cpp" />
     <ClCompile Include="..\src\miGUIManager.cpp" />
+    <ClCompile Include="..\src\miPluginGUIImpl.cpp" />
     <ClCompile Include="..\src\miPopup.cpp" />
     <ClCompile Include="..\src\miRootObject.cpp" />
     <ClCompile Include="..\src\miSDKImpl.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="..\src\miApplication.h" />
     <ClInclude Include="..\src\miGraphics2D.h" />
     <ClInclude Include="..\src\miGUIManager.h" />
+    <ClInclude Include="..\src\miPluginGUIImpl.h" />
     <ClInclude Include="..\src\miPopup.h" />
     <ClInclude Include="..\src\miRootObject.h" />
     <ClInclude Include="..\src\miSDKImpl.h" />

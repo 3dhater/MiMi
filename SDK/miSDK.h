@@ -111,11 +111,25 @@ namespace mimath
 	Mat4 miMatrix_to_Mat4(const miMatrix& m);
 }
 
+enum class miPluginGUIType {
+	ObjectParams
+};
+class miPluginGUI
+{
+public:
+	miPluginGUI() {}
+	virtual ~miPluginGUI() {}
+
+	virtual void AddText(const miVec2& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*)) = 0;
+};
+
 class miSDK
 {
 public:
 	miSDK() {}
 	virtual ~miSDK() {}
+
+	virtual miPluginGUI* CreatePluginGUI(miPluginGUIType) = 0;
 
 	virtual miVisualObject* CreateVisualObject(miSceneObject* parent) = 0;
 

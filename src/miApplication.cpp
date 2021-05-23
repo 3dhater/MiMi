@@ -450,13 +450,14 @@ void miApplication::_initPlugins() {
 			continue;
 		}
 
-		if (newPlugin->Init(m_sdk) != MI_SDK_VERSION)
+		if (newPlugin->CheckVersion() != MI_SDK_VERSION)
 		{
 			newPlugin->~miPlugin();
 			miFree(newPlugin);
 			yyLogWriteInfo("FAIL (bad version)\n");
 			continue;
 		}
+		newPlugin->Init(m_sdk);
 
 		yyLogWriteInfoW(L"DONE (%s)\n", newPlugin->GetName());
 

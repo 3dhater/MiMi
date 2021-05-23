@@ -30,8 +30,9 @@ public:
 	// other functions can get through plugin
 	//virtual miplDestroyPlugin_t GetDestroyFunction() = 0;
 
+	virtual void Init(miSDK* sdk) = 0;
 	// return MI_SDK_VERSION
-	virtual int Init(miSDK* sdk) = 0;
+	virtual int CheckVersion() = 0;
 	
 	virtual void OnPopupCommand(unsigned int) = 0;
 	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) = 0;

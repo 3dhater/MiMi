@@ -40,13 +40,7 @@ public:
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
 
-	/*virtual void SelectSingle(miSelectionFrust*);
-	virtual void Select(miSelectionFrust*);
-	virtual void Deselect(miSelectionFrust*);
-	virtual void SelectAll();
-	virtual void DeselectAll();*/
-
-	//virtual bool IsRayIntersect(miRay*, miVec4* ip, float* d);
+	friend class miplStd;
 };
 
 #endif
