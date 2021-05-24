@@ -33,6 +33,8 @@
 #define miCommandID_ViewportDrawMaterial 12
 #define miCommandID_ViewportDrawMaterialWireframe 13
 #define miCommandID_ViewportDrawWireframe 14
+#define miCommandID_ViewportToggleDrawMaterial 15
+#define miCommandID_ViewportToggleDrawWireframe 16
 #define miCommandID_for_plugins 100
 
 class miGUIManager;
@@ -200,6 +202,8 @@ public:
 	void CommandViewportChangeView(miViewport* vp, miViewportCameraType);
 	void CommandViewportToggleFullView(miViewport* vp);
 	void CommandViewportToggleGrid(miViewport* vp);
+	void CommandViewportToggleDrawMaterial(miViewport* vp);
+	void CommandViewportToggleDrawWireframe(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
 
 	void UpdateSceneAabb();

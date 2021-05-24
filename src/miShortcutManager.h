@@ -16,6 +16,8 @@ enum class miShortcutCommandType : u32 {
 	viewport_dmMaterial,
 	viewport_dmMaterialWireframe,
 	viewport_dmWireframe,
+	viewport_toggleDMMaterial,
+	viewport_toggleDMWireframe,
 
 	count
 };

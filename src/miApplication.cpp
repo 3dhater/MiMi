@@ -124,6 +124,9 @@ void window_callbackOnCommand(s32 commandID) {
 	case miCommandID_ViewportDrawMaterial: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Material); break;
 	case miCommandID_ViewportDrawMaterialWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_MaterialWireframe); break;
 	case miCommandID_ViewportDrawWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Wireframe); break;
+	
+	case miCommandID_ViewportToggleDrawMaterial: g_app->CommandViewportToggleDrawMaterial(g_app->m_popupViewport); break;
+	case miCommandID_ViewportToggleDrawWireframe: g_app->CommandViewportToggleDrawWireframe(g_app->m_popupViewport); break;
 	}
 	if (commandID >= miCommandID_for_plugins)
 	{
@@ -402,6 +405,8 @@ void miApplication::_initPopups() {
 	m_popup_ViewportParameters.AddItem(L"Material", miCommandID_ViewportDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterial));
 	m_popup_ViewportParameters.AddItem(L"Material+Wireframe", miCommandID_ViewportDrawMaterialWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmMaterialWireframe));
 	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
+	m_popup_ViewportParameters.AddItem(L"Toggle draw material", miCommandID_ViewportToggleDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMMaterial));
+	m_popup_ViewportParameters.AddItem(L"Toggle draw wireframe", miCommandID_ViewportToggleDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMWireframe));
 
 	//m_popup_NewObject
 	for (u16 i = 0, sz = m_sdk->m_objectCategories.size(); i < sz; ++i)
@@ -816,6 +821,8 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterial)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Material);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterialWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_MaterialWireframe);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMMaterial)) this->CommandViewportToggleDrawMaterial(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMWireframe)) this->CommandViewportToggleDrawWireframe(m_activeViewportLayout->m_activeViewport);
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
@@ -1262,6 +1269,13 @@ void miApplication::CommandViewportToggleGrid(miViewport* vp) {
 
 void miApplication::CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode dm) {
 	vp->SetDrawMode(dm);
+}
+
+void miApplication::CommandViewportToggleDrawMaterial(miViewport* vp) {
+	vp->ToggleDrawModeMaterial();
+}
+void miApplication::CommandViewportToggleDrawWireframe(miViewport* vp) {
+	vp->ToggleDrawModeWireframe();
 }
 
 bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {

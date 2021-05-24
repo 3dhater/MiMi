@@ -72,6 +72,9 @@ struct miViewport
 	void _drawAabb(const miAabb&, const miVec4& color);
 	void _drawScene();
 
+	void ToggleDrawModeMaterial();
+	void ToggleDrawModeWireframe();
+
 	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
 };
 

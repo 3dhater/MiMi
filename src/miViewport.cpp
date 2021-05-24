@@ -485,6 +485,35 @@ void miViewport::SetDrawGrid(bool v) {
 	m_drawGrid = v;
 }
 
+void miViewport::ToggleDrawModeMaterial() {
+	static bool is_materail_mode = false;
+	if (m_drawMode == DrawMode::Draw_Wireframe)
+	{
+		if (is_materail_mode)
+		{
+			m_drawMode = DrawMode::Draw_Material;
+			is_materail_mode = false;
+		}
+		else
+			m_drawMode = DrawMode::Draw_MaterialWireframe;
+	}
+	else if (m_drawMode == DrawMode::Draw_MaterialWireframe)
+		m_drawMode = DrawMode::Draw_Wireframe;
+	else if (m_drawMode == DrawMode::Draw_Material)
+	{
+		m_drawMode = DrawMode::Draw_Wireframe;
+		is_materail_mode = true;
+	}
+	//kkDrawAll();
+}
+void miViewport::ToggleDrawModeWireframe() {
+	if (m_drawMode == DrawMode::Draw_Material)
+		m_drawMode = DrawMode::Draw_MaterialWireframe;
+	else if (m_drawMode == DrawMode::Draw_MaterialWireframe)
+		m_drawMode = DrawMode::Draw_Material;
+	//kkDrawAll();
+}
+
 v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 	miRay ray;
 	g_app->m_sdk->GetRayFromScreen(&ray, 

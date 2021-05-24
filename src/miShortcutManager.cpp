@@ -15,9 +15,11 @@ miShortcutManager::miShortcutManager() {
 	SetCommand(miShortcutCommandType::viewport_viewBack, L"viewport_viewBack", miKeyboardModifier::None, yyKey::END);
 	SetCommand(miShortcutCommandType::viewport_toggleGrid, L"viewport_toggleGrid", miKeyboardModifier::None, yyKey::K_G);
 	SetCommand(miShortcutCommandType::viewport_toggleFullView, L"viewport_toggleFullView", miKeyboardModifier::Alt, yyKey::K_W);
-	SetCommand(miShortcutCommandType::viewport_dmMaterial, L"viewport_dmMaterial", miKeyboardModifier::None, yyKey::K_F1);
-	SetCommand(miShortcutCommandType::viewport_dmMaterialWireframe, L"viewport_dmMaterialWireframe", miKeyboardModifier::None, yyKey::K_F2);
-	SetCommand(miShortcutCommandType::viewport_dmWireframe, L"viewport_dmWireframe", miKeyboardModifier::None, yyKey::K_F3);
+	SetCommand(miShortcutCommandType::viewport_dmMaterial, L"viewport_dmMaterial", miKeyboardModifier::None, yyKey::END);
+	SetCommand(miShortcutCommandType::viewport_dmMaterialWireframe, L"viewport_dmMaterialWireframe", miKeyboardModifier::None, yyKey::END);
+	SetCommand(miShortcutCommandType::viewport_dmWireframe, L"viewport_dmWireframe", miKeyboardModifier::None, yyKey::END);
+	SetCommand(miShortcutCommandType::viewport_toggleDMMaterial, L"viewport_toggleDMMaterial", miKeyboardModifier::None, yyKey::K_F1);
+	SetCommand(miShortcutCommandType::viewport_toggleDMWireframe, L"viewport_toggleDMWireframe", miKeyboardModifier::None, yyKey::K_F2);
 }
 
 miShortcutManager::~miShortcutManager() {
