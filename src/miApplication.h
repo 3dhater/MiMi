@@ -207,6 +207,7 @@ public:
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
 
 	void UpdateSceneAabb();
+	void UpdateSelectionAabb();
 
 	void ChangeCursorBehaviorMode(miCursorBehaviorMode bm);
 

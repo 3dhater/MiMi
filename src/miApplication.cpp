@@ -892,11 +892,13 @@ void miApplication::_select_all(miSceneObject* o) {
 void miApplication::DeselectAll() {
 	_deselect_all(m_rootObject);
 	update_selected_objects_array();
+	UpdateSelectionAabb();
 }
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
 	update_selected_objects_array();
+	UpdateSelectionAabb();
 }
 
 void miApplication::_select_multiple() {
@@ -908,6 +910,7 @@ void miApplication::_select_multiple() {
 		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
 	}
 	update_selected_objects_array();
+	UpdateSelectionAabb();
 }
 
 void miApplication::_select_single_call(miSceneObject* o) {
@@ -946,6 +949,7 @@ void miApplication::_select_single() {
 		}
 		break;
 	}
+	UpdateSelectionAabb();
 }
 
 void miApplication::_update_selected_objects_array(miSceneObject* o) {
@@ -1407,4 +1411,24 @@ void miApplication::UpdateSceneAabb() {
 	m_sceneAabb.reset();
 	if(m_rootObject)
 		_buildSceneAabb(m_rootObject);
+}
+void miApplication::UpdateSelectionAabb() {
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+		break;
+	case miEditMode::Edge:
+		break;
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object: {
+		m_selectionAabb.reset();
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
+	}break;
+	default:
+		break;
+	}
+	}
 }

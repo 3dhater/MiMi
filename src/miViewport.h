@@ -71,6 +71,7 @@ struct miViewport
 	void _drawGrid();
 	void _drawAabb(const miAabb&, const miVec4& color);
 	void _drawScene();
+	void _drawSelectedObjectFrame();
 
 	void ToggleDrawModeMaterial();
 	void ToggleDrawModeWireframe();
