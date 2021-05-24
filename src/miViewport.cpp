@@ -436,8 +436,11 @@ void miViewport::OnDraw() {
 
 	g_app->m_gpu->UseDepth(true);
 
-	if(m_visibleObjects.m_size)
+	if (m_visibleObjects.m_size)
+	{
 		_drawScene();
+		_drawAabb(g_app->m_sceneAabb, miVec4(1.f));
+	}
 }
 
 void miViewport::_drawScene() {

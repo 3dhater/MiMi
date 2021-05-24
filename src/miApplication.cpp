@@ -1081,6 +1081,7 @@ void miApplication::UpdateViewports() {
 	if (m_inputContext->m_isLMBDown)
 	{
 		m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
+		m_cursorPosition3D = m_cursorLMBClickPosition3D;
 		//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
 	}
 

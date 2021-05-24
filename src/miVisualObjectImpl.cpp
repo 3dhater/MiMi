@@ -129,7 +129,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 	auto last_edge = current_edge->m_left;
 	while (true) {
 
-		miVec4 color = *m_parentSceneObject->GetEdgeColor();
+		//miVec4 color = *m_parentSceneObject->GetEdgeColor();
+		miVec4 color(1.f);
 		if (g_app->m_editMode == miEditMode::Edge)
 		{
 			if (current_edge->m_flags & miEdge::flag_isSelected)
@@ -554,6 +555,22 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe
 		|| g_app->m_editMode == miEditMode::Edge)
 	{
+		static yyMaterial wireframe_model_material;
+		auto ec = this->m_parentSceneObject->GetEdgeColor();
+		if (this->m_parentSceneObject->IsSelected())
+		{
+			wireframe_model_material.m_baseColor.m_data[0] = 1.f;
+			wireframe_model_material.m_baseColor.m_data[1] = 1.f;
+			wireframe_model_material.m_baseColor.m_data[2] = 1.f;
+		}
+		else
+		{
+			wireframe_model_material.m_baseColor.m_data[0] = ec->x;
+			wireframe_model_material.m_baseColor.m_data[1] = ec->y;
+			wireframe_model_material.m_baseColor.m_data[2] = ec->z;
+		}
+		yySetMaterial(wireframe_model_material);
+
 		for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i)
 		{
 			auto node = m_nodes_edges_GPU[i];
@@ -562,7 +579,6 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 				camera->m_projectionMatrix * camera->m_viewMatrix * World);
 			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
-			//		g_app->m_gpu->SetMaterial();
 			g_app->m_gpu->SetTexture(0, m_texture);
 			g_app->m_gpu->Draw();
 		}
