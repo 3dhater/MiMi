@@ -144,8 +144,8 @@ void miplStd::OnPopupCommand(unsigned int id) {
 
 		miplPolygonObjectPlane* newObject = (miplPolygonObjectPlane*)miMalloc(sizeof(miplPolygonObjectPlane));
 		new(newObject)miplPolygonObjectPlane(m_sdk, this);
-		newObject->OnCreation();
-		newObject->m_guiObjects = m_gui_for_plane;
+		newObject->OnCreation(m_gui_for_plane);
+		
 
 		m_newObjectPtr = newObject;
 	}

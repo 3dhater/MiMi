@@ -8,7 +8,7 @@ miRootObject::~miRootObject() {}
 
 void miRootObject::OnDraw() {}
 void miRootObject::OnUpdate(float dt) {}
-void miRootObject::OnCreation() {};
+void miRootObject::OnCreation(miPluginGUI*) {};
 void miRootObject::OnCreationLMBDown() {}
 void miRootObject::OnCreationLMBUp() {}
 void miRootObject::OnCreationMouseMove() {}

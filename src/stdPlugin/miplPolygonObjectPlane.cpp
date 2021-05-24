@@ -461,7 +461,9 @@ void miplPolygonObjectPlane::OnCreationMouseMove() {
 	_generate();
 }
 
-void miplPolygonObjectPlane::OnCreation() {
+void miplPolygonObjectPlane::OnCreation(miPluginGUI* gui) {
+	assert(gui);
+	m_guiObjects = gui;
 	OnCreationMouseMove();
 
 	m_meshBuilder = new miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>

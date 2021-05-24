@@ -565,11 +565,12 @@ vidOk:
 	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 	
+	m_GUIManager = new miGUIManager;
+
 	_initPlugins();
 	_initPopups();
 	_initGrid();
 
-	m_GUIManager = new miGUIManager;
 
 	m_2d = new miGraphics2D;
 	m_2d->Init(m_window);

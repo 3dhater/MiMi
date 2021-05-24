@@ -1,5 +1,6 @@
 ﻿#include "../SDK/miSDK.h"
 #include "miApplication.h"
+#include "miGUIManager.h"
 #include "miPluginGUIImpl.h"
 
 extern miApplication * g_app;
@@ -23,7 +24,7 @@ void miPluginGUIImpl_gui_group_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
 	gui->m_gui_group->m_sensorRectInPixels = gui->m_gui_group->m_buildRectInPixels;
 }
 void miPluginGUIImpl_gui_group_onMouseInRect(yyGUIElement* elem, s32 m_id) {
-	printf("in");
+	//printf("in");
 }
 
 miPluginGUIImpl::miPluginGUIImpl()
@@ -39,8 +40,7 @@ miPluginGUIImpl::~miPluginGUIImpl(){
 
 void miPluginGUIImpl::_init(miPluginGUIType t) {
 	m_gui_drawGroup = yyGUICreateDrawGroup();
-	m_gui_drawGroup->SetInput(true);
-	m_gui_drawGroup->SetDraw(true);
+	Show(false);
 	m_type = t;
 
 	m_gui_group = yyGUICreateGroup(v4f(), -1, m_gui_drawGroup);
@@ -50,11 +50,22 @@ void miPluginGUIImpl::_init(miPluginGUIType t) {
 	m_gui_group->m_onRebuildSetRects = miPluginGUIImpl_gui_group_onRebuildSetRects;
 }
 
+void miPluginGUIImpl::Show(bool show) {
+	m_gui_drawGroup->SetInput(show);
+	m_gui_drawGroup->SetDraw(show);
+}
+
 void miPluginGUIImpl::AddText(
 	const miVec2& position, 
 	const wchar_t* text, 
 	const wchar_t* (*onSelectObject)(miSceneObject*)) 
 {
+	yyGUIText* gui_text = yyGUICreateText(mimath::miVec2_to_v2f(position), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default), text, m_gui_drawGroup);
+	m_gui_group->AddElement(gui_text);
 
+	element_info ei;
+	ei.m_element = gui_text;
+	ei.m_onSelectObject = onSelectObject;
 
+	m_gui_elements.push_back(ei);
 }

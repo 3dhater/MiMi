@@ -29,7 +29,7 @@ public:
 
 	virtual void OnDraw();
 	virtual void OnUpdate(float dt);
-	virtual void OnCreation();
+	virtual void OnCreation(miPluginGUI*);
 	virtual void OnCreationLMBDown();
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();

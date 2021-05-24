@@ -156,8 +156,13 @@ void miViewportCamera::Rotate() {
 void miViewportCamera::Zoom() {
 	f32 mult = 1.f;
 	if (g_app->m_keyboardModifier == miKeyboardModifier::Shift)
-		mult = 20.f;
-	m_positionPlatform.w -= g_app->m_inputContext->m_wheelDelta * mult;
+		mult = 3.f;
+	
+	if(g_app->m_inputContext->m_wheelDelta > 0)
+		m_positionPlatform.w *= 0.9f * (1.f/ mult);
+	else
+		m_positionPlatform.w *= 1.1f * mult;
+
 	if (m_positionPlatform.w < 0.01f)
 		m_positionPlatform.w = 0.01f;
 }
