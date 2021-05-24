@@ -7,6 +7,7 @@
 #include "miGraphics2D.h"
 #include "miSelectionFrustImpl.h"
 #include "miRootObject.h"
+#include "miPluginGUIImpl.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -837,7 +838,6 @@ void miApplication::_get_objects_under_cursor() {
 }
 
 void miApplication::_deselect_all(miSceneObject* o) {
-	YY_DEBUG_PRINT_FUNC;
 	o->DeselectAll(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node){
@@ -852,7 +852,6 @@ void miApplication::_deselect_all(miSceneObject* o) {
 }
 
 void miApplication::_select_all(miSceneObject* o) {
-	YY_DEBUG_PRINT_FUNC;
 	o->SelectAll(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node) {
@@ -867,7 +866,6 @@ void miApplication::_select_all(miSceneObject* o) {
 }
 
 void miApplication::DeselectAll() {
-	YY_DEBUG_PRINT_FUNC;
 	_deselect_all(m_rootObject);
 	update_selected_objects_array();
 }
@@ -944,10 +942,21 @@ void miApplication::_update_selected_objects_array(miSceneObject* o) {
 void miApplication::update_selected_objects_array() {
 	m_selectedObjects.clear();
 	_update_selected_objects_array(m_rootObject);
-	printf("selected objects: %u\n", m_selectedObjects.m_size);
+	//printf("selected objects: %u\n", m_selectedObjects.m_size);
 	m_GUIManager->m_textInput_rename->DeleteAll();
+
+	static miPluginGUIImpl * old_gui = 0;
+	if (old_gui)
+	{
+		old_gui->Show(false);
+	}
+
 	if (m_selectedObjects.m_size == 1)
 	{
+		old_gui = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
+		old_gui->OnSelectObject(m_selectedObjects.m_data[0]);
+		old_gui->Show(true);
+
 		m_GUIManager->m_textInput_rename->SetText(L"%s", m_selectedObjects.m_data[0]->m_name.data());
 	}
 	else if (m_selectedObjects.m_size > 1)

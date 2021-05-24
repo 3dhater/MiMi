@@ -65,7 +65,104 @@ void miPluginGUIImpl::AddText(
 
 	element_info ei;
 	ei.m_element = gui_text;
-	ei.m_onSelectObject = onSelectObject;
+	ei.m_onSelectObject_text = onSelectObject;
 
 	m_gui_elements.push_back(ei);
+}
+
+void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider) {
+	miPluginGUIImpl* gui = (miPluginGUIImpl*)slider->m_userData;
+	for (u32 i = 0, sz = gui->m_gui_elements.size(); i < sz; ++i)
+	{
+		auto & ge = gui->m_gui_elements[i];
+		if (ge.m_element == slider)
+		{
+			switch (slider->m_sliderType)
+			{
+			case yyGUIRangeSliderType::Float:
+			case yyGUIRangeSliderType::FloatLimits: {
+				ge.m_onValueChanged_slider_f(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_f);
+			}break;
+			default:
+			case yyGUIRangeSliderType::Int:
+			case yyGUIRangeSliderType::IntLimits:{
+				ge.m_onValueChanged_slider_i(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_i);
+			}break;
+			}
+		}
+	}
+}
+void miPluginGUIImpl::AddRangeSliderInt(const miVec4& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
+	static int default_int = 0;
+
+	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderInt(mimath::miVec4_to_v4f(rect), minimum, maximum, &default_int, false, m_gui_drawGroup);
+	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
+	gui_slider->m_userData = this;
+	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
+	m_gui_group->AddElement(gui_slider);
+
+	element_info ei;
+	ei.m_element = gui_slider;
+	ei.m_onSelectObject_slider_i = onSelectObject;
+	ei.m_onValueChanged_slider_i = onValueChanged;
+
+	m_gui_elements.push_back(ei);
+}
+void miPluginGUIImpl::AddRangeSliderFloat(const miVec4& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
+
+}
+void miPluginGUIImpl::AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
+
+}
+void miPluginGUIImpl::AddRangeSliderFloatNoLimit(const miVec4& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
+
+}
+
+void miPluginGUIImpl::OnSelectObject(miSceneObject* so) {
+	for (u32 i = 0, sz = m_gui_elements.size(); i < sz; ++i)
+	{
+		auto & e = m_gui_elements[i];
+		switch (e.m_element->m_type)
+		{
+		case yyGUIElementType::Text: {
+			yyGUIText* gui_text = (yyGUIText*)e.m_element;
+			if (e.m_onSelectObject_text)
+			{
+				auto new_ptr = e.m_onSelectObject_text(so);
+				if (new_ptr)
+					gui_text->SetText(new_ptr);
+			}
+		}break;
+		case yyGUIElementType::RangeSlider: {
+			yyGUIRangeSlider* gui_slider = (yyGUIRangeSlider*)e.m_element;
+			switch (gui_slider->m_sliderType)
+			{
+			case yyGUIRangeSliderType::Float:
+			case yyGUIRangeSliderType::FloatLimits: {
+				auto new_ptr = e.m_onSelectObject_slider_f(so);
+				if (new_ptr)
+				{
+					gui_slider->m_ptr_f = new_ptr;
+					gui_slider->UpdateText();
+				}
+			}break;
+			default:
+			case yyGUIRangeSliderType::Int:
+			case yyGUIRangeSliderType::IntLimits:
+				if (e.m_onSelectObject_slider_i)
+				{
+					auto new_ptr = e.m_onSelectObject_slider_i(so);
+					if (new_ptr)
+					{
+						gui_slider->m_ptr_i  = new_ptr;
+						gui_slider->UpdateText();
+					}
+				}
+				break;
+			}
+		}break;
+		default:
+			break;
+		}
+	}
 }

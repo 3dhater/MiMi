@@ -23,6 +23,9 @@ class miplPolygonObjectPlane : public miSceneObject
 	void _generate();
 	bool m_needToCreateNewGPUBuffers;
 
+	friend void miplStd_plane_sliderXSegments_onValueChanged(miSceneObject* object, int x);
+	friend void miplStd_plane_sliderYSegments_onValueChanged(miSceneObject* object, int y);
+
 public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();
@@ -39,6 +42,9 @@ public:
 
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
+
+	int m_x_segments;
+	int m_y_segments;
 
 	friend class miplStd;
 };

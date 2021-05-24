@@ -120,7 +120,15 @@ public:
 	miPluginGUI() {}
 	virtual ~miPluginGUI() {}
 
+	// onSelectObject - will call when 1 object wil be selected
+	//   must return new or old text
 	virtual void AddText(const miVec2& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*)) = 0;
+	
+	//   must return new ptr
+	virtual void AddRangeSliderInt(const miVec4& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*,int)) = 0;
+	virtual void AddRangeSliderFloat(const miVec4& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
+	virtual void AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) = 0;
+	virtual void AddRangeSliderFloatNoLimit(const miVec4& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
 };
 
 class miSDK

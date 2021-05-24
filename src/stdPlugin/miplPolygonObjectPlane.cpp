@@ -7,8 +7,40 @@ const wchar_t* miplStd_plane_text_onSelectObject(miSceneObject* object) {
 	return object->GetName().data();
 }
 
+int* miplStd_plane_sliderXSegments_onSelectObject(miSceneObject* object) {
+	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
+	return &o->m_x_segments;
+}
+int* miplStd_plane_sliderYSegments_onSelectObject(miSceneObject* object) {
+	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
+	return &o->m_y_segments;
+}
+
+void miplStd_plane_sliderXSegments_onValueChanged(miSceneObject* object, int x) {
+	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
+	o->m_x_segments = x;
+	o->_generate();
+}
+void miplStd_plane_sliderYSegments_onValueChanged(miSceneObject* object, int y) {
+	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
+	o->m_y_segments = y;
+	o->_generate();
+}
+
 void miplStd_initGuiForPlane(miPluginGUI* gui) {
-	gui->AddText(miVec2(), L"Some information", miplStd_plane_text_onSelectObject);
+	float X = 0.f;
+	float Y = 0.f;
+	gui->AddText(miVec2(X,Y), L"X segments: ", 0);
+
+	X = 60.f;
+	gui->AddRangeSliderInt(miVec4(X, Y, X + 100.f, Y + 15.f), 1, 100, miplStd_plane_sliderXSegments_onSelectObject, miplStd_plane_sliderXSegments_onValueChanged);
+	
+	X = 0.f;
+	Y = 15.f;
+	gui->AddText(miVec2(X, Y), L"Y segments: ", 0);
+
+	X = 60.f;
+	gui->AddRangeSliderInt(miVec4(X, Y, X + 100.f, Y + 15.f), 1, 100, miplStd_plane_sliderYSegments_onSelectObject, miplStd_plane_sliderYSegments_onValueChanged);
 }
 
 void miplPolygonObjectPlane_generate(
@@ -362,6 +394,9 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 	m_polygonCreator = new miPolygonCreator;
 	m_visualObject = m_sdk->CreateVisualObject(this);
 	m_meshBuilder = 0;
+
+	m_x_segments = 1;
+	m_y_segments = 1;
 }
 
 miplPolygonObjectPlane::~miplPolygonObjectPlane() {
@@ -427,7 +462,8 @@ void miplPolygonObjectPlane::_generate() {
 		m_viewportCameraType,
 		m_creationAabb, m_firstPoint, 
 		m_size,
-		10, 10);
+		m_x_segments, 
+		m_y_segments);
 	
 	m_meshBuilder->End();
 
@@ -463,7 +499,7 @@ void miplPolygonObjectPlane::OnCreationMouseMove() {
 
 void miplPolygonObjectPlane::OnCreation(miPluginGUI* gui) {
 	assert(gui);
-	m_guiObjects = gui;
+	m_gui = gui;
 	OnCreationMouseMove();
 
 	m_meshBuilder = new miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>

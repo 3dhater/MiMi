@@ -18,6 +18,9 @@ void gui_textInput_onEnter(yyGUIElement* elem, s32 m_id) {
 	{
 		if (g_app->m_selectedObjects.m_size == 1)
 		{
+			if (g_app->m_selectedObjects.m_data[0]->GetName() == miString(ti->m_textElement->m_text.data()))
+				return;
+
 			auto newName = g_app->GetFreeName(ti->m_textElement->m_text.data());
 			g_app->m_selectedObjects.m_data[0]->SetName(newName.data());
 		}
