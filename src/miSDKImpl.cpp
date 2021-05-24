@@ -43,7 +43,7 @@ miVec3 miSDKImpl::GetCursorPosition3DFirstClick() {
 	return mimath::v3f_to_miVec3(v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z));
 }
 void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
-	g_app->m_cursorBehaviorMode = m;
+	g_app->ChangeCursorBehaviorMode(m);
 	g_app->UpdateSceneAabb();
 }
 miCursorBehaviorMode miSDKImpl::GetCursorBehaviorModer() {

@@ -204,6 +204,8 @@ public:
 
 	void UpdateSceneAabb();
 
+	void ChangeCursorBehaviorMode(miCursorBehaviorMode bm);
+
 	friend class miPluginGUIImpl;
 	friend class miGraphics2D;
 	friend class miSDKImpl;

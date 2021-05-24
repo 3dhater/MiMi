@@ -302,6 +302,22 @@ miApplication::~miApplication() {
 	if (m_inputContext) yyDestroy(m_inputContext);
 }
 
+void miApplication::ChangeCursorBehaviorMode(miCursorBehaviorMode bm) {
+	m_cursorBehaviorMode = bm;
+	switch (m_cursorBehaviorMode)
+	{
+	case miCursorBehaviorMode::CommonMode:
+	default:
+		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+		m_cursors[(u32)yyCursorType::Arrow]->Activate();
+		break;
+	case miCursorBehaviorMode::ClickAndDrag:
+		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
+		m_cursors[(u32)yyCursorType::Cross]->Activate();
+		break;
+	}
+}
+
 void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 	assert(o);
 	o->SetParent(0);
@@ -320,6 +336,7 @@ void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 	}
 	UpdateSceneAabb();
 }
+
 void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 	auto node = o->GetChildren()->m_head;
 	if (node)
@@ -1108,8 +1125,9 @@ void miApplication::UpdateViewports() {
 		if (is_pan_move)
 		{
 			is_pan_move = false;
-			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-			m_cursors[(u32)yyCursorType::Arrow]->Activate();
+			//yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+			//m_cursors[(u32)yyCursorType::Arrow]->Activate();
+			ChangeCursorBehaviorMode(m_cursorBehaviorMode);
 		}
 	}
 	if (m_isCursorMove && m_isViewportInFocus)
