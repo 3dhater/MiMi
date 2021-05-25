@@ -132,7 +132,7 @@ void window_callbackOnCommand(s32 commandID) {
 	{
 		miPluginCommandIDMapNode mapNode;
 		if (g_app->m_pluginCommandID.Get(commandID - miCommandID_for_plugins, mapNode)) {
-			mapNode.m_plugin->OnPopupCommand(mapNode.m_commandID);
+			mapNode.m_plugin->OnCreateObject(mapNode.m_objectID);
 		}
 	}
 }
@@ -747,7 +747,7 @@ void miApplication::MainLoop() {
 
 			DrawViewports();
 
-			yyGUIDrawAll();
+			yyGUIDrawAll(m_dt);
 
 			m_gpu->EndDraw();
 

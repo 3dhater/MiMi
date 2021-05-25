@@ -24,12 +24,14 @@ public:
 	virtual void Init(miSDK* sdk);
 	virtual int CheckVersion();
 
-	virtual void OnPopupCommand(unsigned int);
+	virtual void OnCreateObject(unsigned int objectId);
 	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI);
 	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI);
 	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI);
 	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI);
 	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI);
+
+	virtual void OnImport(const wchar_t* fileName, unsigned int id);
 
 	miSDK* m_sdk;
 

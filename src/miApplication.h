@@ -50,10 +50,12 @@ struct miPluginCommandIDMapNode{
 	miPluginCommandIDMapNode() {
 		m_plugin = 0;
 		m_commandID = 0;
+		m_objectID = 0;
 	}
-	miPluginCommandIDMapNode(miPlugin* p, u32 id) :m_plugin(p), m_commandID(id) {}
+	miPluginCommandIDMapNode(miPlugin* p, u32 id, u32 objectID) :m_plugin(p), m_commandID(id), m_objectID(objectID){}
 	miPlugin* m_plugin;
 	u32 m_commandID;
+	u32 m_objectID;
 };
 
 

@@ -7,6 +7,7 @@ struct miObjectCategory_object
 {
 	yyStringW m_objectName;
 	u32 m_popupIndex;
+	u32 m_objectID;
 };
 
 struct miObjectCategory
@@ -19,10 +20,11 @@ struct miObjectCategory
 		}
 	}
 
-	void AddObject(const wchar_t* objectName, u32 popupIndexID) {
+	void AddObject(const wchar_t* objectName, u32 popupIndexID, unsigned int objectID) {
 		miObjectCategory_object* newObj = new miObjectCategory_object;
 		newObj->m_objectName = objectName;
 		newObj->m_popupIndex = popupIndexID;
+		newObj->m_objectID = objectID;
 		m_objects.push_back(newObj);
 	}
 
@@ -55,7 +57,9 @@ public:
 
 	virtual void UpdateSceneAabb();
 
-	virtual unsigned int  RegisterNewObject(miPlugin* plugin, const wchar_t* category, const wchar_t* objectName);
+	virtual void RegisterNewObject(miPlugin* plugin, unsigned int objectID, const wchar_t* category, const wchar_t* objectName);
+	virtual void RegisterImporter(miPlugin*, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui, void(*onImport)(const wchar_t* fileName));
+
 	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert);
 
 	virtual void SetActivePlugin(miPlugin*);

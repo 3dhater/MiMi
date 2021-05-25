@@ -80,8 +80,9 @@ miObjectCategory* miSDKImpl::_getObjectCategory(const wchar_t* category) {
 	return cat;
 }
 
-unsigned int miSDKImpl::RegisterNewObject(
+void miSDKImpl::RegisterNewObject(
 	miPlugin* plugin, 
+	unsigned int objectID,
 	const wchar_t* category, 
 	const wchar_t* objectName) 
 {
@@ -94,11 +95,21 @@ unsigned int miSDKImpl::RegisterNewObject(
 	unsigned int id = g_app->m_miCommandID_for_plugins_count;
 	++g_app->m_miCommandID_for_plugins_count;
 
-	cat->AddObject(objectName, id + miCommandID_for_plugins);
+	cat->AddObject(objectName, id + miCommandID_for_plugins, objectID);
 
-	g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id));
+	g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id, objectID));
 
-	return id;
+	//return id;
+}
+
+void miSDKImpl::RegisterImporter(
+	miPlugin* plugin, 
+	const wchar_t* title, 
+	const wchar_t* extensions, 
+	miPluginGUI* gui, 
+	void(*onImport)(const wchar_t* fileName)) 
+{
+
 }
 
 void miSDKImpl::GetRayFromScreen(

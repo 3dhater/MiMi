@@ -276,6 +276,8 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_NewObject);
 }
+void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
+}
 
 miGUIManager::miGUIManager(){
 	m_selectedMenuItemID = -1;
@@ -311,7 +313,7 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_backgroundPB->m_useProportionalScaling = true;
 	//m_mainMenu_backgroundPB->m_onRebuildSetRects = gui_mainMenu_backgroundPB_onRebuildSetRects;
 
-	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(100.f, 100.f, (f32)(window->m_creationSize.x-100), (f32)(window->m_creationSize.y-100)),
+	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(24.f, 0.f, (f32)(window->m_creationSize.x-100), (f32)(window->m_creationSize.y-100)),
 		yyGetTextureFromCache("../res/gui/white.dds"), -1, m_mainMenu_drawGroup, 0);;
 	m_mainMenu_windowBackgroundPB->m_color = ColorDarkGray;
 	m_mainMenu_windowBackgroundPB->m_color.m_data[3] = 0.f;
@@ -341,7 +343,7 @@ miGUIManager::miGUIManager(){
 
 	X += button_add_size;
 
-	float button_import_size = 45.f;
+	float button_import_size = 55.f;
 	m_button_import = yyGUICreateButton(v4f(
 		X,
 		0.f,
@@ -358,7 +360,7 @@ miGUIManager::miGUIManager(){
 		m_button_import->m_textColorHover = ColorWhite;
 		m_button_import->m_textColorPress = ColorWhite;
 		m_button_import->m_isAnimated = true;
-		m_button_import->m_onClick = gui_addButton_onClick;
+		m_button_import->m_onClick = gui_importButton_onClick;
 	}
 
 	m_textInput_rename = yyGUICreateTextInput(
@@ -433,7 +435,13 @@ void miGUIManager::ShowMenu(s32 buttonID) {
 }
 
 void miGUIMainMenuMenuGroup_onClick(yyGUIElement* elem, s32 m_id) {
-
+	switch (m_id)
+	{
+	case g_buttonID_File_NewScene:
+	default:
+	//	printf("new\n");
+		break;
+	}
 }
 void miGUIMainMenuMenuGroup::addButton(const wchar_t* text, const v4f& rect, s32 id, yyGUIDrawGroup* dg)
 {

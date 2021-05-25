@@ -34,12 +34,14 @@ public:
 	// return MI_SDK_VERSION
 	virtual int CheckVersion() = 0;
 	
-	virtual void OnPopupCommand(unsigned int) = 0;
+	virtual void OnCreateObject(unsigned int objectId) = 0;
 	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) = 0;
 	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI) = 0;
 	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI) = 0;
 	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) = 0;
 	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) = 0;
+
+	virtual void OnImport(const wchar_t* fileName, unsigned int id) = 0;
 };
 
 #endif
