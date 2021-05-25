@@ -3,6 +3,8 @@
 
 #include "yy_gui.h"
 
+//struct miGUIShowMenuInfo
+
 struct miGUIMainMenuItem 
 {
 	miGUIMainMenuItem() {
@@ -76,6 +78,7 @@ public:
 	yyGUIPictureBox* m_mainMenu_windowBackgroundPB;
 	
 	yyGUIButton*  m_button_add;
+	yyGUIButton*  m_button_import;
 	yyGUITextInput* m_textInput_rename;
 };
 

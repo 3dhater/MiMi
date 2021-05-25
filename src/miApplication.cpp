@@ -693,6 +693,16 @@ void miApplication::MainLoop() {
 					m_2d->UpdateClip();
 				}
 			}break;
+			case yyEventType::User: {
+				switch (currentEvent.m_event_user.m_id)
+				{
+				case miEventId_ShowMainMenu:
+					m_GUIManager->ShowMenu(*((s32*)currentEvent.m_event_user.m_data));
+					break;
+				default:
+					break;
+				}
+			}break;
 			}
 		}
 

@@ -146,7 +146,13 @@ void gui_mainMenu_buttonOnClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_show;
 	g_guiManager->m_mainMenu_backgroundPB->SetVisible(true);
 	g_guiManager->m_mainMenu_windowBackgroundPB->SetVisible(true);
-	g_guiManager->ShowMenu(m_id);
+	// must be command/event g_guiManager->ShowMenu(m_id);
+	static s32 _id = m_id;
+	yyEvent e;
+	e.m_type = yyEventType::User;
+	e.m_event_user.m_id = miEventId_ShowMainMenu;
+	e.m_event_user.m_data = &_id;
+	yyAddEvent(e, false);
 }
 
 void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
@@ -275,6 +281,7 @@ miGUIManager::miGUIManager(){
 	m_selectedMenuItemID = -1;
 	m_hoveredMenuItemID = -1;
 
+	m_button_import = 0;
 	m_button_add = 0;
 	m_textInput_rename = 0;
 		 
@@ -312,10 +319,11 @@ miGUIManager::miGUIManager(){
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
 	float button_add_size = 30.f;
+	float X = 23.f;
 	m_button_add = yyGUICreateButton(v4f(
-		23.f,
+		X,
 		0.f,
-		23.f + button_add_size,
+		X + button_add_size,
 		miViewportTopIndent 
 	), 0, -1, 0, 0 );
 	if (m_button_add)
@@ -329,6 +337,28 @@ miGUIManager::miGUIManager(){
 		m_button_add->m_textColorPress = ColorWhite;
 		m_button_add->m_isAnimated = true;
 		m_button_add->m_onClick = gui_addButton_onClick;
+	}
+
+	X += button_add_size;
+
+	float button_import_size = 45.f;
+	m_button_import = yyGUICreateButton(v4f(
+		X,
+		0.f,
+		X + button_add_size,
+		miViewportTopIndent
+	), 0, -1, 0, 0);
+	if (m_button_import)
+	{
+		m_button_import->SetText(L"Import", m_fontDefault, false);
+		m_button_import->SetColor(ColorDimGray, 0);
+		m_button_import->SetColor(ColorDarkGrey, 1);
+		m_button_import->SetColor(ColorGrey, 2);
+		m_button_import->m_textColor = ColorWhite;
+		m_button_import->m_textColorHover = ColorWhite;
+		m_button_import->m_textColorPress = ColorWhite;
+		m_button_import->m_isAnimated = true;
+		m_button_import->m_onClick = gui_addButton_onClick;
 	}
 
 	m_textInput_rename = yyGUICreateTextInput(

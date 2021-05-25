@@ -37,6 +37,8 @@
 #define miCommandID_ViewportToggleDrawWireframe 16
 #define miCommandID_for_plugins 100
 
+#define miEventId_ShowMainMenu 1
+
 class miGUIManager;
 class miShortcutManager;
 class miSDKImpl;
