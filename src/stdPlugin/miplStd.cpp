@@ -85,7 +85,7 @@ void miplStd::Init(miSDK* sdk){
 	sdk->RegisterNewObject(this, L"Light", L"Directional");
 	sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
 	
-	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", 0);
+	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", m_gui_for_plane);
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {

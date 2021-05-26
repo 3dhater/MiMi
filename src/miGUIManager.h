@@ -67,6 +67,8 @@ public:
 	void ShowMenu(s32);
 	void HideMenu();
 
+	void ShowImportMenu(miPluginGUI* gui);
+
 	friend struct miGUIMainMenuMenuGroup;
 	bool m_isMainMenuInCursor;
 	yyGUIGroup* m_mainMenu_group;

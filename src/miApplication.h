@@ -217,7 +217,9 @@ public:
 
 	void ChangeCursorBehaviorMode(miCursorBehaviorMode bm);
 
+	miImporter* m_onImport_importer;
 	void OnImport(miImporter* importer);
+	void OnImport_openDialog();
 
 	friend class miPluginGUIImpl;
 	friend class miGraphics2D;

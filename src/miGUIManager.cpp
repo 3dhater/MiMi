@@ -549,3 +549,9 @@ yyGUIFont* miGUIManager::GetFont(miGUIManager::Font f) {
 		break;
 	}
 }
+
+void miGUIManager::ShowImportMenu(miPluginGUI* gui) {
+	g_guiManager->m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_show;
+	g_guiManager->m_mainMenu_backgroundPB->SetVisible(true);
+	g_guiManager->m_mainMenu_windowBackgroundPB->SetVisible(true);
+}

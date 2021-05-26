@@ -160,23 +160,6 @@ void window_callbackOnCommand(s32 commandID) {
 }
 
 void window_onActivate(yyWindow* window) {
-	switch (g_app->m_keyboardModifier) {
-	case miKeyboardModifier::None:
-	case miKeyboardModifier::Ctrl:
-	case miKeyboardModifier::Shift:
-	case miKeyboardModifier::ShiftCtrl:
-	case miKeyboardModifier::END:
-	default:
-		break;
-	case miKeyboardModifier::Alt:
-	case miKeyboardModifier::ShiftAlt:
-	case miKeyboardModifier::ShiftCtrlAlt:
-	case miKeyboardModifier::CtrlAlt:
-	{
-		g_app->m_keyboardModifier = miKeyboardModifier::None;
-	}
-	break;
-	}
 	g_app->m_isViewportInFocus = false;
 }
 
@@ -212,6 +195,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_onImport_importer = 0;
 	m_isGUIInputFocus = false;
 	m_currentViewportDraw = 0;
 	m_editMode = miEditMode::Object;
@@ -1376,35 +1360,35 @@ const yyColor g_colors[] = {
 	ColorBisque,	ColorBlanchedAlmond,	ColorBlue,	ColorBlueViolet,	ColorBrown,
 
 	ColorBurlyWood,	ColorCadetBlue,	ColorChartreuse,	ColorCoral,	ColorCornflowerBlue,
-	ColorCornsilk,	ColorCrimson,	ColorCyan,	ColorDarkBlue,	ColorDarkCyan,	
+	ColorCornsilk,	ColorCrimson,	ColorCyan,	ColorDarkBlue,	ColorDarkCyan,
 
-	ColorDarkGoldenRod,	ColorDarkKhaki,	ColorDarkMagenta,	ColorDarkOliveGreen,	ColorDarkOrange,	
-	ColorDarkOrchid,	ColorDarkRed,	ColorDarkSalmon,	ColorDarkSeaGreen,	ColorDarkSlateBlue,	
+	ColorDarkGoldenRod,	ColorDarkKhaki,	ColorDarkMagenta,	ColorDarkOliveGreen,	ColorDarkOrange,
+	ColorDarkOrchid,	ColorDarkRed,	ColorDarkSalmon,	ColorDarkSeaGreen,	ColorDarkSlateBlue,
 
-	ColorDarkTurquoise,	ColorDarkViolet,	ColorDeepPink,	ColorDeepSkyBlue,	ColorDodgerBlue,	
-	ColorFireBrick,	ColorForestGreen,	ColorFuchsia, ColorGainsboro,	ColorGold,	
+	ColorDarkTurquoise,	ColorDarkViolet,	ColorDeepPink,	ColorDeepSkyBlue,	ColorDodgerBlue,
+	ColorFireBrick,	ColorForestGreen,	ColorFuchsia, ColorGainsboro,	ColorGold,
 
-	ColorGoldenRod,	ColorGreen,	ColorGreenYellow,	ColorHoneyDew,	ColorHotPink,	
+	ColorGoldenRod,	ColorGreen,	ColorGreenYellow,	ColorHoneyDew,	ColorHotPink,
 	ColorIndianRed,	ColorIndigo,	ColorIvory,	ColorKhaki,	ColorLavender,
 
 	ColorLavenderBlush,	ColorLawnGreen,	ColorLemonChiffon,	ColorLightBlue,	ColorLightCoral,
 	ColorLightCyan,	ColorLightGoldenRodYellow,	ColorLightGreen,	ColorLightPink,	ColorLightSalmon,
 
 	ColorLightSeaGreen,	ColorLightSkyBlue,	ColorLightSteelBlue,	ColorLightYellow,	ColorLime,
-	ColorLimeGreen,	ColorLinen,	ColorMagenta,	ColorMaroon,	ColorMediumAquaMarine,	
+	ColorLimeGreen,	ColorLinen,	ColorMagenta,	ColorMaroon,	ColorMediumAquaMarine,
 
-	ColorMediumBlue, ColorMediumOrchid,	ColorMediumPurple,	ColorMediumSeaGreen,	ColorMediumSlateBlue,	
+	ColorMediumBlue, ColorMediumOrchid,	ColorMediumPurple,	ColorMediumSeaGreen,	ColorMediumSlateBlue,
 	ColorMediumSpringGreen, ColorMediumTurquoise,	ColorMediumVioletRed,	ColorMidnightBlue,	ColorMintCream,
 
 	ColorMistyRose, ColorMoccasin,	ColorNavy,	ColorOldLace,	//ColorOlive,	
-	ColorOliveDrab,	ColorOrange,	ColorOrangeRed, ColorOrchid,	ColorPaleGoldenRod,	
+	ColorOliveDrab,	ColorOrange,	ColorOrangeRed, ColorOrchid,	ColorPaleGoldenRod,
 
-	ColorPaleGreen,	ColorPaleTurquoise,	ColorPaleVioletRed,	ColorPapayaWhip,	ColorPeachPuff,	
-	ColorPeru,	ColorPink,	ColorPlum,	ColorPowderBlue,		ColorPurple,		
-	ColorRebeccaPurple, ColorRosyBrown,		ColorRoyalBlue,		ColorSaddleBrown,		ColorSalmon,		
-	ColorSandyBrown, ColorSeaGreen,		ColorSeaShell,		ColorSienna,		ColorSkyBlue,		
-	ColorSlateBlue,		ColorSpringGreen,		ColorSteelBlue,		ColorTan,		ColorTeal,		
-	ColorThistle,		ColorTomato,		ColorTurquoise,		ColorViolet,		ColorYellow,		
+	ColorPaleGreen,	ColorPaleTurquoise,	ColorPaleVioletRed,	ColorPapayaWhip,	ColorPeachPuff,
+	ColorPeru,	ColorPink,	ColorPlum,	ColorPowderBlue,		ColorPurple,
+	ColorRebeccaPurple, ColorRosyBrown,		ColorRoyalBlue,		ColorSaddleBrown,		ColorSalmon,
+	ColorSandyBrown, ColorSeaGreen,		ColorSeaShell,		ColorSienna,		ColorSkyBlue,
+	ColorSlateBlue,		ColorSpringGreen,		ColorSteelBlue,		ColorTan,		ColorTeal,
+	ColorThistle,		ColorTomato,		ColorTurquoise,		ColorViolet,		ColorYellow,
 	ColorYellowGreen,
 };
 
@@ -1472,12 +1456,12 @@ void miApplication::UpdateSelectionAabb() {
 	}
 }
 
-void miApplication::OnImport(miImporter* importer) {
+void miApplication::OnImport_openDialog() {
 	yyStringA title;
 	yyStringA extensions;
 
-	title = importer->m_title.data();
-	for (auto & i : importer->m_extensions)
+	title = m_onImport_importer->m_title.data();
+	for (auto & i : m_onImport_importer->m_extensions)
 	{
 		extensions += i.data();
 		extensions += " ";
@@ -1486,7 +1470,18 @@ void miApplication::OnImport(miImporter* importer) {
 	auto path = yyOpenFileDialog("Import model", "Import", extensions.data(), title.data());
 	if (path)
 	{
-		importer->m_plugin->OnImport((const wchar_t*)path->data(),importer->m_importerID);
+		m_onImport_importer->m_plugin->OnImport((const wchar_t*)path->data(), m_onImport_importer->m_importerID);
 		yyDestroy(path);
+	}
+}
+void miApplication::OnImport(miImporter* importer) {
+	m_onImport_importer = importer;
+	if (importer->m_gui)
+	{
+		m_GUIManager->ShowImportMenu(importer->m_gui);
+	}
+	else
+	{
+		OnImport_openDialog();
 	}
 }
