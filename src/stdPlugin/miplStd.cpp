@@ -61,8 +61,9 @@ bool miplStd::IsDebug() {
 #endif
 }
 
+const unsigned int g_ObjectID_Plane = 0;
 
-unsigned int g_ObjectID_Plane = 10;
+const unsigned int g_ImporterID_OBJ = 0;
 
 int miplStd::CheckVersion() {
 	return MI_SDK_VERSION;
@@ -83,6 +84,8 @@ void miplStd::Init(miSDK* sdk){
 	sdk->RegisterNewObject(this, L"Light", L"Spot");
 	sdk->RegisterNewObject(this, L"Light", L"Directional");
 	sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
+	
+	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", 0);
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
@@ -147,5 +150,12 @@ void miplStd::OnCreateObject(unsigned int objectId){
 }
 
 void miplStd::OnImport(const wchar_t* fileName, unsigned int id) {
-
+	switch (id)
+	{
+	case g_ImporterID_OBJ:
+		printf("import OBJ\n");
+		break;
+	default:
+		break;
+	}
 }

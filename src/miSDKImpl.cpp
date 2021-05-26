@@ -14,6 +14,10 @@ miSDKImpl::~miSDKImpl() {
 	{
 		delete m_objectCategories[i];
 	}
+	for (u16 i = 0, sz = m_importers.size(); i < sz; ++i)
+	{
+		delete m_importers[i];
+	}
 }
 
 miPluginGUI* miSDKImpl::CreatePluginGUI(miPluginGUIType t) {
@@ -95,21 +99,37 @@ void miSDKImpl::RegisterNewObject(
 	unsigned int id = g_app->m_miCommandID_for_plugins_count;
 	++g_app->m_miCommandID_for_plugins_count;
 
-	cat->AddObject(objectName, id + miCommandID_for_plugins, objectID);
+	cat->AddObject(plugin, objectName, id + miCommandID_for_plugins, objectID);
 
-	g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id, objectID));
+	//g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id, objectID));
 
 	//return id;
 }
 
 void miSDKImpl::RegisterImporter(
 	miPlugin* plugin, 
+	unsigned int importerID, 
 	const wchar_t* title, 
 	const wchar_t* extensions, 
-	miPluginGUI* gui, 
-	void(*onImport)(const wchar_t* fileName)) 
+	miPluginGUI* gui
+)
 {
+	assert(plugin);
+	assert(title);
+	assert(extensions);
 
+	unsigned int id = g_app->m_miCommandID_for_plugins_count;
+	++g_app->m_miCommandID_for_plugins_count;
+
+	miImporter* imp = new miImporter;
+	imp->m_gui = gui;
+	imp->m_title = title;
+	imp->m_plugin = plugin;
+	imp->m_importerID = importerID;
+	imp->m_popupIndex = id + miCommandID_for_plugins;
+
+	util::stringGetWords(&imp->m_extensions, yyStringW(extensions));
+	m_importers.push_back(imp);
 }
 
 void miSDKImpl::GetRayFromScreen(

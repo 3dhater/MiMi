@@ -45,18 +45,19 @@ class miSDKImpl;
 class miGraphics2D;
 class miSelectionFrustImpl;
 class miRootObject;
+struct miImporter;
 
-struct miPluginCommandIDMapNode{
-	miPluginCommandIDMapNode() {
-		m_plugin = 0;
-		m_commandID = 0;
-		m_objectID = 0;
-	}
-	miPluginCommandIDMapNode(miPlugin* p, u32 id, u32 objectID) :m_plugin(p), m_commandID(id), m_objectID(objectID){}
-	miPlugin* m_plugin;
-	u32 m_commandID;
-	u32 m_objectID;
-};
+//struct miPluginCommandIDMapNode{
+//	miPluginCommandIDMapNode() {
+//		m_plugin = 0;
+//		m_commandID = 0;
+//		m_objectID = 0;
+//	}
+//	miPluginCommandIDMapNode(miPlugin* p, u32 id, u32 objectID) :m_plugin(p), m_commandID(id), m_objectID(objectID){}
+//	miPlugin* m_plugin;
+//	u32 m_commandID;
+//	u32 m_objectID;
+//};
 
 
 class miApplication
@@ -136,7 +137,7 @@ class miApplication
 
 	// for every popup command ID from plugins
 	u32 m_miCommandID_for_plugins_count;
-	miBinarySearchTree<miPluginCommandIDMapNode> m_pluginCommandID;
+	//miBinarySearchTree<miPluginCommandIDMapNode> m_pluginCommandID;
 
 	v2f m_gpuDepthRange;
 
@@ -199,6 +200,7 @@ public:
 	miPopup m_popup_ViewportCamera;
 	miPopup m_popup_ViewportParameters;
 	miPopup m_popup_NewObject;
+	miPopup m_popup_Importers;
 	void ShowPopupAtCursor(miPopup* popup);
 	
 	void CommandCameraReset(miViewport* vp);
@@ -215,6 +217,8 @@ public:
 
 	void ChangeCursorBehaviorMode(miCursorBehaviorMode bm);
 
+	void OnImport(miImporter* importer);
+
 	friend class miPluginGUIImpl;
 	friend class miGraphics2D;
 	friend class miSDKImpl;
@@ -226,7 +230,6 @@ public:
 	friend void window_onActivate(yyWindow* window);
 	friend void window_callbackOnCommand(s32 commandID);
 	friend void log_writeToFile(const char* message);
-
 };
 
 #endif

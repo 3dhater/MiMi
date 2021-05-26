@@ -156,13 +156,13 @@ public:
 	virtual void UpdateSceneAabb() = 0;
 
 	// register new object for popup when you press `Add` button
-	virtual void RegisterNewObject(miPlugin*, unsigned int objectID, const wchar_t* category, const wchar_t* objectName) = 0;
+	virtual void RegisterNewObject(miPlugin*, unsigned int id, const wchar_t* category, const wchar_t* objectName) = 0;
 	
 	// title - L"Wavefront OBJ"
 	// extensions - L"obj"
 	// gui - some GUI elements for import 
 	//  for multiple 'extensions' it must be like this "obj dae fbx"
-	virtual void RegisterImporter(miPlugin*, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) = 0;
+	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) = 0;
 
 	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) = 0;
 

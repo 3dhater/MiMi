@@ -130,9 +130,31 @@ void window_callbackOnCommand(s32 commandID) {
 	}
 	if (commandID >= miCommandID_for_plugins)
 	{
-		miPluginCommandIDMapNode mapNode;
+		for (u16 i = 0, sz = g_app->m_sdk->m_importers.size(); i < sz; ++i)
+		{
+			auto imp = g_app->m_sdk->m_importers[i];
+			if (commandID == imp->m_popupIndex)
+			{
+				g_app->OnImport(imp);
+				return;
+			}
+		}
+		/*miPluginCommandIDMapNode mapNode;
 		if (g_app->m_pluginCommandID.Get(commandID - miCommandID_for_plugins, mapNode)) {
 			mapNode.m_plugin->OnCreateObject(mapNode.m_objectID);
+		}*/
+		for (u16 i = 0, sz = g_app->m_sdk->m_objectCategories.size(); i < sz; ++i)
+		{
+			auto cat = g_app->m_sdk->m_objectCategories.m_data[i];
+			for (u16 o = 0, osz = cat->m_objects.size(); o < osz; ++o)
+			{
+				auto cat_obj = cat->m_objects[o];
+				if (commandID == cat_obj->m_popupIndex)
+				{
+					cat_obj->m_plugin->OnCreateObject(cat_obj->m_objectID);
+					return;
+				}
+			}
 		}
 	}
 }
@@ -429,6 +451,13 @@ void miApplication::_initPopups() {
 			auto object = cat->m_objects[k];
 			subMenu->AddItem(object->m_objectName.data(), object->m_popupIndex, 0);
 		}
+	}
+
+	for (u16 i = 0, sz = m_sdk->m_importers.size(); i < sz; ++i)
+	{
+		auto imp = m_sdk->m_importers[i];
+		
+		m_popup_Importers.AddItem(imp->m_title.data(), imp->m_popupIndex, 0);
 	}
 }
 
@@ -1440,5 +1469,24 @@ void miApplication::UpdateSelectionAabb() {
 	default:
 		break;
 	}
+	}
+}
+
+void miApplication::OnImport(miImporter* importer) {
+	yyStringA title;
+	yyStringA extensions;
+
+	title = importer->m_title.data();
+	for (auto & i : importer->m_extensions)
+	{
+		extensions += i.data();
+		extensions += " ";
+	}
+
+	auto path = yyOpenFileDialog("Import model", "Import", extensions.data(), title.data());
+	if (path)
+	{
+		importer->m_plugin->OnImport((const wchar_t*)path->data(),importer->m_importerID);
+		yyDestroy(path);
 	}
 }

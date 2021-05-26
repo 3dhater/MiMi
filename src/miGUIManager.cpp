@@ -277,6 +277,7 @@ void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_NewObject);
 }
 void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->ShowPopupAtCursor(&g_app->m_popup_Importers);
 }
 
 miGUIManager::miGUIManager(){
@@ -347,7 +348,7 @@ miGUIManager::miGUIManager(){
 	m_button_import = yyGUICreateButton(v4f(
 		X,
 		0.f,
-		X + button_add_size,
+		X + button_import_size,
 		miViewportTopIndent
 	), 0, -1, 0, 0);
 	if (m_button_import)
