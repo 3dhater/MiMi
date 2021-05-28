@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\YuYu\common\Win32\yy_window.cpp" />
     <ClCompile Include="..\src\miApplication.cpp" />
     <ClCompile Include="..\src\miApplication_initGrid.cpp" />
+    <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miGraphics2D.cpp" />
     <ClCompile Include="..\src\miGUIManager.cpp" />
     <ClCompile Include="..\src\miPluginGUIImpl.cpp" />
@@ -44,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miApplication.h" />
+    <ClInclude Include="..\src\miEditableObject.h" />
     <ClInclude Include="..\src\miGraphics2D.h" />
     <ClInclude Include="..\src\miGUIManager.h" />
     <ClInclude Include="..\src\miPluginGUIImpl.h" />

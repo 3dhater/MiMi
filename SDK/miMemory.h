@@ -9,12 +9,17 @@ public:
 	~miDefaultAllocator() {}
 
 	_type* Allocate() {
-		return new _type();
+		//return new _type();
+		_type* _o = (_type*)miMalloc(sizeof(_type));
+		new(_o)_type();
+		return _o;
 	}
 
 	void Deallocate(_type* o) {
 		assert(o);
-		delete o;
+		//delete o;
+		o->~_type();
+		miFree(o);
 	}
 };
 

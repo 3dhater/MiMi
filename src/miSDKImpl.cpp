@@ -3,8 +3,11 @@
 #include "miSDKImpl.h"
 #include "miVisualObjectImpl.h"
 #include "miPluginGUIImpl.h"
+#include "miEditableObject.h"
 
 extern miApplication * g_app;
+
+
 
 miSDKImpl::miSDKImpl() {
 }
@@ -176,4 +179,18 @@ void miSDKImpl::AddObjectToScene(miSceneObject* o, const wchar_t* n){
 
 void miSDKImpl::RemoveObjectFromScene(miSceneObject* o) {
 	g_app->RemoveObjectFromScene(o);
+}
+
+size_t miSDKImpl::FileSize(const char* fileName) {
+	return yy_fs::file_size(fileName);
+}
+
+void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar_t* name) {
+	wprintf(L"Hello %s\n", name);
+	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
+	new(newObject)miEditableObject(this, 0);
+	 
+	newObject->m_visualObject->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+	newObject->UpdateAabb();
+	AddObjectToScene(newObject, name);
 }

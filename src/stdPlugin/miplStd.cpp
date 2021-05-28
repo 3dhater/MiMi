@@ -9,6 +9,8 @@ static bool g_isCreated = false;
 void miplStd_initGuiForPlane(miPluginGUI*);
 void miplStd_initGuiForImportOBJ(miPluginGUI*);
 
+miSDK* g_sdk = 0;
+
 extern "C" {
 	MI_API miPlugin* MI_C_DECL miplCreatePlugin() {
 		if (g_isCreated)
@@ -73,6 +75,7 @@ int miplStd::CheckVersion() {
 
 void miplStd::Init(miSDK* sdk){
 	m_sdk = sdk;
+	g_sdk = sdk;
 	//miSingleton<miSDK>::s_instance = sdk;
 
 	m_gui_for_plane = sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
@@ -157,7 +160,7 @@ void miplStd::OnImport(const wchar_t* fileName, unsigned int id) {
 	switch (id)
 	{
 	case g_ImporterID_OBJ:
-		printf("import OBJ\n");
+		miplStd_ImportOBJ(fileName);
 		break;
 	default:
 		break;

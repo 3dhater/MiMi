@@ -484,6 +484,7 @@ yyGUIFont* miGUIManager::GetFont(miGUIManager::Font f) {
 
 void miGUIManager_button_importWindow_import_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->HideMenu();
+	g_app->OnImport_openDialog();
 }
 
 void miGUIManager::ShowImportMenu(miPluginGUI* gui) {

@@ -94,6 +94,9 @@ public:
 
 	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name);
 	virtual void RemoveObjectFromScene(miSceneObject*);
+	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name);
+
+	virtual size_t FileSize(const char* fileName);
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

@@ -134,6 +134,22 @@ public:
 	virtual void AddCheckBox(const miVec2& position, const wchar_t* text, void (*onClick)(bool isChecked), bool isChecked) = 0;
 };
 
+class miSDKImporterHelper
+{
+public:
+	miSDKImporterHelper() {
+		m_meshBuilder = new miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>(0,0,0);
+	}
+	~miSDKImporterHelper() {
+		if (m_meshBuilder)
+			delete m_meshBuilder;
+	}
+
+	miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>> * m_meshBuilder;
+	miPolygonCreator m_polygonCreator;
+
+};
+
 class miSDK
 {
 public:
@@ -174,6 +190,9 @@ public:
 
 	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name) = 0;
 	virtual void RemoveObjectFromScene(miSceneObject*) = 0; // only remove, not delete
+	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*,const wchar_t* name) = 0;
+
+	virtual size_t FileSize(const char* fileName) = 0;
 };
 
 #endif

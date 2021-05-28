@@ -1,0 +1,30 @@
+﻿#ifndef _MI_EDITABLEOBJECT_H_
+#define _MI_EDITABLEOBJECT_H_
+
+class miEditableObject : public miSceneObject
+{
+	miSDK* m_sdk;
+	miPlugin* m_plugin;
+
+	miVisualObject* m_visualObject;
+
+	friend class miSDKImpl;
+public:
+	miEditableObject(miSDK*, miPlugin*);
+	virtual ~miEditableObject();
+
+	virtual void OnDraw();
+	virtual void OnUpdate(float dt);
+	virtual void OnCreation(miPluginGUI*);
+	virtual void OnCreationLMBDown();
+	virtual void OnCreationLMBUp();
+	virtual void OnCreationMouseMove();
+	virtual void OnCreationEnd();
+
+	virtual miPlugin* GetPlugin();
+
+	virtual int GetVisualObjectCount();
+	virtual miVisualObject* GetVisualObject(int);
+};
+
+#endif

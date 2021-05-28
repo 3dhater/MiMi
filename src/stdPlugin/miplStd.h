@@ -1,6 +1,8 @@
 ﻿#ifndef _MIPL_STD_H_
 #define _MIPL_STD_H_
 
+void miplStd_ImportOBJ(const wchar_t* fileName);
+
 class miplStd : public miPlugin
 {
 	miSceneObject* m_newObjectPtr;

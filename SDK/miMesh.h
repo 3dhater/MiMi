@@ -346,6 +346,7 @@ struct miMeshBuilder
 		new(m_allocatorPolygon)_polygon_allocator_type(polyCount);
 		new(m_allocatorEdge)_edge_allocator_type(edgeCount);
 		new(m_allocatorVertex)_vertex_allocator_type(vertexCount);
+		m_isBegin = false;
 	}
 
 	~miMeshBuilder() {
@@ -402,14 +403,19 @@ struct miMeshBuilder
 	std::string m_vertsMapHash;
 
 	miVec4 m_position;
+	miAabb m_aabb;
 
+	bool m_isBegin;
 	void Begin() {
+		if (m_isBegin) return;
+		m_isBegin = true;
 		m_weldMap.clear();
 	}
 	void End(){
+		m_isBegin = false;
 		CreateEdges();
 	}
-	void AddPolygon(miPolygonCreator* pc, bool weld) {
+	void AddPolygon(miPolygonCreator* pc, bool weld, bool triangulate, bool genNormals) {
 		auto polygonVertexCount = pc->Size();
 		if (polygonVertexCount < 3)
 			return;
@@ -427,6 +433,8 @@ struct miMeshBuilder
 		{
 			miVertex* newVertex = 0;
 			
+			m_aabb.add(positions[i]);
+
 			if (weld)
 			{
 				_set_hash(&positions[i]);
