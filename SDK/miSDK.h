@@ -112,7 +112,8 @@ namespace mimath
 }
 
 enum class miPluginGUIType {
-	ObjectParams
+	ObjectParams,
+	ImportExportParams,
 };
 class miPluginGUI
 {
@@ -129,6 +130,8 @@ public:
 	virtual void AddRangeSliderFloat(const miVec4& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
 	virtual void AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) = 0;
 	virtual void AddRangeSliderFloatNoLimit(const miVec4& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
+	
+	virtual void AddCheckBox(const miVec2& position, const wchar_t* text, void (*onClick)(bool isChecked), bool isChecked) = 0;
 };
 
 class miSDK

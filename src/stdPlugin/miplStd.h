@@ -10,6 +10,7 @@ class miplStd : public miPlugin
 	bool m_isLMBDown;
 
 	miPluginGUI* m_gui_for_plane;
+	miPluginGUI* m_gui_for_importOBJ;
 
 public:
 	miplStd();

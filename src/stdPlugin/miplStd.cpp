@@ -7,6 +7,7 @@
 static bool g_isCreated = false;
 
 void miplStd_initGuiForPlane(miPluginGUI*);
+void miplStd_initGuiForImportOBJ(miPluginGUI*);
 
 extern "C" {
 	MI_API miPlugin* MI_C_DECL miplCreatePlugin() {
@@ -23,6 +24,7 @@ extern "C" {
 miplStd::miplStd() {
 	m_newObjectPtr = 0;
 	m_gui_for_plane = 0;
+	m_gui_for_importOBJ = 0;
 }
 
 miplStd::~miplStd() {
@@ -85,7 +87,9 @@ void miplStd::Init(miSDK* sdk){
 	sdk->RegisterNewObject(this, L"Light", L"Directional");
 	sdk->RegisterNewObject(this, L"Camera", L"Free camera");*/
 	
-	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", m_gui_for_plane);
+	m_gui_for_importOBJ = sdk->CreatePluginGUI(miPluginGUIType::ImportExportParams);
+	miplStd_initGuiForImportOBJ(m_gui_for_importOBJ);
+	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", m_gui_for_importOBJ);
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {

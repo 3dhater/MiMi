@@ -1,11 +1,13 @@
 ﻿#include "miApplication.h"
 #include "miGUIManager.h"
+#include "miPluginGUIImpl.h"
 
 extern miApplication * g_app;
 miGUIManager* g_guiManager = 0;
 f32 g_guiButtonFadeSpeed = 8.0f;
 f32 g_guiBGOpacity = 0.3f;
 f32 g_guiButtonMinimumOpacity = 0.1f;
+v4f g_guiWindowBackgroundPBRect;
 
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
@@ -170,109 +172,6 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->m_mainMenu_group->m_onMouseLeave(g_guiManager->m_mainMenu_group, g_guiManager->m_mainMenu_group->m_id);
 	//gui_mainMenu_groupOnMouseLeave(g_guiManager->m_mainMenu_backgroundPB, g_guiManager->m_mainMenu_backgroundPB->m_id);
 }
-//void gui_mainMenu_backgroundPB_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
-//	auto window = g_app->GetWindowMain();
-//	elem->m_sensorRectInPixels.set(0.f, 0.f, window->m_currentSize.x, window->m_currentSize.y);
-//	elem->m_buildRectInPixels = elem->m_sensorRectInPixels;
-//	elem->m_clipRectInPixels = elem->m_sensorRectInPixels;
-//	elem->m_buildRectInPixelsCreation = elem->m_sensorRectInPixels;
-//}
-//void gui_mainMenu_buttonOnDraw_moreOpacity(yyGUIElement* elem, s32 m_id) {
-//	auto button = (yyGUIButton*)elem;
-//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-//	button->SetOpacity(button->m_color.m_data[3] + v, 0);
-//	if (elem->m_color.m_data[3] > 1.f)
-//	{
-//		elem->m_color.m_data[3] = 1.f;
-//		elem->m_onDraw = 0;
-//	}
-//}
-//void gui_mainMenu_buttonOnDraw_lessOpacity(yyGUIElement* elem, s32 m_id) {
-//	auto button = (yyGUIButton*)elem;
-//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-//	button->SetOpacity(button->m_color.m_data[3] - v, 0);
-//	if (elem->m_color.m_data[3] < 0.25f)
-//	{
-//		elem->m_color.m_data[3] = 0.25f;
-//		elem->m_onDraw = 0;
-//	}
-//}
-//void gui_mainMenu_textOnDraw_Active(yyGUIElement* elem, s32 m_id) {
-//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-//
-//	if (m_id == g_guiManager->m_selectedMenuItemID || m_id == g_guiManager->m_hoveredMenuItemID)
-//	{
-//		elem->m_color.m_data[2] -= v;
-//		if (elem->m_color.m_data[2] < 0.f)
-//			elem->m_color.m_data[2] = 0.f;
-//
-//		elem->m_offset.x += v * 3.5f;
-//		if (elem->m_offset.x > 3.f)
-//			elem->m_offset.x = 3.f;
-//	}
-//	else
-//	{
-//		elem->m_color.m_data[2] += v;
-//		if (elem->m_color.m_data[2] > 1.f)
-//			elem->m_color.m_data[2] = 1.f;
-//
-//		elem->m_offset.x -= v * 3.5f;
-//		if (elem->m_offset.x < 0.f)
-//			elem->m_offset.x = 0.f;
-//	}
-//
-//	if (elem->m_color.m_data[3] < 1.f)
-//		elem->m_color.m_data[3] += v;
-//
-//	if (elem->m_color.m_data[2] == 0.f && elem->m_color.m_data[3] == 1.f)
-//		elem->m_onDraw = 0;
-//}
-//void gui_mainMenu_textOnDraw_noActive(yyGUIElement* elem, s32 m_id) {
-//	auto v = g_guiButtonFadeSpeed * g_app->m_dt;
-//
-//	elem->m_color.m_data[2] += v;
-//	if (elem->m_color.m_data[2] > 1.f)
-//		elem->m_color.m_data[2] = 1.f;
-//
-//	if (!g_guiManager->m_isMainMenuInCursor)
-//	{
-//		elem->m_color.m_data[3] -= v;
-//		if (elem->m_color.m_data[3] < 0.f)
-//			elem->m_color.m_data[3] = 0.f;
-//	}
-//
-//	elem->m_offset.x -= v;
-//	if (elem->m_offset.x < 0.f)
-//		elem->m_offset.x = 0.f;
-//
-//	if (elem->m_color.m_data[2] == 1.f && elem->m_color.m_data[3] == 0.f)
-//		elem->m_onDraw = 0;
-//}
-//void gui_mainMenu_buttonOnMouseEnter(yyGUIElement* elem, s32 m_id) {
-//	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
-//	g_guiManager->m_hoveredMenuItemID = m_id;
-//}
-//void gui_mainMenu_buttonOnMouseLeave(yyGUIElement* elem, s32 m_id) {
-//	miGUIMainMenuItem* item = (miGUIMainMenuItem*)elem->m_userData;
-//}
-//
-//
-//void gui_mainMenu_groupOnMouseLeave(yyGUIElement* elem, s32 m_id) {
-//	g_guiManager->m_hoveredMenuItemID = -1;
-//
-//	if (g_guiManager->m_isMainMenuActive)
-//		return;
-//	g_guiManager->m_isMainMenuInCursor = false;
-//	for (u16 i = 0, sz = g_guiManager->m_mainMenu_items.size(); i < sz; ++i)
-//	{
-//		auto item = g_guiManager->m_mainMenu_items.at(i);
-//		item->m_button->m_onDraw = gui_mainMenu_buttonOnDraw_lessOpacity;
-//
-//		item->m_button->m_sensorRectInPixels = item->m_activeArea_noActive;
-//		item->m_text->m_onDraw = gui_mainMenu_textOnDraw_noActive;
-//	}
-//	g_guiManager->m_mainMenu_group->m_sensorRectInPixels = g_guiManager->m_mainMenu_group_actRect_noActive;
-//}
 void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_NewObject);
 }
@@ -281,9 +180,10 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 
 miGUIManager::miGUIManager(){
+	m_button_importWindow_import = 0;
 	m_selectedMenuItemID = -1;
 	m_hoveredMenuItemID = -1;
-
+	m_activePluginGUI = 0;
 	m_button_import = 0;
 	m_button_add = 0;
 	m_textInput_rename = 0;
@@ -300,6 +200,8 @@ miGUIManager::miGUIManager(){
 	auto window = g_app->GetWindowMain();
 
 	m_mainMenu_drawGroup = yyGUICreateDrawGroup();
+	m_mainMenu_drawGroup->SetDraw(false);
+	m_mainMenu_drawGroup->SetInput(false);
 
 	m_mainMenu_group = yyGUICreateGroup(v4f(), 0, m_mainMenu_drawGroup);
 	m_mainMenu_group->m_onMouseInRect = gui_mainMenu_groupOnMouseInRect;
@@ -309,16 +211,17 @@ miGUIManager::miGUIManager(){
 		yyGetTextureFromCache("../res/gui/black.dds"), -1, m_mainMenu_drawGroup, 0);
 	m_mainMenu_backgroundPB->IgnoreInput(true);
 	m_mainMenu_backgroundPB->m_color.m_data[3] = 0.f;
-	m_mainMenu_backgroundPB->SetVisible(false);
+	//m_mainMenu_backgroundPB->SetVisible(false);
 	m_mainMenu_backgroundPB->m_onClick = gui_mainMenu_backgroundPB_onClick;
 	m_mainMenu_backgroundPB->m_useProportionalScaling = true;
 	//m_mainMenu_backgroundPB->m_onRebuildSetRects = gui_mainMenu_backgroundPB_onRebuildSetRects;
 
-	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(v4f(24.f, 0.f, (f32)(window->m_creationSize.x-100), (f32)(window->m_creationSize.y-100)),
+	g_guiWindowBackgroundPBRect = v4f(24.f, 0.f, (f32)(window->m_creationSize.x - 100), (f32)(window->m_creationSize.y - 100));
+	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(g_guiWindowBackgroundPBRect,
 		yyGetTextureFromCache("../res/gui/white.dds"), -1, m_mainMenu_drawGroup, 0);;
-	m_mainMenu_windowBackgroundPB->m_color = ColorDarkGray;
+	m_mainMenu_windowBackgroundPB->m_color.set(0.43f);
 	m_mainMenu_windowBackgroundPB->m_color.m_data[3] = 0.f;
-	m_mainMenu_windowBackgroundPB->SetVisible(false);
+	//m_mainMenu_windowBackgroundPB->SetVisible(false);
 	//m_mainMenu_windowBackgroundPB->m_align = yyGUIElement::AlignCenter;
 
 	float button_add_size = 30.f;
@@ -363,6 +266,21 @@ miGUIManager::miGUIManager(){
 		m_button_import->m_isAnimated = true;
 		m_button_import->m_onClick = gui_importButton_onClick;
 	}
+
+	m_button_importWindow_import = yyGUICreateButton(v4f(
+		g_guiWindowBackgroundPBRect.x,
+		g_guiWindowBackgroundPBRect.w - 30.f,
+		g_guiWindowBackgroundPBRect.x + 130.f,
+		g_guiWindowBackgroundPBRect.w
+	), 0, -1, m_mainMenu_drawGroup, 0);
+	m_button_importWindow_import->SetText(L"Import", m_fontDefault, false);
+	m_button_importWindow_import->SetColor(yyColor(0.3f, 0.3f, 0.9f, 1.f), 0);
+	m_button_importWindow_import->SetColor(yyColor(0.4f, 0.4f, 0.9f, 1.f), 1);
+	m_button_importWindow_import->SetColor(yyColor(0.2f, 0.2f, 0.9f, 1.f), 2);
+	m_button_importWindow_import->m_textColor.set(0.9f);
+	m_button_importWindow_import->m_textColorHover.set(1.0f);
+	m_button_importWindow_import->m_textColorPress.set(0.6f);
+	m_button_importWindow_import->m_isAnimated = true;
 
 	m_textInput_rename = yyGUICreateTextInput(
 		v4f(
@@ -416,13 +334,27 @@ void miGUIManager::HideMenu() {
 			menu->m_buttons[i2]->SetVisible(false);
 		}			
 	}
+
+	if (m_activePluginGUI)
+	{
+		m_activePluginGUI->Show(false);
+		m_activePluginGUI = 0;
+		m_button_importWindow_import->SetVisible(false);
+	}
+	
+	m_mainMenu_drawGroup->SetDraw(false);
+	m_mainMenu_drawGroup->SetInput(false);
 }
 void miGUIManager::ShowMenu(s32 buttonID) {
 	HideMenu();
+
+	m_mainMenu_drawGroup->SetDraw(true);
+	m_mainMenu_drawGroup->SetInput(true);
+
 	yyGUIDrawGroupMoveFront(m_mainMenu_drawGroup);
 	m_isMainMenuActive = true;
-	m_mainMenu_windowBackgroundPB->SetVisible(true);
-	m_mainMenu_backgroundPB->SetVisible(true);
+	//m_mainMenu_windowBackgroundPB->SetVisible(true);
+	//m_mainMenu_backgroundPB->SetVisible(true);
 	for (u16 i = 0, sz = m_mainMenu_menus.size(); i < sz; ++i)
 	{
 		auto menu = m_mainMenu_menus[i];
@@ -476,7 +408,7 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	y += h;
 
 	auto newButton = yyGUICreateButton(buildRect,
-		yyGetTextureFromCache("../res/gui/icons.png"), -1, m_mainMenu_drawGroup, &reg);
+		yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &reg);
 	newButton->m_id = id;
 	reg = uvregion2;
 	newButton->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &reg);
@@ -550,8 +482,18 @@ yyGUIFont* miGUIManager::GetFont(miGUIManager::Font f) {
 	}
 }
 
+void miGUIManager_button_importWindow_import_onClick(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->HideMenu();
+}
+
 void miGUIManager::ShowImportMenu(miPluginGUI* gui) {
-	g_guiManager->m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_show;
-	g_guiManager->m_mainMenu_backgroundPB->SetVisible(true);
-	g_guiManager->m_mainMenu_windowBackgroundPB->SetVisible(true);
+	m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_show;
+	m_mainMenu_drawGroup->SetDraw(true);
+	m_mainMenu_drawGroup->SetInput(true);
+	m_mainMenu_drawGroup->MoveFront();
+	m_button_importWindow_import->SetVisible(true);
+	m_button_importWindow_import->m_onRelease = miGUIManager_button_importWindow_import_onClick;
+
+	m_activePluginGUI = (miPluginGUIImpl*)gui;
+	m_activePluginGUI->Show(true);
 }

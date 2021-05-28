@@ -1402,7 +1402,7 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	
 	miVec4 ec(1.f);
 
-	std::srand(std::time(0));
+	std::srand((u32)std::time(0));
 	int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));
 
 	yyLogWriteInfo("Color index: %i\n", result);

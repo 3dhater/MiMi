@@ -44,7 +44,7 @@ class miGUIManager
 
 	yyGUIFont* m_fontDefault;
 
-	
+	miPluginGUIImpl* m_activePluginGUI;
 
 	yyGUIDrawGroup* m_mainMenu_drawGroup;
 	bool m_isMainMenuActive;
@@ -82,6 +82,8 @@ public:
 	yyGUIButton*  m_button_add;
 	yyGUIButton*  m_button_import;
 	yyGUITextInput* m_textInput_rename;
+	
+	yyGUIButton*  m_button_importWindow_import;
 };
 
 #endif
