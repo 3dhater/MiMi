@@ -14,12 +14,14 @@ miVisualObjectImpl::miVisualObjectImpl() {
 
 miVisualObjectImpl::~miVisualObjectImpl() {
 	_destroy();
-	if (m_texture)
+
+	// it must be material
+	/*if (m_texture)
 	{
 		if (m_texture->IsLoaded())
 			m_texture->Unload();
 		yyDeleteTexture(m_texture, true);
-	}
+	}*/
 }
 
 void miVisualObjectImpl::_destroy() {
@@ -529,8 +531,8 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 	default_polygon_material.m_baseColor.set(1.f, 1.f, 1.f, 1.f);
 
 	if (!m_texture) {
-		m_texture = yyGetTextureFromCache("../res/exit.png");
-		//m_texture = yyGetDefaultTexture();
+		//m_texture = yyGetTextureFromCache("../res/exit.png");
+		m_texture = yyGetDefaultTexture();
 		if(!m_texture->IsLoaded())
 			m_texture->Load();
 	}

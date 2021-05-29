@@ -1360,40 +1360,44 @@ miString miApplication::GetFreeName(const wchar_t* name) {
 }
 
 const yyColor g_colors[] = {
-	ColorRed,	ColorAliceBlue,	ColorAqua,	ColorAquamarine,	ColorAzure,	ColorBeige,
-	ColorBisque,	ColorBlanchedAlmond,	ColorBlue,	ColorBlueViolet,	ColorBrown,
+	ColorRed,	ColorAliceBlue,	ColorAqua,	ColorAquamarine,	ColorAzure,	
+	ColorBeige,	ColorBisque,	ColorBlanchedAlmond,	ColorBlue,	ColorBlueViolet,	
+	
+	ColorBrown, ColorBurlyWood,	ColorCadetBlue,	ColorChartreuse,	ColorCoral,	
+	ColorCornflowerBlue, ColorCornsilk,	ColorCrimson,	ColorCyan,	ColorDarkBlue,	
+	
+	ColorDarkCyan, ColorDarkGoldenRod,	ColorDarkKhaki,	ColorDarkMagenta,	ColorDarkOliveGreen,	
+	ColorDarkOrange, ColorDarkOrchid,	ColorDarkRed,	ColorDarkSalmon,	ColorDarkSeaGreen,	
+	
+	ColorDarkSlateBlue, ColorDarkTurquoise,	 ColorDarkViolet,	ColorDeepPink,	ColorDeepSkyBlue,	
+	ColorDodgerBlue, ColorFireBrick,	ColorForestGreen,	ColorFuchsia, ColorGainsboro,	
+	
+	//                                                                *
+	ColorGold, ColorGoldenRod,	ColorGreen,	ColorGreenYellow,	ColorLightBlue,
+	ColorHotPink, ColorIndianRed,	ColorIndigo,	ColorIvory,	ColorKhaki,	
+	
+	ColorLavender, ColorLavenderBlush,	ColorLawnGreen,	ColorLemonChiffon,	ColorLightBlue,
+	ColorLightCoral, ColorLightCyan,	ColorLightGoldenRodYellow,	ColorLightGreen,	ColorLightPink,
 
-	ColorBurlyWood,	ColorCadetBlue,	ColorChartreuse,	ColorCoral,	ColorCornflowerBlue,
-	ColorCornsilk,	ColorCrimson,	ColorCyan,	ColorDarkBlue,	ColorDarkCyan,
+	ColorLightSalmon, ColorLightSeaGreen,	ColorLightSkyBlue,	ColorLightSteelBlue,	ColorLightYellow,
+	ColorLime, ColorLimeGreen,	ColorLinen,	ColorMagenta,	ColorMaroon,	
+	
+	ColorMediumAquaMarine, ColorMediumBlue, ColorMediumOrchid,	ColorMediumPurple,	ColorMediumSeaGreen,
+	ColorMediumSlateBlue, ColorMediumSpringGreen, ColorMediumTurquoise,	ColorMediumVioletRed,	ColorMidnightBlue,
 
-	ColorDarkGoldenRod,	ColorDarkKhaki,	ColorDarkMagenta,	ColorDarkOliveGreen,	ColorDarkOrange,
-	ColorDarkOrchid,	ColorDarkRed,	ColorDarkSalmon,	ColorDarkSeaGreen,	ColorDarkSlateBlue,
+	ColorMintCream, ColorMistyRose, ColorMoccasin,	ColorNavy,	ColorOldLace,	
+	ColorOlive,	ColorOliveDrab,	ColorOrange,	ColorOrangeRed, ColorOrchid,	
+	
+	ColorPaleGoldenRod, ColorPaleGreen,	ColorPaleTurquoise,	ColorPaleVioletRed,	ColorPapayaWhip,	
+	ColorPeachPuff, ColorPeru,	ColorPink,	ColorPlum,	ColorPowderBlue,		
+	
+	ColorPurple, ColorRebeccaPurple, ColorRosyBrown,		ColorRoyalBlue,		ColorSaddleBrown,		
+	ColorSalmon,ColorSandyBrown, ColorSeaGreen,		ColorSeaShell,		ColorSienna,
+	
+	ColorSkyBlue,ColorSlateBlue,		ColorSpringGreen,		ColorSteelBlue,		ColorTan,
+	ColorTeal,ColorThistle,		ColorTomato,		ColorTurquoise,		ColorViolet,	
 
-	ColorDarkTurquoise,	ColorDarkViolet,	ColorDeepPink,	ColorDeepSkyBlue,	ColorDodgerBlue,
-	ColorFireBrick,	ColorForestGreen,	ColorFuchsia, ColorGainsboro,	ColorGold,
-
-	ColorGoldenRod,	ColorGreen,	ColorGreenYellow,	ColorHoneyDew,	ColorHotPink,
-	ColorIndianRed,	ColorIndigo,	ColorIvory,	ColorKhaki,	ColorLavender,
-
-	ColorLavenderBlush,	ColorLawnGreen,	ColorLemonChiffon,	ColorLightBlue,	ColorLightCoral,
-	ColorLightCyan,	ColorLightGoldenRodYellow,	ColorLightGreen,	ColorLightPink,	ColorLightSalmon,
-
-	ColorLightSeaGreen,	ColorLightSkyBlue,	ColorLightSteelBlue,	ColorLightYellow,	ColorLime,
-	ColorLimeGreen,	ColorLinen,	ColorMagenta,	ColorMaroon,	ColorMediumAquaMarine,
-
-	ColorMediumBlue, ColorMediumOrchid,	ColorMediumPurple,	ColorMediumSeaGreen,	ColorMediumSlateBlue,
-	ColorMediumSpringGreen, ColorMediumTurquoise,	ColorMediumVioletRed,	ColorMidnightBlue,	ColorMintCream,
-
-	ColorMistyRose, ColorMoccasin,	ColorNavy,	ColorOldLace,	//ColorOlive,	
-	ColorOliveDrab,	ColorOrange,	ColorOrangeRed, ColorOrchid,	ColorPaleGoldenRod,
-
-	ColorPaleGreen,	ColorPaleTurquoise,	ColorPaleVioletRed,	ColorPapayaWhip,	ColorPeachPuff,
-	ColorPeru,	ColorPink,	ColorPlum,	ColorPowderBlue,		ColorPurple,
-	ColorRebeccaPurple, ColorRosyBrown,		ColorRoyalBlue,		ColorSaddleBrown,		ColorSalmon,
-	ColorSandyBrown, ColorSeaGreen,		ColorSeaShell,		ColorSienna,		ColorSkyBlue,
-	ColorSlateBlue,		ColorSpringGreen,		ColorSteelBlue,		ColorTan,		ColorTeal,
-	ColorThistle,		ColorTomato,		ColorTurquoise,		ColorViolet,		ColorYellow,
-	ColorYellowGreen,
+	ColorYellow,ColorYellowGreen,
 };
 
 void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {

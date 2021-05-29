@@ -6,7 +6,7 @@
 * [x]  shortcuts
 * [x]  polygonal object
 * [x]  plugins
-* [ ]  import model
+* [x]  import model
 * [ ]  edit model
 * [ ]  edit UV
 * [ ]  edit normals

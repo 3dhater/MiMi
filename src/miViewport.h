@@ -52,6 +52,8 @@ struct miViewport
 	void HideGUI();
 	void ShowGUI();
 
+	bool m_isDrawAabbs;
+
 	s32 m_index;
 	v4f m_creationRect; // 0;1
 	v4f m_currentRect;

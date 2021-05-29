@@ -12,7 +12,7 @@ extern Mat4 g_emptyMatrix;
 
 miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	m_creationRect = rect1_0;
-
+	m_isDrawAabbs = false;
 	m_isOnLeftBorder = false;
 	m_isOnRightBorder = false;
 	m_isOnTopBorder = false;
@@ -442,7 +442,8 @@ void miViewport::OnDraw() {
 	{
 		_drawScene();
 		_drawSelectedObjectFrame();
-		_drawAabb(g_app->m_sceneAabb, miVec4(1.f));
+		if (m_isDrawAabbs)
+			_drawAabb(g_app->m_sceneAabb, miVec4(1.f));
 	}
 }
 
@@ -477,8 +478,11 @@ void miViewport::_drawScene() {
 		
 		m_gpu->DrawLine3D(mimath::miVec4_to_v4f(*object->GetGlobalPosition()), v4f(), ColorWhite);
 
-		if(object->IsSelected())
-			_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
+		if (m_isDrawAabbs)
+		{
+			if (object->IsSelected())
+				_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
+		}
 	}
 //	g_app->UpdateSceneAabb();
 }

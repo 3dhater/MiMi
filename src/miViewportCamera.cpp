@@ -47,8 +47,6 @@ void miViewportCamera::Update() {
 	m_positionCamera = math::mul(m_positionCamera, (MY * MX));
 	m_positionCamera += v3f(m_positionPlatform.x, m_positionPlatform.y, m_positionPlatform.z);
 
-	//printf("%f %f %f\n", m_positionCamera.x, m_positionCamera.y, m_positionCamera.z);
-
 	Mat4 T;
 	T.m_data[3].x = -m_positionCamera.x;
 	T.m_data[3].y = -m_positionCamera.y;
@@ -76,7 +74,7 @@ void miViewportCamera::MoveToSelection() {
 
 		miVec4 c;
 		g_app->m_selectionAabb.center(c);
-		m_positionPlatform = mimath::miVec4_to_v4f(-c);
+		m_positionPlatform = mimath::miVec4_to_v4f(c);
 		m_positionPlatform.w = e.length();
 	}
 	else if (!g_app->m_sceneAabb.isEmpty())
@@ -86,7 +84,7 @@ void miViewportCamera::MoveToSelection() {
 
 		miVec4 c;
 		g_app->m_sceneAabb.center(c);
-		m_positionPlatform = mimath::miVec4_to_v4f(-c);
+		m_positionPlatform = mimath::miVec4_to_v4f(c);
 		m_positionPlatform.w = e.length();
 	}
 	else
@@ -122,16 +120,12 @@ void miViewportCamera::Reset() {
 	case miViewportCameraType::Front:
 		m_rotationPlatform = v3f(math::degToRad(-90.f), math::degToRad(0.f), 0.f);
 		break;
-	default:
-		m_near = -m_far;
-		break;
 	}
 
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
 }
 
 void miViewportCamera::PanMove() {
-
 	f32 speed = 30.f * (m_positionPlatform.w*0.01f);
 
 	v4f vec(
