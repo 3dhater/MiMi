@@ -291,6 +291,8 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 				{
 					importeHelper.m_meshBuilder->End();
 					g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data());
+					importeHelper.Drop();
+					importeHelper.Create();
 					importeHelper.m_meshBuilder->Begin();
 				}
 			}
@@ -306,9 +308,10 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	{
 		importeHelper.m_meshBuilder->End();
 		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data());
+		importeHelper.Drop();
 	}
 
-	importeHelper.m_meshBuilder->m_mesh = 0;
+	g_sdk->UpdateSceneAabb();
 }
 
 unsigned char * OBJNextLine(unsigned char * ptr)

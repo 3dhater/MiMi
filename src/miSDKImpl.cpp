@@ -190,6 +190,7 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
 	 
+	newObject->m_meshBuilder = ih->m_meshBuilder;
 	newObject->m_visualObject->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
 	newObject->UpdateAabb();
 	AddObjectToScene(newObject, name);

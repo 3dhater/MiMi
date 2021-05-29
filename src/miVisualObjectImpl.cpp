@@ -251,8 +251,8 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 		}
 
 		auto vertex_1 = current_polygon->m_verts.m_head;
-		auto vertex_2 = vertex_1->m_right;
-		auto vertex_3 = vertex_2->m_right;
+		auto vertex_3 = vertex_1->m_right;
+		auto vertex_2 = vertex_3->m_right;
 		while (true) {
 			if (triangleCount == 0)
 			{
@@ -528,7 +528,9 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 
 	if (!m_texture) {
 		m_texture = yyGetTextureFromCache("../res/exit.png");
-		m_texture->Load();
+		//m_texture = yyGetDefaultTexture();
+		if(!m_texture->IsLoaded())
+			m_texture->Load();
 	}
 
 	if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Material

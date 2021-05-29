@@ -8,6 +8,7 @@ extern miApplication * g_app;
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_visualObject = sdk->CreateVisualObject(this);
+	m_meshBuilder = 0;
 }
 
 miEditableObject::~miEditableObject() {

@@ -347,11 +347,13 @@ void miViewport::OnWindowSize() {
 void miViewport::_frustum_cull(miSceneObject* o) {
 	if (o != g_app->m_rootObject)
 	{
+		miVec4 center;
+		o->GetAABB()->center(center);
 		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()))
 		{
 			m_visibleObjects.push_back(o);
 		}
-		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABB()->radius(), *o->GetGlobalPosition()))
+		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABB()->radius(), *o->GetGlobalPosition() + center))
 		{
 			m_visibleObjects.push_back(o);
 		}

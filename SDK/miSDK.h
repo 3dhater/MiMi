@@ -138,7 +138,7 @@ class miSDKImporterHelper
 {
 public:
 	miSDKImporterHelper() {
-		m_meshBuilder = new miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>(0,0,0);
+		Create();
 	}
 	~miSDKImporterHelper() {
 		if (m_meshBuilder)
@@ -148,6 +148,31 @@ public:
 	miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>> * m_meshBuilder;
 	miPolygonCreator m_polygonCreator;
 
+	// call only after creating new object.
+	//  because miMeshBuilder actually is that mesh for edit/draw/raytest...maybe need to rename it
+	//   scene object must save pointer.
+	/*
+		importeHelper.m_meshBuilder->End();
+		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data());
+		importeHelper.Drop();
+	*/
+	void Drop() {
+		m_meshBuilder = 0;
+	}
+
+	// call this after Drop() only if you continue create objects
+	//  like in OBJ importer, file can contain many objects
+	/*
+		importeHelper.m_meshBuilder->End();
+		g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data());
+		importeHelper.Drop();
+		importeHelper.Create();
+		importeHelper.m_meshBuilder->Begin();
+	*/
+	//  ...or just use Create(); without Drop(); 
+	void Create() {
+		m_meshBuilder = new miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>(0,0,0);
+	}
 };
 
 class miSDK

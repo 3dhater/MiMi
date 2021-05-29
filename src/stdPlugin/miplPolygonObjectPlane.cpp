@@ -134,27 +134,26 @@ void miplPolygonObjectPlane_generate(
 		{
 			switch (ct)
 			{
-			case miViewportCameraType::Perspective:
-			case miViewportCameraType::Top: {
+			case miViewportCameraType::Bottom: {
 				pc->Add(
 					miVec3(begin_x - aabbcenter.x, firstPoint.y, begin_z - aabbcenter.z),
-					miVec3(0.f, 1.f, 0.f), 
-					miVec2(uv_begin_x, uv_begin_y));
-
-				pc->Add(
-					miVec3(begin_x - aabbcenter.x, firstPoint.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(0.f, 1.f, 0.f), 
 					miVec2(uv_begin_x, uv_begin_y - uv_segment_size_h));
 
 				pc->Add(
+					miVec3(begin_x - aabbcenter.x, firstPoint.y, begin_z + segment_size_h - aabbcenter.z),
+					miVec3(0.f, 1.f, 0.f), 
+					miVec2(uv_begin_x, uv_begin_y));
+
+				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, firstPoint.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(0.f, 1.f, 0.f), 
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y - uv_segment_size_h));
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
 
 				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, firstPoint.y, begin_z - aabbcenter.z),
 					miVec3(0.f, 1.f, 0.f), 
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y - uv_segment_size_h));
 
 				mb->AddPolygon(pc, true, false, false);
 				pc->Clear();
@@ -168,26 +167,27 @@ void miplPolygonObjectPlane_generate(
 					uv_begin_x = 0;
 				}
 			}break;
-			case miViewportCameraType::Bottom: {
+			case miViewportCameraType::Perspective:
+			case miViewportCameraType::Top: {
 				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, firstPoint.y, begin_z - aabbcenter.z),
 					miVec3(0.f, -1.f, 0.f),
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y + uv_segment_size_h));
 
 				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, firstPoint.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(0.f, -1.f, 0.f),
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y + uv_segment_size_h));
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
 				
 				pc->Add(
 					miVec3(begin_x - aabbcenter.x, firstPoint.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(0.f, -1.f, 0.f),
-					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
+					miVec2(uv_begin_x, uv_begin_y));
 
 				pc->Add(
 					miVec3(begin_x - aabbcenter.x, firstPoint.y, begin_z - aabbcenter.z),
 					miVec3(0.f, -1.f, 0.f),
-					miVec2(uv_begin_x, uv_begin_y));
+					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
 				
 				mb->AddPolygon(pc, true, false, false);
 				pc->Clear();
@@ -201,26 +201,26 @@ void miplPolygonObjectPlane_generate(
 					uv_begin_x = 0.f;
 				}
 			}break;
-			case miViewportCameraType::Left: {
+			case miViewportCameraType::Right: {
 				pc->Add(
 					miVec3(firstPoint.x, begin_x - aabbcenter.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(-1.f, 0.f, 0.f),
-					miVec2(uv_begin_y - uv_segment_size_h, uv_begin_x));
+					miVec2(uv_begin_y, uv_begin_x));
 				
 				pc->Add(
 					miVec3(firstPoint.x, begin_x - aabbcenter.y, begin_z - aabbcenter.z),
 					miVec3(-1.f, 0.f, 0.f),
-					miVec2(uv_begin_y, uv_begin_x));
+					miVec2(uv_begin_y - uv_segment_size_h, uv_begin_x));
 
 				pc->Add(
 					miVec3(firstPoint.x, begin_x + segment_size_w - aabbcenter.y, begin_z - aabbcenter.z),
 					miVec3(-1.f, 0.f, 0.f),
-					miVec2(uv_begin_y, uv_begin_x + uv_segment_size_w));
+					miVec2(uv_begin_y - uv_segment_size_h, uv_begin_x + uv_segment_size_w));
 
 				pc->Add(
 					miVec3(firstPoint.x, begin_x + segment_size_w - aabbcenter.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(-1.f, 0.f, 0.f),
-					miVec2(uv_begin_y - uv_segment_size_h, uv_begin_x + uv_segment_size_w));
+					miVec2(uv_begin_y, uv_begin_x + uv_segment_size_w));
 
 				
 
@@ -236,59 +236,26 @@ void miplPolygonObjectPlane_generate(
 					uv_begin_x = 0;
 				}
 			}break;
-			case miViewportCameraType::Right: {
+			case miViewportCameraType::Left: {
 				pc->Add(
 					miVec3(firstPoint.x, begin_x - aabbcenter.y, begin_z - aabbcenter.z),
-					miVec3(1.f, 0.f, 0.f),
-					miVec2(uv_begin_y, uv_begin_x));
-
-				pc->Add(
-					miVec3(firstPoint.x, begin_x - aabbcenter.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(1.f, 0.f, 0.f),
 					miVec2(uv_begin_y + uv_segment_size_h, uv_begin_x));
 
 				pc->Add(
+					miVec3(firstPoint.x, begin_x - aabbcenter.y, begin_z + segment_size_h - aabbcenter.z),
+					miVec3(1.f, 0.f, 0.f),
+					miVec2(uv_begin_y, uv_begin_x));
+
+				pc->Add(
 					miVec3(firstPoint.x, begin_x + segment_size_w - aabbcenter.y, begin_z + segment_size_h - aabbcenter.z),
 					miVec3(1.f, 0.f, 0.f),
-					miVec2(uv_begin_y + uv_segment_size_h, uv_begin_x + uv_segment_size_w));
+					miVec2(uv_begin_y, uv_begin_x + uv_segment_size_w));
 
 				pc->Add(
 					miVec3(firstPoint.x, begin_x + segment_size_w - aabbcenter.y, begin_z - aabbcenter.z),
 					miVec3(1.f, 0.f, 0.f),
-					miVec2(uv_begin_y, uv_begin_x + uv_segment_size_w));
-
-				mb->AddPolygon(pc, true, false, false);
-				pc->Clear();
-
-				begin_x += segment_size_w;
-				uv_begin_x += uv_segment_size_w;
-
-				if (begin_x > size.x + aabb.m_max.x)
-				{
-					begin_x = aabb.m_min.x;
-					uv_begin_x = 0;
-				}
-			}break;
-			case miViewportCameraType::Front: {
-				pc->Add(
-					miVec3(begin_x - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
-					miVec3(0.f, 0.f, -1.f),
-					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
-
-				pc->Add(
-					miVec3(begin_x - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
-					miVec3(0.f, 0.f, -1.f),
-					miVec2(uv_begin_x, uv_begin_y));
-
-				pc->Add(
-					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
-					miVec3(0.f, 0.f, -1.f),
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
-
-				pc->Add(
-					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
-					miVec3(0.f, 0.f, -1.f),
-					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y + uv_segment_size_h));
+					miVec2(uv_begin_y + uv_segment_size_h, uv_begin_x + uv_segment_size_w));
 
 				mb->AddPolygon(pc, true, false, false);
 				pc->Clear();
@@ -304,24 +271,57 @@ void miplPolygonObjectPlane_generate(
 			}break;
 			case miViewportCameraType::Back: {
 				pc->Add(
+					miVec3(begin_x - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
+					miVec3(0.f, 0.f, -1.f),
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y + uv_segment_size_h));
+
+				pc->Add(
+					miVec3(begin_x - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
+					miVec3(0.f, 0.f, -1.f),
+					miVec2(uv_begin_x + uv_segment_size_w, uv_begin_y));
+
+				pc->Add(
+					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
+					miVec3(0.f, 0.f, -1.f),
+					miVec2(uv_begin_x, uv_begin_y));
+
+				pc->Add(
+					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
+					miVec3(0.f, 0.f, -1.f),
+					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
+
+				mb->AddPolygon(pc, true, false, false);
+				pc->Clear();
+
+				begin_x += segment_size_w;
+				uv_begin_x += uv_segment_size_w;
+
+				if (begin_x > size.x + aabb.m_max.x)
+				{
+					begin_x = aabb.m_min.x;
+					uv_begin_x = 0;
+				}
+			}break;
+			case miViewportCameraType::Front: {
+				pc->Add(
 					miVec3(begin_x - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
 					miVec3(0.f, 0.f, 1.f),
-					miVec2(uv_begin_x, uv_begin_y));
+					miVec2(uv_begin_x - uv_segment_size_w, uv_begin_y));
 				
 				pc->Add(
 					miVec3(begin_x - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
 					miVec3(0.f, 0.f, 1.f),
-					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
+					miVec2(uv_begin_x - uv_segment_size_w, uv_begin_y + uv_segment_size_h));
 
 				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
 					miVec3(0.f, 0.f, 1.f),
-					miVec2(uv_begin_x - uv_segment_size_w, uv_begin_y + uv_segment_size_h));
+					miVec2(uv_begin_x, uv_begin_y + uv_segment_size_h));
 
 				pc->Add(
 					miVec3(begin_x + segment_size_w - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
 					miVec3(0.f, 0.f, 1.f),
-					miVec2(uv_begin_x - uv_segment_size_w, uv_begin_y));
+					miVec2(uv_begin_x, uv_begin_y));
 
 				mb->AddPolygon(pc, true, false, false);
 				pc->Clear();
