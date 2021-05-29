@@ -309,6 +309,8 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			m_aabb.add(vertex_1->m_data->m_position);
 
+			//printf("Y: %f\n", vertex_1->m_data->m_position.y);
+
 			*inds_ptr = index;
 			++index;
 			++inds_ptr;

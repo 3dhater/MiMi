@@ -1004,9 +1004,10 @@ void miApplication::update_selected_objects_array() {
 
 	if (m_selectedObjects.m_size == 1)
 	{
+		old_gui = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
+
 		if (old_gui)
 		{
-			old_gui = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
 			old_gui->OnSelectObject(m_selectedObjects.m_data[0]);
 			old_gui->Show(true);
 		}

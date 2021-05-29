@@ -767,8 +767,9 @@ struct miAabb
 		{
 			for (j = 0; j < 3; j++)
 			{
-				a = (float)(matrix->m_data[i][j] * Amin[j]);
-				b = (float)(matrix->m_data[i][j] * Amax[j]);
+				// mimi: I swapped j and i
+				a = (float)(matrix->m_data[j][i] * Amin[j]);
+				b = (float)(matrix->m_data[j][i] * Amax[j]);
 				if (a < b)
 				{
 					Bmin[i] += a;

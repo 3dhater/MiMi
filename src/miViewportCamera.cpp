@@ -47,12 +47,17 @@ void miViewportCamera::Update() {
 	m_positionCamera = math::mul(m_positionCamera, (MY * MX));
 	m_positionCamera += v3f(m_positionPlatform.x, m_positionPlatform.y, m_positionPlatform.z);
 
-	Mat4 T;
-	T.m_data[3] = m_positionCamera;
+	//printf("%f %f %f\n", m_positionCamera.x, m_positionCamera.y, m_positionCamera.z);
 
-	Mat4 P(Quat(v4f(-m_rotationPlatform.x + math::degToRad(90.f), 0.f, 0.f, 1.f)));
-	Mat4 Y(Quat(v4f(0.f, -m_rotationPlatform.y, 0.f, 1.f)));
-	Mat4 R(Quat(v4f(0.f, 0.f, -m_rotationPlatform.z, 1.f)));
+	Mat4 T;
+	T.m_data[3].x = -m_positionCamera.x;
+	T.m_data[3].y = -m_positionCamera.y;
+	T.m_data[3].z = -m_positionCamera.z;
+	T.m_data[3].w = 1.f;
+
+	Mat4 P(Quat(v4f(-m_rotationPlatform.x + math::degToRad(-90.f), 0.f, 0.f, 1.f)));
+	Mat4 Y(Quat(v4f(0.f, -m_rotationPlatform.y + math::degToRad(0.f), 0.f, 1.f)));
+	Mat4 R(Quat(v4f(0.f, 0.f, m_rotationPlatform.z, 1.f)));
 
 	m_viewMatrix = (R*(P * Y)) * T;
 	m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
@@ -130,7 +135,7 @@ void miViewportCamera::PanMove() {
 	f32 speed = 30.f * (m_positionPlatform.w*0.01f);
 
 	v4f vec(
-		speed * g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt,
+		speed * -g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt,
 		0.f, 
 		speed * -g_app->m_inputContext->m_mouseDelta.y * g_app->m_dt,
 		0.f);
@@ -143,7 +148,7 @@ void miViewportCamera::PanMove() {
 
 void miViewportCamera::Rotate() {
 	m_rotationPlatform.x += g_app->m_inputContext->m_mouseDelta.y * g_app->m_dt;
-	m_rotationPlatform.y += -g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
+	m_rotationPlatform.y += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
 	if (m_rotationPlatform.x > math::PIPI) m_rotationPlatform.x = 0.f;
 	if (m_rotationPlatform.y > math::PIPI) m_rotationPlatform.y = 0.f;
 	if (m_rotationPlatform.x < -math::PIPI) m_rotationPlatform.x = 0.f;

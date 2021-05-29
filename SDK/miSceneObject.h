@@ -116,6 +116,7 @@ public:
 		//m_aabb.m_min += m_globalPosition;//no
 		//m_aabb.m_max += m_globalPosition;//no
 		// m_aabb must be in space center
+		m_aabbTransformed = m_aabb;
 	}
 
 

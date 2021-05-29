@@ -466,7 +466,7 @@ void miViewport::_drawScene() {
 
 
 		auto rm = object->GetRotationMatrix();
-		//rm->setRotation(q);
+	//	rm->setRotation(q);
 
 		auto taabb = object->GetAABBTransformed();
 		taabb->transform(object->GetAABB(), rm, object->GetGlobalPosition());
@@ -474,11 +474,13 @@ void miViewport::_drawScene() {
 		object->UpdateTransform();
 		object->OnUpdate(g_app->m_dt);
 		object->OnDraw();
+		
+		m_gpu->DrawLine3D(mimath::miVec4_to_v4f(*object->GetGlobalPosition()), v4f(), ColorWhite);
 
 		if(object->IsSelected())
 			_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
 	}
-	//g_app->UpdateSceneAabb();
+//	g_app->UpdateSceneAabb();
 }
 
 void miViewport::SetDrawMode(DrawMode dm) {
@@ -690,6 +692,10 @@ void miViewport::_drawGrid() {
 			front ? m_gpu->SetModel(g_app->m_gridModel_front1_100) : m_gpu->SetModel(g_app->m_gridModel_front2_100);
 	}break;
 	}
+
+	m_gpu->DrawLine3D(v4f(), v4f(99999.f, 0.f, 0.f, 0.f), ColorRed);
+	m_gpu->DrawLine3D(v4f(), v4f(0.f, 99999.f, 0.f, 0.f), ColorBlue);
+	m_gpu->DrawLine3D(v4f(), v4f(0.f, 0.f, 99999.f, 0.f), ColorLime);
 
 	yySetMaterial(g_app->m_gridModelMaterial);
 	m_gpu->UseDepth(true);
