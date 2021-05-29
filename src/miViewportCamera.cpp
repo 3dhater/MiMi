@@ -96,7 +96,7 @@ void miViewportCamera::MoveToSelection() {
 void miViewportCamera::Reset() {
 	m_near = 0.0001f;
 	m_far  = 1000.f;
-	m_fov  = math::degToRad(90.f);
+	m_fov  = math::degToRad(80.f);
 	m_aspect = 800.f / 600.f;
 	m_positionPlatform = v4f(0.f, 0.f, 0.f, 15.f);
 

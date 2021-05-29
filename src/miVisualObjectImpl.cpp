@@ -528,7 +528,9 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 	Mat4 World = mimath::miMatrix_to_Mat4(*mim);
 
 	static yyMaterial default_polygon_material;
-	default_polygon_material.m_baseColor.set(1.f, 1.f, 1.f, 1.f);
+	default_polygon_material.m_baseColor.set(0.5f);
+	default_polygon_material.m_type = yyMaterialType::Standart;
+	default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
 
 	if (!m_texture) {
 		//m_texture = yyGetTextureFromCache("../res/exit.png");

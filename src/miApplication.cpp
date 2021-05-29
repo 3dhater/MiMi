@@ -14,6 +14,7 @@
 
 #include <map>
 #include <ctime>
+#include <random>
 
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
@@ -1410,9 +1411,11 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	
 	miVec4 ec(1.f);
 
-	std::srand((u32)std::time(0));
-	int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));
-
+	//std::srand(std::time(0));
+	//int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));
+	static std::default_random_engine generator;
+	std::uniform_int_distribution<int> distribution(0, sizeof(g_colors) / sizeof(g_colors[0]));
+	s32 result = distribution(generator);
 	yyLogWriteInfo("Color index: %i\n", result);
 
 	ec.x = g_colors[result].m_data[0];

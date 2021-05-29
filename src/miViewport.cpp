@@ -476,7 +476,7 @@ void miViewport::_drawScene() {
 		object->OnUpdate(g_app->m_dt);
 		object->OnDraw();
 		
-		m_gpu->DrawLine3D(mimath::miVec4_to_v4f(*object->GetGlobalPosition()), v4f(), ColorWhite);
+	//	m_gpu->DrawLine3D(mimath::miVec4_to_v4f(*object->GetGlobalPosition()), v4f(), ColorWhite);
 
 		if (m_isDrawAabbs)
 		{
