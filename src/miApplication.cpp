@@ -200,6 +200,7 @@ miApplication::miApplication() {
 	m_isGUIInputFocus = false;
 	m_currentViewportDraw = 0;
 	m_editMode = miEditMode::Object;
+	m_transformMode = miTransformMode::NoTransform;
 	m_pluginActive = 0;
 	m_cursorBehaviorMode = miCursorBehaviorMode::CommonMode;
 	m_isSelectByRectangle = false;
@@ -596,9 +597,7 @@ vidOk:
 
 	m_color_viewportBorder = ColorYellow;
 
-	m_color_windowClearColor.setAsByteRed(118);
-	m_color_windowClearColor.setAsByteGreen(118);
-	m_color_windowClearColor.setAsByteBlue(118);
+	m_color_windowClearColor.set(0.41f);
 	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 	
@@ -847,6 +846,10 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMMaterial)) this->CommandViewportToggleDrawMaterial(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMWireframe)) this->CommandViewportToggleDrawWireframe(m_activeViewportLayout->m_activeViewport);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_NoTransform)) this->CommandTransformModeSet(miTransformMode::NoTransform);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Move)) this->CommandTransformModeSet(miTransformMode::Move);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Scale)) this->CommandTransformModeSet(miTransformMode::Scale);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Rotate)) this->CommandTransformModeSet(miTransformMode::Rotate);
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
@@ -1309,6 +1312,10 @@ void miApplication::CommandViewportToggleDrawMaterial(miViewport* vp) {
 void miApplication::CommandViewportToggleDrawWireframe(miViewport* vp) {
 	vp->ToggleDrawModeWireframe();
 }
+void miApplication::CommandTransformModeSet(miTransformMode m) {
+	this->SetTransformMode(m);
+	m_GUIManager->UpdateTransformModeButtons();
+}
 
 bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
 	auto & n = o->GetName();
@@ -1495,4 +1502,10 @@ void miApplication::OnImport(miImporter* importer) {
 	{
 		OnImport_openDialog();
 	}
+}
+void miApplication::SetEditMode(miEditMode m) {
+	m_editMode = m;
+}
+void miApplication::SetTransformMode(miTransformMode m) {
+	m_transformMode = m;
 }

@@ -44,6 +44,7 @@ class miGUIManager
 
 	yyGUIFont* m_fontDefault;
 
+	f32 m_mainMenu_Y;
 	miPluginGUIImpl* m_activePluginGUI;
 
 	yyGUIDrawGroup* m_mainMenu_drawGroup;
@@ -84,6 +85,15 @@ public:
 	yyGUITextInput* m_textInput_rename;
 	
 	yyGUIButton*  m_button_importWindow_import;
+	
+	yyGUIButton*  m_button_selectByName;
+
+	void UpdateTransformModeButtons();
+	yyGUIButtonGroup* m_buttonGroup_transformMode;
+	yyGUIButton*  m_button_transformModeNoTransform;
+	yyGUIButton*  m_button_transformModeMove;
+	yyGUIButton*  m_button_transformModeScale;
+	yyGUIButton*  m_button_transformModeRotate;
 };
 
 #endif

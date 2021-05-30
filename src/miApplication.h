@@ -148,6 +148,7 @@ class miApplication
 	void RemoveObjectFromScene(miSceneObject* o);
 
 	miEditMode m_editMode;
+	miTransformMode m_transformMode;
 
 	void _update_transforms(miSceneObject* o);
 
@@ -211,6 +212,7 @@ public:
 	void CommandViewportToggleDrawMaterial(miViewport* vp);
 	void CommandViewportToggleDrawWireframe(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
+	void CommandTransformModeSet(miTransformMode m);
 
 	void UpdateSceneAabb();
 	void UpdateSelectionAabb();
@@ -221,6 +223,10 @@ public:
 	void OnImport(miImporter* importer);
 	void OnImport_openDialog();
 
+	void SetEditMode(miEditMode);
+	void SetTransformMode(miTransformMode);
+
+	friend class miGUIManager;
 	friend class miPluginGUIImpl;
 	friend class miGraphics2D;
 	friend class miSDKImpl;

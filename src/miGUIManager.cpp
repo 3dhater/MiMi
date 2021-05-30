@@ -9,6 +9,18 @@ f32 g_guiBGOpacity = 0.3f;
 f32 g_guiButtonMinimumOpacity = 0.1f;
 v4f g_guiWindowBackgroundPBRect;
 
+void gui_buttonTransformModeNoTransform_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::NoTransform);
+}
+void gui_buttonTransformModeMove_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::Move);
+}
+void gui_buttonTransformModeScale_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::Scale);
+}
+void gui_buttonTransformModeRotate_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::Rotate);
+}
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
 		return false;
@@ -169,7 +181,8 @@ void gui_mainMenu_backgroundPB_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->HideMenu();
 
 	g_guiManager->m_isMainMenuInCursor = false;
-	g_guiManager->m_mainMenu_group->m_onMouseLeave(g_guiManager->m_mainMenu_group, g_guiManager->m_mainMenu_group->m_id);
+	if(g_guiManager->m_mainMenu_group->m_onMouseLeave)
+		g_guiManager->m_mainMenu_group->m_onMouseLeave(g_guiManager->m_mainMenu_group, g_guiManager->m_mainMenu_group->m_id);
 	//gui_mainMenu_groupOnMouseLeave(g_guiManager->m_mainMenu_backgroundPB, g_guiManager->m_mainMenu_backgroundPB->m_id);
 }
 void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
@@ -180,6 +193,9 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 
 miGUIManager::miGUIManager(){
+	m_buttonGroup_transformMode = new yyGUIButtonGroup;
+	m_mainMenu_Y = 0.f;
+	m_button_selectByName = 0;
 	m_button_importWindow_import = 0;
 	m_selectedMenuItemID = -1;
 	m_hoveredMenuItemID = -1;
@@ -187,6 +203,10 @@ miGUIManager::miGUIManager(){
 	m_button_import = 0;
 	m_button_add = 0;
 	m_textInput_rename = 0;
+	m_button_transformModeNoTransform = 0;
+	m_button_transformModeMove = 0;
+	m_button_transformModeScale = 0;
+	m_button_transformModeRotate = 0;
 		 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -204,8 +224,8 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_drawGroup->SetInput(false);
 
 	m_mainMenu_group = yyGUICreateGroup(v4f(), 0, m_mainMenu_drawGroup);
-	m_mainMenu_group->m_onMouseInRect = gui_mainMenu_groupOnMouseInRect;
-	m_mainMenu_group->m_onMouseLeave = gui_mainMenu_groupOnMouseLeave;
+	//m_mainMenu_group->m_onMouseInRect = gui_mainMenu_groupOnMouseInRect;
+	//m_mainMenu_group->m_onMouseLeave = gui_mainMenu_groupOnMouseLeave;
 	
 	m_mainMenu_backgroundPB = yyGUICreatePictureBox(v4f(0.f, 0.f, (f32)window->m_creationSize.x, (f32)window->m_creationSize.y),
 		yyGetTextureFromCache("../res/gui/black.dds"), -1, m_mainMenu_drawGroup, 0);
@@ -235,7 +255,7 @@ miGUIManager::miGUIManager(){
 	if (m_button_add)
 	{
 		m_button_add->SetText(L"Add", m_fontDefault, false);
-		m_button_add->SetColor(ColorDimGray, 0);
+		m_button_add->SetColor(g_app->m_color_windowClearColor, 0);
 		m_button_add->SetColor(ColorDarkGrey, 1);
 		m_button_add->SetColor(ColorGrey, 2);
 		m_button_add->m_textColor = ColorWhite;
@@ -257,7 +277,7 @@ miGUIManager::miGUIManager(){
 	if (m_button_import)
 	{
 		m_button_import->SetText(L"Import", m_fontDefault, false);
-		m_button_import->SetColor(ColorDimGray, 0);
+		m_button_import->SetColor(g_app->m_color_windowClearColor, 0);
 		m_button_import->SetColor(ColorDarkGrey, 1);
 		m_button_import->SetColor(ColorGrey, 2);
 		m_button_import->m_textColor = ColorWhite;
@@ -281,6 +301,7 @@ miGUIManager::miGUIManager(){
 	m_button_importWindow_import->m_textColorHover.set(1.0f);
 	m_button_importWindow_import->m_textColorPress.set(0.6f);
 	m_button_importWindow_import->m_isAnimated = true;
+	m_button_importWindow_import->SetVisible(false);
 
 	m_textInput_rename = yyGUICreateTextInput(
 		v4f(
@@ -313,9 +334,100 @@ miGUIManager::miGUIManager(){
 	/*_addMainMenuItem(L"Help",
 		v4i(0, 48, 23, 71), v4i(24, 48, 47, 71), v4i(0, 0, 0, 0),
 		g_buttonID_Settings + 1, gui_mainMenu_buttonOnClick);*/
+
+	{
+		v4f uvregion1(0.f,96.f,23.f,119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_selectByName = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_selectByName->m_useBackground = true;
+		m_button_selectByName->m_isAnimated = true;
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(24.f, 96.f, 47.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeNoTransform = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeNoTransform->m_onClick = gui_buttonTransformModeNoTransform_onClick;
+		m_button_transformModeNoTransform->m_useBackground = true;
+		m_button_transformModeNoTransform->m_isAnimated = true;
+		m_button_transformModeNoTransform->m_useAsCheckbox = true;
+		m_button_transformModeNoTransform->m_isChecked = true;
+		m_button_transformModeNoTransform->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeNoTransform);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(48.f, 96.f, 71.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeMove = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeMove->m_onClick = gui_buttonTransformModeMove_onClick;
+		m_button_transformModeMove->m_useBackground = true;
+		m_button_transformModeMove->m_isAnimated = true;
+		m_button_transformModeMove->m_useAsCheckbox = true;
+		m_button_transformModeMove->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeMove);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(72.f, 96.f, 95.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeScale = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeScale->m_onClick = gui_buttonTransformModeScale_onClick;
+		m_button_transformModeScale->m_useBackground = true;
+		m_button_transformModeScale->m_isAnimated = true;
+		m_button_transformModeScale->m_useAsCheckbox = true;
+		m_button_transformModeScale->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeScale);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(96.f, 96.f, 119.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeRotate = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeRotate->m_onClick = gui_buttonTransformModeRotate_onClick;
+		m_button_transformModeRotate->m_useBackground = true;
+		m_button_transformModeRotate->m_isAnimated = true;
+		m_button_transformModeRotate->m_useAsCheckbox = true;
+		m_button_transformModeRotate->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeRotate);
+		m_mainMenu_Y += h;
+	}
 }
 
 miGUIManager::~miGUIManager(){
+	if (m_buttonGroup_transformMode)
+		delete m_buttonGroup_transformMode;
+
 	for (u16 i = 0, sz = m_mainMenu_items.size(); i < sz; ++i)
 	{
 		delete m_mainMenu_items.at(i);
@@ -395,30 +507,28 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	s32 id, yyGUICallback onClick) {
 	v4f reg = uvregion1;
 
-	static f32 y = 0.f;
-
 	f32 w = (f32)(uvregion1.z - uvregion1.x);
 	f32 h = (f32)(uvregion1.w - uvregion1.y);
 
 	v4f buildRect;
-	buildRect.y = y;
+	buildRect.y = m_mainMenu_Y;
 	buildRect.z = w;
-	buildRect.w = y + h;
+	buildRect.w = m_mainMenu_Y + h;
 
-	y += h;
+	m_mainMenu_Y += h;
 
 	auto newButton = yyGUICreateButton(buildRect,
 		yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &reg);
 	newButton->m_id = id;
 	reg = uvregion2;
 	newButton->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &reg);
-	newButton->SetOpacity(g_guiButtonMinimumOpacity, 0);
-	newButton->SetOpacity(g_guiButtonMinimumOpacity, 1);
-	newButton->SetOpacity(g_guiButtonMinimumOpacity, 2);
+	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 0);
+	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 1);
+	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 2);
 	newButton->m_onClick = onClick;
 	newButton->m_isAnimated = true;
-	newButton->m_onDraw = gui_mainMenu_buttons_onDraw;
-	newButton->m_onMouseEnter = gui_mainMenu_buttonOnMouseEnter;
+	//newButton->m_onDraw = gui_mainMenu_buttons_onDraw;
+	//newButton->m_onMouseEnter = gui_mainMenu_buttonOnMouseEnter;
 	//newButton->m_onMouseLeave = gui_mainMenu_buttonOnMouseLeave;
 
 //	reg = uvregion3;
@@ -497,4 +607,27 @@ void miGUIManager::ShowImportMenu(miPluginGUI* gui) {
 
 	m_activePluginGUI = (miPluginGUIImpl*)gui;
 	m_activePluginGUI->Show(true);
+}
+
+void miGUIManager::UpdateTransformModeButtons() {
+	for (u32 i = 0, sz = m_buttonGroup_transformMode->m_buttons.size(); i < sz; ++i)
+	{
+		m_buttonGroup_transformMode->m_buttons[i]->m_isChecked = false;
+	}
+	switch (g_app->m_transformMode)
+	{
+	default:
+	case miTransformMode::NoTransform:
+		m_button_transformModeNoTransform->m_isChecked = true;
+		break;
+	case miTransformMode::Move:
+		m_button_transformModeMove->m_isChecked = true;
+		break;
+	case miTransformMode::Scale:
+		m_button_transformModeScale->m_isChecked = true;
+		break;
+	case miTransformMode::Rotate:
+		m_button_transformModeRotate->m_isChecked = true;
+		break;
+	}
 }

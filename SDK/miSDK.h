@@ -52,6 +52,13 @@ enum class miEditMode : unsigned int {
 	Object,
 };
 
+enum class miTransformMode : unsigned int {
+	NoTransform,
+	Move,
+	Scale,
+	Rotate,
+};
+
 enum class miCursorBehaviorMode : unsigned int {
 	CommonMode, // select by rect
 	ClickAndDrag, // like target weld or creation new object like plane

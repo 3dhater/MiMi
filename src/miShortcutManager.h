@@ -18,6 +18,10 @@ enum class miShortcutCommandType : u32 {
 	viewport_dmWireframe,
 	viewport_toggleDMMaterial,
 	viewport_toggleDMWireframe,
+	transfromMode_NoTransform,
+	transfromMode_Move,
+	transfromMode_Scale,
+	transfromMode_Rotate,
 
 	count
 };
