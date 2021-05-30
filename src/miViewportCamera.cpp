@@ -6,7 +6,6 @@ extern miApplication * g_app;
 miViewportCamera::miViewportCamera(miViewport* vp, miViewportCameraType ct){
 	m_viewport = vp;
 	m_type = ct;
-	Reset();
 }
 
 miViewportCamera::~miViewportCamera(){}
@@ -94,9 +93,9 @@ void miViewportCamera::MoveToSelection() {
 }
 
 void miViewportCamera::Reset() {
-	m_near = 0.0001f;
-	m_far  = 1000.f;
-	m_fov  = math::degToRad(80.f);
+	m_near = 0.01f;
+	m_far  = 500.f;
+	m_fov  = 0.683264;
 	m_aspect = 800.f / 600.f;
 	m_positionPlatform = v4f(0.f, 0.f, 0.f, 15.f);
 
@@ -123,10 +122,12 @@ void miViewportCamera::Reset() {
 	}
 
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
+	m_viewport->UpdateAspect();
+	//m_viewport->OnWindowSize();
 }
 
 void miViewportCamera::PanMove() {
-	f32 speed = 30.f * (m_positionPlatform.w*0.01f);
+	f32 speed = 10.f * (m_positionPlatform.w*0.01f);
 
 	v4f vec(
 		speed * -g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt,
@@ -141,8 +142,9 @@ void miViewportCamera::PanMove() {
 }
 
 void miViewportCamera::Rotate() {
-	m_rotationPlatform.x += g_app->m_inputContext->m_mouseDelta.y * g_app->m_dt;
-	m_rotationPlatform.y += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
+	const f32 speed = 0.69f * g_app->m_dt;
+	m_rotationPlatform.x += g_app->m_inputContext->m_mouseDelta.y * speed;
+	m_rotationPlatform.y += g_app->m_inputContext->m_mouseDelta.x * speed;
 	if (m_rotationPlatform.x > math::PIPI) m_rotationPlatform.x = 0.f;
 	if (m_rotationPlatform.y > math::PIPI) m_rotationPlatform.y = 0.f;
 	if (m_rotationPlatform.x < -math::PIPI) m_rotationPlatform.x = 0.f;
@@ -172,6 +174,7 @@ void miViewportCamera::ChangeFOV() {
 		m_fov = 0.01f;
 	if (m_fov > math::PI)
 		m_fov = math::PI;
+	//printf("m_fov %f\n", m_fov);
 }
 
 void miViewportCamera::RotateZ() {

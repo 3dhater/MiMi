@@ -42,6 +42,8 @@ struct miViewport
 	void SetCameraType(miViewportCameraType);
 	void SetViewportName(const wchar_t*);
 
+	void UpdateAspect();
+
 	void _frustum_cull(miSceneObject*);
 	yyArraySimple<miSceneObject*> m_visibleObjects;
 

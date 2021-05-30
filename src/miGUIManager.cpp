@@ -294,14 +294,17 @@ miGUIManager::miGUIManager(){
 		g_guiWindowBackgroundPBRect.w
 	), 0, -1, m_mainMenu_drawGroup, 0);
 	m_button_importWindow_import->SetText(L"Import", m_fontDefault, false);
-	m_button_importWindow_import->SetColor(yyColor(0.3f, 0.3f, 0.9f, 1.f), 0);
-	m_button_importWindow_import->SetColor(yyColor(0.4f, 0.4f, 0.9f, 1.f), 1);
-	m_button_importWindow_import->SetColor(yyColor(0.2f, 0.2f, 0.9f, 1.f), 2);
+	//m_button_importWindow_import->SetColor(yyColor(0.3f, 0.3f, 0.9f, 1.f), 0);
+	//m_button_importWindow_import->SetColor(yyColor(0.4f, 0.4f, 0.9f, 1.f), 1);
+	//m_button_importWindow_import->SetColor(yyColor(0.2f, 0.2f, 0.9f, 1.f), 2);
 	m_button_importWindow_import->m_textColor.set(0.9f);
 	m_button_importWindow_import->m_textColorHover.set(1.0f);
 	m_button_importWindow_import->m_textColorPress.set(0.6f);
 	m_button_importWindow_import->m_isAnimated = true;
 	m_button_importWindow_import->SetVisible(false);
+	m_button_importWindow_import->m_bgColor = yyColor(0.3f, 0.3f, 0.9f, 1.f);
+	m_button_importWindow_import->m_bgColorHover = yyColor(0.4f, 0.4f, 0.9f, 1.f);
+	m_button_importWindow_import->m_bgColorPress = yyColor(0.2f, 0.2f, 0.9f, 1.f);
 
 	m_textInput_rename = yyGUICreateTextInput(
 		v4f(

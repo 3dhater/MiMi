@@ -31,6 +31,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	m_isCursorInRect = false;
 	m_gui_text_vpName = 0;
 	m_gui_button_resetCamera = 0;
+	m_activeCamera = 0;
 	//m_gui_button_viewport = 0;
 
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
@@ -66,6 +67,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 		m_activeCamera = m_camera[Camera_Back];
 		break;
 	}
+	m_activeCamera->Reset();
 
 	switch (vct)
 	{
@@ -319,9 +321,6 @@ void miViewport::OnWindowSize() {
 	if (m_creationRect.y > 0.f) m_currentRect.y = m_creationRect.y / windowSizeY_1;
 	if (m_creationRect.w > 0.f) m_currentRect.w = m_creationRect.w / windowSizeY_1;
 
-
-	
-
 	m_currentRect.x += miViewportBorderSize;
 	m_currentRect.y += miViewportBorderSize;
 	m_currentRect.z -= miViewportBorderSize;
@@ -334,7 +333,7 @@ void miViewport::OnWindowSize() {
 
 	m_currentRectSize.x = m_currentRect.z - m_currentRect.x;
 	m_currentRectSize.y = m_currentRect.w - m_currentRect.y;
-	m_activeCamera->m_aspect = m_currentRectSize.x / m_currentRectSize.y;
+	UpdateAspect();
 	/*m_gui_group->m_activeAreaRect = m_currentRect;
 	m_gui_group->m_activeAreaRect_global = m_currentRect;
 	m_gui_group->Rebuild();*/
@@ -342,6 +341,11 @@ void miViewport::OnWindowSize() {
 
 	/*printf("%f %f %f %f - %f\n", 
 		m_currentRect.x, m_currentRect.y, m_currentRect.z, m_currentRect.w, windowSizeX_1);*/
+}
+
+void miViewport::UpdateAspect() {
+	if(m_activeCamera)
+		m_activeCamera->m_aspect = m_currentRectSize.x / m_currentRectSize.y;
 }
 
 void miViewport::_frustum_cull(miSceneObject* o) {
