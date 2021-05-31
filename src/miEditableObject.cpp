@@ -17,7 +17,7 @@ miEditableObject::~miEditableObject() {
 
 void miEditableObject::OnDraw() {
 	if (m_visualObject) {
-		m_visualObject->Draw(&m_worldMatrix);
+		m_visualObject->Draw();
 	}
 }
 

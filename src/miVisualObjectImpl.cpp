@@ -86,7 +86,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 			m_nodes_verts_CPU.push_back(_modelNode);
 		}
 
-		auto vpos = mimath::miVec3_to_v3f(current_vertex->m_position);
+		auto vpos = current_vertex->m_position;
 		float size = 1.f;
 
 		if (m_mesh->m_skeleton)
@@ -131,8 +131,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 	auto last_edge = current_edge->m_left;
 	while (true) {
 
-		//miVec4 color = *m_parentSceneObject->GetEdgeColor();
-		miVec4 color(1.f);
+		//v4f color = *m_parentSceneObject->GetEdgeColor();
+		v4f color(1.f);
 		if (g_app->m_editMode == miEditMode::Edge)
 		{
 			if (current_edge->m_flags & miEdge::flag_isSelected)
@@ -173,8 +173,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		if (m_mesh->m_skeleton)
 		{
-			vertexAnimated_ptr->Color = mimath::miVec4_to_v4f(color);
-			vertexAnimated_ptr->Position = mimath::miVec3_to_v3f(current_edge->m_vertex1->m_position);
+			vertexAnimated_ptr->Color = color;
+			vertexAnimated_ptr->Position = current_edge->m_vertex1->m_position;
 			vertexAnimated_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
 			vertexAnimated_ptr->Normal.y = current_edge->m_vertex1->m_normal[1];
 			vertexAnimated_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
@@ -182,8 +182,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
-			vertex_ptr->Color = mimath::miVec4_to_v4f(color);
-			vertex_ptr->Position = mimath::miVec3_to_v3f(current_edge->m_vertex1->m_position);
+			vertex_ptr->Color = color;
+			vertex_ptr->Position = current_edge->m_vertex1->m_position;
 			vertex_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
 			vertex_ptr->Normal.y = current_edge->m_vertex1->m_normal[1];
 			vertex_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
@@ -195,8 +195,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		if (m_mesh->m_skeleton)
 		{
-			vertexAnimated_ptr->Color = mimath::miVec4_to_v4f(color);
-			vertexAnimated_ptr->Position = mimath::miVec3_to_v3f(current_edge->m_vertex2->m_position);
+			vertexAnimated_ptr->Color = color;
+			vertexAnimated_ptr->Position = current_edge->m_vertex2->m_position;
 			vertexAnimated_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
 			vertexAnimated_ptr->Normal.y = current_edge->m_vertex2->m_normal[1];
 			vertexAnimated_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
@@ -204,8 +204,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
-			vertex_ptr->Color = mimath::miVec4_to_v4f(color);
-			vertex_ptr->Position = mimath::miVec3_to_v3f(current_edge->m_vertex2->m_position);
+			vertex_ptr->Color = color;
+			vertex_ptr->Position = current_edge->m_vertex2->m_position;
 			vertex_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
 			vertex_ptr->Normal.y = current_edge->m_vertex2->m_normal[1];
 			vertex_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
@@ -245,7 +245,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 	auto last_polygon = current_polygon->m_left;
 	while (true) {
 
-		miVec4 color(0.f,0.f,0.f,0.0f);
+		v4f color(0.f,0.f,0.f,0.0f);
 		if (g_app->m_editMode == miEditMode::Polygon)
 		{
 			if (current_polygon->m_flags & miPolygon::flag_isSelected)
@@ -291,9 +291,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				vertexAnimatedModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexAnimatedModel_ptr->Position = mimath::miVec3_to_v3f(vertex_1->m_data->m_position);
-				vertexAnimatedModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_1->m_data->m_tCoords);
+				vertexAnimatedModel_ptr->Color = color;
+				vertexAnimatedModel_ptr->Position = vertex_1->m_data->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
 				vertexAnimatedModel_ptr->Normal.x = vertex_1->m_data->m_normal[0];
 				vertexAnimatedModel_ptr->Normal.y = vertex_1->m_data->m_normal[1];
 				vertexAnimatedModel_ptr->Normal.z = vertex_1->m_data->m_normal[2];
@@ -301,9 +301,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				vertexModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexModel_ptr->Position = mimath::miVec3_to_v3f(vertex_1->m_data->m_position);
-				vertexModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_1->m_data->m_tCoords);
+				vertexModel_ptr->Color = color;
+				vertexModel_ptr->Position = vertex_1->m_data->m_position;
+				vertexModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
 				vertexModel_ptr->Normal.x = vertex_1->m_data->m_normal[0];
 				vertexModel_ptr->Normal.y = vertex_1->m_data->m_normal[1];
 				vertexModel_ptr->Normal.z = vertex_1->m_data->m_normal[2];
@@ -319,9 +319,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				vertexAnimatedModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexAnimatedModel_ptr->Position = mimath::miVec3_to_v3f(vertex_2->m_data->m_position);
-				vertexAnimatedModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_2->m_data->m_tCoords);
+				vertexAnimatedModel_ptr->Color = color;
+				vertexAnimatedModel_ptr->Position = vertex_2->m_data->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
 				vertexAnimatedModel_ptr->Normal.x = vertex_2->m_data->m_normal[0];
 				vertexAnimatedModel_ptr->Normal.y = vertex_2->m_data->m_normal[1];
 				vertexAnimatedModel_ptr->Normal.z = vertex_2->m_data->m_normal[2];
@@ -329,9 +329,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				vertexModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexModel_ptr->Position = mimath::miVec3_to_v3f(vertex_2->m_data->m_position);
-				vertexModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_2->m_data->m_tCoords);
+				vertexModel_ptr->Color = color;
+				vertexModel_ptr->Position = vertex_2->m_data->m_position;
+				vertexModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
 				vertexModel_ptr->Normal.x = vertex_2->m_data->m_normal[0];
 				vertexModel_ptr->Normal.y = vertex_2->m_data->m_normal[1];
 				vertexModel_ptr->Normal.z = vertex_2->m_data->m_normal[2];
@@ -345,9 +345,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				vertexAnimatedModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexAnimatedModel_ptr->Position = mimath::miVec3_to_v3f(vertex_3->m_data->m_position);
-				vertexAnimatedModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_3->m_data->m_tCoords);
+				vertexAnimatedModel_ptr->Color = color;
+				vertexAnimatedModel_ptr->Position = vertex_3->m_data->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
 				vertexAnimatedModel_ptr->Normal.x = vertex_3->m_data->m_normal[0];
 				vertexAnimatedModel_ptr->Normal.y = vertex_3->m_data->m_normal[1];
 				vertexAnimatedModel_ptr->Normal.z = vertex_3->m_data->m_normal[2];
@@ -355,9 +355,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				vertexModel_ptr->Color = mimath::miVec4_to_v4f(color);
-				vertexModel_ptr->Position = mimath::miVec3_to_v3f(vertex_3->m_data->m_position);
-				vertexModel_ptr->TCoords = mimath::miVec2_to_v2f(vertex_3->m_data->m_tCoords);
+				vertexModel_ptr->Color = color;
+				vertexModel_ptr->Position = vertex_3->m_data->m_position;
+				vertexModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
 				vertexModel_ptr->Normal.x = vertex_3->m_data->m_normal[0];
 				vertexModel_ptr->Normal.y = vertex_3->m_data->m_normal[1];
 				vertexModel_ptr->Normal.z = vertex_3->m_data->m_normal[2];
@@ -447,7 +447,7 @@ void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
 	}
 }
 
-miAabb miVisualObjectImpl::GetAabb() {
+Aabb miVisualObjectImpl::GetAabb() {
 	return m_aabb;
 }
 
@@ -522,10 +522,10 @@ void miVisualObjectImpl::RemapBuffers() {
 	}
 }
 
-void miVisualObjectImpl::Draw(miMatrix* mim) {	
+void miVisualObjectImpl::Draw() {	
 	auto camera = g_app->m_currentViewportDraw->m_activeCamera;
 	
-	Mat4 World = mimath::miMatrix_to_Mat4(*mim);
+	Mat4 World = m_parentSceneObject->m_worldMatrix;
 
 	static yyMaterial default_polygon_material;
 	default_polygon_material.m_baseColor.set(0.5f);
@@ -546,8 +546,7 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		{
 			auto node = m_nodes_polygons_GPU[i];
 
-			yySetMatrix(yyMatrixType::WorldViewProjection,
-				camera->m_projectionMatrix * camera->m_viewMatrix * World);
+			yySetMatrix(yyMatrixType::WorldViewProjection, m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			g_app->m_gpu->SetTexture(0, m_texture);
@@ -583,8 +582,7 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		{
 			auto node = m_nodes_edges_GPU[i];
 
-			yySetMatrix(yyMatrixType::WorldViewProjection,
-				camera->m_projectionMatrix * camera->m_viewMatrix * World);
+			yySetMatrix(yyMatrixType::WorldViewProjection, m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			g_app->m_gpu->SetTexture(0, m_texture);
@@ -602,8 +600,7 @@ void miVisualObjectImpl::Draw(miMatrix* mim) {
 		{
 			auto node = m_nodes_verts_GPU[i];
 
-			yySetMatrix(yyMatrixType::WorldViewProjection,
-				camera->m_projectionMatrix * camera->m_viewMatrix * World);
+			yySetMatrix(yyMatrixType::WorldViewProjection, m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::ViewInvert, Vi);
 			yySetMatrix(yyMatrixType::World, World);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
@@ -629,8 +626,8 @@ bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 	while (true) {
 
 		if (sf->LineInFrust(
-				mimath::mul(current_edge->m_vertex1->m_position, *rM) + *position,
-				mimath::mul(current_edge->m_vertex2->m_position, *rM) + *position)
+				math::mul(current_edge->m_vertex1->m_position, *rM) + *position,
+				math::mul(current_edge->m_vertex2->m_position, *rM) + *position)
 			)
 		{
 			result = true;
@@ -663,7 +660,7 @@ void miVisualObjectImpl::DeselectAll() {
 
 }
 
-bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
+bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 	if (!m_mesh)
 		return false;
 	assert(r);
@@ -686,9 +683,9 @@ bool miVisualObjectImpl::IsRayIntersect(miRay* r, miVec4* ip, float* d) {
 		auto vertex_2 = vertex_1->m_right;
 		auto vertex_3 = vertex_2->m_right;
 		while (true) {
-			auto p1 = mimath::mul( vertex_1->m_data->m_position, *rM );
-			auto p2 = mimath::mul(vertex_2->m_data->m_position, *rM);
-			auto p3 = mimath::mul(vertex_3->m_data->m_position, *rM);
+			auto p1 = math::mul( vertex_1->m_data->m_position, *rM );
+			auto p2 = math::mul(vertex_2->m_data->m_position, *rM);
+			auto p3 = math::mul(vertex_3->m_data->m_position, *rM);
 
 			p1.add(*position);
 			p2.add(*position);

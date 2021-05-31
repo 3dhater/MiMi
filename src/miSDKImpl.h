@@ -77,9 +77,9 @@ public:
 	virtual miKeyboardModifier GetKeyboardModifier();
 	virtual miCursorBehaviorMode GetCursorBehaviorModer();
 	virtual void SetCursorBehaviorModer(miCursorBehaviorMode);
-	virtual miVec2 GetCursorPosition2D();
-	virtual miVec3 GetCursorPosition3D();
-	virtual miVec3 GetCursorPosition3DFirstClick();
+	virtual v2f GetCursorPosition2D();
+	virtual v3f GetCursorPosition3D();
+	virtual v3f GetCursorPosition3DFirstClick();
 	virtual miEditMode GetEditMode();
 	virtual void SetEditMode(miEditMode);
 
@@ -88,7 +88,7 @@ public:
 	virtual void RegisterNewObject(miPlugin* plugin, unsigned int objectID, const wchar_t* category, const wchar_t* objectName);
 	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui);
 
-	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert);
+	virtual void GetRayFromScreen(yyRay* ray, const v2f& coords, const v4f& viewportRect, const Mat4& VPInvert);
 
 	virtual void SetActivePlugin(miPlugin*);
 

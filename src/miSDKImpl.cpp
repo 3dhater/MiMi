@@ -40,14 +40,14 @@ miViewportCameraType miSDKImpl::GetActiveViewportCameraType() { return g_app->m_
 miEditMode miSDKImpl::GetEditMode() {return g_app->m_editMode;}
 void miSDKImpl::SetEditMode(miEditMode em) {g_app->m_editMode = em;}
 
-miVec2 miSDKImpl::GetCursorPosition2D() {
-	return mimath::v2f_to_miVec2(g_app->m_inputContext->m_cursorCoords);
+v2f miSDKImpl::GetCursorPosition2D() {
+	return g_app->m_inputContext->m_cursorCoords;
 }
-miVec3 miSDKImpl::GetCursorPosition3D() {
-	return mimath::v3f_to_miVec3(v3f(g_app->m_cursorPosition3D.x, g_app->m_cursorPosition3D.y, g_app->m_cursorPosition3D.z));
+v3f miSDKImpl::GetCursorPosition3D() {
+	return v3f(g_app->m_cursorPosition3D.x, g_app->m_cursorPosition3D.y, g_app->m_cursorPosition3D.z);
 }
-miVec3 miSDKImpl::GetCursorPosition3DFirstClick() {
-	return mimath::v3f_to_miVec3(v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z));
+v3f miSDKImpl::GetCursorPosition3DFirstClick() {
+	return v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z);
 }
 void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
 	g_app->ChangeCursorBehaviorMode(m);
@@ -136,10 +136,10 @@ void miSDKImpl::RegisterImporter(
 }
 
 void miSDKImpl::GetRayFromScreen(
-	miRay* ray, 
-	const miVec2& coords, 
-	const miVec4& viewportRect, 
-	const miMatrix& VPInvert) 
+	yyRay* ray, 
+	const v2f& coords, 
+	const v4f& viewportRect, 
+	const Mat4& VPInvert) 
 {
 	assert(ray);
 	v2f point;

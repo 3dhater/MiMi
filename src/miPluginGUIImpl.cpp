@@ -73,11 +73,11 @@ void miPluginGUIImpl::Show(bool show) {
 }
 
 void miPluginGUIImpl::AddText(
-	const miVec2& position, 
+	const v2f& position, 
 	const wchar_t* text, 
 	const wchar_t* (*onSelectObject)(miSceneObject*)) 
 {
-	yyGUIText* gui_text = yyGUICreateText(mimath::miVec2_to_v2f(position), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default), text, m_gui_drawGroup);
+	yyGUIText* gui_text = yyGUICreateText(position, g_app->m_GUIManager->GetFont(miGUIManager::Font::Default), text, m_gui_drawGroup);
 	gui_text->IgnoreInput(true);
 	m_gui_group->AddElement(gui_text);
 
@@ -110,10 +110,10 @@ void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider) {
 		}
 	}
 }
-void miPluginGUIImpl::AddRangeSliderInt(const miVec4& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
+void miPluginGUIImpl::AddRangeSliderInt(const v4f& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
 	static int default_int = 0;
 
-	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderInt(mimath::miVec4_to_v4f(rect), minimum, maximum, &default_int, false, m_gui_drawGroup);
+	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderInt(rect, minimum, maximum, &default_int, false, m_gui_drawGroup);
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
@@ -126,10 +126,10 @@ void miPluginGUIImpl::AddRangeSliderInt(const miVec4& rect, int minimum, int max
 
 	m_gui_elements.push_back(ei);
 }
-void miPluginGUIImpl::AddRangeSliderFloat(const miVec4& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
+void miPluginGUIImpl::AddRangeSliderFloat(const v4f& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
 	static f32 default_float = 0;
 
-	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderFloat(mimath::miVec4_to_v4f(rect), minimum, maximum, &default_float, false, m_gui_drawGroup);
+	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderFloat(rect, minimum, maximum, &default_float, false, m_gui_drawGroup);
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
@@ -142,10 +142,10 @@ void miPluginGUIImpl::AddRangeSliderFloat(const miVec4& rect, float minimum, flo
 
 	m_gui_elements.push_back(ei);
 }
-void miPluginGUIImpl::AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
+void miPluginGUIImpl::AddRangeSliderIntNoLimit(const v4f& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) {
 	static int default_int = 0;
 
-	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderIntNoLimit(mimath::miVec4_to_v4f(rect), &default_int, false, m_gui_drawGroup);
+	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderIntNoLimit(rect, &default_int, false, m_gui_drawGroup);
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
@@ -158,10 +158,10 @@ void miPluginGUIImpl::AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSele
 
 	m_gui_elements.push_back(ei);
 }
-void miPluginGUIImpl::AddRangeSliderFloatNoLimit(const miVec4& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
+void miPluginGUIImpl::AddRangeSliderFloatNoLimit(const v4f& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) {
 	static f32 default_float = 0;
 
-	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderFloatNoLimit(mimath::miVec4_to_v4f(rect), &default_float, false, m_gui_drawGroup);
+	yyGUIRangeSlider* gui_slider = yyGUICreateRangeSliderFloatNoLimit(rect, &default_float, false, m_gui_drawGroup);
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
@@ -189,8 +189,8 @@ void miPluginGUIImpl_checkBox_onClick(yyGUIElement* elem, s32 m_id) {
 	}
 }
 
-void miPluginGUIImpl::AddCheckBox(const miVec2& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked) {
-	yyGUICheckBox* checkBox = yyGUICreateCheckBox(mimath::miVec2_to_v2f(position),
+void miPluginGUIImpl::AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked) {
+	yyGUICheckBox* checkBox = yyGUICreateCheckBox(position,
 		yyGUICheckBoxType::Type1, g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
 		text, m_gui_drawGroup);
 	m_gui_group->AddElement(checkBox);

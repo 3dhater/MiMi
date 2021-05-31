@@ -38,7 +38,7 @@ class miVisualObjectImpl : public miVisualObject
 	void _createSoftwareModel_edges();
 	void _createSoftwareModel_verts();
 
-	miAabb m_aabb;
+	Aabb m_aabb;
 	miMesh* m_mesh;
 	
 	miSceneObject* m_parentSceneObject;
@@ -57,15 +57,15 @@ public:
 	//virtual void UpdateCPUModelsOnly(miMesh*);
 	//virtual void RemapAllBuffers();
 
-	virtual void Draw(miMatrix*);
-	virtual miAabb GetAabb();
+	virtual void Draw();
+	virtual Aabb GetAabb();
 	
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf);
 	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
 	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
 	virtual void SelectAll();
 	virtual void DeselectAll();
-	virtual bool IsRayIntersect(miRay* r, miVec4* ip, float* d);
+	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d);
 };
 
 #endif

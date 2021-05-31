@@ -22,8 +22,8 @@ struct miVertex
 	miVertex* m_left;
 	miVertex* m_right;
 
-	miVec3 m_position;
-	miVec2 m_tCoords;
+	v3f m_position;
+	v2f m_tCoords;
 	half m_normal[3];
 
 
@@ -84,7 +84,7 @@ struct miPolygon
 struct miTriangle
 {
 	miTriangle() {}
-	miTriangle(const miVec4& _v1, const miVec4& _v2, const miVec4& _v3)
+	miTriangle(const v4f& _v1, const v4f& _v2, const v4f& _v3)
 		:
 		v1(_v1),
 		v2(_v2),
@@ -93,7 +93,7 @@ struct miTriangle
 		update();
 	}
 
-	miTriangle(const miVec3& _v1, const miVec3& _v2, const miVec3& _v3)
+	miTriangle(const v3f& _v1, const v3f& _v2, const v3f& _v3)
 		:
 		v1(_v1),
 		v2(_v2),
@@ -102,54 +102,55 @@ struct miTriangle
 		update();
 	}
 
-	miVec4 v1;
-	miVec4 v2;
-	miVec4 v3;
-	//miVec4 faceNormal;
-	miVec4 normal1;
-	miVec4 normal2;
-	miVec4 normal3;
-	miVec4 e1;
-	miVec4 e2;
-	miVec4 t1;
-	miVec4 t2;
-	miVec4 t3;
+	v4f v1;
+	v4f v2;
+	v4f v3;
+	//v4f faceNormal;
+	v4f normal1;
+	v4f normal2;
+	v4f normal3;
+	v4f e1;
+	v4f e2;
+	v4f t1;
+	v4f t2;
+	v4f t3;
 
 	void update()
 	{
-		e1 = miVec4(v2.x - v1.x,
+		e1 = v4f(v2.x - v1.x,
 			v2.y - v1.y,
 			v2.z - v1.z,
 			0.f);
-		e2 = miVec4(v3.x - v1.x,
+		e2 = v4f(v3.x - v1.x,
 			v3.y - v1.y,
 			v3.z - v1.z,
 			0.f);
 		//	e1.cross(e2, faceNormal);
 	}
 
-	void center(miVec4& out)
+	void center(v4f& out)
 	{
 		out = (v1 + v2 + v3) * 0.3333333f;
 	}
 
-	bool rayTest_MT(const miRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
+	bool rayTest_MT(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
 	{
-		miVec4  pvec = ray.m_dir.cross1(e2);
+		v4f  pvec;
+		ray.m_direction.cross2(e2, pvec);
 		float det = e1.dot(pvec);
 
 		if (withBackFace)
 		{
-			if (std::fabs(det) < miEpsilon)
+			if (std::fabs(det) < Epsilon)
 				return false;
 		}
 		else
 		{
-			if (det < miEpsilon && det > -miEpsilon)
+			if (det < Epsilon && det > -Epsilon)
 				return false;
 		}
 
-		miVec4 tvec(
+		v4f tvec(
 			ray.m_origin.x - v1.x,
 			ray.m_origin.y - v1.y,
 			ray.m_origin.z - v1.z,
@@ -161,21 +162,22 @@ struct miTriangle
 		if (U < 0.f || U > 1.f)
 			return false;
 
-		miVec4  qvec = tvec.cross1(e1);
-		V = ray.m_dir.dot(qvec) * inv_det;
+		v4f  qvec;
+		tvec.cross2(e1, qvec);
+		V = ray.m_direction.dot(qvec) * inv_det;
 
 		if (V < 0.f || U + V > 1.f)
 			return false;
 
 		T = e2.dot(qvec) * inv_det;
 
-		if (T < miEpsilon) return false;
+		if (T < Epsilon) return false;
 
 		W = 1.f - U - V;
 		return true;
 	}
 
-	bool rayTest_Watertight(const miRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
+	bool rayTest_Watertight(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
 	{
 		v1.w = 1.f;
 		v2.w = 1.f;
@@ -234,14 +236,14 @@ struct miTriangle
 
 		if (!withBackFace) // CULL
 		{
-			if (Ts < 0.f || Ts > miInfinity *det)
+			if (Ts < 0.f || Ts > Infinity *det)
 				return false;
 		}
 		else
 		{
-			if (det < 0.f && (Ts >= 0.f || Ts < miInfinity * det))
+			if (det < 0.f && (Ts >= 0.f || Ts < Infinity * det))
 				return false;
-			else if (det > 0.f && (Ts <= 0.f || Ts > miInfinity * det))
+			else if (det > 0.f && (Ts <= 0.f || Ts > Infinity * det))
 				return false;
 		}
 
@@ -250,7 +252,7 @@ struct miTriangle
 		V = V*invDet;
 		W = W*invDet;
 		T = Ts*invDet;
-		if (T < miEpsilon)
+		if (T < Epsilon)
 			return false;
 		return true;
 	}
@@ -263,14 +265,14 @@ class miPolygonCreator
 {
 	int m_size;
 	int m_allocated;
-	miVec3* m_positions;
-	miVec3* m_normals;
-	miVec2* m_tcoords;
+	v3f* m_positions;
+	v3f* m_normals;
+	v2f* m_tcoords;
 
 	void _reallocate(int size) {
-		miVec3* newPositions = new miVec3[size];
-		miVec3* newNormals = new miVec3[size];
-		miVec2* newtCoords = new miVec2[size];
+		v3f* newPositions = new v3f[size];
+		v3f* newNormals = new v3f[size];
+		v2f* newtCoords = new v2f[size];
 
 		for (int i = 0; i < m_size; ++i)
 		{
@@ -301,7 +303,7 @@ public:
 	void Clear() { m_size = 0; }
 	int Size() { return m_size; }
 
-	void Add(const miVec3& position, const miVec3& normal, const miVec2& tCoords) {
+	void Add(const v3f& position, const v3f& normal, const v2f& tCoords) {
 		if (m_size == m_allocated)
 		{
 			_reallocate(m_allocated + (int)std::ceil(((2.f + (float)m_allocated) * 0.5f)));
@@ -312,9 +314,9 @@ public:
 		++m_size;
 	}
 
-	miVec3* GetPositions() { return m_positions; }
-	miVec3* GetNormals() { return m_normals; }
-	miVec2* GetTCoords() { return m_tcoords; }
+	v3f* GetPositions() { return m_positions; }
+	v3f* GetNormals() { return m_normals; }
+	v2f* GetTCoords() { return m_tcoords; }
 };
 
 struct miSkeleton {
@@ -402,8 +404,8 @@ struct miMeshBuilder
 	std::unordered_map<std::string, miVertex*> m_weldMap;
 	std::string m_vertsMapHash;
 
-	miVec4 m_position;
-	miAabb m_aabb;
+	v4f m_position;
+	Aabb m_aabb;
 
 	bool m_isBegin;
 	void Begin() {
@@ -574,7 +576,7 @@ struct miMeshBuilder
 		}
 	}
 private:
-	void _set_hash(miVec3* position) {
+	void _set_hash(v3f* position) {
 		m_vertsMapHash.clear();
 		char * ptr = (char *)position->data();
 		char bytes[13];

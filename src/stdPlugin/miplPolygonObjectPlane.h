@@ -6,11 +6,11 @@ class miplPolygonObjectPlane : public miSceneObject
 	miSDK* m_sdk;
 	miPlugin* m_plugin;
 	miplStd* m_pluginImpl;
-	miVec2 m_size;
+	v2f m_size;
 
-	miVec3 m_firstPoint;
-	miVec3 m_secondPoint;
-	miAabb m_creationAabb;
+	v3f m_firstPoint;
+	v3f m_secondPoint;
+	Aabb m_creationAabb;
 	bool m_isLMBDown;
 
 	miPolygonCreator* m_polygonCreator;

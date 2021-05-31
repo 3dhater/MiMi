@@ -73,7 +73,7 @@ struct miViewport
 	bool m_drawGrid;
 	void SetDrawGrid(bool);
 	void _drawGrid();
-	void _drawAabb(const miAabb&, const miVec4& color);
+	void _drawAabb(const Aabb&, const v4f& color);
 	void _drawScene();
 	void _drawSelectedObjectFrame();
 

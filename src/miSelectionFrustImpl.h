@@ -14,11 +14,11 @@ public:
 	miSelectionFrustImpl();
 	virtual ~miSelectionFrustImpl();
 
-	virtual void CreateWithAabb(const miAabb& aabb);
-	virtual void CreateWithFrame(const miVec4& frame, const miVec4& vp_rect, const miMatrix& VP_invert);
-	virtual bool PointInFrust(const miVec4& v)const;
-	virtual bool LineInFrust(const miVec4& p1, const miVec4& p2)const ;
-	virtual bool RayTest_MT(const miVec4& ray_origin, const miVec4& ray_end, const miVec4& v1, const miVec4& v2, const miVec4& v3)const;
+	virtual void CreateWithAabb(const Aabb& aabb);
+	virtual void CreateWithFrame(const v4f& frame, const v4f& vp_rect, const Mat4& VP_invert);
+	virtual bool PointInFrust(const v4f& v)const;
+	virtual bool LineInFrust(const v4f& p1, const v4f& p2)const ;
+	virtual bool RayTest_MT(const v4f& ray_origin, const v4f& ray_end, const v4f& v1, const v4f& v2, const v4f& v3)const;
 };
 
 

@@ -76,13 +76,14 @@ enum class miKeyboardModifier : unsigned int {
 	END
 };
 
+#include "yumi.h"
+
 #include "miLib.h"
 #include "miMemory.h"
 #include "miSingleton.h"
 #include "miList.h"
 #include "miString.h"
 #include "miBST.h"
-#include "miMath.h"
 #include "miMesh.h"
 #include "miModel.h"
 #include "miPlugin.h"
@@ -94,29 +95,6 @@ enum class miKeyboardModifier : unsigned int {
 
 typedef void(*miCallback_onClickPopup)(unsigned int id);
 typedef void(miPlugin::*miCallback_onUpdate)();
-
-struct v2f;
-struct v3f;
-struct v4f;
-class Mat4;
-namespace mimath
-{
-	const float PI = static_cast<float>(3.14159265358979323846);
-	const float PIHalf = static_cast<float>(3.14159265358979323846 * 0.5);
-	const float PIPlusHalf = static_cast<float>(3.14159265358979323846 + PIHalf);
-	const float PIPI = 6.2831853f;
-	inline float degToRad(float degrees) { return degrees * (PI / 180.f); }
-	inline float radToDeg(float radians) { return radians * (180.f / PI); }
-
-	miVec2 v2f_to_miVec2(const v2f& v);
-	miVec3 v3f_to_miVec3(const v3f& v);
-	miVec4 v4f_to_miVec4(const v4f& v);
-	miMatrix Mat4_to_miMatrix(const Mat4& m);
-	v2f miVec2_to_v2f(const miVec2& v);
-	v3f miVec3_to_v3f(const miVec3& v);
-	v4f miVec4_to_v4f(const miVec4& v);
-	Mat4 miMatrix_to_Mat4(const miMatrix& m);
-}
 
 enum class miPluginGUIType {
 	ObjectParams,
@@ -130,15 +108,15 @@ public:
 
 	// onSelectObject - will call when 1 object wil be selected
 	//   must return new or old text
-	virtual void AddText(const miVec2& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*)) = 0;
+	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*)) = 0;
 	
 	//   must return new ptr
-	virtual void AddRangeSliderInt(const miVec4& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*,int)) = 0;
-	virtual void AddRangeSliderFloat(const miVec4& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
-	virtual void AddRangeSliderIntNoLimit(const miVec4& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) = 0;
-	virtual void AddRangeSliderFloatNoLimit(const miVec4& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
+	virtual void AddRangeSliderInt(const v4f& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*,int)) = 0;
+	virtual void AddRangeSliderFloat(const v4f& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
+	virtual void AddRangeSliderIntNoLimit(const v4f& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) = 0;
+	virtual void AddRangeSliderFloatNoLimit(const v4f& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
 	
-	virtual void AddCheckBox(const miVec2& position, const wchar_t* text, void (*onClick)(bool isChecked), bool isChecked) = 0;
+	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void (*onClick)(bool isChecked), bool isChecked) = 0;
 };
 
 class miSDKImporterHelper
@@ -197,9 +175,9 @@ public:
 	virtual miKeyboardModifier GetKeyboardModifier() = 0;
 	virtual miCursorBehaviorMode GetCursorBehaviorModer() = 0;
 	virtual void SetCursorBehaviorModer(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
-	virtual miVec2 GetCursorPosition2D() = 0;
-	virtual miVec3 GetCursorPosition3D() = 0;
-	virtual miVec3 GetCursorPosition3DFirstClick() = 0;
+	virtual v2f GetCursorPosition2D() = 0;
+	virtual v3f GetCursorPosition3D() = 0;
+	virtual v3f GetCursorPosition3DFirstClick() = 0;
 
 	virtual miEditMode GetEditMode() = 0;
 	virtual void SetEditMode(miEditMode) = 0;
@@ -215,7 +193,7 @@ public:
 	//  for multiple 'extensions' it must be like this "obj dae fbx"
 	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) = 0;
 
-	virtual void GetRayFromScreen(miRay* ray, const miVec2& coords, const miVec4& viewportRect, const miMatrix& VPInvert) = 0;
+	virtual void GetRayFromScreen(yyRay* ray, const v2f& coords, const v4f& viewportRect, const Mat4& VPInvert) = 0;
 
 	// application will call plugin->onUpdate();
 	virtual void SetActivePlugin(miPlugin*) = 0;

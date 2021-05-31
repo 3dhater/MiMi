@@ -78,6 +78,7 @@ class miApplication
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
 
+	yyResource* m_pivotModel;
 	yyResource* m_gridModel_perspective1;
 	yyResource* m_gridModel_perspective2;
 	yyResource* m_gridModel_top1;
@@ -117,8 +118,8 @@ class miApplication
 	void _updateKeyboardModifier();
 	void _callViewportOnSize();
 
-	miAabb m_sceneAabb;
-	miAabb m_selectionAabb;
+	Aabb m_sceneAabb;
+	Aabb m_selectionAabb;
 	void _buildSceneAabb(miSceneObject*);
 
 	//miViewportCamera* m_currentViewportDrawCamera;
@@ -158,7 +159,7 @@ class miApplication
 	void _deselect_all(miSceneObject* o);
 	void _select_all(miSceneObject* o);
 	
-	miRay m_rayCursor;
+	yyRay m_rayCursor;
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
 	void _get_objects_under_cursor_(miSceneObject*);
 	void _get_objects_under_cursor();
@@ -177,7 +178,7 @@ public:
 	yyArraySimple<miSceneObject*> m_selectedObjects;
 	void update_selected_objects_array();
 
-	std::vector<miRay> g_rays;
+	std::vector<yyRay> g_rays;
 
 	miCursorBehaviorMode m_cursorBehaviorMode;
 	bool m_isSelectByRectangle;

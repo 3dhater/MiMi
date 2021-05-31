@@ -9,7 +9,7 @@ extern miApplication * g_app;
 miSelectionFrustImpl::miSelectionFrustImpl(){}
 miSelectionFrustImpl::~miSelectionFrustImpl(){}
 
-void miSelectionFrustImpl::CreateWithAabb(const miAabb& aabb){
+void miSelectionFrustImpl::CreateWithAabb(const Aabb& aabb){
 	m_data.m_top[0].set(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z, 1.f);
 	m_data.m_top[1].set(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z, 1.f);
 	m_data.m_top[2].set(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z, 1.f);
@@ -40,7 +40,7 @@ void miSelectionFrustImpl::CreateWithAabb(const miAabb& aabb){
 	m_data.m_back[2].set(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z, 1.f);
 	m_data.m_back[3].set(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z, 1.f);
 
-	miVec4 e1, e2;
+	v4f e1, e2;
 
 	e1 = m_data.m_right[1] - m_data.m_right[0];
 	e2 = m_data.m_right[2] - m_data.m_right[0];
@@ -79,14 +79,14 @@ void miSelectionFrustImpl::CreateWithAabb(const miAabb& aabb){
 	m_data.m_BackC *= 0.25;
 }
 
-void miSelectionFrustImpl::CreateWithFrame(const miVec4& frame, const miVec4& vp_rect, const miMatrix& VP_invert){
+void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect, const Mat4& VP_invert){
 	// get 4 rays from screen
-	miRay ray1, ray2, ray3, ray4;
+	yyRay ray1, ray2, ray3, ray4;
 
-	g_app->m_sdk->GetRayFromScreen(&ray1, miVec2(frame.x, frame.y), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray2, miVec2(frame.z, frame.y), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray3, miVec2(frame.x, frame.w), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray4, miVec2(frame.z, frame.w), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&ray1, v2f(frame.x, frame.y), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&ray2, v2f(frame.z, frame.y), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&ray3, v2f(frame.x, frame.w), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&ray4, v2f(frame.z, frame.w), vp_rect, VP_invert);
 
 	ray1.update();
 	ray2.update();
@@ -113,7 +113,7 @@ void miSelectionFrustImpl::CreateWithFrame(const miVec4& frame, const miVec4& vp
 	m_data.m_left[2] = ray3.m_end;
 	m_data.m_left[3] = ray1.m_end;
 
-	miVec4 e1, e2;
+	v4f e1, e2;
 
 	e1 = m_data.m_right[1] - m_data.m_right[0];
 	e2 = m_data.m_right[2] - m_data.m_right[0];
@@ -140,7 +140,7 @@ void miSelectionFrustImpl::CreateWithFrame(const miVec4& frame, const miVec4& vp
 	m_data.m_LC *= 0.25;
 }
 
-bool miSelectionFrustImpl::PointInFrust(const miVec4& v)const{
+bool miSelectionFrustImpl::PointInFrust(const v4f& v)const{
 	if (m_data.m_TN.dot(m_data.m_TC - v) < 0.f) return false;
 	if (m_data.m_BN.dot(m_data.m_BC - v) < 0.f) return false;
 	if (m_data.m_RN.dot(m_data.m_RC - v) < 0.f) return false;
@@ -148,7 +148,7 @@ bool miSelectionFrustImpl::PointInFrust(const miVec4& v)const{
 	return true;
 }
 
-bool miSelectionFrustImpl::LineInFrust(const miVec4& p1, const miVec4& p2)const{
+bool miSelectionFrustImpl::LineInFrust(const v4f& p1, const v4f& p2)const{
 	// обе точки за пределами
 	if (m_data.m_TN.dot(m_data.m_TC - p1) < 0.f && m_data.m_TN.dot(m_data.m_TC - p2) < 0.f) return false;
 	if (m_data.m_BN.dot(m_data.m_BC - p1) < 0.f && m_data.m_BN.dot(m_data.m_BC - p2) < 0.f) return false;
@@ -183,19 +183,19 @@ bool miSelectionFrustImpl::LineInFrust(const miVec4& p1, const miVec4& p2)const{
 	return false;
 }
 
-bool miSelectionFrustImpl::RayTest_MT(const miVec4& ray_origin, const miVec4& ray_end, const miVec4& v1, const miVec4& v2, const miVec4& v3)const{
-	miVec4 e1 = v2 - v1;
-	miVec4 e2 = v3 - v1;
-	miVec4 ray_dir = ray_end - ray_origin;
+bool miSelectionFrustImpl::RayTest_MT(const v4f& ray_origin, const v4f& ray_end, const v4f& v1, const v4f& v2, const v4f& v3)const{
+	v4f e1 = v2 - v1;
+	v4f e2 = v3 - v1;
+	v4f ray_dir = ray_end - ray_origin;
 	ray_dir.normalize2();
 	ray_dir.w = 1.f;
-	miVec4  pvec;
+	v4f  pvec;
 	ray_dir.cross2(e2, pvec);
 	float det = e1.dot(pvec);
 
 	if (std::fabs(det) < Epsilon) return false;
 
-	miVec4 tvec(
+	v4f tvec(
 		ray_origin.x - v1.x,
 		ray_origin.y - v1.y,
 		ray_origin.z - v1.z,
@@ -207,7 +207,7 @@ bool miSelectionFrustImpl::RayTest_MT(const miVec4& ray_origin, const miVec4& ra
 	if (U < 0.f || U > 1.f)
 		return false;
 
-	miVec4  qvec;
+	v4f  qvec;
 	tvec.cross2(e1, qvec);
 	f32 V = ray_dir.dot(qvec) * inv_det;
 

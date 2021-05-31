@@ -21,9 +21,9 @@ public:
 	virtual void RemapBuffers() = 0;
 
 	// call this in miSceneObject::OnDraw()
-	virtual void Draw(miMatrix*) = 0;
+	virtual void Draw() = 0;
 
-	virtual miAabb GetAabb() = 0;
+	virtual Aabb GetAabb() = 0;
 
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf) = 0;
 	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
@@ -31,7 +31,7 @@ public:
 	virtual void SelectAll() = 0;
 	virtual void DeselectAll() = 0;
 
-	virtual bool IsRayIntersect(miRay* r, miVec4* ip, float* d) = 0;
+	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d) = 0;
 };
 
 #endif

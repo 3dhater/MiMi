@@ -50,9 +50,9 @@ struct OBJFace
 
 unsigned char * OBJNextLine(unsigned char * ptr);
 unsigned char * OBJSkipSpaces(unsigned char * ptr);
-unsigned char * OBJReadVec2(unsigned char * ptr, miVec2& vec2);
+unsigned char * OBJReadVec2(unsigned char * ptr, v2f& vec2);
 unsigned char * OBJReadFloat(unsigned char * ptr, float& value);
-unsigned char * OBJReadVec3(unsigned char * ptr, miVec3& vec3);
+unsigned char * OBJReadVec3(unsigned char * ptr, v3f& vec3);
 unsigned char * OBJReadFace(unsigned char * ptr, OBJFace& f, char * s);
 unsigned char * OBJReadWord(unsigned char * ptr, miString& str);
 
@@ -71,11 +71,11 @@ void miplStd_ImportOBJ_Tiangulate_onClick(bool isChecked) {
 void miplStd_initGuiForImportOBJ(miPluginGUI* gui) {
 	float X = 0.f;
 	float Y = 0.f;
-	gui->AddText(miVec2(X, Y), L"Import parameters: ", 0);
+	gui->AddText(v2f(X, Y), L"Import parameters: ", 0);
 
 	Y += 15.f;
 
-	gui->AddCheckBox(miVec2(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, false);
+	gui->AddCheckBox(v2f(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, false);
 }
 
 void miplStd_ImportOBJ(const wchar_t* fileName) {
@@ -102,13 +102,13 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	bool isModel = false;
 	bool grpFound = false;
 
-	miVec2 tcoords;
-	miVec3 pos;
-	miVec3 norm;
+	v2f tcoords;
+	v3f pos;
+	v3f norm;
 
-	std::vector<miVec3> position;
-	std::vector<miVec2> uv;
-	std::vector<miVec3> normal;
+	std::vector<v3f> position;
+	std::vector<v2f> uv;
+	std::vector<v3f> normal;
 
 	position.reserve(0xffff);
 	uv.reserve(0xffff);
@@ -222,8 +222,8 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 				auto v = position[pos_index];
 
 				//geometry_creator->AddPosition(v.x, v.y, v.z);
-				miVec3 pcPos, pcNorm;
-				miVec2 pcUV;
+				v3f pcPos, pcNorm;
+				v2f pcUV;
 
 				pcPos = v;
 
@@ -328,7 +328,7 @@ unsigned char * OBJNextLine(unsigned char * ptr)
 	return ptr;
 }
 
-unsigned char * OBJReadVec2(unsigned char * ptr, miVec2& vec2)
+unsigned char * OBJReadVec2(unsigned char * ptr, v2f& vec2)
 {
 	ptr = OBJSkipSpaces(ptr);
 	float x, y;
@@ -375,7 +375,7 @@ unsigned char * OBJReadFloat(unsigned char * ptr, float& value)
 	return ptr;
 }
 
-unsigned char * OBJReadVec3(unsigned char * ptr, miVec3& vec3) {
+unsigned char * OBJReadVec3(unsigned char * ptr, v3f& vec3) {
 	ptr = OBJSkipSpaces(ptr);
 	float x, y, z;
 	if (*ptr == '\n') {

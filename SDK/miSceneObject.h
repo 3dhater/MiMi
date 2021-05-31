@@ -9,28 +9,32 @@ class miPluginGUI;
 class miSceneObject
 {
 protected:
-	miAabb m_aabb;
-	miAabb m_aabbTransformed;
+	Aabb m_aabb;
+	Aabb m_aabbTransformed;
 	miString m_name;
 
 	miSceneObject* m_parent;
 	miList<miSceneObject*> m_children;
 	
-	miMatrix m_rotationMatrix;
-	miMatrix m_worldMatrix;
+	Mat4 m_rotationMatrix;
+	Mat4 m_worldMatrix;
+	Mat4 m_worldViewProjection;
 
-	miVec4 m_localPosition;
-	miVec4 m_globalPosition;
+	v4f m_localPosition;
+	v4f m_globalPosition;
 
-	miVec4 m_edgeColor;
+	v4f m_edgeColor;
 
 	miPluginGUI* m_gui;
 
 	bool m_isSelected;
 	float m_distanceToCamera; // not implemented
 	float m_cursorIntersectionPointDistance;
-	miVec4 m_cursorIntersectionPoint;
+	v4f m_cursorIntersectionPoint;
+	
 	friend class miApplication;
+	friend struct miViewport;
+	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
 		m_gui = 0;
@@ -44,14 +48,14 @@ public:
 	virtual miPluginGUI* GetGui() { return m_gui; }
 	virtual float GetDistanceToCamera() { return m_distanceToCamera; }
 	virtual float GetDistanceToCursorIP() { return m_cursorIntersectionPointDistance; }
-	virtual miVec4* GetCursorIntersectionPoint() { return &m_cursorIntersectionPoint; }
+	virtual v4f* GetCursorIntersectionPoint() { return &m_cursorIntersectionPoint; }
 	virtual bool IsSelected() { return m_isSelected; }
 	
-	virtual miMatrix* GetRotationMatrix() { return &m_rotationMatrix; }
-	virtual miMatrix* GetWorldMatrix() { return &m_worldMatrix; }
+	virtual Mat4* GetRotationMatrix() { return &m_rotationMatrix; }
+	virtual Mat4* GetWorldMatrix() { return &m_worldMatrix; }
 
 	virtual void UpdateTransform() {
-		miMatrix T;
+		Mat4 T;
 		T.setTranslation(m_localPosition);
 		
 		m_worldMatrix = T * m_rotationMatrix;
@@ -64,14 +68,14 @@ public:
 		m_globalPosition = m_worldMatrix.m_data[3];
 	}
 
-	virtual miVec4* GetLocalPosition() { return &m_localPosition; }
-	virtual miVec4* GetGlobalPosition() { return &m_globalPosition; }
+	virtual v4f* GetLocalPosition() { return &m_localPosition; }
+	virtual v4f* GetGlobalPosition() { return &m_globalPosition; }
 	
-	virtual miVec4* GetEdgeColor() { return &m_edgeColor; }
-	virtual void SetEdgeColor(const miVec4& c) { m_edgeColor = c; }
+	virtual v4f* GetEdgeColor() { return &m_edgeColor; }
+	virtual void SetEdgeColor(const v4f& c) { m_edgeColor = c; }
 
-	virtual miAabb* GetAABB() { return &m_aabb; }
-	virtual miAabb* GetAABBTransformed() { return &m_aabbTransformed; }
+	virtual Aabb* GetAABB() { return &m_aabb; }
+	virtual Aabb* GetAABBTransformed() { return &m_aabbTransformed; }
 	virtual const miString& GetName() { return m_name; }
 
 	virtual miList<miSceneObject*>* GetChildren() { return &m_children; }
@@ -214,7 +218,7 @@ public:
 		}
 	}
 
-	virtual bool IsRayIntersect(miRay* r, miVec4* ip, float* d) {
+	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 		for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
 		{
 			if (GetVisualObject(i)->IsRayIntersect(r, ip, d))

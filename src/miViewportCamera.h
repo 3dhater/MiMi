@@ -7,21 +7,6 @@ struct miCameraFrustum
 
 	bool PointInFrustum(const v4f& point)
 	{
-		for (s32 i = 0; i < 6; ++i)
-		{
-			if ((
-				m_planes[i].x * point.x +
-				m_planes[i].y * point.y +
-				m_planes[i].z * point.z +
-				m_planes[i].w)
-				< 0.f)
-				return false;
-		}
-		return true;
-	}
-
-	bool PointInFrustum(const miVec4& point)
-	{
 		
 		if ((
 			m_planes[0].x * point.x +
@@ -68,7 +53,7 @@ struct miCameraFrustum
 		return true;
 	}
 
-	bool SphereInFrustum(f32 radius, const miVec4& position)
+	bool SphereInFrustum(f32 radius, const v4f& position)
 	{
 		for (u32 i = 0u; i < 6u; ++i)
 		{

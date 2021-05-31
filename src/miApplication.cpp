@@ -19,61 +19,6 @@
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
 
-
-namespace mimath
-{
-	miVec2 v2f_to_miVec2(const v2f& v) { return miVec2(v.x, v.y); }
-	miVec3 v3f_to_miVec3(const v3f& v) { return miVec3(v.x, v.y, v.z); }
-	miVec4 v4f_to_miVec4(const v4f& v) { return miVec4(v.x, v.y, v.z, v.w); }
-	miMatrix Mat4_to_miMatrix(const Mat4& m) { 
-		miMatrix mi_m;
-		auto mi_m_ptr = mi_m.getPtr();
-		auto m_ptr = m.getPtrConst();
-		mi_m_ptr[0] = m_ptr[0];
-		mi_m_ptr[1] = m_ptr[1];
-		mi_m_ptr[2] = m_ptr[2];
-		mi_m_ptr[3] = m_ptr[3];
-		mi_m_ptr[4] = m_ptr[4];
-		mi_m_ptr[5] = m_ptr[5];
-		mi_m_ptr[6] = m_ptr[6];
-		mi_m_ptr[7] = m_ptr[7];
-		mi_m_ptr[8] = m_ptr[8];
-		mi_m_ptr[9] = m_ptr[9];
-		mi_m_ptr[10] = m_ptr[10];
-		mi_m_ptr[11] = m_ptr[11];
-		mi_m_ptr[12] = m_ptr[12];
-		mi_m_ptr[13] = m_ptr[13];
-		mi_m_ptr[14] = m_ptr[14];
-		mi_m_ptr[15] = m_ptr[15];
-		return mi_m; 
-	}
-	v2f miVec2_to_v2f(const miVec2& v) { return v2f(v.x, v.y); }
-	v3f miVec3_to_v3f(const miVec3& v) { return v3f(v.x, v.y, v.z); }
-	v4f miVec4_to_v4f(const miVec4& v) { return v4f(v.x, v.y, v.z, v.w); }
-	Mat4 miMatrix_to_Mat4(const miMatrix& m1) {
-		Mat4 m2;
-		auto p1 = m1.getPtrConst();
-		auto p2 = m2.getPtrConst();
-		p2[0] = p1[0];
-		p2[1] = p1[1];
-		p2[2] = p1[2];
-		p2[3] = p1[3];
-		p2[4] = p1[4];
-		p2[5] = p1[5];
-		p2[6] = p1[6];
-		p2[7] = p1[7];
-		p2[8] = p1[8];
-		p2[9] = p1[9];
-		p2[10] = p1[10];
-		p2[11] = p1[11];
-		p2[12] = p1[12];
-		p2[13] = p1[13];
-		p2[14] = p1[14];
-		p2[15] = p1[15];
-		return m2;
-	}
-}
-
 void log_writeToFile(const char* message) {
 	auto l = strlen(message);
 	if (l < 1) return;
@@ -243,6 +188,7 @@ miApplication::miApplication() {
 	m_gridModel_left2_10 = 0;
 	m_gridModel_left1_100 = 0;
 	m_gridModel_left2_100 = 0;
+	m_pivotModel = 0;
 
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -286,6 +232,7 @@ miApplication::~miApplication() {
 		if(m_viewportLayouts[i])
 			delete m_viewportLayouts[i];
 	}
+	if (m_pivotModel) yyMegaAllocator::Destroy(m_pivotModel);
 	if (m_gridModel_left1) yyMegaAllocator::Destroy(m_gridModel_left1);
 	if (m_gridModel_left2) yyMegaAllocator::Destroy(m_gridModel_left2);
 	if (m_gridModel_left1_10) yyMegaAllocator::Destroy(m_gridModel_left1_10);
@@ -607,6 +554,39 @@ vidOk:
 	_initPopups();
 	_initGrid();
 
+	{
+		yyModel * model = yyCreate<yyModel>();
+		model->m_stride = sizeof(yyVertexLine);
+		model->m_vertexType = yyVertexType::LineModel;
+		model->m_vCount = 4;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 6;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		
+		auto vertex = (yyVertexLine*)model->m_vertices;
+		vertex->Position.set(0.f, 0.f, 0.f);
+		vertex->Color = ColorWhite.getV4f();
+		vertex++;
+		vertex->Position.set(1.f, 0.f, 0.f);
+		vertex->Color = ColorWhite.getV4f();
+		vertex++;
+		vertex->Position.set(0.f, 1.f, 0.f);
+		vertex->Color = ColorWhite.getV4f();
+		vertex++;
+		vertex->Position.set(0.f, 0.f, 1.f);
+		vertex->Color = ColorWhite.getV4f();
+		
+		u16* index = (u16*)model->m_indices;
+		*index = 0; index++;
+		*index = 1; index++;
+		*index = 0; index++;
+		*index = 2; index++;
+		*index = 0; index++;
+		*index = 3; index++;
+
+		m_pivotModel = yyCreateModel(model);
+		m_pivotModel->Load();
+	}
 
 	m_2d = new miGraphics2D;
 	m_2d->Init(m_window);
@@ -681,9 +661,9 @@ void miApplication::MainLoop() {
 		{
 			m_sdk->GetRayFromScreen(
 				&m_rayCursor, 
-				mimath::v2f_to_miVec2(m_inputContext->m_cursorCoords),
-				mimath::v4f_to_miVec4(m_viewportUnderCursor->m_currentRect),
-				mimath::Mat4_to_miMatrix(m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix)
+				m_inputContext->m_cursorCoords,
+				m_viewportUnderCursor->m_currentRect,
+				m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix
 			);
 			_get_objects_under_cursor();
 		}
@@ -853,7 +833,7 @@ void miApplication::ProcessShortcuts() {
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
-	miVec4 ip;
+	v4f ip;
 	f32 d = 0.f;
 	if (o->IsRayIntersect(&m_rayCursor, &ip, &d))
 	{
@@ -1036,9 +1016,9 @@ void miApplication::UpdateViewports() {
 				aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
 
 				m_selectionFrust->CreateWithFrame(
-					miVec4(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
-					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+					v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+					m_activeViewportLayout->m_activeViewport->m_currentRect,
+					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 
 				_select_multiple();
 			}
@@ -1046,13 +1026,13 @@ void miApplication::UpdateViewports() {
 			{
 				const f32 _size = 2.f;
 				m_selectionFrust->CreateWithFrame(
-					miVec4(
+					v4f(
 						m_inputContext->m_cursorCoords.x - _size, 
 						m_inputContext->m_cursorCoords.y - _size, 
 						m_inputContext->m_cursorCoords.x + _size,
 						m_inputContext->m_cursorCoords.y + _size),
-					mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
-					mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+					m_activeViewportLayout->m_activeViewport->m_currentRect,
+					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 
 				_select_single();
 			}
@@ -1098,10 +1078,10 @@ void miApplication::UpdateViewports() {
 		if (m_inputContext->m_isLMBDown)
 		{
 			m_cursorLMBClickPosition = m_inputContext->m_cursorCoords;
-			miRay r;
-			m_sdk->GetRayFromScreen(&r, mimath::v2f_to_miVec2(m_inputContext->m_cursorCoords),
-				mimath::v4f_to_miVec4(m_activeViewportLayout->m_activeViewport->m_currentRect),
-				mimath::Mat4_to_miMatrix(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix));
+			yyRay r;
+			m_sdk->GetRayFromScreen(&r, m_inputContext->m_cursorCoords,
+				m_activeViewportLayout->m_activeViewport->m_currentRect,
+				m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 			
 			g_rays.push_back(r);
 		}
@@ -1295,6 +1275,7 @@ void miApplication::CommandViewportToggleFullView(miViewport* vp) {
 		m_activeViewportLayout->m_activeViewport->Copy(m_previousViewportLayout->m_activeViewport);
 		m_activeViewportLayout->ShowGUI();
 	}
+	m_activeViewportLayout->m_activeViewport->UpdateAspect();
 	m_2d->UpdateClip();
 }
 
@@ -1416,7 +1397,7 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	o->SetName(newName.data());
 	o->SetParent(m_rootObject);
 	
-	miVec4 ec(1.f);
+	v4f ec(1.f);
 
 	//std::srand(std::time(0));
 	//int result = std::rand() % (sizeof(g_colors) / sizeof(g_colors[0]));

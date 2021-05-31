@@ -68,22 +68,22 @@ void miViewportCamera::Update() {
 void miViewportCamera::MoveToSelection() {
 	if (!g_app->m_selectionAabb.isEmpty())
 	{
-		miVec4 e;
+		v4f e;
 		g_app->m_selectionAabb.extent(e);
 
-		miVec4 c;
+		v4f c;
 		g_app->m_selectionAabb.center(c);
-		m_positionPlatform = mimath::miVec4_to_v4f(c);
+		m_positionPlatform = c;
 		m_positionPlatform.w = e.length();
 	}
 	else if (!g_app->m_sceneAabb.isEmpty())
 	{
-		miVec4 e;
+		v4f e;
 		g_app->m_sceneAabb.extent(e);
 
-		miVec4 c;
+		v4f c;
 		g_app->m_sceneAabb.center(c);
-		m_positionPlatform = mimath::miVec4_to_v4f(c);
+		m_positionPlatform = c;
 		m_positionPlatform.w = e.length();
 	}
 	else
@@ -94,7 +94,7 @@ void miViewportCamera::MoveToSelection() {
 
 void miViewportCamera::Reset() {
 	m_near = 0.01f;
-	m_far  = 500.f;
+	m_far  = 2500.f;
 	m_fov  = 0.683264;
 	m_aspect = 800.f / 600.f;
 	m_positionPlatform = v4f(0.f, 0.f, 0.f, 15.f);
