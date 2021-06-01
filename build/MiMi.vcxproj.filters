@@ -23,6 +23,7 @@
     <ClCompile Include="..\src\miRootObject.cpp" />
     <ClCompile Include="..\src\miPluginGUIImpl.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
+    <ClCompile Include="..\src\miGizmo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />
@@ -37,5 +38,6 @@
     <ClInclude Include="..\src\miRootObject.h" />
     <ClInclude Include="..\src\miPluginGUIImpl.h" />
     <ClInclude Include="..\src\miEditableObject.h" />
+    <ClInclude Include="..\src\miGizmo.h" />
   </ItemGroup>
 </Project>

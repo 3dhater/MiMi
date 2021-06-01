@@ -142,6 +142,7 @@ int main(int argc, char* argv[]) {
 
 miApplication::miApplication() {
 	m_onImport_importer = 0;
+	m_gizmo = 0;
 	m_isGUIInputFocus = false;
 	m_currentViewportDraw = 0;
 	m_editMode = miEditMode::Object;
@@ -188,7 +189,6 @@ miApplication::miApplication() {
 	m_gridModel_left2_10 = 0;
 	m_gridModel_left1_100 = 0;
 	m_gridModel_left2_100 = 0;
-	m_pivotModel = 0;
 
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -208,6 +208,7 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+	if (m_gizmo) delete m_gizmo;
 	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
 	{
 		if (m_cursors[i])delete m_cursors[i];
@@ -232,7 +233,6 @@ miApplication::~miApplication() {
 		if(m_viewportLayouts[i])
 			delete m_viewportLayouts[i];
 	}
-	if (m_pivotModel) yyMegaAllocator::Destroy(m_pivotModel);
 	if (m_gridModel_left1) yyMegaAllocator::Destroy(m_gridModel_left1);
 	if (m_gridModel_left2) yyMegaAllocator::Destroy(m_gridModel_left2);
 	if (m_gridModel_left1_10) yyMegaAllocator::Destroy(m_gridModel_left1_10);
@@ -554,40 +554,8 @@ vidOk:
 	_initPopups();
 	_initGrid();
 
-	{
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 6;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
-		
-		auto vertex = (yyVertexLine*)model->m_vertices;
-		vertex->Position.set(0.f, 0.f, 0.f);
-		vertex->Color = ColorWhite.getV4f();
-		vertex++;
-		vertex->Position.set(1.f, 0.f, 0.f);
-		vertex->Color = ColorWhite.getV4f();
-		vertex++;
-		vertex->Position.set(0.f, 1.f, 0.f);
-		vertex->Color = ColorWhite.getV4f();
-		vertex++;
-		vertex->Position.set(0.f, 0.f, 1.f);
-		vertex->Color = ColorWhite.getV4f();
-		
-		u16* index = (u16*)model->m_indices;
-		*index = 0; index++;
-		*index = 1; index++;
-		*index = 0; index++;
-		*index = 2; index++;
-		*index = 0; index++;
-		*index = 3; index++;
-
-		m_pivotModel = yyCreateModel(model);
-		m_pivotModel->Load();
-	}
-
+	m_gizmo = new miGizmo;
+	
 	m_2d = new miGraphics2D;
 	m_2d->Init(m_window);
 

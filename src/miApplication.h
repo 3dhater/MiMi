@@ -10,6 +10,7 @@
 #include "../SDK/miSDK.h"
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
+#include "miGizmo.h"
 #include "miViewport.h"
 #include "miPopup.h"
 
@@ -78,7 +79,6 @@ class miApplication
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
 
-	yyResource* m_pivotModel;
 	yyResource* m_gridModel_perspective1;
 	yyResource* m_gridModel_perspective2;
 	yyResource* m_gridModel_top1;
@@ -165,6 +165,7 @@ class miApplication
 	void _get_objects_under_cursor();
 	void _update_selected_objects_array(miSceneObject*);
 
+	miGizmo* m_gizmo;
 
 public:
 	miApplication();
@@ -227,6 +228,7 @@ public:
 	void SetEditMode(miEditMode);
 	void SetTransformMode(miTransformMode);
 
+	friend class miGizmo;
 	friend class miGUIManager;
 	friend class miPluginGUIImpl;
 	friend class miGraphics2D;
