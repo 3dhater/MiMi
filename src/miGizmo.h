@@ -10,6 +10,10 @@ public:
 	yyResource* m_pivotModel;
 
 	void Draw();
+	bool Update();
+
+	Mat4 m_W;
+	Mat4 m_WVP;
 };
 
 #endif

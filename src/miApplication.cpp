@@ -141,6 +141,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_isGizmoInput = false;
 	m_onImport_importer = 0;
 	m_gizmo = 0;
 	m_isGUIInputFocus = false;
@@ -506,6 +507,7 @@ bool miApplication::Init(const char* videoDriver) {
 	m_window->m_onMaximize = window_callbackOnSize;
 	m_window->m_onRestore = window_callbackOnSize;
 	m_window->m_onActivate = window_onActivate;
+	ShowWindow(m_window->m_hWnd, SW_MAXIMIZE);
 
 	if (!yyInitVideoDriver(videoDriver, m_window))
 	{
@@ -1170,6 +1172,12 @@ void miApplication::UpdateViewports() {
 	{
 		m_isViewportInFocus = false;
 	}
+
+	m_isGizmoInput = false;
+	if (m_selectedObjects.m_size)
+	{
+		m_isGizmoInput = m_gizmo->Update();
+	}
 }
 
 void miApplication::DrawViewports() {
@@ -1421,6 +1429,10 @@ void miApplication::UpdateSelectionAabb() {
 		break;
 	}
 	}
+
+	m_selectionAabb.center(m_selectionAabb_center);
+	m_selectionAabb.extent(m_selectionAabb_extent);
+	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
 }
 
 void miApplication::OnImport_openDialog() {

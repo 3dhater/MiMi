@@ -495,41 +495,46 @@ void miViewport::_drawScene() {
 		}
 	}
 
-	m_gpu->UseDepth(false);
-	for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
+	if (g_app->m_selectedObjects.m_size)
 	{
-		auto object = m_visibleObjects.m_data[i];
-		if (!object->IsSelected())
-			continue;
-
-		auto object_position = object->GetGlobalPosition();
-		auto object_position_v4f = *object_position;
-
-		//uto dir = object_position_v4f - m_activeCamera->m_positionCamera;
-
-		auto sz = m_activeCamera->m_positionCamera.distance(object_position_v4f) * 0.1f;
-		//auto test = math::mul(v3f(sz),m_activeCamera->m_projectionMatrix);
-		//printf("%f %f %f\n", test.x, test.y, test.z);
-
-		//if (g_app->m_transformMode == miTransformMode::NoTransform)
-		//{
-		//	m_gpu->SetModel(g_app->m_pivotModel);
-		//	Mat4 S;
-		//	math::makeScaleMatrix(v4f(sz * m_activeCamera->m_fov), S);
-
-		//	Mat4 T;
-		//	math::makeTranslationMatrix(object->m_worldMatrix[3], T);
-
-		//	Mat4 W = T * S;
-
-		//	yySetMatrix(yyMatrixType::World, W);
-		//	yySetMatrix(yyMatrixType::WorldViewProjection, m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * W);
-		//	m_gpu->Draw();
-		//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(sz, 0.f, 0.f, 0.f), ColorWhite);
-		//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, sz, 0.f, 0.f), ColorWhite);
-		//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, 0.f, sz, 0.f), ColorWhite);
-		//}
+		g_app->m_gizmo->Draw();
 	}
+
+	//m_gpu->UseDepth(false);
+	//for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
+	//{
+	//	auto object = m_visibleObjects.m_data[i];
+	//	if (!object->IsSelected())
+	//		continue;
+
+	////	auto object_position = object->GetGlobalPosition();
+	////	auto object_position_v4f = *object_position;
+
+	//	//uto dir = object_position_v4f - m_activeCamera->m_positionCamera;
+
+	//	//auto sz = m_activeCamera->m_positionCamera.distance(object_position_v4f) * 0.1f;
+	//	//auto test = math::mul(v3f(sz),m_activeCamera->m_projectionMatrix);
+	//	//printf("%f %f %f\n", test.x, test.y, test.z);
+
+	//	//if (g_app->m_transformMode == miTransformMode::NoTransform)
+	//	//{
+	//	//	m_gpu->SetModel(g_app->m_pivotModel);
+	//	//	Mat4 S;
+	//	//	math::makeScaleMatrix(v4f(sz * m_activeCamera->m_fov), S);
+
+	//	//	Mat4 T;
+	//	//	math::makeTranslationMatrix(object->m_worldMatrix[3], T);
+
+	//	//	Mat4 W = T * S;
+
+	//	//	yySetMatrix(yyMatrixType::World, W);
+	//	//	yySetMatrix(yyMatrixType::WorldViewProjection, m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * W);
+	//	//	m_gpu->Draw();
+	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(sz, 0.f, 0.f, 0.f), ColorWhite);
+	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, sz, 0.f, 0.f), ColorWhite);
+	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, 0.f, sz, 0.f), ColorWhite);
+	//	//}
+	//}
 
 //	g_app->UpdateSceneAabb();
 }
@@ -743,9 +748,9 @@ void miViewport::_drawGrid() {
 	}break;
 	}
 
-	m_gpu->DrawLine3D(v4f(), v4f(99999.f, 0.f, 0.f, 0.f), ColorRed);
-	m_gpu->DrawLine3D(v4f(), v4f(0.f, 99999.f, 0.f, 0.f), ColorBlue);
-	m_gpu->DrawLine3D(v4f(), v4f(0.f, 0.f, 99999.f, 0.f), ColorLime);
+	//m_gpu->DrawLine3D(v4f(), v4f(99999.f, 0.f, 0.f, 0.f), ColorRed);
+	//m_gpu->DrawLine3D(v4f(), v4f(0.f, 99999.f, 0.f, 0.f), ColorBlue);
+	//m_gpu->DrawLine3D(v4f(), v4f(0.f, 0.f, 99999.f, 0.f), ColorLime);
 
 	yySetMaterial(&g_app->m_gridModelMaterial);
 	m_gpu->UseDepth(true);

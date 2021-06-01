@@ -120,6 +120,8 @@ class miApplication
 
 	Aabb m_sceneAabb;
 	Aabb m_selectionAabb;
+	v4f m_selectionAabb_center;
+	v4f m_selectionAabb_extent;
 	void _buildSceneAabb(miSceneObject*);
 
 	//miViewportCamera* m_currentViewportDrawCamera;
@@ -189,6 +191,8 @@ public:
 	v4f m_cursorPosition3D;         // intersection point
 
 	f32 m_dt;
+
+	bool m_isGizmoInput;
 
 	bool Init(const char* videoDriver);
 	void MainLoop();

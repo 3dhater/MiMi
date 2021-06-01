@@ -49,6 +49,17 @@ miGizmo::~miGizmo() {
 }
 
 void miGizmo::Draw() {
+	m_W.identity();
+	m_W.setTranslation(g_app->m_selectionAabb_center);
+
+	yySetMatrix(yyMatrixType::World, &m_W);
+	
+	m_WVP.identity();
+	m_WVP = g_app->m_currentViewportDraw->m_activeCamera->m_projectionMatrix 
+		* g_app->m_currentViewportDraw->m_activeCamera->m_viewMatrix 
+		* m_W;
+	yySetMatrix(yyMatrixType::WorldViewProjection, &m_WVP);
+
 	switch (g_app->m_transformMode)
 	{
 	default:
@@ -63,4 +74,10 @@ void miGizmo::Draw() {
 	case miTransformMode::Rotate:
 		break;
 	}
+}
+
+bool miGizmo::Update() {
+	//g_app->m_selectionAabb_center;
+
+	return false;
 }

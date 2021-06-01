@@ -68,13 +68,8 @@ void miViewportCamera::Update() {
 void miViewportCamera::MoveToSelection() {
 	if (!g_app->m_selectionAabb.isEmpty())
 	{
-		v4f e;
-		g_app->m_selectionAabb.extent(e);
-
-		v4f c;
-		g_app->m_selectionAabb.center(c);
-		m_positionPlatform = c;
-		m_positionPlatform.w = e.length();
+		m_positionPlatform = g_app->m_selectionAabb_center;
+		m_positionPlatform.w = g_app->m_selectionAabb_extent.length();
 	}
 	else if (!g_app->m_sceneAabb.isEmpty())
 	{
