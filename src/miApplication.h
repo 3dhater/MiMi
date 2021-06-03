@@ -10,6 +10,16 @@
 #include "../SDK/miSDK.h"
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
+
+class miGUIManager;
+class miShortcutManager;
+class miSDKImpl;
+class miGraphics2D;
+class miSelectionFrustImpl;
+class miRootObject;
+struct miViewportCamera;
+struct miImporter;
+
 #include "miGizmo.h"
 #include "miViewport.h"
 #include "miPopup.h"
@@ -40,13 +50,7 @@
 
 #define miEventId_ShowMainMenu 1
 
-class miGUIManager;
-class miShortcutManager;
-class miSDKImpl;
-class miGraphics2D;
-class miSelectionFrustImpl;
-class miRootObject;
-struct miImporter;
+
 
 //struct miPluginCommandIDMapNode{
 //	miPluginCommandIDMapNode() {
@@ -231,6 +235,8 @@ public:
 
 	void SetEditMode(miEditMode);
 	void SetTransformMode(miTransformMode);
+
+	void DrawAabb(const Aabb& aabb, const v4f& _color);
 
 	friend class miGizmo;
 	friend class miGUIManager;

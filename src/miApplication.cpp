@@ -1470,3 +1470,39 @@ void miApplication::SetEditMode(miEditMode m) {
 void miApplication::SetTransformMode(miTransformMode m) {
 	m_transformMode = m;
 }
+
+void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
+	auto & p1 = aabb.m_min;
+	auto & p2 = aabb.m_max;
+
+	yyColor color;
+	color.m_data[0] = _color.x;
+	color.m_data[1] = _color.y;
+	color.m_data[2] = _color.z;
+	color.m_data[3] = 1.f;
+
+	v4f positionOffset;
+
+	v4f v1 = p1;
+	v4f v2 = p2;
+
+	v4f v3(p1.x, p1.y, p2.z, 1.f);
+	v4f v4(p2.x, p1.y, p1.z, 1.f);
+	v4f v5(p1.x, p2.y, p1.z, 1.f);
+	v4f v6(p1.x, p2.y, p2.z, 1.f);
+	v4f v7(p2.x, p1.y, p2.z, 1.f);
+	v4f v8(p2.x, p2.y, p1.z, 1.f);
+
+	m_gpu->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
+	m_gpu->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
+	m_gpu->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
+	m_gpu->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
+	m_gpu->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
+	m_gpu->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
+	m_gpu->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
+	m_gpu->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
+	m_gpu->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
+	m_gpu->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+}
