@@ -497,7 +497,7 @@ void miViewport::_drawScene() {
 
 	if (g_app->m_selectedObjects.m_size)
 	{
-		g_app->m_gizmo->Draw();
+		g_app->m_gizmo->Draw(this);
 	}
 
 	//m_gpu->UseDepth(false);

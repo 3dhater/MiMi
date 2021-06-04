@@ -38,22 +38,14 @@ public:
 	bool m_isDrawAabbMoveBodyZ;
 	bool m_isDrawAabbMoveHeadZ;
 
-	void Draw();
-	bool Update();
+	void Draw(miViewport*);
+	bool Update(miViewport*);
 
 	Mat4 m_S;
 	Mat4 m_T;
 	Mat4 m_W;
 	Mat4 m_WVP;
 
-	// depends on camera platformposition.W and selection aabb center.destance(something)
-	// m_zoomScaleValue = platformposition.W; always when reset camera or moveToSelection
-	// calculate new when zoom or rotate
-	f32 m_zoomScaleValue;
-	void SetZoomScaleValue(f32);
-	// save distance between camera and sel. aabb center. only on reset or moveToSelection
-	f32 m_zoomScaleValueCameraDistance; 
-	void ClaculateZoomScaleValue(miViewportCamera*);
 };
 
 #endif

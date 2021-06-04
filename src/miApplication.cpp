@@ -1174,10 +1174,6 @@ void miApplication::UpdateViewports() {
 	}
 
 	m_isGizmoInput = false;
-	if (m_selectedObjects.m_size)
-	{
-		m_isGizmoInput = m_gizmo->Update();
-	}
 }
 
 void miApplication::DrawViewports() {
@@ -1198,6 +1194,8 @@ void miApplication::DrawViewports() {
 			m_gpu->UseDepth(false);
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
+		if (m_gizmo->Update(viewport))
+			m_isGizmoInput = true;
 		viewport->OnDraw();
 	}
 

@@ -86,7 +86,6 @@ void miViewportCamera::MoveToSelection() {
 		Reset();
 	}
 
-	g_app->m_gizmo->SetZoomScaleValue(m_positionPlatform.w);
 }
 
 void miViewportCamera::Reset() {
@@ -123,7 +122,6 @@ void miViewportCamera::Reset() {
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
 	m_viewport->UpdateAspect();
 	//m_viewport->OnWindowSize();
-	g_app->m_gizmo->SetZoomScaleValue(m_positionPlatform.w);
 }
 
 void miViewportCamera::PanMove() {
@@ -154,7 +152,6 @@ void miViewportCamera::Rotate() {
 		m_viewport->SetViewportName(L"Orthogonal");
 
 	Update();
-	g_app->m_gizmo->ClaculateZoomScaleValue(this);
 }
 
 void miViewportCamera::Zoom() {
@@ -171,7 +168,6 @@ void miViewportCamera::Zoom() {
 		m_positionPlatform.w = 0.01f;
 	
 	Update();
-	g_app->m_gizmo->ClaculateZoomScaleValue(this);
 }
 
 void miViewportCamera::ChangeFOV() {

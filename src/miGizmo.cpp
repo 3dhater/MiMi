@@ -10,7 +10,6 @@ extern miApplication * g_app;
 miGizmo::miGizmo() {
 	m_isDrawAabbMoveBodyY = false;
 	m_isDrawAabbMoveHeadY = false;
-	m_zoomScaleValue = 0.f;
 	m_pivotModel = 0;
 	
 	m_moveModelX = 0;
@@ -329,24 +328,14 @@ miGizmo::~miGizmo() {
 	if (m_moveModelHeadZ) yyMegaAllocator::Destroy(m_moveModelHeadZ);
 }
 
-void miGizmo::ClaculateZoomScaleValue(miViewportCamera* vc) {
-	if (!g_app->m_currentViewportDraw) return;
-	m_zoomScaleValue = vc->m_positionPlatform.w;
-}
-void miGizmo::SetZoomScaleValue(f32 v) {
-	if (!g_app->m_currentViewportDraw) return;
-	m_zoomScaleValue = v;
-	m_zoomScaleValueCameraDistance = v;
-}
-
-void miGizmo::Draw() {
+void miGizmo::Draw(miViewport* vp) {
 	g_app->m_gpu->UseDepth(false);
 
 	yySetMatrix(yyMatrixType::World, &m_W);
 
 	m_WVP.identity();
-	m_WVP = g_app->m_currentViewportDraw->m_activeCamera->m_projectionMatrix 
-		* g_app->m_currentViewportDraw->m_activeCamera->m_viewMatrix 
+	m_WVP = vp->m_activeCamera->m_projectionMatrix
+		* vp->m_activeCamera->m_viewMatrix
 		* m_W;
 	yySetMatrix(yyMatrixType::WorldViewProjection, &m_WVP);
 
@@ -392,16 +381,31 @@ void miGizmo::Draw() {
 			g_app->DrawAabb(m_moveHeadModelZAabbMod, ColorLime.getV4f());
 		break;
 	case miTransformMode::Scale:
+		g_app->m_gpu->SetModel(m_moveModelX);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbMoveBodyX)
+			g_app->DrawAabb(m_moveBodyModelXAabbMod, ColorRed.getV4f());
+
+		yySetMaterial(&m_moveModelYMaterial);
+		g_app->m_gpu->SetModel(m_moveModelY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbMoveBodyY)
+			g_app->DrawAabb(m_moveBodyModelYAabbMod, ColorDodgerBlue.getV4f());
+
+		g_app->m_gpu->SetModel(m_moveModelZ);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbMoveBodyZ)
+			g_app->DrawAabb(m_moveBodyModelZAabbMod, ColorLime.getV4f());
 		break;
 	case miTransformMode::Rotate:
 		break;
 	}
 }
 
-bool miGizmo::Update() {
+bool miGizmo::Update(miViewport* vp) {
 	//g_app->m_selectionAabb_center;
 	m_S.identity();
-	m_S.setScale(v3f(m_zoomScaleValue));
+	m_S.setScale(v3f(vp->m_activeCamera->m_positionPlatform.w / ((1.f / 600.f) * vp->m_currentRectSize.y)));
 
 	m_T.identity();
 	m_T.setTranslation(g_app->m_selectionAabb_center);
@@ -411,9 +415,11 @@ bool miGizmo::Update() {
 	switch (g_app->m_transformMode)
 	{
 	default:
+	case miTransformMode::Rotate:
 	case miTransformMode::NoTransform:
 		break;
 	case miTransformMode::Move:
+	case miTransformMode::Scale:
 		m_moveBodyModelXAabbMod.m_min = math::mul(m_moveBodyModelXAabb.m_min, m_S);
 		m_moveBodyModelXAabbMod.m_max = math::mul(m_moveBodyModelXAabb.m_max, m_S);
 		m_moveBodyModelXAabbMod.m_max += g_app->m_selectionAabb_center;
@@ -452,7 +458,16 @@ bool miGizmo::Update() {
 		{
 			m_isDrawAabbMoveBodyZ = false;
 		}
+		break;
+	}
 
+	switch (g_app->m_transformMode)
+	{
+	default:
+	case miTransformMode::NoTransform:
+		break;
+	case miTransformMode::Scale:
+	case miTransformMode::Move:
 		m_moveHeadModelXAabbMod.m_min = math::mul(m_moveHeadModelXAabb.m_min, m_S);
 		m_moveHeadModelXAabbMod.m_max = math::mul(m_moveHeadModelXAabb.m_max, m_S);
 		m_moveHeadModelXAabbMod.m_max += g_app->m_selectionAabb_center;
@@ -492,8 +507,6 @@ bool miGizmo::Update() {
 			m_isDrawAabbMoveHeadZ = false;
 		}
 
-		break;
-	case miTransformMode::Scale:
 		break;
 	case miTransformMode::Rotate:
 		break;
