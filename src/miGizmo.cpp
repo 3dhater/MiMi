@@ -8,20 +8,24 @@
 extern miApplication * g_app;
 
 miGizmo::miGizmo() {
-	m_isDrawAabbMoveBodyY = false;
-	m_isDrawAabbMoveHeadY = false;
+	m_isDrawAabbY = false;
+	m_isDrawAabbHeadY = false;
 	m_pivotModel = 0;
 	
-	m_moveModelX = 0;
-	m_moveModelY = 0;
-	m_moveModelZ = 0;
-	m_moveModelHeadX = 0;
-	m_moveModelHeadY = 0;
-	m_moveModelHeadZ = 0;
+	m_X = 0;
+	m_Y = 0;
+	m_Z = 0;
+	m_HeadX = 0;
+	m_HeadY = 0;
+	m_HeadZ = 0;
+	m_XZ = 0;
+	m_XY = 0;
+	m_ZY = 0;
 
 	const f32 gizmo_arrow_body_size = 0.125f;
-	const f32 gizmo_head_size = 0.0125f;
+	const f32 gizmo_head_size = 0.01f;
 	const f32 gizmo_head_len = 0.025f;
+	const f32 gizmo_2pl_sz = 0.01f;
 	{
 		yyModel * model = yyCreate<yyModel>();
 		model->m_stride = sizeof(yyVertexLine);
@@ -67,24 +71,24 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexLine*)model->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = ColorRed.getV4f();
-		m_moveBodyModelXAabb.add(vertex->Position);
+		m_XAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = ColorRed.getV4f();
-		m_moveBodyModelXAabb.add(vertex->Position);
+		m_XAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_moveModelX = yyCreateModel(model);
-		m_moveModelX->Load();
+		m_X = yyCreateModel(model);
+		m_X->Load();
 
 		f32 sz = 0.0025;
-		m_moveBodyModelXAabb.m_min -= v4f(0.f, sz, sz, 0.f);
-		m_moveBodyModelXAabb.m_max += v4f(0.f, sz, sz, 0.f);
+		m_XAabb.m_min -= v4f(0.f, sz, sz, 0.f);
+		m_XAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 	{
 		yyModel * model = yyCreate<yyModel>();
@@ -98,24 +102,24 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexLine*)model->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveBodyModelYAabb.add(vertex->Position);
+		m_YAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(0.f, gizmo_arrow_body_size, 0.f);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveBodyModelYAabb.add(vertex->Position);
+		m_YAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_moveModelY = yyCreateModel(model);
-		m_moveModelY->Load();
+		m_Y = yyCreateModel(model);
+		m_Y->Load();
 
 		f32 sz = 0.0025;
-		m_moveBodyModelYAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
-		m_moveBodyModelYAabb.m_max += v4f(sz, 0.f, sz, 0.f);
+		m_YAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
+		m_YAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
 	{
 		yyModel * model = yyCreate<yyModel>();
@@ -129,24 +133,24 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexLine*)model->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = ColorLime.getV4f();
-		m_moveBodyModelZAabb.add(vertex->Position);
+		m_ZAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(0.f, 0.f, gizmo_arrow_body_size);
 		vertex->Color = ColorLime.getV4f();
-		m_moveBodyModelZAabb.add(vertex->Position);
+		m_ZAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_moveModelZ = yyCreateModel(model);
-		m_moveModelZ->Load();
+		m_Z = yyCreateModel(model);
+		m_Z->Load();
 
 		f32 sz = 0.0025;
-		m_moveBodyModelZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
-		m_moveBodyModelZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
+		m_ZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
+		m_ZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
 	{
 		yyModel * model = yyCreate<yyModel>();
@@ -160,27 +164,27 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
 		vertex->Position.set(gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = ColorRed.getV4f();
-		m_moveHeadModelXAabb.add(vertex->Position);
+		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size, -gizmo_head_size);
 		vertex->Color = ColorRed.getV4f();
-		m_moveHeadModelXAabb.add(vertex->Position);
+		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size, gizmo_head_size);
 		vertex->Color = ColorRed.getV4f();
-		m_moveHeadModelXAabb.add(vertex->Position);
+		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, gizmo_head_size);
 		vertex->Color = ColorRed.getV4f();
-		m_moveHeadModelXAabb.add(vertex->Position);
+		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, -gizmo_head_size);
 		vertex->Color = ColorRed.getV4f();
-		m_moveHeadModelXAabb.add(vertex->Position);
+		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
@@ -197,12 +201,12 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_moveModelHeadX = yyCreateModel(model);
-		m_moveModelHeadX->Load();
+		m_HeadX = yyCreateModel(model);
+		m_HeadX->Load();
 
 		f32 sz = 0.0025;
-		m_moveHeadModelXAabb.m_min -= v4f(0.f, sz, sz, 0.f);
-		m_moveHeadModelXAabb.m_max += v4f(0.f, sz, sz, 0.f);
+		m_HeadXAabb.m_min -= v4f(0.f, sz, sz, 0.f);
+		m_HeadXAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 	{
 		yyModel * model = yyCreate<yyModel>();
@@ -216,27 +220,27 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
 		vertex->Position.set(0.f, gizmo_arrow_body_size, 0.f);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveHeadModelYAabb.add(vertex->Position);
+		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveHeadModelYAabb.add(vertex->Position);
+		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveHeadModelYAabb.add(vertex->Position);
+		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveHeadModelYAabb.add(vertex->Position);
+		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
 		vertex->Color = ColorDodgerBlue.getV4f();
-		m_moveHeadModelYAabb.add(vertex->Position);
+		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
@@ -253,12 +257,12 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_moveModelHeadY = yyCreateModel(model);
-		m_moveModelHeadY->Load();
+		m_HeadY = yyCreateModel(model);
+		m_HeadY->Load();
 
 		f32 sz = 0.0025;
-		m_moveHeadModelYAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
-		m_moveHeadModelYAabb.m_max += v4f(sz, 0.f, sz, 0.f);
+		m_HeadYAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
+		m_HeadYAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
 	{
 		yyModel * model = yyCreate<yyModel>();
@@ -272,27 +276,27 @@ miGizmo::miGizmo() {
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
 		vertex->Position.set(0.f, 0.f, gizmo_arrow_body_size);
 		vertex->Color = ColorLime.getV4f();
-		m_moveHeadModelZAabb.add(vertex->Position);
+		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
 		vertex->Color = ColorLime.getV4f();
-		m_moveHeadModelZAabb.add(vertex->Position);
+		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
 		vertex->Color = ColorLime.getV4f();
-		m_moveHeadModelZAabb.add(vertex->Position);
+		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
 		vertex->Color = ColorLime.getV4f();
-		m_moveHeadModelZAabb.add(vertex->Position);
+		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
 		vertex->Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
 		vertex->Color = ColorLime.getV4f();
-		m_moveHeadModelZAabb.add(vertex->Position);
+		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
 		u16* index = (u16*)model->m_indices;
@@ -309,23 +313,164 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_moveModelHeadZ = yyCreateModel(model);
-		m_moveModelHeadZ->Load();
+		m_HeadZ = yyCreateModel(model);
+		m_HeadZ->Load();
 
 		f32 sz = 0.0025;
-		m_moveHeadModelZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
-		m_moveHeadModelZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
+		m_HeadZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
+		m_HeadZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
+	}
+	{
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 4;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 6;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		f32 xzsz = gizmo_arrow_body_size * 0.5f;
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex->Position.set(xzsz - gizmo_2pl_sz, 0.f, xzsz - gizmo_2pl_sz);
+		vertex->Color = ColorDodgerBlue.getV4f();
+		m_XZAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xzsz - gizmo_2pl_sz, 0.f, xzsz + gizmo_2pl_sz);
+		vertex->Color = ColorDodgerBlue.getV4f();
+		m_XZAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xzsz + gizmo_2pl_sz, 0.f, xzsz + gizmo_2pl_sz);
+		vertex->Color = ColorDodgerBlue.getV4f();
+		m_XZAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xzsz + gizmo_2pl_sz, 0.f, xzsz - gizmo_2pl_sz);
+		vertex->Color = ColorDodgerBlue.getV4f();
+		m_XZAabb.add(vertex->Position);
+		vertex++;
+
+		u16* index = (u16*)model->m_indices;
+		*index = 0; index++;
+		*index = 1; index++;
+		*index = 2; index++;
+		*index = 0; index++;
+		*index = 2; index++;
+		*index = 3; index++;
+
+		m_XZ = yyCreateModel(model);
+		m_XZ->Load();
+
+		f32 sz = 0.0025;
+		m_XZAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
+		m_XZAabb.m_max += v4f(sz, 0.f, sz, 0.f);
+	}
+	{
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 4;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 6;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		f32 xysz = gizmo_arrow_body_size * 0.5f;
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex->Position.set(xysz - gizmo_2pl_sz, xysz - gizmo_2pl_sz, 0.f);
+		vertex->Color = ColorLime.getV4f();
+		m_XYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xysz - gizmo_2pl_sz, xysz + gizmo_2pl_sz, 0.f);
+		vertex->Color = ColorLime.getV4f();
+		m_XYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xysz + gizmo_2pl_sz, xysz + gizmo_2pl_sz, 0.f);
+		vertex->Color = ColorLime.getV4f();
+		m_XYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(xysz + gizmo_2pl_sz, xysz - gizmo_2pl_sz, 0.f);
+		vertex->Color = ColorLime.getV4f();
+		m_XYAabb.add(vertex->Position);
+		vertex++;
+
+		u16* index = (u16*)model->m_indices;
+		*index = 0; index++;
+		*index = 1; index++;
+		*index = 2; index++;
+		*index = 0; index++;
+		*index = 2; index++;
+		*index = 3; index++;
+
+		m_XY = yyCreateModel(model);
+		m_XY->Load();
+
+		f32 sz = 0.0025;
+		m_XYAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
+		m_XYAabb.m_max += v4f(sz, sz, 0.f, 0.f);
+	}
+	{
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 4;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 6;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		f32 zysz = gizmo_arrow_body_size * 0.5f;
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex->Position.set(0.f, zysz - gizmo_2pl_sz, zysz - gizmo_2pl_sz);
+		vertex->Color = ColorRed.getV4f();
+		m_ZYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(0.f, zysz + gizmo_2pl_sz, zysz - gizmo_2pl_sz);
+		vertex->Color = ColorRed.getV4f();
+		m_ZYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(0.f, zysz + gizmo_2pl_sz, zysz + gizmo_2pl_sz);
+		vertex->Color = ColorRed.getV4f();
+		m_ZYAabb.add(vertex->Position);
+		vertex++;
+
+		vertex->Position.set(0.f, zysz - gizmo_2pl_sz, zysz + gizmo_2pl_sz);
+		vertex->Color = ColorRed.getV4f();
+		m_ZYAabb.add(vertex->Position);
+		vertex++;
+
+		u16* index = (u16*)model->m_indices;
+		*index = 0; index++;
+		*index = 1; index++;
+		*index = 2; index++;
+		*index = 0; index++;
+		*index = 2; index++;
+		*index = 3; index++;
+
+		m_ZY = yyCreateModel(model);
+		m_ZY->Load();
+
+		f32 sz = 0.0025;
+		m_ZYAabb.m_min -= v4f(0.f, sz, sz, 0.f);
+		m_ZYAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 }
 
 miGizmo::~miGizmo() {
 	if (m_pivotModel) yyMegaAllocator::Destroy(m_pivotModel);
-	if (m_moveModelY) yyMegaAllocator::Destroy(m_moveModelY);
-	if (m_moveModelX) yyMegaAllocator::Destroy(m_moveModelX);
-	if (m_moveModelZ) yyMegaAllocator::Destroy(m_moveModelZ);
-	if (m_moveModelHeadX) yyMegaAllocator::Destroy(m_moveModelHeadX);
-	if (m_moveModelHeadY) yyMegaAllocator::Destroy(m_moveModelHeadY);
-	if (m_moveModelHeadZ) yyMegaAllocator::Destroy(m_moveModelHeadZ);
+	if (m_Y) yyMegaAllocator::Destroy(m_Y);
+	if (m_X) yyMegaAllocator::Destroy(m_X);
+	if (m_Z) yyMegaAllocator::Destroy(m_Z);
+	if (m_HeadX) yyMegaAllocator::Destroy(m_HeadX);
+	if (m_HeadY) yyMegaAllocator::Destroy(m_HeadY);
+	if (m_HeadZ) yyMegaAllocator::Destroy(m_HeadZ);
+	if (m_XZ) yyMegaAllocator::Destroy(m_XZ);
+	if (m_XY) yyMegaAllocator::Destroy(m_XY);
+	if (m_ZY) yyMegaAllocator::Destroy(m_ZY);
 }
 
 void miGizmo::Draw(miViewport* vp) {
@@ -349,53 +494,83 @@ void miGizmo::Draw(miViewport* vp) {
 		break;
 	case miTransformMode::Move:
 		//m_moveBodyModelYMaterial.m_baseColor = ColorDodgerBlue;
-		g_app->m_gpu->SetModel(m_moveModelX);
+		g_app->m_gpu->SetModel(m_X);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyX)
-			g_app->DrawAabb(m_moveBodyModelXAabbMod, ColorRed.getV4f());
+		if (m_isDrawAabbX)
+			g_app->DrawAabb(m_XAabbMod, ColorRed.getV4f());
 
-		yySetMaterial(&m_moveModelYMaterial);
-		g_app->m_gpu->SetModel(m_moveModelY);
+		yySetMaterial(&m_YMaterial);
+		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyY)
-			g_app->DrawAabb(m_moveBodyModelYAabbMod, ColorDodgerBlue.getV4f());
+		if (m_isDrawAabbY)
+			g_app->DrawAabb(m_YAabbMod, ColorDodgerBlue.getV4f());
 		
-		g_app->m_gpu->SetModel(m_moveModelZ);
+		g_app->m_gpu->SetModel(m_Z);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyZ)
-			g_app->DrawAabb(m_moveBodyModelZAabbMod, ColorLime.getV4f());
+		if (m_isDrawAabbZ)
+			g_app->DrawAabb(m_ZAabbMod, ColorLime.getV4f());
 
-		g_app->m_gpu->SetModel(m_moveModelHeadX);
+		g_app->m_gpu->SetModel(m_HeadX);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveHeadX)
-			g_app->DrawAabb(m_moveHeadModelXAabbMod, ColorRed.getV4f());
+		if (m_isDrawAabbHeadX)
+			g_app->DrawAabb(m_HeadXAabbMod, ColorRed.getV4f());
 
-		g_app->m_gpu->SetModel(m_moveModelHeadY);
+		g_app->m_gpu->SetModel(m_HeadY);
 		g_app->m_gpu->Draw();
-		if(m_isDrawAabbMoveHeadY)
-			g_app->DrawAabb(m_moveHeadModelYAabbMod, ColorDodgerBlue.getV4f());
+		if(m_isDrawAabbHeadY)
+			g_app->DrawAabb(m_HeadYAabbMod, ColorDodgerBlue.getV4f());
 
-		g_app->m_gpu->SetModel(m_moveModelHeadZ);
+		g_app->m_gpu->SetModel(m_HeadZ);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveHeadZ)
-			g_app->DrawAabb(m_moveHeadModelZAabbMod, ColorLime.getV4f());
+		if (m_isDrawAabbHeadZ)
+			g_app->DrawAabb(m_HeadZAabbMod, ColorLime.getV4f());
+
+		g_app->m_gpu->SetModel(m_XZ);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbXZ)
+			g_app->DrawAabb(m_XZAabbMod, ColorDodgerBlue.getV4f());
+
+		g_app->m_gpu->SetModel(m_XY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbXY)
+			g_app->DrawAabb(m_XYAabbMod, ColorLime.getV4f());
+
+		g_app->m_gpu->SetModel(m_ZY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbZY)
+			g_app->DrawAabb(m_ZYAabbMod, ColorRed.getV4f());
 		break;
 	case miTransformMode::Scale:
-		g_app->m_gpu->SetModel(m_moveModelX);
+		g_app->m_gpu->SetModel(m_X);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyX)
-			g_app->DrawAabb(m_moveBodyModelXAabbMod, ColorRed.getV4f());
+		if (m_isDrawAabbX)
+			g_app->DrawAabb(m_XAabbMod, ColorRed.getV4f());
 
-		yySetMaterial(&m_moveModelYMaterial);
-		g_app->m_gpu->SetModel(m_moveModelY);
+		yySetMaterial(&m_YMaterial);
+		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyY)
-			g_app->DrawAabb(m_moveBodyModelYAabbMod, ColorDodgerBlue.getV4f());
+		if (m_isDrawAabbY)
+			g_app->DrawAabb(m_YAabbMod, ColorDodgerBlue.getV4f());
 
-		g_app->m_gpu->SetModel(m_moveModelZ);
+		g_app->m_gpu->SetModel(m_Z);
 		g_app->m_gpu->Draw();
-		if (m_isDrawAabbMoveBodyZ)
-			g_app->DrawAabb(m_moveBodyModelZAabbMod, ColorLime.getV4f());
+		if (m_isDrawAabbZ)
+			g_app->DrawAabb(m_ZAabbMod, ColorLime.getV4f());
+
+		g_app->m_gpu->SetModel(m_XZ);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbXZ)
+			g_app->DrawAabb(m_XZAabbMod, ColorDodgerBlue.getV4f());
+
+		g_app->m_gpu->SetModel(m_XY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbXY)
+			g_app->DrawAabb(m_XYAabbMod, ColorLime.getV4f());
+
+		g_app->m_gpu->SetModel(m_ZY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbZY)
+			g_app->DrawAabb(m_ZYAabbMod, ColorRed.getV4f());
 		break;
 	case miTransformMode::Rotate:
 		break;
@@ -420,43 +595,82 @@ bool miGizmo::Update(miViewport* vp) {
 		break;
 	case miTransformMode::Move:
 	case miTransformMode::Scale:
-		m_moveBodyModelXAabbMod.m_min = math::mul(m_moveBodyModelXAabb.m_min, m_S);
-		m_moveBodyModelXAabbMod.m_max = math::mul(m_moveBodyModelXAabb.m_max, m_S);
-		m_moveBodyModelXAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveBodyModelXAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveBodyModelXAabbMod.rayTest(g_app->m_rayCursor))
+		m_XAabbMod.m_min = math::mul(m_XAabb.m_min, m_S);
+		m_XAabbMod.m_max = math::mul(m_XAabb.m_max, m_S);
+		m_XAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_XAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_XAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveBodyX = true;
+			m_isDrawAabbX = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveBodyX = false;
+			m_isDrawAabbX = false;
 		}
 
-		m_moveBodyModelYAabbMod.m_min = math::mul(m_moveBodyModelYAabb.m_min, m_S);
-		m_moveBodyModelYAabbMod.m_max = math::mul(m_moveBodyModelYAabb.m_max, m_S);
-		m_moveBodyModelYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveBodyModelYAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveBodyModelYAabbMod.rayTest(g_app->m_rayCursor))
+		m_YAabbMod.m_min = math::mul(m_YAabb.m_min, m_S);
+		m_YAabbMod.m_max = math::mul(m_YAabb.m_max, m_S);
+		m_YAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_YAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_YAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveBodyY = true;
+			m_isDrawAabbY = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveBodyY = false;
+			m_isDrawAabbY = false;
 		}
 
-		m_moveBodyModelZAabbMod.m_min = math::mul(m_moveBodyModelZAabb.m_min, m_S);
-		m_moveBodyModelZAabbMod.m_max = math::mul(m_moveBodyModelZAabb.m_max, m_S);
-		m_moveBodyModelZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveBodyModelZAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveBodyModelZAabbMod.rayTest(g_app->m_rayCursor))
+		m_ZAabbMod.m_min = math::mul(m_ZAabb.m_min, m_S);
+		m_ZAabbMod.m_max = math::mul(m_ZAabb.m_max, m_S);
+		m_ZAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_ZAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_ZAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveBodyZ = true;
+			m_isDrawAabbZ = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveBodyZ = false;
+			m_isDrawAabbZ = false;
+		}
+
+		m_XZAabbMod.m_min = math::mul(m_XZAabb.m_min, m_S);
+		m_XZAabbMod.m_max = math::mul(m_XZAabb.m_max, m_S);
+		m_XZAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_XZAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_XZAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			m_isDrawAabbXZ = true;
+		}
+		else
+		{
+			m_isDrawAabbXZ = false;
+		}
+
+		m_XYAabbMod.m_min = math::mul(m_XYAabb.m_min, m_S);
+		m_XYAabbMod.m_max = math::mul(m_XYAabb.m_max, m_S);
+		m_XYAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_XYAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_XYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			m_isDrawAabbXY = true;
+		}
+		else
+		{
+			m_isDrawAabbXY = false;
+		}
+
+		m_ZYAabbMod.m_min = math::mul(m_ZYAabb.m_min, m_S);
+		m_ZYAabbMod.m_max = math::mul(m_ZYAabb.m_max, m_S);
+		m_ZYAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_ZYAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_ZYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			m_isDrawAabbZY = true;
+		}
+		else
+		{
+			m_isDrawAabbZY = false;
 		}
 		break;
 	}
@@ -468,43 +682,43 @@ bool miGizmo::Update(miViewport* vp) {
 		break;
 	case miTransformMode::Scale:
 	case miTransformMode::Move:
-		m_moveHeadModelXAabbMod.m_min = math::mul(m_moveHeadModelXAabb.m_min, m_S);
-		m_moveHeadModelXAabbMod.m_max = math::mul(m_moveHeadModelXAabb.m_max, m_S);
-		m_moveHeadModelXAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveHeadModelXAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveHeadModelXAabbMod.rayTest(g_app->m_rayCursor))
+		m_HeadXAabbMod.m_min = math::mul(m_HeadXAabb.m_min, m_S);
+		m_HeadXAabbMod.m_max = math::mul(m_HeadXAabb.m_max, m_S);
+		m_HeadXAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadXAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadXAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveHeadX = true;
+			m_isDrawAabbHeadX = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveHeadX = false;
+			m_isDrawAabbHeadX = false;
 		}
 
-		m_moveHeadModelYAabbMod.m_min = math::mul(m_moveHeadModelYAabb.m_min, m_S);
-		m_moveHeadModelYAabbMod.m_max = math::mul(m_moveHeadModelYAabb.m_max, m_S);
-		m_moveHeadModelYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveHeadModelYAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveHeadModelYAabbMod.rayTest(g_app->m_rayCursor))
+		m_HeadYAabbMod.m_min = math::mul(m_HeadYAabb.m_min, m_S);
+		m_HeadYAabbMod.m_max = math::mul(m_HeadYAabb.m_max, m_S);
+		m_HeadYAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadYAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadYAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveHeadY = true;
+			m_isDrawAabbHeadY = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveHeadY = false;
+			m_isDrawAabbHeadY = false;
 		}
 
-		m_moveHeadModelZAabbMod.m_min = math::mul(m_moveHeadModelZAabb.m_min, m_S);
-		m_moveHeadModelZAabbMod.m_max = math::mul(m_moveHeadModelZAabb.m_max, m_S);
-		m_moveHeadModelZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_moveHeadModelZAabbMod.m_min += g_app->m_selectionAabb_center;
-		if (m_moveHeadModelZAabbMod.rayTest(g_app->m_rayCursor))
+		m_HeadZAabbMod.m_min = math::mul(m_HeadZAabb.m_min, m_S);
+		m_HeadZAabbMod.m_max = math::mul(m_HeadZAabb.m_max, m_S);
+		m_HeadZAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadZAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadZAabbMod.rayTest(g_app->m_rayCursor))
 		{
-			m_isDrawAabbMoveHeadZ = true;
+			m_isDrawAabbHeadZ = true;
 		}
 		else
 		{
-			m_isDrawAabbMoveHeadZ = false;
+			m_isDrawAabbHeadZ = false;
 		}
 
 		break;

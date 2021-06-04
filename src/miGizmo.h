@@ -10,33 +10,48 @@ public:
 	yyResource* m_pivotModel;
 	yyMaterial m_pivotModelMaterial;
 	
-	yyResource* m_moveModelY;
-	yyResource* m_moveModelHeadY;
-	yyMaterial m_moveModelYMaterial;
-	Aabb m_moveBodyModelYAabb;
-	Aabb m_moveBodyModelYAabbMod;
-	Aabb m_moveHeadModelYAabb;
-	Aabb m_moveHeadModelYAabbMod;
-	bool m_isDrawAabbMoveBodyY;
-	bool m_isDrawAabbMoveHeadY;
+	yyResource* m_X;
+	yyResource* m_HeadX;
+	Aabb m_XAabb;
+	Aabb m_XAabbMod;
+	Aabb m_HeadXAabb;
+	Aabb m_HeadXAabbMod;
+	bool m_isDrawAabbX;
+	bool m_isDrawAabbHeadX;
 
-	yyResource* m_moveModelX;
-	yyResource* m_moveModelHeadX;
-	Aabb m_moveBodyModelXAabb;
-	Aabb m_moveBodyModelXAabbMod;
-	Aabb m_moveHeadModelXAabb;
-	Aabb m_moveHeadModelXAabbMod;
-	bool m_isDrawAabbMoveBodyX;
-	bool m_isDrawAabbMoveHeadX;
+	yyResource* m_Y;
+	yyResource* m_HeadY;
+	yyMaterial m_YMaterial;
+	Aabb m_YAabb;
+	Aabb m_YAabbMod;
+	Aabb m_HeadYAabb;
+	Aabb m_HeadYAabbMod;
+	bool m_isDrawAabbY;
+	bool m_isDrawAabbHeadY;
 
-	yyResource* m_moveModelZ;
-	yyResource* m_moveModelHeadZ;
-	Aabb m_moveBodyModelZAabb;
-	Aabb m_moveBodyModelZAabbMod;
-	Aabb m_moveHeadModelZAabb;
-	Aabb m_moveHeadModelZAabbMod;
-	bool m_isDrawAabbMoveBodyZ;
-	bool m_isDrawAabbMoveHeadZ;
+	yyResource* m_Z;
+	yyResource* m_HeadZ;
+	Aabb m_ZAabb;
+	Aabb m_ZAabbMod;
+	Aabb m_HeadZAabb;
+	Aabb m_HeadZAabbMod;
+	bool m_isDrawAabbZ;
+	bool m_isDrawAabbHeadZ;
+
+	yyResource* m_XZ;
+	Aabb m_XZAabb;
+	Aabb m_XZAabbMod;
+	bool m_isDrawAabbXZ;
+
+	yyResource* m_XY;
+	Aabb m_XYAabb;
+	Aabb m_XYAabbMod;
+	bool m_isDrawAabbXY;
+
+	yyResource* m_ZY;
+	Aabb m_ZYAabb;
+	Aabb m_ZYAabbMod;
+	bool m_isDrawAabbZY;
 
 	void Draw(miViewport*);
 	bool Update(miViewport*);

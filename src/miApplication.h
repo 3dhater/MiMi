@@ -108,6 +108,7 @@ class miApplication
 
 
 	yyColor m_color_windowClearColor;
+	yyColor m_color_viewportColor;
 	yyColor m_color_viewportBorder;
 
 	bool m_isCursorInWindow;

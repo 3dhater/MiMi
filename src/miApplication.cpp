@@ -549,6 +549,8 @@ vidOk:
 	m_color_windowClearColor.set(0.41f);
 	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
+
+	m_color_viewportColor.set(0.35f);
 	
 	m_GUIManager = new miGUIManager;
 
