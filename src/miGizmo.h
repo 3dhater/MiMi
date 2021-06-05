@@ -7,36 +7,59 @@ public:
 	miGizmo();
 	~miGizmo();
 	
-	yyResource* m_pivotModel;
+	yyMaterial m_YMaterial;
 	yyMaterial m_pivotModelMaterial;
+
+	yyResource* m_pivotModel;
 	
 	yyResource* m_X;
-	yyResource* m_HeadX;
-	Aabb m_XAabb;
-	Aabb m_XAabbMod;
-	Aabb m_HeadXAabb;
-	Aabb m_HeadXAabbMod;
-	bool m_isDrawAabbX;
-	bool m_isDrawAabbHeadX;
-
 	yyResource* m_Y;
-	yyResource* m_HeadY;
-	yyMaterial m_YMaterial;
-	Aabb m_YAabb;
-	Aabb m_YAabbMod;
-	Aabb m_HeadYAabb;
-	Aabb m_HeadYAabbMod;
-	bool m_isDrawAabbY;
-	bool m_isDrawAabbHeadY;
-
 	yyResource* m_Z;
-	yyResource* m_HeadZ;
+
+	yyResource* m_HeadMoveX;
+	yyResource* m_HeadMoveY;
+	yyResource* m_HeadMoveZ;
+
+	yyResource* m_HeadScaleX;
+	yyResource* m_HeadScaleY;
+	yyResource* m_HeadScaleZ;
+
+	Aabb m_XAabb;
+	Aabb m_YAabb;
 	Aabb m_ZAabb;
+
+	Aabb m_XAabbMod;
+	Aabb m_YAabbMod;
 	Aabb m_ZAabbMod;
+
+
+	Aabb m_HeadXAabb;
+	Aabb m_HeadYAabb;
 	Aabb m_HeadZAabb;
+
+	Aabb m_HeadXAabbMod;
+	Aabb m_HeadYAabbMod;
 	Aabb m_HeadZAabbMod;
+
+	Aabb m_HeadScaleXAabb;
+	Aabb m_HeadScaleYAabb;
+	Aabb m_HeadScaleZAabb;
+
+	Aabb m_HeadScaleXAabbMod;
+	Aabb m_HeadScaleYAabbMod;
+	Aabb m_HeadScaleZAabbMod;
+
+	bool m_isDrawAabbX;
+	bool m_isDrawAabbY;
 	bool m_isDrawAabbZ;
+
+	bool m_isDrawAabbHeadX;
+	bool m_isDrawAabbHeadY;
 	bool m_isDrawAabbHeadZ;
+
+	bool m_isDrawAabbScaleHeadX;
+	bool m_isDrawAabbScaleHeadY;
+	bool m_isDrawAabbScaleHeadZ;
 
 	yyResource* m_XZ;
 	Aabb m_XZAabb;
@@ -61,6 +84,7 @@ public:
 	Mat4 m_W;
 	Mat4 m_WVP;
 
+	v2f m_2d_point;
 };
 
 #endif

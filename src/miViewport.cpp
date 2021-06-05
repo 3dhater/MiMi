@@ -387,8 +387,8 @@ void miViewport::OnDraw() {
 	m_gpu->UseDepth(false);
 	m_gpu->DrawRectangle(m_currentRect, g_app->m_color_windowClearColor, g_app->m_color_viewportColor);
 
-	m_gpu->SetScissorRect(m_currentRect, g_app->m_window);
-	m_gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window);
+	m_gpu->SetScissorRect(m_currentRect, g_app->m_window, 0);
+	m_gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window, 0);
 
 
 	yySetMatrix(yyMatrixType::View, &m_activeCamera->m_viewMatrix);

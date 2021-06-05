@@ -15,9 +15,12 @@ miGizmo::miGizmo() {
 	m_X = 0;
 	m_Y = 0;
 	m_Z = 0;
-	m_HeadX = 0;
-	m_HeadY = 0;
-	m_HeadZ = 0;
+	m_HeadMoveX = 0;
+	m_HeadMoveY = 0;
+	m_HeadMoveZ = 0;
+	m_HeadScaleX = 0;
+	m_HeadScaleY = 0;
+	m_HeadScaleZ = 0;
 	m_XZ = 0;
 	m_XY = 0;
 	m_ZY = 0;
@@ -27,6 +30,7 @@ miGizmo::miGizmo() {
 	const f32 gizmo_head_len = 0.025f;
 	const f32 gizmo_2pl_sz = 0.01f;
 	{
+		
 		yyModel * model = yyCreate<yyModel>();
 		model->m_stride = sizeof(yyVertexLine);
 		model->m_vertexType = yyVertexType::LineModel;
@@ -201,14 +205,215 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadX = yyCreateModel(model);
-		m_HeadX->Load();
+		m_HeadMoveX = yyCreateModel(model);
+		m_HeadMoveX->Load();
 
 		f32 sz = 0.0025;
 		m_HeadXAabb.m_min -= v4f(0.f, sz, sz, 0.f);
 		m_HeadXAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
-	{
+	{// Scale X
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 8;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 30;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex[0].Position.set(gizmo_arrow_body_size, -gizmo_head_size, -gizmo_head_size);
+		vertex[1].Position.set(gizmo_arrow_body_size, -gizmo_head_size, gizmo_head_size);
+		vertex[2].Position.set(gizmo_arrow_body_size, gizmo_head_size, gizmo_head_size);
+		vertex[3].Position.set(gizmo_arrow_body_size, gizmo_head_size, -gizmo_head_size);
+		vertex[4].Position.set(gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size, -gizmo_head_size);
+		vertex[5].Position.set(gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size, gizmo_head_size);
+		vertex[6].Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, gizmo_head_size);
+		vertex[7].Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, -gizmo_head_size);
+
+		for (int i = 0; i < 8; ++i) {
+			vertex[i].Color = ColorRed.getV4f();
+			m_HeadScaleXAabb.add(vertex[i].Position);
+		}
+
+		u16* index = (u16*)model->m_indices;
+		index[0] = 0;
+		index[1] = 1;
+		index[2] = 2;
+		index[3] = 0;
+		index[4] = 2;
+		index[5] = 3;
+
+		index[6] = 0;
+		index[7] = 4;
+		index[8] = 5;
+		index[9] = 0;
+		index[10] = 5;
+		index[11] = 1;
+
+		index[12] = 0;
+		index[13] = 4;
+		index[14] = 7;
+		index[15] = 0;
+		index[16] = 7;
+		index[17] = 3;
+
+		index[18] = 3;
+		index[19] = 7;
+		index[20] = 6;
+		index[21] = 3;
+		index[22] = 6;
+		index[23] = 2;
+
+		index[24] = 1;
+		index[25] = 5;
+		index[26] = 6;
+		index[27] = 1;
+		index[28] = 6;
+		index[29] = 2;
+
+		m_HeadScaleX = yyCreateModel(model);
+		m_HeadScaleX->Load();
+
+		f32 sz = 0.0025;
+		m_HeadScaleXAabb.m_min -= v4f(sz, sz, sz, 0.f);
+		m_HeadScaleXAabb.m_max += v4f(sz, sz, sz, 0.f);
+	}
+	{// Head Scale Y
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 8;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 30;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex[0].Position.set(-gizmo_head_size, gizmo_arrow_body_size , -gizmo_head_size);
+		vertex[1].Position.set(-gizmo_head_size, gizmo_arrow_body_size, gizmo_head_size);
+		vertex[2].Position.set(gizmo_head_size, gizmo_arrow_body_size, gizmo_head_size);
+		vertex[3].Position.set(gizmo_head_size, gizmo_arrow_body_size , -gizmo_head_size);
+		vertex[4].Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
+		vertex[5].Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
+		vertex[6].Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
+		vertex[7].Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size);
+
+		for (int i = 0; i < 8; ++i) {
+			vertex[i].Color = ColorDodgerBlue.getV4f();
+			m_HeadScaleYAabb.add(vertex[i].Position);
+		}
+
+		u16* index = (u16*)model->m_indices;
+		index[0] = 0;
+		index[1] = 1;
+		index[2] = 2;
+		index[3] = 0;
+		index[4] = 2;
+		index[5] = 3;
+
+		index[6] = 0;
+		index[7] = 4;
+		index[8] = 5;
+		index[9] = 0;
+		index[10] = 5;
+		index[11] = 1;
+
+		index[12] = 0;
+		index[13] = 4;
+		index[14] = 7;
+		index[15] = 0;
+		index[16] = 7;
+		index[17] = 3;
+
+		index[18] = 3;
+		index[19] = 7;
+		index[20] = 6;
+		index[21] = 3;
+		index[22] = 6;
+		index[23] = 2;
+
+		index[24] = 1;
+		index[25] = 5;
+		index[26] = 6;
+		index[27] = 1;
+		index[28] = 6;
+		index[29] = 2;
+
+		m_HeadScaleY = yyCreateModel(model);
+		m_HeadScaleY->Load();
+
+		f32 sz = 0.0025;
+		m_HeadScaleYAabb.m_min -= v4f(sz, sz, sz, 0.f);
+		m_HeadScaleYAabb.m_max += v4f(sz, sz, sz, 0.f);
+	}
+	{// Scale Z
+		yyModel * model = yyCreate<yyModel>();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 8;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 30;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		vertex[0].Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size);
+		vertex[1].Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size);
+		vertex[2].Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size);
+		vertex[3].Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size);
+		vertex[4].Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex[5].Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex[6].Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex[7].Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+
+		for (int i = 0; i < 8; ++i) {
+			vertex[i].Color = ColorLime.getV4f();
+			m_HeadScaleZAabb.add(vertex[i].Position);
+		}
+
+		u16* index = (u16*)model->m_indices;
+		index[0] = 0;
+		index[1] = 1;
+		index[2] = 2;
+		index[3] = 0;
+		index[4] = 2;
+		index[5] = 3;
+
+		index[6] = 0;
+		index[7] = 4;
+		index[8] = 5;
+		index[9] = 0;
+		index[10] = 5;
+		index[11] = 1;
+
+		index[12] = 0;
+		index[13] = 4;
+		index[14] = 7;
+		index[15] = 0;
+		index[16] = 7;
+		index[17] = 3;
+
+		index[18] = 3;
+		index[19] = 7;
+		index[20] = 6;
+		index[21] = 3;
+		index[22] = 6;
+		index[23] = 2;
+
+		index[24] = 1;
+		index[25] = 5;
+		index[26] = 6;
+		index[27] = 1;
+		index[28] = 6;
+		index[29] = 2;
+
+		m_HeadScaleZ = yyCreateModel(model);
+		m_HeadScaleZ->Load();
+
+		f32 sz = 0.0025;
+		m_HeadScaleZAabb.m_min -= v4f(sz, sz, sz, 0.f);
+		m_HeadScaleZAabb.m_max += v4f(sz, sz, sz, 0.f);
+	}
+	{// Head Move Y
 		yyModel * model = yyCreate<yyModel>();
 		model->m_vertexType = yyVertexType::Model;
 		model->m_stride = sizeof(yyVertexTriangle);
@@ -257,14 +462,14 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadY = yyCreateModel(model);
-		m_HeadY->Load();
+		m_HeadMoveY = yyCreateModel(model);
+		m_HeadMoveY->Load();
 
 		f32 sz = 0.0025;
 		m_HeadYAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
 		m_HeadYAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
-	{
+	{// Head Move Z
 		yyModel * model = yyCreate<yyModel>();
 		model->m_vertexType = yyVertexType::Model;
 		model->m_stride = sizeof(yyVertexTriangle);
@@ -313,14 +518,14 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadZ = yyCreateModel(model);
-		m_HeadZ->Load();
+		m_HeadMoveZ = yyCreateModel(model);
+		m_HeadMoveZ->Load();
 
 		f32 sz = 0.0025;
 		m_HeadZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
 		m_HeadZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
-	{
+	{// XZ
 		yyModel * model = yyCreate<yyModel>();
 		model->m_vertexType = yyVertexType::Model;
 		model->m_stride = sizeof(yyVertexTriangle);
@@ -366,7 +571,7 @@ miGizmo::miGizmo() {
 		m_XZAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
 		m_XZAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
-	{
+	{// XY
 		yyModel * model = yyCreate<yyModel>();
 		model->m_vertexType = yyVertexType::Model;
 		model->m_stride = sizeof(yyVertexTriangle);
@@ -412,7 +617,7 @@ miGizmo::miGizmo() {
 		m_XYAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
 		m_XYAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
-	{
+	{// ZY
 		yyModel * model = yyCreate<yyModel>();
 		model->m_vertexType = yyVertexType::Model;
 		model->m_stride = sizeof(yyVertexTriangle);
@@ -465,9 +670,12 @@ miGizmo::~miGizmo() {
 	if (m_Y) yyMegaAllocator::Destroy(m_Y);
 	if (m_X) yyMegaAllocator::Destroy(m_X);
 	if (m_Z) yyMegaAllocator::Destroy(m_Z);
-	if (m_HeadX) yyMegaAllocator::Destroy(m_HeadX);
-	if (m_HeadY) yyMegaAllocator::Destroy(m_HeadY);
-	if (m_HeadZ) yyMegaAllocator::Destroy(m_HeadZ);
+	if (m_HeadMoveX) yyMegaAllocator::Destroy(m_HeadMoveX);
+	if (m_HeadMoveY) yyMegaAllocator::Destroy(m_HeadMoveY);
+	if (m_HeadMoveZ) yyMegaAllocator::Destroy(m_HeadMoveZ);
+	if (m_HeadScaleX) yyMegaAllocator::Destroy(m_HeadScaleX);
+	if (m_HeadScaleY) yyMegaAllocator::Destroy(m_HeadScaleY);
+	if (m_HeadScaleZ) yyMegaAllocator::Destroy(m_HeadScaleZ);
 	if (m_XZ) yyMegaAllocator::Destroy(m_XZ);
 	if (m_XY) yyMegaAllocator::Destroy(m_XY);
 	if (m_ZY) yyMegaAllocator::Destroy(m_ZY);
@@ -483,6 +691,8 @@ void miGizmo::Draw(miViewport* vp) {
 		* vp->m_activeCamera->m_viewMatrix
 		* m_W;
 	yySetMatrix(yyMatrixType::WorldViewProjection, &m_WVP);
+	
+	f32 size_2d = 10.f;
 
 	switch (g_app->m_transformMode)
 	{
@@ -510,17 +720,17 @@ void miGizmo::Draw(miViewport* vp) {
 		if (m_isDrawAabbZ)
 			g_app->DrawAabb(m_ZAabbMod, ColorLime.getV4f());
 
-		g_app->m_gpu->SetModel(m_HeadX);
+		g_app->m_gpu->SetModel(m_HeadMoveX);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadX)
 			g_app->DrawAabb(m_HeadXAabbMod, ColorRed.getV4f());
 
-		g_app->m_gpu->SetModel(m_HeadY);
+		g_app->m_gpu->SetModel(m_HeadMoveY);
 		g_app->m_gpu->Draw();
 		if(m_isDrawAabbHeadY)
 			g_app->DrawAabb(m_HeadYAabbMod, ColorDodgerBlue.getV4f());
 
-		g_app->m_gpu->SetModel(m_HeadZ);
+		g_app->m_gpu->SetModel(m_HeadMoveZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadZ)
 			g_app->DrawAabb(m_HeadZAabbMod, ColorLime.getV4f());
@@ -539,6 +749,19 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
 			g_app->DrawAabb(m_ZYAabbMod, ColorRed.getV4f());
+		
+		{
+			f32 _x = vp->m_currentRect.x + m_2d_point.x;
+			f32 _y = vp->m_currentRect.y + m_2d_point.y;
+			v4f old_vp;
+			g_app->m_gpu->SetViewport(0, 0, g_app->m_window->m_currentSize.x, g_app->m_window->m_currentSize.y, g_app->m_window, &old_vp);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y - size_2d, 0.f), v3f(_x + size_2d, _y - size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y + size_2d, 0.f), v3f(_x + size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y - size_2d, 0.f), v3f(_x - size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x + size_2d, _y - size_2d, 0.f), v3f(_x + size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w, g_app->m_window, 0);
+		}
+
 		break;
 	case miTransformMode::Scale:
 		g_app->m_gpu->SetModel(m_X);
@@ -557,6 +780,21 @@ void miGizmo::Draw(miViewport* vp) {
 		if (m_isDrawAabbZ)
 			g_app->DrawAabb(m_ZAabbMod, ColorLime.getV4f());
 
+		g_app->m_gpu->SetModel(m_HeadScaleX);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbScaleHeadX)
+			g_app->DrawAabb(m_HeadScaleXAabbMod, ColorRed.getV4f());
+
+		g_app->m_gpu->SetModel(m_HeadScaleY);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbScaleHeadY)
+			g_app->DrawAabb(m_HeadScaleYAabbMod, ColorDodgerBlue.getV4f());
+
+		g_app->m_gpu->SetModel(m_HeadScaleZ);
+		g_app->m_gpu->Draw();
+		if (m_isDrawAabbScaleHeadZ)
+			g_app->DrawAabb(m_HeadScaleZAabbMod, ColorLime.getV4f());
+
 		g_app->m_gpu->SetModel(m_XZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXZ)
@@ -571,6 +809,18 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
 			g_app->DrawAabb(m_ZYAabbMod, ColorRed.getV4f());
+
+		{
+			f32 _x = vp->m_currentRect.x + m_2d_point.x;
+			f32 _y = vp->m_currentRect.y + m_2d_point.y;
+			v4f old_vp;
+			g_app->m_gpu->SetViewport(0, 0, g_app->m_window->m_currentSize.x, g_app->m_window->m_currentSize.y, g_app->m_window, &old_vp);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y - size_2d, 0.f), v3f(_x + size_2d, _y - size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y + size_2d, 0.f), v3f(_x + size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x - size_2d, _y - size_2d, 0.f), v3f(_x - size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->DrawLine2D(v3f(_x + size_2d, _y - size_2d, 0.f), v3f(_x + size_2d, _y + size_2d, 0.f), ColorYellow);
+			g_app->m_gpu->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w, g_app->m_window, 0);
+		}
 		break;
 	case miTransformMode::Rotate:
 		break;
@@ -586,6 +836,16 @@ bool miGizmo::Update(miViewport* vp) {
 	m_T.setTranslation(g_app->m_selectionAabb_center);
 
 	m_W = m_T * m_S;
+
+	m_2d_point = math::worldToScreen(
+		vp->m_activeCamera->m_viewProjectionMatrix, 
+		g_app->m_selectionAabb_center, 
+		vp->m_currentRectSize, 
+		v2f(vp->m_currentRect.x, vp->m_currentRect.y)
+	);
+	m_2d_point = math::screenToClient(m_2d_point, vp->m_currentRect);
+
+	//printf("%f %f\n", m_2d_point.x, m_2d_point.y);
 
 	switch (g_app->m_transformMode)
 	{
@@ -665,13 +925,9 @@ bool miGizmo::Update(miViewport* vp) {
 		m_ZYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_ZYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_ZYAabbMod.rayTest(g_app->m_rayCursor))
-		{
 			m_isDrawAabbZY = true;
-		}
 		else
-		{
 			m_isDrawAabbZY = false;
-		}
 		break;
 	}
 
@@ -682,44 +938,60 @@ bool miGizmo::Update(miViewport* vp) {
 		break;
 	case miTransformMode::Scale:
 	case miTransformMode::Move:
+		m_HeadScaleXAabbMod.m_min = math::mul(m_HeadScaleXAabb.m_min, m_S);
+		m_HeadScaleXAabbMod.m_max = math::mul(m_HeadScaleXAabb.m_max, m_S);
+		m_HeadScaleXAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadScaleXAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadScaleXAabbMod.rayTest(g_app->m_rayCursor))
+			m_isDrawAabbScaleHeadX = true;
+		else
+			m_isDrawAabbScaleHeadX = false;
+
+		m_HeadScaleYAabbMod.m_min = math::mul(m_HeadScaleYAabb.m_min, m_S);
+		m_HeadScaleYAabbMod.m_max = math::mul(m_HeadScaleYAabb.m_max, m_S);
+		m_HeadScaleYAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadScaleYAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadScaleYAabbMod.rayTest(g_app->m_rayCursor))
+			m_isDrawAabbScaleHeadY = true;
+		else
+			m_isDrawAabbScaleHeadY = false;
+
+		m_HeadScaleZAabbMod.m_min = math::mul(m_HeadScaleZAabb.m_min, m_S);
+		m_HeadScaleZAabbMod.m_max = math::mul(m_HeadScaleZAabb.m_max, m_S);
+		m_HeadScaleZAabbMod.m_max += g_app->m_selectionAabb_center;
+		m_HeadScaleZAabbMod.m_min += g_app->m_selectionAabb_center;
+		if (m_HeadScaleZAabbMod.rayTest(g_app->m_rayCursor))
+			m_isDrawAabbScaleHeadZ = true;
+		else
+			m_isDrawAabbScaleHeadZ = false;
+
 		m_HeadXAabbMod.m_min = math::mul(m_HeadXAabb.m_min, m_S);
 		m_HeadXAabbMod.m_max = math::mul(m_HeadXAabb.m_max, m_S);
 		m_HeadXAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadXAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadXAabbMod.rayTest(g_app->m_rayCursor))
-		{
 			m_isDrawAabbHeadX = true;
-		}
 		else
-		{
 			m_isDrawAabbHeadX = false;
-		}
+
 
 		m_HeadYAabbMod.m_min = math::mul(m_HeadYAabb.m_min, m_S);
 		m_HeadYAabbMod.m_max = math::mul(m_HeadYAabb.m_max, m_S);
 		m_HeadYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadYAabbMod.rayTest(g_app->m_rayCursor))
-		{
 			m_isDrawAabbHeadY = true;
-		}
 		else
-		{
 			m_isDrawAabbHeadY = false;
-		}
 
 		m_HeadZAabbMod.m_min = math::mul(m_HeadZAabb.m_min, m_S);
 		m_HeadZAabbMod.m_max = math::mul(m_HeadZAabb.m_max, m_S);
 		m_HeadZAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadZAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadZAabbMod.rayTest(g_app->m_rayCursor))
-		{
 			m_isDrawAabbHeadZ = true;
-		}
 		else
-		{
 			m_isDrawAabbHeadZ = false;
-		}
 
 		break;
 	case miTransformMode::Rotate:
