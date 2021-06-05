@@ -12,6 +12,10 @@ public:
 
 	yyResource* m_pivotModel;
 	
+	yyResource* m_rotateX;
+	yyResource* m_rotateY;
+	yyResource* m_rotateZ;
+	
 	yyResource* m_X;
 	yyResource* m_Y;
 	yyResource* m_Z;
@@ -85,6 +89,12 @@ public:
 	Mat4 m_WVP;
 
 	v2f m_2d_point;
+	bool m_isIn2d;
+	f32 m_size_2d;
+
+	yyColor m_color_x;
+	yyColor m_color_y;
+	yyColor m_color_z;
 };
 
 #endif
