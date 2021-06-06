@@ -182,6 +182,7 @@ struct miViewportCamera
 	// calculate matrices
 	void Update();
 	Mat4 m_viewMatrix;
+	Mat4 m_viewMatrixInvert;
 	Mat4 m_projectionMatrix;
 	Mat4 m_viewProjectionMatrix;
 	Mat4 m_viewProjectionInvertMatrix;

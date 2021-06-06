@@ -58,10 +58,11 @@ void miViewportCamera::Update() {
 
 	m_viewMatrix = (R*(P * Y)) * T;
 	m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+	
 
-	auto vi = m_viewMatrix; vi.invert();
+	m_viewMatrixInvert = m_viewMatrix; m_viewMatrixInvert.invert();
 	auto pi = m_projectionMatrix; pi.invert();
-	m_viewProjectionInvertMatrix = vi*pi;
+	m_viewProjectionInvertMatrix = m_viewMatrixInvert*pi;
 	m_frust.CalculateFrustum(m_projectionMatrix, m_viewMatrix);
 }
 

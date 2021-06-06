@@ -609,25 +609,25 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 			{
 				m_rayTestTiangles[1].rayTest_MT(ray, true, T, U, V, W);
 			}
-			ip = ray.m_origin + T * ray.m_direction;
 			//ray.planeIntersection(v4f(0.f,0.f,0.f,1.f), v4f(0.f,1.f,0.f,1.f), ip);
 			break;
 		case miViewportCameraType::Bottom:
-			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, -1.f, 0.f, 1.f), ip);
+			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, -1.f, 0.f, 1.f), T);
 			break;
 		case miViewportCameraType::Left:
-			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(-1.f, 0.f, 0.f, 1.f), ip);
+			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(-1.f, 0.f, 0.f, 1.f), T);
 			break;
 		case miViewportCameraType::Right:
-			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(1.f, 0.f, 0.f, 1.f), ip);
+			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(1.f, 0.f, 0.f, 1.f), T);
 			break;
 		case miViewportCameraType::Front:
-			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, 0.f, 1.f, 1.f), ip);
+			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, 0.f, 1.f, 1.f), T);
 			break;
 		case miViewportCameraType::Back:
-			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, 0.f, -1.f, 1.f), ip);
+			ray.planeIntersection(v4f(0.f, 0.f, 0.f, 1.f), v4f(0.f, 0.f, -1.f, 1.f), T);
 			break;
 		}
+		ray.getIntersectionPoint(T, ip);
 
 	}
 

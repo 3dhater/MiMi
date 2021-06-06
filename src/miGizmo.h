@@ -7,7 +7,15 @@ public:
 	miGizmo();
 	~miGizmo();
 	
-	yyMaterial m_YMaterial;
+	f32 m_gizmo_arrow_body_size;
+	f32 m_gizmo_head_size;
+	f32 m_gizmo_head_len;
+	f32 m_gizmo_2pl_sz;
+	f32 m_gizmo_rot_sz;
+	f32 m_gizmo_rot_sz_mn;
+	f32 m_gizmo_rot_sz_mx;
+
+	yyMaterial m_commonMaterial;
 	yyMaterial m_pivotModelMaterial;
 
 	yyResource* m_pivotModel;
@@ -15,7 +23,8 @@ public:
 	yyResource* m_rotateX;
 	yyResource* m_rotateY;
 	yyResource* m_rotateZ;
-	
+	yySprite*   m_rotateSprite;
+
 	yyResource* m_X;
 	yyResource* m_Y;
 	yyResource* m_Z;
@@ -64,6 +73,10 @@ public:
 	bool m_isDrawAabbScaleHeadX;
 	bool m_isDrawAabbScaleHeadY;
 	bool m_isDrawAabbScaleHeadZ;
+
+	bool m_isRotationHoverX;
+	bool m_isRotationHoverY;
+	bool m_isRotationHoverZ;
 
 	yyResource* m_XZ;
 	Aabb m_XZAabb;

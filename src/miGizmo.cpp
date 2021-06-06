@@ -4,10 +4,28 @@
 #include "miSDK.h"
 #include "miSDKImpl.h"
 
+#include "scene\common.h"
+#include "scene\sprite.h"
+
 
 extern miApplication * g_app;
 
 miGizmo::miGizmo() {
+	m_gizmo_arrow_body_size = 0.125f;
+	m_gizmo_head_size = 0.01f;
+	m_gizmo_head_len = 0.025f;
+	m_gizmo_2pl_sz = 0.01f;
+	m_gizmo_rot_sz = 0.1f;
+	m_gizmo_rot_sz_mn = 0.01;
+	m_gizmo_rot_sz_mx = 0.01;
+
+	m_rotateSprite = yyCreateSprite(v4f(0.f, 0.f, 1.f, 1.f), yyGetTextureFromCache("../res/gui/tr.dds"), 8);
+	m_rotateSprite->m_useAsBillboard = true;
+
+	m_isRotationHoverX = false;
+	m_isRotationHoverY = false;
+	m_isRotationHoverZ = false;
+
 	m_color_x = ColorRed;
 	m_color_y = ColorDodgerBlue;
 	m_color_z = ColorLime;
@@ -34,11 +52,7 @@ miGizmo::miGizmo() {
 	m_rotateY = 0;
 	m_rotateZ = 0;
 
-	const f32 gizmo_arrow_body_size = 0.125f;
-	const f32 gizmo_head_size = 0.01f;
-	const f32 gizmo_head_len = 0.025f;
-	const f32 gizmo_2pl_sz = 0.01f;
-	const f32 gizmo_rot_sz = 0.1f;
+	
 	{
 		
 		yyModel * model = yyCreate<yyModel>();
@@ -53,13 +67,13 @@ miGizmo::miGizmo() {
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = ColorWhite.getV4f();
 		vertex++;
-		vertex->Position.set(gizmo_arrow_body_size, 0.f, 0.f);
+		vertex->Position.set(m_gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = ColorWhite.getV4f();
 		vertex++;
-		vertex->Position.set(0.f, gizmo_arrow_body_size, 0.f);
+		vertex->Position.set(0.f, m_gizmo_arrow_body_size, 0.f);
 		vertex->Color = ColorWhite.getV4f();
 		vertex++;
-		vertex->Position.set(0.f, 0.f, gizmo_arrow_body_size);
+		vertex->Position.set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = ColorWhite.getV4f();
 
 		u16* index = (u16*)model->m_indices;
@@ -88,7 +102,7 @@ miGizmo::miGizmo() {
 		m_XAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_arrow_body_size, 0.f, 0.f);
+		vertex->Position.set(m_gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = m_color_x.getV4f();
 		m_XAabb.add(vertex->Position);
 		vertex++;
@@ -119,7 +133,7 @@ miGizmo::miGizmo() {
 		m_YAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(0.f, gizmo_arrow_body_size, 0.f);
+		vertex->Position.set(0.f, m_gizmo_arrow_body_size, 0.f);
 		vertex->Color = m_color_y.getV4f();
 		m_YAabb.add(vertex->Position);
 		vertex++;
@@ -150,7 +164,7 @@ miGizmo::miGizmo() {
 		m_ZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(0.f, 0.f, gizmo_arrow_body_size);
+		vertex->Position.set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = m_color_z.getV4f();
 		m_ZAabb.add(vertex->Position);
 		vertex++;
@@ -176,27 +190,27 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(gizmo_arrow_body_size, 0.f, 0.f);
+		vertex->Position.set(m_gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size, -gizmo_head_size);
+		vertex->Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len , -m_gizmo_head_size, -m_gizmo_head_size);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size, gizmo_head_size);
+		vertex->Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len , -m_gizmo_head_size, m_gizmo_head_size);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, gizmo_head_size);
+		vertex->Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, m_gizmo_head_size);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, -gizmo_head_size);
+		vertex->Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, -m_gizmo_head_size);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
@@ -232,14 +246,14 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex[0].Position.set(gizmo_arrow_body_size, -gizmo_head_size, -gizmo_head_size);
-		vertex[1].Position.set(gizmo_arrow_body_size, -gizmo_head_size, gizmo_head_size);
-		vertex[2].Position.set(gizmo_arrow_body_size, gizmo_head_size, gizmo_head_size);
-		vertex[3].Position.set(gizmo_arrow_body_size, gizmo_head_size, -gizmo_head_size);
-		vertex[4].Position.set(gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size, -gizmo_head_size);
-		vertex[5].Position.set(gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size, gizmo_head_size);
-		vertex[6].Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, gizmo_head_size);
-		vertex[7].Position.set(gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size, -gizmo_head_size);
+		vertex[0].Position.set(m_gizmo_arrow_body_size, -m_gizmo_head_size, -m_gizmo_head_size);
+		vertex[1].Position.set(m_gizmo_arrow_body_size, -m_gizmo_head_size, m_gizmo_head_size);
+		vertex[2].Position.set(m_gizmo_arrow_body_size, m_gizmo_head_size, m_gizmo_head_size);
+		vertex[3].Position.set(m_gizmo_arrow_body_size, m_gizmo_head_size, -m_gizmo_head_size);
+		vertex[4].Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size, -m_gizmo_head_size);
+		vertex[5].Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size, m_gizmo_head_size);
+		vertex[6].Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, m_gizmo_head_size);
+		vertex[7].Position.set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, -m_gizmo_head_size);
 
 		for (int i = 0; i < 8; ++i) {
 			vertex[i].Color = m_color_x.getV4f();
@@ -299,14 +313,14 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex[0].Position.set(-gizmo_head_size, gizmo_arrow_body_size , -gizmo_head_size);
-		vertex[1].Position.set(-gizmo_head_size, gizmo_arrow_body_size, gizmo_head_size);
-		vertex[2].Position.set(gizmo_head_size, gizmo_arrow_body_size, gizmo_head_size);
-		vertex[3].Position.set(gizmo_head_size, gizmo_arrow_body_size , -gizmo_head_size);
-		vertex[4].Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
-		vertex[5].Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
-		vertex[6].Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
-		vertex[7].Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len , -gizmo_head_size);
+		vertex[0].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size , -m_gizmo_head_size);
+		vertex[1].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size, m_gizmo_head_size);
+		vertex[2].Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size, m_gizmo_head_size);
+		vertex[3].Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size , -m_gizmo_head_size);
+		vertex[4].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size);
+		vertex[5].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
+		vertex[6].Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
+		vertex[7].Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len , -m_gizmo_head_size);
 
 		for (int i = 0; i < 8; ++i) {
 			vertex[i].Color = m_color_y.getV4f();
@@ -366,14 +380,14 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex[0].Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size);
-		vertex[1].Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size);
-		vertex[2].Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size);
-		vertex[3].Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size);
-		vertex[4].Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
-		vertex[5].Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
-		vertex[6].Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
-		vertex[7].Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex[0].Position.set(-m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size);
+		vertex[1].Position.set(-m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size);
+		vertex[2].Position.set(m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size);
+		vertex[3].Position.set(m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size);
+		vertex[4].Position.set(-m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
+		vertex[5].Position.set(-m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
+		vertex[6].Position.set(m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
+		vertex[7].Position.set(m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 
 		for (int i = 0; i < 8; ++i) {
 			vertex[i].Color = m_color_z.getV4f();
@@ -433,27 +447,27 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(0.f, gizmo_arrow_body_size, 0.f);
+		vertex->Position.set(0.f, m_gizmo_arrow_body_size, 0.f);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
+		vertex->Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(-gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
+		vertex->Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, gizmo_head_size);
+		vertex->Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len, -gizmo_head_size);
+		vertex->Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
@@ -489,27 +503,27 @@ miGizmo::miGizmo() {
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(0.f, 0.f, gizmo_arrow_body_size);
+		vertex->Position.set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(-gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex->Position.set(-m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(-gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex->Position.set(-m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_head_size, gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex->Position.set(m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(gizmo_head_size, -gizmo_head_size, gizmo_arrow_body_size - gizmo_head_len);
+		vertex->Position.set(m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
@@ -544,24 +558,24 @@ miGizmo::miGizmo() {
 		model->m_iCount = 6;
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
-		f32 xzsz = gizmo_arrow_body_size * 0.5f;
+		f32 xzsz = m_gizmo_arrow_body_size * 0.5f;
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(xzsz - gizmo_2pl_sz, 0.f, xzsz - gizmo_2pl_sz);
+		vertex->Position.set(xzsz - m_gizmo_2pl_sz, 0.f, xzsz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_y.getV4f();
 		m_XZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xzsz - gizmo_2pl_sz, 0.f, xzsz + gizmo_2pl_sz);
+		vertex->Position.set(xzsz - m_gizmo_2pl_sz, 0.f, xzsz + m_gizmo_2pl_sz);
 		vertex->Color = m_color_y.getV4f();
 		m_XZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xzsz + gizmo_2pl_sz, 0.f, xzsz + gizmo_2pl_sz);
+		vertex->Position.set(xzsz + m_gizmo_2pl_sz, 0.f, xzsz + m_gizmo_2pl_sz);
 		vertex->Color = m_color_y.getV4f();
 		m_XZAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xzsz + gizmo_2pl_sz, 0.f, xzsz - gizmo_2pl_sz);
+		vertex->Position.set(xzsz + m_gizmo_2pl_sz, 0.f, xzsz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_y.getV4f();
 		m_XZAabb.add(vertex->Position);
 		vertex++;
@@ -590,24 +604,24 @@ miGizmo::miGizmo() {
 		model->m_iCount = 6;
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
-		f32 xysz = gizmo_arrow_body_size * 0.5f;
+		f32 xysz = m_gizmo_arrow_body_size * 0.5f;
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(xysz - gizmo_2pl_sz, xysz - gizmo_2pl_sz, 0.f);
+		vertex->Position.set(xysz - m_gizmo_2pl_sz, xysz - m_gizmo_2pl_sz, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_XYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xysz - gizmo_2pl_sz, xysz + gizmo_2pl_sz, 0.f);
+		vertex->Position.set(xysz - m_gizmo_2pl_sz, xysz + m_gizmo_2pl_sz, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_XYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xysz + gizmo_2pl_sz, xysz + gizmo_2pl_sz, 0.f);
+		vertex->Position.set(xysz + m_gizmo_2pl_sz, xysz + m_gizmo_2pl_sz, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_XYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(xysz + gizmo_2pl_sz, xysz - gizmo_2pl_sz, 0.f);
+		vertex->Position.set(xysz + m_gizmo_2pl_sz, xysz - m_gizmo_2pl_sz, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_XYAabb.add(vertex->Position);
 		vertex++;
@@ -636,24 +650,24 @@ miGizmo::miGizmo() {
 		model->m_iCount = 6;
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 
-		f32 zysz = gizmo_arrow_body_size * 0.5f;
+		f32 zysz = m_gizmo_arrow_body_size * 0.5f;
 		auto vertex = (yyVertexTriangle*)model->m_vertices;
-		vertex->Position.set(0.f, zysz - gizmo_2pl_sz, zysz - gizmo_2pl_sz);
+		vertex->Position.set(0.f, zysz - m_gizmo_2pl_sz, zysz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_x.getV4f();
 		m_ZYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(0.f, zysz + gizmo_2pl_sz, zysz - gizmo_2pl_sz);
+		vertex->Position.set(0.f, zysz + m_gizmo_2pl_sz, zysz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_x.getV4f();
 		m_ZYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(0.f, zysz + gizmo_2pl_sz, zysz + gizmo_2pl_sz);
+		vertex->Position.set(0.f, zysz + m_gizmo_2pl_sz, zysz + m_gizmo_2pl_sz);
 		vertex->Color = m_color_x.getV4f();
 		m_ZYAabb.add(vertex->Position);
 		vertex++;
 
-		vertex->Position.set(0.f, zysz - gizmo_2pl_sz, zysz + gizmo_2pl_sz);
+		vertex->Position.set(0.f, zysz - m_gizmo_2pl_sz, zysz + m_gizmo_2pl_sz);
 		vertex->Color = m_color_x.getV4f();
 		m_ZYAabb.add(vertex->Position);
 		vertex++;
@@ -687,9 +701,9 @@ miGizmo::miGizmo() {
 		for (int i = 0; i < 36; ++i)
 		{
 			vertex[i].Position.x = 0.f;
-			vertex[i].Position.y = std::cos(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Position.z = std::sin(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Color = m_color_x.getV4f();
+			vertex[i].Position.y = std::cos(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Position.z = std::sin(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Color = ColorWhite.getV4f();
 		}
 
 		u16* index = (u16*)model->m_indices;
@@ -718,9 +732,9 @@ miGizmo::miGizmo() {
 		for (int i = 0; i < 36; ++i)
 		{
 			vertex[i].Position.y = 0.f;
-			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Position.z = std::sin(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Color = m_color_y.getV4f();
+			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Position.z = std::sin(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Color = ColorWhite.getV4f();
 		}
 
 		u16* index = (u16*)model->m_indices;
@@ -749,9 +763,9 @@ miGizmo::miGizmo() {
 		for (int i = 0; i < 36; ++i)
 		{
 			vertex[i].Position.z = 0.f;
-			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Position.y = std::sin(math::degToRad((f32)i * 10.f)) * gizmo_rot_sz;
-			vertex[i].Color = m_color_z.getV4f();
+			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Position.y = std::sin(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz;
+			vertex[i].Color = ColorWhite.getV4f();
 		}
 
 		u16* index = (u16*)model->m_indices;
@@ -769,6 +783,7 @@ miGizmo::miGizmo() {
 }
 
 miGizmo::~miGizmo() {
+	if (m_rotateSprite) yyDestroy(m_rotateSprite);
 	if (m_pivotModel) yyMegaAllocator::Destroy(m_pivotModel);
 	if (m_Y) yyMegaAllocator::Destroy(m_Y);
 	if (m_X) yyMegaAllocator::Destroy(m_X);
@@ -798,6 +813,8 @@ void miGizmo::Draw(miViewport* vp) {
 		* m_W;
 	yySetMatrix(yyMatrixType::WorldViewProjection, &m_WVP);
 	
+	yySetMaterial(&m_commonMaterial);
+
 
 	switch (g_app->m_transformMode)
 	{
@@ -814,7 +831,7 @@ void miGizmo::Draw(miViewport* vp) {
 		if (m_isDrawAabbX)
 			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f());
 
-		yySetMaterial(&m_YMaterial);
+		yySetMaterial(&m_commonMaterial);
 		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
@@ -876,7 +893,7 @@ void miGizmo::Draw(miViewport* vp) {
 		if (m_isDrawAabbX)
 			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f());
 
-		yySetMaterial(&m_YMaterial);
+		yySetMaterial(&m_commonMaterial);
 		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
@@ -932,12 +949,35 @@ void miGizmo::Draw(miViewport* vp) {
 		}
 		break;
 	case miTransformMode::Rotate:
+	{
+		g_app->m_gpu->ClearDepth();
+		g_app->m_gpu->UseDepth(true);
+		g_app->m_gpu->UseBlend(true);
+
+		//m_rotateSprite->m_objectBase.m_globalMatrix.identity();
+		//m_rotateSprite->m_objectBase.m_globalMatrix.setBasis(vp->m_activeCamera->m_viewMatrixInvert);
+		//m_rotateSprite->m_objectBase.m_globalMatrix.setTranslation(m_W.m_data[3]);
+
+		Mat4 WVP;
+		WVP = vp->m_activeCamera->m_projectionMatrix * vp->m_activeCamera->m_viewMatrix * m_rotateSprite->m_objectBase.m_globalMatrix;
+		auto oldWVP = yyGetMatrix(yyMatrixType::WorldViewProjection);
+		yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+		g_app->m_gpu->DrawSprite(m_rotateSprite);
+		yySetMatrix(yyMatrixType::WorldViewProjection, oldWVP);
+	}
+	
+		m_isRotationHoverX ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_x;
 		g_app->m_gpu->SetModel(m_rotateX);
 		g_app->m_gpu->Draw();
+
+		m_isRotationHoverY ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_y;
 		g_app->m_gpu->SetModel(m_rotateY);
 		g_app->m_gpu->Draw();
+		
+		m_isRotationHoverZ ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_z;
 		g_app->m_gpu->SetModel(m_rotateZ);
 		g_app->m_gpu->Draw();
+
 		break;
 	}
 }
@@ -952,6 +992,8 @@ bool miGizmo::Update(miViewport* vp) {
 
 	m_W = m_T * m_S;
 
+	
+
 	m_2d_point = math::worldToScreen(
 		vp->m_activeCamera->m_viewProjectionMatrix, 
 		g_app->m_selectionAabb_center, 
@@ -962,11 +1004,57 @@ bool miGizmo::Update(miViewport* vp) {
 
 	//printf("%f %f\n", m_2d_point.x, m_2d_point.y);
 
+	f32 spriteRayTestLen = 999990.f;
+	f32 TX = 99999.f;
+	f32 TY = 99999.f;
+	f32 TZ = 99999.f;
+
 	switch (g_app->m_transformMode)
 	{
 	default:
-	case miTransformMode::Rotate:
 	case miTransformMode::NoTransform:
+		break;
+	case miTransformMode::Rotate:
+		m_rotateSprite->m_objectBase.m_globalMatrix.identity();
+		m_rotateSprite->m_objectBase.m_globalMatrix.setBasis(vp->m_activeCamera->m_viewMatrixInvert);
+		m_rotateSprite->m_objectBase.m_globalMatrix = m_rotateSprite->m_objectBase.m_globalMatrix * m_S;
+		m_rotateSprite->m_objectBase.m_globalMatrix.setTranslation(m_W.m_data[3]);
+
+		if (m_rotateSprite->RayTest(g_app->m_rayCursor, &spriteRayTestLen))
+		{
+			//printf("Len: %f\n", spriteRayTestLen);
+		}
+		
+		g_app->m_rayCursor.planeIntersection(m_W.m_data[3], v4f(1.f, 0.f, 0.f, 0.f), TX);
+		g_app->m_rayCursor.planeIntersection(m_W.m_data[3], v4f(0.f, 1.f, 0.f, 0.f), TY);
+		g_app->m_rayCursor.planeIntersection(m_W.m_data[3], v4f(0.f, 0.f, 1.f, 0.f), TZ);
+
+		{
+			v4f ipX;
+			v4f ipY;
+			v4f ipZ;
+			g_app->m_rayCursor.getIntersectionPoint(TX, ipX);
+			g_app->m_rayCursor.getIntersectionPoint(TY, ipY);
+			g_app->m_rayCursor.getIntersectionPoint(TZ, ipZ);
+
+			f32 dX = ipX.distance(m_W.m_data[3]);
+			f32 dY = ipY.distance(m_W.m_data[3]);
+			f32 dZ = ipZ.distance(m_W.m_data[3]);
+
+			auto gizmo_rot_sz_scaled_min = (m_gizmo_rot_sz - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
+			auto gizmo_rot_sz_scaled_max = (m_gizmo_rot_sz + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
+
+			m_isRotationHoverX = dX >= gizmo_rot_sz_scaled_min && dX <= gizmo_rot_sz_scaled_max ? true : false;
+			m_isRotationHoverY = dY >= gizmo_rot_sz_scaled_min && dY <= gizmo_rot_sz_scaled_max ? true : false;
+			m_isRotationHoverZ = dZ >= gizmo_rot_sz_scaled_min && dZ <= gizmo_rot_sz_scaled_max ? true : false;
+
+			if (m_isRotationHoverX && TX > spriteRayTestLen) m_isRotationHoverX = false;
+			if (m_isRotationHoverY && TY > spriteRayTestLen) m_isRotationHoverY = false;
+			if (m_isRotationHoverZ && TZ > spriteRayTestLen) m_isRotationHoverZ = false;
+		}
+
+		//printf("%f %f %f %f\n", spriteRayTestLen, TX, TY, TZ);
+
 		break;
 	case miTransformMode::Move:
 	case miTransformMode::Scale:
