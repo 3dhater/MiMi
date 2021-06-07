@@ -16,6 +16,7 @@ miGizmo::miGizmo() {
 	m_gizmo_head_len = 0.025f;
 	m_gizmo_2pl_sz = 0.01f;
 	m_gizmo_rot_sz = 0.1f;
+	m_gizmo_rot_sz_screen = m_gizmo_rot_sz + 0.05f;
 	m_gizmo_rot_sz_mn = 0.01;
 	m_gizmo_rot_sz_mx = 0.01;
 
@@ -51,6 +52,7 @@ miGizmo::miGizmo() {
 	m_rotateX = 0;
 	m_rotateY = 0;
 	m_rotateZ = 0;
+	m_rotateScreen = 0;
 
 	
 	{
@@ -780,6 +782,37 @@ miGizmo::miGizmo() {
 		m_rotateZ = yyCreateModel(model);
 		m_rotateZ->Load();
 	}
+	{ // rotate screen
+		yyModel * model = yyCreate<yyModel>();
+		model->m_stride = sizeof(yyVertexLine);
+		model->m_vertexType = yyVertexType::LineModel;
+		model->m_vCount = 36;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		model->m_iCount = 72;
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+
+		auto vertex = (yyVertexLine*)model->m_vertices;
+
+		for (int i = 0; i < 36; ++i)
+		{
+			vertex[i].Position.z = 0.01f;
+			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz_screen;
+			vertex[i].Position.y = std::sin(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz_screen;
+			vertex[i].Color = ColorWhite.getV4f();
+		}
+
+		u16* index = (u16*)model->m_indices;
+		for (s32 i = 0, ind = 0; i < 72; i += 2)
+		{
+			index[i] = (u16)ind++;
+			index[i + 1] = (u16)ind;
+			if (i == 70)
+				index[i + 1] = 0;
+		}
+
+		m_rotateScreen = yyCreateModel(model);
+		m_rotateScreen->Load();
+	}
 }
 
 miGizmo::~miGizmo() {
@@ -800,6 +833,7 @@ miGizmo::~miGizmo() {
 	if (m_rotateX) yyMegaAllocator::Destroy(m_rotateX);
 	if (m_rotateY) yyMegaAllocator::Destroy(m_rotateY);
 	if (m_rotateZ) yyMegaAllocator::Destroy(m_rotateZ);
+	if (m_rotateScreen) yyMegaAllocator::Destroy(m_rotateScreen);
 }
 
 void miGizmo::Draw(miViewport* vp) {
@@ -879,10 +913,11 @@ void miGizmo::Draw(miViewport* vp) {
 			auto color2d = ColorWhite;
 			if (m_isIn2d)color2d = ColorYellow;
 			g_app->m_gpu->SetViewport(0, 0, g_app->m_window->m_currentSize.x, g_app->m_window->m_currentSize.y, g_app->m_window, &old_vp);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y - m_size_2d, 0.f), v3f(_x + m_size_2d, _y - m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y + m_size_2d, 0.f), v3f(_x + m_size_2d, _y + m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y - m_size_2d, 0.f), v3f(_x - m_size_2d, _y + m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x + m_size_2d, _y - m_size_2d, 0.f), v3f(_x + m_size_2d, _y + m_size_2d, 0.f), color2d);
+			f32 rsz = m_isIn2d ? m_size_2d + 2.f : m_size_2d;
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y - rsz, 0.f), v3f(_x + rsz, _y - rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y + rsz, 0.f), v3f(_x + rsz, _y + rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y - rsz, 0.f), v3f(_x - rsz, _y + rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x + rsz, _y - rsz, 0.f), v3f(_x + rsz, _y + rsz, 0.f), color2d);
 			g_app->m_gpu->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w, g_app->m_window, 0);
 		}
 
@@ -941,10 +976,11 @@ void miGizmo::Draw(miViewport* vp) {
 			auto color2d = ColorWhite;
 			if (m_isIn2d)color2d = ColorYellow;
 			g_app->m_gpu->SetViewport(0, 0, g_app->m_window->m_currentSize.x, g_app->m_window->m_currentSize.y, g_app->m_window, &old_vp);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y - m_size_2d, 0.f), v3f(_x + m_size_2d, _y - m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y + m_size_2d, 0.f), v3f(_x + m_size_2d, _y + m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x - m_size_2d, _y - m_size_2d, 0.f), v3f(_x - m_size_2d, _y + m_size_2d, 0.f), color2d);
-			g_app->m_gpu->DrawLine2D(v3f(_x + m_size_2d, _y - m_size_2d, 0.f), v3f(_x + m_size_2d, _y + m_size_2d, 0.f), color2d);
+			f32 rsz = m_isIn2d ? m_size_2d + 2.f : m_size_2d;
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y - rsz, 0.f), v3f(_x + rsz, _y - rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y + rsz, 0.f), v3f(_x + rsz, _y + rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x - rsz, _y - rsz, 0.f), v3f(_x - rsz, _y + rsz, 0.f), color2d);
+			g_app->m_gpu->DrawLine2D(v3f(_x + rsz, _y - rsz, 0.f), v3f(_x + rsz, _y + rsz, 0.f), color2d);
 			g_app->m_gpu->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w, g_app->m_window, 0);
 		}
 		break;
@@ -963,6 +999,9 @@ void miGizmo::Draw(miViewport* vp) {
 		auto oldWVP = yyGetMatrix(yyMatrixType::WorldViewProjection);
 		yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 		g_app->m_gpu->DrawSprite(m_rotateSprite);
+		m_isRotationHoverScreen ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = ColorWhite;
+		g_app->m_gpu->SetModel(m_rotateScreen);
+		g_app->m_gpu->Draw();
 		yySetMatrix(yyMatrixType::WorldViewProjection, oldWVP);
 	}
 	
@@ -978,6 +1017,7 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->SetModel(m_rotateZ);
 		g_app->m_gpu->Draw();
 
+
 		break;
 	}
 }
@@ -991,9 +1031,7 @@ bool miGizmo::Update(miViewport* vp) {
 	m_T.setTranslation(g_app->m_selectionAabb_center);
 
 	m_W = m_T * m_S;
-
 	
-
 	m_2d_point = math::worldToScreen(
 		vp->m_activeCamera->m_viewProjectionMatrix, 
 		g_app->m_selectionAabb_center, 
@@ -1033,13 +1071,16 @@ bool miGizmo::Update(miViewport* vp) {
 			v4f ipX;
 			v4f ipY;
 			v4f ipZ;
+			v4f ipSprite;
 			g_app->m_rayCursor.getIntersectionPoint(TX, ipX);
 			g_app->m_rayCursor.getIntersectionPoint(TY, ipY);
 			g_app->m_rayCursor.getIntersectionPoint(TZ, ipZ);
+			g_app->m_rayCursor.getIntersectionPoint(spriteRayTestLen, ipSprite);
 
 			f32 dX = ipX.distance(m_W.m_data[3]);
 			f32 dY = ipY.distance(m_W.m_data[3]);
 			f32 dZ = ipZ.distance(m_W.m_data[3]);
+			f32 dSprite = ipSprite.distance(m_W.m_data[3]);
 
 			auto gizmo_rot_sz_scaled_min = (m_gizmo_rot_sz - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
 			auto gizmo_rot_sz_scaled_max = (m_gizmo_rot_sz + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
@@ -1051,6 +1092,11 @@ bool miGizmo::Update(miViewport* vp) {
 			if (m_isRotationHoverX && TX > spriteRayTestLen) m_isRotationHoverX = false;
 			if (m_isRotationHoverY && TY > spriteRayTestLen) m_isRotationHoverY = false;
 			if (m_isRotationHoverZ && TZ > spriteRayTestLen) m_isRotationHoverZ = false;
+
+			auto gizmo_rot_sz_scaled_min_screen = (m_gizmo_rot_sz_screen - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
+			auto gizmo_rot_sz_scaled_max_screen = (m_gizmo_rot_sz_screen + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
+			m_isRotationHoverScreen = dSprite >= gizmo_rot_sz_scaled_min_screen && dSprite <= gizmo_rot_sz_scaled_max_screen ? true : false;
+		//	printf("%f\n", dSprite);
 		}
 
 		//printf("%f %f %f %f\n", spriteRayTestLen, TX, TY, TZ);

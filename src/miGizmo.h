@@ -12,6 +12,7 @@ public:
 	f32 m_gizmo_head_len;
 	f32 m_gizmo_2pl_sz;
 	f32 m_gizmo_rot_sz;
+	f32 m_gizmo_rot_sz_screen;
 	f32 m_gizmo_rot_sz_mn;
 	f32 m_gizmo_rot_sz_mx;
 
@@ -23,6 +24,7 @@ public:
 	yyResource* m_rotateX;
 	yyResource* m_rotateY;
 	yyResource* m_rotateZ;
+	yyResource* m_rotateScreen;
 	yySprite*   m_rotateSprite;
 
 	yyResource* m_X;
@@ -77,6 +79,7 @@ public:
 	bool m_isRotationHoverX;
 	bool m_isRotationHoverY;
 	bool m_isRotationHoverZ;
+	bool m_isRotationHoverScreen;
 
 	yyResource* m_XZ;
 	Aabb m_XZAabb;
