@@ -1021,6 +1021,12 @@ void miApplication::UpdateViewports() {
 				m_gizmo->OnRelease();
 			}
 		}
+
+		if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		{
+			m_gizmo->OnRelease();
+			m_isViewportInFocus = false;
+		}
 	}
 
 	if (m_isSelectByRectangle)
@@ -1511,8 +1517,10 @@ void miApplication::SetEditMode(miEditMode m) {
 	m_editMode = m;
 }
 void miApplication::SetTransformMode(miTransformMode m) {
-	m_transformMode = m;
-	m_gizmoMode = miGizmoMode::NoTransform;
+	if (m_gizmoMode == miGizmoMode::NoTransform)
+	{
+		m_transformMode = m;
+	}
 }
 
 void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
