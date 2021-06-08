@@ -97,7 +97,10 @@ public:
 	bool m_isDrawAabbZY;
 
 	void Draw(miViewport*);
-	bool Update(miViewport*);
+	//bool Update(miViewport*);
+	void Update(miViewport*);
+	void OnStartFrame();
+	void OnEndFrame();
 
 	Mat4 m_S;
 	Mat4 m_T;
@@ -111,6 +114,9 @@ public:
 	yyColor m_color_x;
 	yyColor m_color_y;
 	yyColor m_color_z;
+
+	void OnClick();
+	void OnRelease();
 };
 
 #endif

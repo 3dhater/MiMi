@@ -444,8 +444,8 @@ void miViewport::OnDraw() {
 
 	if (m_visibleObjects.m_size)
 	{
-		_drawScene();
 		_drawSelectedObjectFrame();
+		_drawScene();
 		if (m_isDrawAabbs)
 			g_app->DrawAabb(g_app->m_sceneAabb, v4f(1.f));
 	}
@@ -453,7 +453,6 @@ void miViewport::OnDraw() {
 
 
 void miViewport::_drawScene() {
-
 	static f32 a = 0.f;
 
 	a += 0.001f;

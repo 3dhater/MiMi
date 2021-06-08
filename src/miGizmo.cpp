@@ -795,7 +795,7 @@ miGizmo::miGizmo() {
 
 		for (int i = 0; i < 36; ++i)
 		{
-			vertex[i].Position.z = 0.01f;
+			vertex[i].Position.z = 0.05f;
 			vertex[i].Position.x = std::cos(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz_screen;
 			vertex[i].Position.y = std::sin(math::degToRad((f32)i * 10.f)) * m_gizmo_rot_sz_screen;
 			vertex[i].Color = ColorWhite.getV4f();
@@ -849,6 +849,7 @@ void miGizmo::Draw(miViewport* vp) {
 	
 	yySetMaterial(&m_commonMaterial);
 
+	m_commonMaterial.m_baseColor = ColorWhite;
 
 	switch (g_app->m_transformMode)
 	{
@@ -859,13 +860,11 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->Draw();
 		break;
 	case miTransformMode::Move:
-		//m_moveBodyModelYMaterial.m_baseColor = m_color_y;
 		g_app->m_gpu->SetModel(m_X);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbX)
 			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f());
 
-		yySetMaterial(&m_commonMaterial);
 		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
@@ -1022,7 +1021,8 @@ void miGizmo::Draw(miViewport* vp) {
 	}
 }
 
-bool miGizmo::Update(miViewport* vp) {
+//bool miGizmo::Update(miViewport* vp) {
+void miGizmo::Update(miViewport* vp) {
 	//g_app->m_selectionAabb_center;
 	m_S.identity();
 	m_S.setScale(v3f(vp->m_activeCamera->m_positionPlatform.w / ((1.f / 600.f) * vp->m_currentRectSize.y)));
@@ -1040,6 +1040,16 @@ bool miGizmo::Update(miViewport* vp) {
 	);
 	m_2d_point = math::screenToClient(m_2d_point, vp->m_currentRect);
 
+	if (g_app->m_transformMode == miTransformMode::Rotate)
+	{
+		m_rotateSprite->m_objectBase.m_globalMatrix.identity();
+		m_rotateSprite->m_objectBase.m_globalMatrix.setBasis(vp->m_activeCamera->m_viewMatrixInvert);
+		m_rotateSprite->m_objectBase.m_globalMatrix = m_rotateSprite->m_objectBase.m_globalMatrix * m_S;
+		m_rotateSprite->m_objectBase.m_globalMatrix.setTranslation(m_W.m_data[3]);
+	}
+
+	if (g_app->m_gizmoMode != miGizmoMode::NoTransform) return;
+
 	//printf("%f %f\n", m_2d_point.x, m_2d_point.y);
 
 	f32 spriteRayTestLen = 999990.f;
@@ -1053,10 +1063,7 @@ bool miGizmo::Update(miViewport* vp) {
 	case miTransformMode::NoTransform:
 		break;
 	case miTransformMode::Rotate:
-		m_rotateSprite->m_objectBase.m_globalMatrix.identity();
-		m_rotateSprite->m_objectBase.m_globalMatrix.setBasis(vp->m_activeCamera->m_viewMatrixInvert);
-		m_rotateSprite->m_objectBase.m_globalMatrix = m_rotateSprite->m_objectBase.m_globalMatrix * m_S;
-		m_rotateSprite->m_objectBase.m_globalMatrix.setTranslation(m_W.m_data[3]);
+		
 
 		if (m_rotateSprite->RayTest(g_app->m_rayCursor, &spriteRayTestLen))
 		{
@@ -1093,9 +1100,20 @@ bool miGizmo::Update(miViewport* vp) {
 			if (m_isRotationHoverY && TY > spriteRayTestLen) m_isRotationHoverY = false;
 			if (m_isRotationHoverZ && TZ > spriteRayTestLen) m_isRotationHoverZ = false;
 
+			if (m_isRotationHoverX && m_isRotationHoverY) m_isRotationHoverY = false;
+			if (m_isRotationHoverX && m_isRotationHoverZ) m_isRotationHoverZ = false;
+			if (m_isRotationHoverY && m_isRotationHoverZ) m_isRotationHoverY = false;
+
+
+
 			auto gizmo_rot_sz_scaled_min_screen = (m_gizmo_rot_sz_screen - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
 			auto gizmo_rot_sz_scaled_max_screen = (m_gizmo_rot_sz_screen + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
 			m_isRotationHoverScreen = dSprite >= gizmo_rot_sz_scaled_min_screen && dSprite <= gizmo_rot_sz_scaled_max_screen ? true : false;
+			
+			if (m_isRotationHoverX) g_app->m_isGizmoMouseHover = true;
+			if (m_isRotationHoverY) g_app->m_isGizmoMouseHover = true;
+			if (m_isRotationHoverZ) g_app->m_isGizmoMouseHover = true;
+			if (m_isRotationHoverScreen) g_app->m_isGizmoMouseHover = true;
 		//	printf("%f\n", dSprite);
 		}
 
@@ -1110,15 +1128,16 @@ bool miGizmo::Update(miViewport* vp) {
 
 		if (math::pointInRect(g_app->m_inputContext->m_cursorCoords.x, g_app->m_inputContext->m_cursorCoords.y,
 			v4f(
-				_x - m_size_2d, 
+				_x - m_size_2d,
 				_y - m_size_2d,
-				_x + m_size_2d, 
+				_x + m_size_2d,
 				_y + m_size_2d
-				)
+			)
 		))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isIn2d = true;
-		else
-			m_isIn2d = false;
+		}
 	}
 
 		m_XAabbMod.m_min = math::mul(m_XAabb.m_min, m_S);
@@ -1126,54 +1145,60 @@ bool miGizmo::Update(miViewport* vp) {
 		m_XAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_XAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_XAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbX = true;
-		else
-			m_isDrawAabbX = false;
+		}
 
 		m_YAabbMod.m_min = math::mul(m_YAabb.m_min, m_S);
 		m_YAabbMod.m_max = math::mul(m_YAabb.m_max, m_S);
 		m_YAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_YAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_YAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbY = true;
-		else
-			m_isDrawAabbY = false;
+		}
 
 		m_ZAabbMod.m_min = math::mul(m_ZAabb.m_min, m_S);
 		m_ZAabbMod.m_max = math::mul(m_ZAabb.m_max, m_S);
 		m_ZAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_ZAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_ZAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbZ = true;
-		else
-			m_isDrawAabbZ = false;
+		}
 
 		m_XZAabbMod.m_min = math::mul(m_XZAabb.m_min, m_S);
 		m_XZAabbMod.m_max = math::mul(m_XZAabb.m_max, m_S);
 		m_XZAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_XZAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_XZAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbXZ = true;
-		else
-			m_isDrawAabbXZ = false;
+		}
 
 		m_XYAabbMod.m_min = math::mul(m_XYAabb.m_min, m_S);
 		m_XYAabbMod.m_max = math::mul(m_XYAabb.m_max, m_S);
 		m_XYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_XYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_XYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbXY = true;
-		else
-			m_isDrawAabbXY = false;
+		}
 
 		m_ZYAabbMod.m_min = math::mul(m_ZYAabb.m_min, m_S);
 		m_ZYAabbMod.m_max = math::mul(m_ZYAabb.m_max, m_S);
 		m_ZYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_ZYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_ZYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbZY = true;
-		else
-			m_isDrawAabbZY = false;
+		}
 		break;
 	}
 
@@ -1189,55 +1214,60 @@ bool miGizmo::Update(miViewport* vp) {
 		m_HeadScaleXAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadScaleXAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadScaleXAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbScaleHeadX = true;
-		else
-			m_isDrawAabbScaleHeadX = false;
+		}
 
 		m_HeadScaleYAabbMod.m_min = math::mul(m_HeadScaleYAabb.m_min, m_S);
 		m_HeadScaleYAabbMod.m_max = math::mul(m_HeadScaleYAabb.m_max, m_S);
 		m_HeadScaleYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadScaleYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadScaleYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbScaleHeadY = true;
-		else
-			m_isDrawAabbScaleHeadY = false;
+		}
 
 		m_HeadScaleZAabbMod.m_min = math::mul(m_HeadScaleZAabb.m_min, m_S);
 		m_HeadScaleZAabbMod.m_max = math::mul(m_HeadScaleZAabb.m_max, m_S);
 		m_HeadScaleZAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadScaleZAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadScaleZAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbScaleHeadZ = true;
-		else
-			m_isDrawAabbScaleHeadZ = false;
+		}
 
 		m_HeadXAabbMod.m_min = math::mul(m_HeadXAabb.m_min, m_S);
 		m_HeadXAabbMod.m_max = math::mul(m_HeadXAabb.m_max, m_S);
 		m_HeadXAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadXAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadXAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadX = true;
-		else
-			m_isDrawAabbHeadX = false;
-
+		}
 
 		m_HeadYAabbMod.m_min = math::mul(m_HeadYAabb.m_min, m_S);
 		m_HeadYAabbMod.m_max = math::mul(m_HeadYAabb.m_max, m_S);
 		m_HeadYAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadYAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadYAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadY = true;
-		else
-			m_isDrawAabbHeadY = false;
+		}
 
 		m_HeadZAabbMod.m_min = math::mul(m_HeadZAabb.m_min, m_S);
 		m_HeadZAabbMod.m_max = math::mul(m_HeadZAabb.m_max, m_S);
 		m_HeadZAabbMod.m_max += g_app->m_selectionAabb_center;
 		m_HeadZAabbMod.m_min += g_app->m_selectionAabb_center;
 		if (m_HeadZAabbMod.rayTest(g_app->m_rayCursor))
+		{
+			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadZ = true;
-		else
-			m_isDrawAabbHeadZ = false;
+		}
 
 		break;
 	case miTransformMode::Rotate:
@@ -1245,5 +1275,98 @@ bool miGizmo::Update(miViewport* vp) {
 	}
 	
 
-	return false;
+//	return false;
+}
+
+void miGizmo::OnClick() {
+	miGizmoMode gm = miGizmoMode::NoTransform;
+	if (m_isDrawAabbHeadZ) gm = miGizmoMode::MoveZ;
+	else if (m_isDrawAabbHeadY) gm = miGizmoMode::MoveY;
+	else if (m_isDrawAabbHeadX) gm = miGizmoMode::MoveX;
+	else if (m_isDrawAabbScaleHeadZ) gm = miGizmoMode::ScaleZ;
+	else if (m_isDrawAabbScaleHeadY) gm = miGizmoMode::ScaleY;
+	else if (m_isDrawAabbScaleHeadX) gm = miGizmoMode::ScaleX;
+	else
+	{
+		switch (g_app->m_transformMode)
+		{
+		default:
+		case miTransformMode::NoTransform:
+			break;
+		case miTransformMode::Rotate:
+			if (m_isRotationHoverY) gm = miGizmoMode::RotateY;
+			else if (m_isRotationHoverX) gm = miGizmoMode::RotateX;
+			else if (m_isRotationHoverZ) gm = miGizmoMode::RotateZ;
+			else if (m_isRotationHoverScreen) gm = miGizmoMode::RotateScreen;
+			break;
+		case miTransformMode::Scale:
+			if (m_isIn2d) gm = miGizmoMode::ScaleScreen;
+			else if (m_isDrawAabbX) gm = miGizmoMode::ScaleX;
+			else if (m_isDrawAabbY) gm = miGizmoMode::ScaleY;
+			else if (m_isDrawAabbZ) gm = miGizmoMode::ScaleZ;
+			else if (m_isDrawAabbZY) gm = miGizmoMode::ScaleZY;
+			else if (m_isDrawAabbXY) gm = miGizmoMode::ScaleXY;
+			else if (m_isDrawAabbXZ) gm = miGizmoMode::ScaleXZ;
+			break;
+		case miTransformMode::Move:
+			if (m_isIn2d) gm = miGizmoMode::MoveScreen;
+			else if (m_isDrawAabbX) gm = miGizmoMode::MoveX;
+			else if (m_isDrawAabbY) gm = miGizmoMode::MoveY;
+			else if (m_isDrawAabbZ) gm = miGizmoMode::MoveZ;
+			else if (m_isDrawAabbZY) gm = miGizmoMode::MoveZY;
+			else if (m_isDrawAabbXY) gm = miGizmoMode::MoveXY;
+			else if (m_isDrawAabbXZ) gm = miGizmoMode::MoveXZ;
+			break;
+		}
+	}
+
+	g_app->_setGizmoMode(gm);
+	//printf("%s %i\n", __FUNCTION__, (s32)gm);
+}
+
+void miGizmo::OnStartFrame() {
+	if (g_app->m_gizmoMode != miGizmoMode::NoTransform) return;
+	m_isDrawAabbHeadZ = false;
+	m_isDrawAabbHeadY = false;
+	m_isDrawAabbHeadX = false;
+	m_isDrawAabbScaleHeadZ = false;
+	m_isDrawAabbScaleHeadY = false;
+	m_isDrawAabbScaleHeadX = false;
+	m_isDrawAabbZY = false;
+	m_isDrawAabbXY = false;
+	m_isDrawAabbXZ = false;
+	m_isDrawAabbZ = false;
+	m_isDrawAabbY = false;
+	m_isDrawAabbX = false;
+	m_isIn2d = false;
+	m_isRotationHoverX = false;
+	m_isRotationHoverY = false;
+	m_isRotationHoverZ = false;
+	m_isRotationHoverScreen = false;
+}
+
+void miGizmo::OnEndFrame() {
+	if (g_app->m_gizmoMode != miGizmoMode::NoTransform) return;
+	if (m_isDrawAabbHeadZ) return;
+	if (m_isDrawAabbHeadY) return;
+	if (m_isDrawAabbHeadX) return;
+	if (m_isDrawAabbScaleHeadZ) return;
+	if (m_isDrawAabbScaleHeadY) return;
+	if (m_isDrawAabbScaleHeadX) return;
+	if (m_isDrawAabbZY) return;
+	if (m_isDrawAabbXY) return;
+	if (m_isDrawAabbXZ) return;
+	if (m_isDrawAabbZ) return;
+	if (m_isDrawAabbY) return;
+	if (m_isDrawAabbX) return;
+	if (m_isIn2d) return;
+	if (m_isRotationHoverX) return;
+	if (m_isRotationHoverY) return;
+	if (m_isRotationHoverZ) return;
+	if (m_isRotationHoverScreen) return;
+	g_app->m_isGizmoMouseHover = false;
+}
+
+void miGizmo::OnRelease() {
+	g_app->_setGizmoMode(miGizmoMode::NoTransform);
 }

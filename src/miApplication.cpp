@@ -141,7 +141,9 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
-	m_isGizmoInput = false;
+	m_gizmoMode = miGizmoMode::NoTransform;
+	//m_isGizmoInput = false;
+	m_isGizmoMouseHover = false;
 	m_onImport_importer = 0;
 	m_gizmo = 0;
 	m_isGUIInputFocus = false;
@@ -590,10 +592,12 @@ void miApplication::MainLoop() {
 	while (yyRun(&m_dt))
 	{
 	//	yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
 	
+
+		//m_isGizmoMouseHover = false;
+		m_gizmo->OnStartFrame();
 
 		m_isCursorInWindow = false;
 
@@ -734,6 +738,7 @@ void miApplication::MainLoop() {
 				ProcessShortcuts();
 		}
 		}
+		m_gizmo->OnEndFrame();
 	}
 
 	if (m_pluginActive)
@@ -981,32 +986,39 @@ void miApplication::UpdateViewports() {
 	{
 		if (m_inputContext->m_isLMBUp)
 		{
-			if (m_isSelectByRectangle)
+			if (m_gizmoMode == miGizmoMode::NoTransform)
 			{
-				Aabb aabb;
-				aabb.add(v3f(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y, 0.f));
-				aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
+				if (m_isSelectByRectangle)
+				{
+					Aabb aabb;
+					aabb.add(v3f(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y, 0.f));
+					aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
 
-				m_selectionFrust->CreateWithFrame(
-					v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-					m_activeViewportLayout->m_activeViewport->m_currentRect,
-					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+					m_selectionFrust->CreateWithFrame(
+						v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+						m_activeViewportLayout->m_activeViewport->m_currentRect,
+						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 
-				_select_multiple();
+					_select_multiple();
+				}
+				else
+				{
+					const f32 _size = 2.f;
+					m_selectionFrust->CreateWithFrame(
+						v4f(
+							m_inputContext->m_cursorCoords.x - _size,
+							m_inputContext->m_cursorCoords.y - _size,
+							m_inputContext->m_cursorCoords.x + _size,
+							m_inputContext->m_cursorCoords.y + _size),
+						m_activeViewportLayout->m_activeViewport->m_currentRect,
+						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+
+					_select_single();
+				}
 			}
 			else
 			{
-				const f32 _size = 2.f;
-				m_selectionFrust->CreateWithFrame(
-					v4f(
-						m_inputContext->m_cursorCoords.x - _size, 
-						m_inputContext->m_cursorCoords.y - _size, 
-						m_inputContext->m_cursorCoords.x + _size,
-						m_inputContext->m_cursorCoords.y + _size),
-					m_activeViewportLayout->m_activeViewport->m_currentRect,
-					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-
-				_select_single();
+				m_gizmo->OnRelease();
 			}
 		}
 	}
@@ -1045,6 +1057,8 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
+	m_isCursorInViewport = false;
+
 	if (!m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isLMBDown)
@@ -1068,6 +1082,7 @@ void miApplication::UpdateViewports() {
 
 			if (viewport->m_isCursorInRect)
 			{
+				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
 
 				if(m_inputContext->m_wheelDelta)
@@ -1124,19 +1139,34 @@ void miApplication::UpdateViewports() {
 			ChangeCursorBehaviorMode(m_cursorBehaviorMode);
 		}
 	}
+
+	/*if (m_isCursorInViewport)
+	{
+		if (m_isGizmoMouseHover)
+		{
+			if (m_inputContext->m_isLMBDown)
+			{
+				m_gizmo->OnClick();
+			}
+		}
+	}*/
+
 	if (m_isCursorMove && m_isViewportInFocus)
 	{
 		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
-
-		if( m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode && m_inputContext->m_isLMBHold)
-			m_isSelectByRectangle = true;
-
-		if (m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
+		
+		if(m_gizmoMode == miGizmoMode::NoTransform)
 		{
-			if (!m_isClickAndDrag)
+			if (m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode && m_inputContext->m_isLMBHold)
+				m_isSelectByRectangle = true;
+
+			if (m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
 			{
-				//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
-				m_isClickAndDrag = true;
+				if (!m_isClickAndDrag)
+				{
+					//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
+					m_isClickAndDrag = true;
+				}
 			}
 		}
 
@@ -1161,6 +1191,7 @@ void miApplication::UpdateViewports() {
 	}
 
 	//if(m_isCursorInGUI) printf("InGUI");
+	//m_isGizmoInput = false;
 
 	if (m_isCursorInWindow && !m_isCursorInGUI)
 	{
@@ -1174,8 +1205,6 @@ void miApplication::UpdateViewports() {
 	{
 		m_isViewportInFocus = false;
 	}
-
-	m_isGizmoInput = false;
 }
 
 void miApplication::DrawViewports() {
@@ -1196,8 +1225,22 @@ void miApplication::DrawViewports() {
 			m_gpu->UseDepth(false);
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
-		if (m_gizmo->Update(viewport))
-			m_isGizmoInput = true;
+
+		m_gizmo->Update(viewport);
+		
+		if (m_isCursorInViewport && viewport == m_viewportUnderCursor)
+		{
+			if (m_isGizmoMouseHover)
+			{
+				if (m_inputContext->m_isLMBDown)
+				{
+					m_gizmo->OnClick();
+				}
+			}
+		}
+
+		//if (m_gizmo->Update(viewport))
+			//m_isGizmoInput = true;
 		viewport->OnDraw();
 	}
 
@@ -1469,6 +1512,7 @@ void miApplication::SetEditMode(miEditMode m) {
 }
 void miApplication::SetTransformMode(miTransformMode m) {
 	m_transformMode = m;
+	m_gizmoMode = miGizmoMode::NoTransform;
 }
 
 void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
@@ -1505,4 +1549,8 @@ void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
 	m_gpu->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
 	m_gpu->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
 	m_gpu->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+}
+
+void miApplication::_setGizmoMode(miGizmoMode gm) {
+	m_gizmoMode = gm;
 }

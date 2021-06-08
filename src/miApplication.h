@@ -113,6 +113,7 @@ class miApplication
 
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
+	bool m_isCursorInViewport;
 	bool m_isCursorMove;
 	bool m_isGUIInputFocus;
 
@@ -157,6 +158,8 @@ class miApplication
 
 	miEditMode m_editMode;
 	miTransformMode m_transformMode;
+	miGizmoMode m_gizmoMode;
+	void _setGizmoMode(miGizmoMode);
 
 	void _update_transforms(miSceneObject* o);
 
@@ -197,7 +200,8 @@ public:
 
 	f32 m_dt;
 
-	bool m_isGizmoInput;
+	//bool m_isGizmoInput;
+	bool m_isGizmoMouseHover;
 
 	bool Init(const char* videoDriver);
 	void MainLoop();

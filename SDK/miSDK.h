@@ -35,6 +35,28 @@
 
 #include "umHalf.h"
 
+enum class miGizmoMode : unsigned int {
+	NoTransform,
+	MoveX,
+	MoveY,
+	MoveZ,
+	MoveXZ,
+	MoveXY,
+	MoveZY,
+	MoveScreen,
+	ScaleX,
+	ScaleY,
+	ScaleZ,
+	ScaleXZ,
+	ScaleXY,
+	ScaleZY,
+	ScaleScreen,
+	RotateX,
+	RotateY,
+	RotateZ,
+	RotateScreen,
+};
+
 enum class miViewportCameraType : unsigned int {
 	Perspective,
 	Left,
