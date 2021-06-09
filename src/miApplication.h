@@ -160,6 +160,10 @@ class miApplication
 	miTransformMode m_transformMode;
 	miGizmoMode m_gizmoMode;
 	void _setGizmoMode(miGizmoMode);
+	void _transformObjects();
+	void _transformObjects_move(miSceneObject* o);
+	void _transformObjects_scale(miSceneObject* o);
+	void _transformObjects_rotate(miSceneObject* o);
 
 	void _update_transforms(miSceneObject* o);
 
@@ -168,6 +172,7 @@ class miApplication
 	void _select_single_call(miSceneObject* o);
 	void _deselect_all(miSceneObject* o);
 	void _select_all(miSceneObject* o);
+	void _invert_selection(miSceneObject* o);
 	
 	yyRay m_rayCursor;
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
@@ -183,6 +188,7 @@ public:
 
 	void SelectAll();
 	void DeselectAll();
+	void InvertSelection();
 
 	miString GetFreeName(const wchar_t* name);
 

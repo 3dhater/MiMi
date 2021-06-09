@@ -115,6 +115,9 @@ public:
 	yyColor m_color_y;
 	yyColor m_color_z;
 
+	//f32 m_variable;
+	v3f m_variable;
+	v4f m_selectionAabbCenterOnClick;
 	void OnClick();
 	void OnRelease();
 };

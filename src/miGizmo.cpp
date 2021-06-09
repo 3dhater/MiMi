@@ -1279,6 +1279,11 @@ void miGizmo::Update(miViewport* vp) {
 }
 
 void miGizmo::OnClick() {
+	//m_variable = 0.f;
+	m_variable.set(0.f);
+	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
+	//printf("OnClick\n");
+
 	miGizmoMode gm = miGizmoMode::NoTransform;
 	if (m_isDrawAabbHeadZ) gm = miGizmoMode::MoveZ;
 	else if (m_isDrawAabbHeadY) gm = miGizmoMode::MoveY;

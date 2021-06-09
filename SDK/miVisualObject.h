@@ -30,6 +30,7 @@ public:
 	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
 	virtual void SelectAll() = 0;
 	virtual void DeselectAll() = 0;
+	virtual void InvertSelection() = 0;
 
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d) = 0;
 };

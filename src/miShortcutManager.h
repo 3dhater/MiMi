@@ -22,6 +22,9 @@ enum class miShortcutCommandType : u32 {
 	transfromMode_Move,
 	transfromMode_Scale,
 	transfromMode_Rotate,
+	select_selectAll,
+	select_deselectAll,
+	select_invertSelection,
 
 	count
 };

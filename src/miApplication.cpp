@@ -807,6 +807,9 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Move)) this->CommandTransformModeSet(miTransformMode::Move);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Scale)) this->CommandTransformModeSet(miTransformMode::Scale);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Rotate)) this->CommandTransformModeSet(miTransformMode::Rotate);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_selectAll)) this->SelectAll();
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_deselectAll)) this->DeselectAll();
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_invertSelection)) this->InvertSelection();
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
@@ -873,6 +876,20 @@ void miApplication::_select_all(miSceneObject* o) {
 	}
 }
 
+void miApplication::_invert_selection(miSceneObject* o) {
+	o->InvertSelection(m_editMode);
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_invert_selection(node->m_data);
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+}
+
 void miApplication::DeselectAll() {
 	_deselect_all(m_rootObject);
 	update_selected_objects_array();
@@ -881,6 +898,12 @@ void miApplication::DeselectAll() {
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
+	update_selected_objects_array();
+	UpdateSelectionAabb();
+}
+
+void miApplication::InvertSelection() {
+	_invert_selection(m_rootObject);
 	update_selected_objects_array();
 	UpdateSelectionAabb();
 }
@@ -1022,10 +1045,17 @@ void miApplication::UpdateViewports() {
 			}
 		}
 
-		if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		if (m_gizmoMode != miGizmoMode::NoTransform)
 		{
-			m_gizmo->OnRelease();
-			m_isViewportInFocus = false;
+			if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+			{
+				m_gizmo->OnRelease();
+				m_isViewportInFocus = false;
+			}
+			else if (m_isCursorMove)
+			{
+				_transformObjects();
+			}
 		}
 	}
 
@@ -1473,15 +1503,20 @@ void miApplication::UpdateSelectionAabb() {
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
 			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
+		}
 	}break;
 	default:
 		break;
 	}
-	}
 
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);
-	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
+
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		m_selectedObjects.m_data[i]->m_selectionAabbOffset = m_selectedObjects.m_data[i]->m_globalPosition - m_selectionAabb_center;
+	}
+//	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
 }
 
 void miApplication::OnImport_openDialog() {

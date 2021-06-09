@@ -5,7 +5,7 @@ class miApplication;
 class miPluginGUI;
 
 // base class for all scene objects
-// children classed must be implemented in plugins
+// children classe must be implemented in plugins
 class miSceneObject
 {
 protected:
@@ -31,6 +31,10 @@ protected:
 	float m_distanceToCamera; // not implemented
 	float m_cursorIntersectionPointDistance;
 	v4f m_cursorIntersectionPoint;
+
+	// will be set when user select object
+	// it will be used in transformations
+	v4f m_selectionAabbOffset;
 	
 	friend class miApplication;
 	friend struct miViewport;
@@ -121,6 +125,7 @@ public:
 		//m_aabb.m_max += m_globalPosition;//no
 		// m_aabb must be in space center
 		m_aabbTransformed = m_aabb;
+		m_aabbTransformed.transform(&m_aabb, &m_rotationMatrix, &m_globalPosition);
 	}
 
 
@@ -213,6 +218,23 @@ public:
 			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
 			{
 				GetVisualObject(i)->DeselectAll();
+			}
+			break;
+		}
+	}
+	virtual void InvertSelection(miEditMode em) {
+		switch (em)
+		{
+		default:
+		case miEditMode::Object:
+			m_isSelected = m_isSelected ? false : true;
+			break;
+		case miEditMode::Vertex:
+		case miEditMode::Edge:
+		case miEditMode::Polygon:
+			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+			{
+				GetVisualObject(i)->InvertSelection();
 			}
 			break;
 		}

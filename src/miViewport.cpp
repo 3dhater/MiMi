@@ -472,13 +472,13 @@ void miViewport::_drawScene() {
 		//object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
 
 
-		auto rm = object->GetRotationMatrix();
+		//auto rm = object->GetRotationMatrix();
 	//	rm->setRotation(q);
 
-		auto taabb = object->GetAABBTransformed();
-		taabb->transform(object->GetAABB(), rm, object_position);
+		//auto taabb = object->GetAABBTransformed();
+		//taabb->transform(object->GetAABB(), rm, object_position);
+		//object->UpdateTransform();
 
-		object->UpdateTransform();
 		object->m_worldViewProjection = m_activeCamera->m_projectionMatrix* m_activeCamera->m_viewMatrix* object->m_worldMatrix;
 		object->OnUpdate(g_app->m_dt);
 		

@@ -659,6 +659,10 @@ void miVisualObjectImpl::DeselectAll() {
 
 }
 
+void miVisualObjectImpl::InvertSelection() {
+
+}
+
 bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 	if (!m_mesh)
 		return false;

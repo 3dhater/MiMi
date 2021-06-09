@@ -24,6 +24,9 @@ miShortcutManager::miShortcutManager() {
 	SetCommand(miShortcutCommandType::transfromMode_Move, L"transfromMode_Move", miKeyboardModifier::None, yyKey::K_W);
 	SetCommand(miShortcutCommandType::transfromMode_Scale, L"transfromMode_Scale", miKeyboardModifier::None, yyKey::K_E);
 	SetCommand(miShortcutCommandType::transfromMode_Rotate, L"transfromMode_Rotate", miKeyboardModifier::None, yyKey::K_R);
+	SetCommand(miShortcutCommandType::select_selectAll, L"select_selectAll", miKeyboardModifier::Ctrl, yyKey::K_A);
+	SetCommand(miShortcutCommandType::select_deselectAll, L"select_deselectAll", miKeyboardModifier::Ctrl, yyKey::K_D);
+	SetCommand(miShortcutCommandType::select_invertSelection, L"select_invertSelection", miKeyboardModifier::Ctrl, yyKey::K_I);
 }
 
 miShortcutManager::~miShortcutManager() {

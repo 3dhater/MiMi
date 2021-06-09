@@ -24,6 +24,7 @@
     <ClCompile Include="..\src\miPluginGUIImpl.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miGizmo.cpp" />
+    <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />
