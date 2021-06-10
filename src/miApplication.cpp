@@ -269,14 +269,25 @@ void miApplication::ChangeCursorBehaviorMode(miCursorBehaviorMode bm) {
 	{
 	case miCursorBehaviorMode::CommonMode:
 	default:
+		yySetCursorClip(0, 0, 0);
+		yySetCursorDisableAutoChange(false);
+		yyShowCursor(true);
 		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
 		m_cursors[(u32)yyCursorType::Arrow]->Activate();
 		break;
 	case miCursorBehaviorMode::ClickAndDrag:
+		yySetCursorClip(0, 0, 0);
+		yySetCursorDisableAutoChange(false);
+		yyShowCursor(true);
 		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
 		m_cursors[(u32)yyCursorType::Cross]->Activate();
 		break;
+	case miCursorBehaviorMode::HideCursor:
+		yySetCursorDisableAutoChange(true);
+		yyShowCursor(false);
+		break;
 	}
+	//printf("ChangeCursorBehaviorMode %i\n", (s32)bm);
 }
 
 void miApplication::RemoveObjectFromScene(miSceneObject* o) {
@@ -1094,18 +1105,19 @@ void miApplication::UpdateViewports() {
 	}
 
 	m_isCursorInViewport = false;
+	yyRay ray;
 
 	if (!m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isLMBDown)
 		{
 			m_cursorLMBClickPosition = m_inputContext->m_cursorCoords;
-			yyRay r;
+			/*yyRay r;
 			m_sdk->GetRayFromScreen(&r, m_inputContext->m_cursorCoords,
 				m_activeViewportLayout->m_activeViewport->m_currentRect,
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);*/
 			
-			g_rays.push_back(r);
+		//	g_rays.push_back(r);
 		}
 
 		for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
@@ -1118,6 +1130,12 @@ void miApplication::UpdateViewports() {
 
 			if (viewport->m_isCursorInRect)
 			{
+				m_sdk->GetRayFromScreen(&ray, m_inputContext->m_cursorCoords,
+					m_activeViewportLayout->m_activeViewport->m_currentRect,
+					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				m_cursorPosition3DNear = ray.m_origin;
+				m_cursorPosition3DFar = ray.m_end;
+
 				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
 
@@ -1140,9 +1158,12 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
-	if (m_inputContext->m_isLMBDown)
+	if (m_inputContext->m_isLMBDown && !m_isCursorInGUI)
 	{
 		m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
+		m_cursorLMBClickPosition3DNear = ray.m_origin;
+		m_cursorLMBClickPosition3DFar = ray.m_end;
+
 		m_cursorPosition3D = m_cursorLMBClickPosition3D;
 		//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
 	}
@@ -1186,6 +1207,15 @@ void miApplication::UpdateViewports() {
 			}
 		}
 	}*/
+
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::HideCursor)
+	{
+		if(m_isCursorMove)
+			yySetCursorPosition(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, m_window);
+
+		if (m_inputContext->m_isLMBUp || m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+			this->ChangeCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+	}
 
 	if (m_isCursorMove && m_isViewportInFocus)
 	{
@@ -1234,6 +1264,9 @@ void miApplication::UpdateViewports() {
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, -5.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_8))
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, 5.f);
+	if (m_inputContext->IsKeyHit(yyKey::K_NUM_5))
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho = 
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
 
 	//if(m_isCursorInGUI) printf("InGUI");
 	//m_isGizmoInput = false;

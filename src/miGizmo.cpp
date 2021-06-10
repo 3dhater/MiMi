@@ -1325,6 +1325,19 @@ void miGizmo::OnClick() {
 		}
 	}
 
+	if (gm == miGizmoMode::MoveScreen || gm == miGizmoMode::ScaleScreen)
+	{
+		g_app->ChangeCursorBehaviorMode(miCursorBehaviorMode::HideCursor);
+		v4f cclip;
+		f32 _x = g_app->m_cursorLMBClickPosition.x;
+		f32 _y = g_app->m_cursorLMBClickPosition.y;
+		//printf("%f %f\n", _x, _y);
+		//const f32 clpsz = 3.f;
+		//cclip.set(_x - clpsz, _y - clpsz, _x + clpsz, _y + clpsz);
+		cclip = g_app->m_activeViewportLayout->m_activeViewport->m_currentRect;
+		yySetCursorClip(&cclip, 0, g_app->m_window);
+	}
+
 	g_app->_setGizmoMode(gm);
 	//printf("%s %i\n", __FUNCTION__, (s32)gm);
 }

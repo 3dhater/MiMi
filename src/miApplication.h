@@ -200,9 +200,13 @@ public:
 	miCursorBehaviorMode m_cursorBehaviorMode;
 	bool m_isSelectByRectangle;
 	bool m_isClickAndDrag;
-	v2f m_cursorLMBClickPosition;
+	v2f m_cursorLMBClickPosition; // save coords onLMB
 	v4f m_cursorLMBClickPosition3D; // intersection point
 	v4f m_cursorPosition3D;         // intersection point
+	v4f m_cursorLMBClickPosition3DNear; // point on camera near plane
+	v4f m_cursorPosition3DNear;         // 
+	v4f m_cursorLMBClickPosition3DFar; // point on camera far plane
+	v4f m_cursorPosition3DFar;         // 
 
 	f32 m_dt;
 

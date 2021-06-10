@@ -176,6 +176,8 @@ struct miViewportCamera
 
 	void Copy(miViewportCamera*);
 	
+	bool m_forceOrtho;
+
 	miViewport* m_viewport;
 	miViewportCameraType m_type;
 	miDirection m_direction;
@@ -184,7 +186,11 @@ struct miViewportCamera
 	void Update();
 	Mat4 m_viewMatrix;
 	Mat4 m_viewMatrixInvert;
+	
+	Mat4 m_projectionMatrixOrtho;
+	Mat4 m_projectionMatrixPersp;
 	Mat4 m_projectionMatrix;
+
 	Mat4 m_viewProjectionMatrix;
 	Mat4 m_viewProjectionInvertMatrix;
 

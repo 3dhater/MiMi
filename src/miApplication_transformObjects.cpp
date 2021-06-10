@@ -4,62 +4,9 @@
 void miApplication::_transformObjects_move(miSceneObject* o) {
 //	auto n = o->GetName();
 //	wprintf(L"%s\n", n.c_str());
-	f32 camera_zoom = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionPlatform.w;
+	
 
-	f32 speed = 0.003f;
-	//f32 var = 0.f;
-	switch (m_gizmoMode)
-	{
-	case miGizmoMode::NoTransform:
-		break;
-	case miGizmoMode::MoveX:
-		m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveY:
-		m_gizmo->m_variable.y += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveZ:
-		m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveXZ:
-		m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveXY:
-		m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		m_gizmo->m_variable.y -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveZY:
-		m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
-		m_gizmo->m_variable.y -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
-		break;
-	case miGizmoMode::MoveScreen:
-		break;
-	case miGizmoMode::ScaleX:
-		break;
-	case miGizmoMode::ScaleY:
-		break;
-	case miGizmoMode::ScaleZ:
-		break;
-	case miGizmoMode::ScaleXZ:
-		break;
-	case miGizmoMode::ScaleXY:
-		break;
-	case miGizmoMode::ScaleZY:
-		break;
-	case miGizmoMode::ScaleScreen:
-		break;
-	case miGizmoMode::RotateX:
-		break;
-	case miGizmoMode::RotateY:
-		break;
-	case miGizmoMode::RotateZ:
-		break;
-	case miGizmoMode::RotateScreen:
-		break;
-	default:
-		break;
-	}
+	
 	//m_gizmo->m_variable += var;
 	//printf("%f\n", m_gizmo->m_variable);
 
@@ -112,6 +59,225 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 }
 
 void miApplication::_transformObjects() {
+	f32 camera_zoom = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionPlatform.w;
+	auto camera_direction = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_direction;
+	f32 speed = 0.003f;
+	//f32 var = 0.f;
+	switch (m_gizmoMode)
+	{
+	case miGizmoMode::NoTransform:
+		break;
+	case miGizmoMode::MoveX:
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		}
+		break;
+	case miGizmoMode::MoveY:
+		m_gizmo->m_variable.y -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+		break;
+	case miGizmoMode::MoveZ:
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		}
+		break;
+	case miGizmoMode::MoveXZ:
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		}
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		}
+		break;
+	case miGizmoMode::MoveXY:
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.x += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.x -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		}
+		m_gizmo->m_variable.y -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+		break;
+	case miGizmoMode::MoveZY:
+		switch (camera_direction)
+		{
+		case miDirection::North:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::NorthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::East:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::SouthEast:
+			m_gizmo->m_variable.z -= m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::South:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+			break;
+		case miDirection::SouthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::West:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		case miDirection::NorthWest:
+			m_gizmo->m_variable.z += m_inputContext->m_mouseDelta.x * speed * camera_zoom;
+			break;
+		}
+		m_gizmo->m_variable.y -= m_inputContext->m_mouseDelta.y * speed * camera_zoom;
+		break;
+	case miGizmoMode::MoveScreen:
+	{
+		auto p1 = m_cursorPosition3DFar;
+		auto p2 = m_cursorLMBClickPosition3DFar;
+
+		f32 D = m_cursorPosition3DFar.distance(m_cursorLMBClickPosition3DFar);
+		//printf("D: %f\n", D);
+		if (D > 1.f)
+		{
+			p1 *= 0.0025f;
+			p2 *= 0.0025f;
+		}
+		m_gizmo->m_variable += (p1 - p2);
+	}break;
+	default:
+		break;
+	}
+
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
 		switch (m_transformMode)

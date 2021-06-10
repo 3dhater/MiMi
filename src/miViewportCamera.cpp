@@ -6,6 +6,7 @@ extern miApplication * g_app;
 miViewportCamera::miViewportCamera(miViewport* vp, miViewportCameraType ct){
 	m_viewport = vp;
 	m_type = ct;
+	m_forceOrtho = false;
 }
 
 miViewportCamera::~miViewportCamera(){}
@@ -22,22 +23,25 @@ void miViewportCamera::Copy(miViewportCamera* other) {
 }
 
 void miViewportCamera::Update() {
-	switch (m_type)
 	{
-	case miViewportCameraType::Perspective:
-		math::makePerspectiveRHMatrix(m_projectionMatrix, m_fov, m_aspect, m_near, m_far);
-	break;
-	default:
 		f32 zoom = m_positionPlatform.w;
-		m_near = -m_far;
-		math::makeOrthoRHMatrix(m_projectionMatrix, 
+		math::makeOrthoRHMatrix(m_projectionMatrixOrtho,
 			zoom * m_aspect,
 			zoom,
-			m_near, m_far);
-		break;
+			-m_far,
+			m_far);
+		math::makePerspectiveRHMatrix(m_projectionMatrixPersp, m_fov, m_aspect, m_near, m_far);
 	}
 
-
+	if (m_type != miViewportCameraType::Perspective || m_forceOrtho)
+	{
+		m_projectionMatrix = m_projectionMatrixOrtho;
+	}
+	else
+	{
+		m_projectionMatrix = m_projectionMatrixPersp;
+	}
+	
 	Mat4 MX(Quat(m_rotationPlatform.x, 0.f, 0.f));
 	Mat4 MY(Quat(0.f, m_rotationPlatform.y, 0.f));
 	//Mat4 MZ(Quat(0.f, 0.f, m_rotationPlatform.z));
@@ -95,7 +99,7 @@ void miViewportCamera::Update() {
 	{
 		m_direction = miDirection::SouthEast;
 	}
-//	printf("%f %s\n", m_rotationPlatform.y, miGetDirectionName(m_direction));
+	//printf("%f %s\n", m_rotationPlatform.y, miGetDirectionName(m_direction));
 }
 
 void miViewportCamera::MoveToSelection() {

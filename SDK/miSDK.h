@@ -118,6 +118,7 @@ enum class miTransformMode : unsigned int {
 enum class miCursorBehaviorMode : unsigned int {
 	CommonMode, // select by rect
 	ClickAndDrag, // like target weld or creation new object like plane
+	HideCursor, // hide cursor, save coords, and setCursorPo( this coords )
 };
 
 enum class miKeyboardModifier : unsigned int {
