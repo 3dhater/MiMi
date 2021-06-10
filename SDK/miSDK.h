@@ -67,6 +67,40 @@ enum class miViewportCameraType : unsigned int {
 	Back
 };
 
+enum class miDirection : unsigned int {
+	North,
+	NorthEast,
+	East,
+	SouthEast,
+	South,
+	SouthWest,
+	West,
+	NorthWest
+};
+inline
+const char* miGetDirectionName(miDirection d) {
+	switch (d)
+	{
+	case miDirection::North:
+		return "North";
+	case miDirection::NorthEast:
+		return "NorthEast";
+	case miDirection::East:
+		return "East";
+	case miDirection::SouthEast:
+		return "SouthEast";
+	case miDirection::South:
+		return "South";
+	case miDirection::SouthWest:
+		return "SouthWest";
+	case miDirection::West:
+		return "West";
+	case miDirection::NorthWest:
+		return "NorthWest";
+	}
+	return "";
+}
+
 enum class miEditMode : unsigned int {
 	Vertex,
 	Edge,

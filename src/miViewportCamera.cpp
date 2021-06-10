@@ -64,6 +64,38 @@ void miViewportCamera::Update() {
 	auto pi = m_projectionMatrix; pi.invert();
 	m_viewProjectionInvertMatrix = m_viewMatrixInvert*pi;
 	m_frust.CalculateFrustum(m_projectionMatrix, m_viewMatrix);
+
+	m_direction = miDirection::NorthEast;
+
+	if (m_rotationPlatform.y >= 2.7488936 && m_rotationPlatform.y <= 3.5342917)
+	{
+		m_direction = miDirection::North;
+	}
+	else if (m_rotationPlatform.y >= 5.8904862 || m_rotationPlatform.y <= 0.3926991)
+	{
+		m_direction = miDirection::South;
+	}
+	else if (m_rotationPlatform.y >= 1.1780972 && m_rotationPlatform.y <= 1.9634954)
+	{
+		m_direction = miDirection::West;
+	}
+	else if (m_rotationPlatform.y >= 4.3196899 && m_rotationPlatform.y <= 5.1050881)
+	{
+		m_direction = miDirection::East;
+	}
+	else if (m_rotationPlatform.y >= 1.9634954 && m_rotationPlatform.y <= 2.7488936)
+	{
+		m_direction = miDirection::NorthWest;
+	}
+	else if (m_rotationPlatform.y >= 0.3926991 && m_rotationPlatform.y <= 1.1780972)
+	{
+		m_direction = miDirection::SouthWest;
+	}
+	else if (m_rotationPlatform.y >= 5.1050881 && m_rotationPlatform.y <= 5.8904862)
+	{
+		m_direction = miDirection::SouthEast;
+	}
+//	printf("%f %s\n", m_rotationPlatform.y, miGetDirectionName(m_direction));
 }
 
 void miViewportCamera::MoveToSelection() {
@@ -123,6 +155,8 @@ void miViewportCamera::Reset() {
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
 	m_viewport->UpdateAspect();
 	//m_viewport->OnWindowSize();
+
+	Rotate(0, 0);
 }
 
 void miViewportCamera::PanMove() {
@@ -140,14 +174,18 @@ void miViewportCamera::PanMove() {
 	m_positionPlatform += vec;
 }
 
-void miViewportCamera::Rotate() {
+void miViewportCamera::Rotate(f32 x, f32 y) {
 	const f32 speed = 0.69f * g_app->m_dt;
-	m_rotationPlatform.x += g_app->m_inputContext->m_mouseDelta.y * speed;
-	m_rotationPlatform.y += g_app->m_inputContext->m_mouseDelta.x * speed;
+	m_rotationPlatform.x += y * speed;
+	m_rotationPlatform.y += x * speed;
+
+	if (m_rotationPlatform.y < 0.f) m_rotationPlatform.y = m_rotationPlatform.y + math::PIPI;
+
 	if (m_rotationPlatform.x > math::PIPI) m_rotationPlatform.x = 0.f;
 	if (m_rotationPlatform.y > math::PIPI) m_rotationPlatform.y = 0.f;
-	if (m_rotationPlatform.x < -math::PIPI) m_rotationPlatform.x = 0.f;
-	if (m_rotationPlatform.y < -math::PIPI) m_rotationPlatform.y = 0.f;
+	//if (m_rotationPlatform.x < -math::PIPI) m_rotationPlatform.x = 0.f;
+	//if (m_rotationPlatform.y < -math::PIPI) m_rotationPlatform.y = 0.f;
+
 
 	if(m_type != miViewportCameraType::Perspective)
 		m_viewport->SetViewportName(L"Orthogonal");

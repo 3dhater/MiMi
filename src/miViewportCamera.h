@@ -178,6 +178,7 @@ struct miViewportCamera
 	
 	miViewport* m_viewport;
 	miViewportCameraType m_type;
+	miDirection m_direction;
 
 	// calculate matrices
 	void Update();
@@ -203,7 +204,7 @@ struct miViewportCamera
 	v4f m_creationRect;
 
 	void PanMove();
-	void Rotate();
+	void Rotate(f32 x, f32 y);
 	void RotateZ();
 	void Zoom();
 	void ChangeFOV();

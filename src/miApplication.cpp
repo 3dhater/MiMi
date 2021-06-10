@@ -1214,7 +1214,7 @@ void miApplication::UpdateViewports() {
 				m_activeViewportLayout->m_activeViewport->m_activeCamera->PanMove();
 				break;
 			case miKeyboardModifier::Alt:
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate();
+				m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(m_inputContext->m_mouseDelta.x, m_inputContext->m_mouseDelta.y);
 				break;
 			case miKeyboardModifier::CtrlAlt:
 				m_activeViewportLayout->m_activeViewport->m_activeCamera->ChangeFOV();
@@ -1225,6 +1225,15 @@ void miApplication::UpdateViewports() {
 			}
 		}
 	}
+
+	if(m_inputContext->IsKeyHit(yyKey::K_NUM_4))
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(-5.f, 0.f);
+	if (m_inputContext->IsKeyHit(yyKey::K_NUM_6))
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(5.f, 0.f);
+	if (m_inputContext->IsKeyHit(yyKey::K_NUM_2))
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, -5.f);
+	if (m_inputContext->IsKeyHit(yyKey::K_NUM_8))
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, 5.f);
 
 	//if(m_isCursorInGUI) printf("InGUI");
 	//m_isGizmoInput = false;
