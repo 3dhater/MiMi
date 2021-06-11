@@ -384,6 +384,46 @@ public:
 	
 	void setTranslation(const v3f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
 	void setTranslation(const v4f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
+	void setScale(const v3f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
+	void setScale(const v4f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
+	void setBasis(const Mat4& other)
+	{
+		m_data[0].x = other.m_data[0].x;
+		m_data[0].y = other.m_data[0].y;
+		m_data[0].z = other.m_data[0].z;
+		m_data[1].x = other.m_data[1].x;
+		m_data[1].y = other.m_data[1].y;
+		m_data[1].z = other.m_data[1].z;
+		m_data[2].x = other.m_data[2].x;
+		m_data[2].y = other.m_data[2].y;
+		m_data[2].z = other.m_data[2].z;
+	}
+
+	Mat4 getBasis() {
+		Mat4 other;
+		other.m_data[0].x = m_data[0].x;
+		other.m_data[0].y = m_data[0].y;
+		other.m_data[0].z = m_data[0].z;
+		other.m_data[1].x = m_data[1].x;
+		other.m_data[1].y = m_data[1].y;
+		other.m_data[1].z = m_data[1].z;
+		other.m_data[2].x = m_data[2].x;
+		other.m_data[2].y = m_data[2].y;
+		other.m_data[2].z = m_data[2].z;
+		return other;
+	}
 };
 
 class Mat3
@@ -450,6 +490,20 @@ public:
 		m_data[0].set(xx, xy, xz);
 		m_data[1].set(yx, yy, yz);
 		m_data[2].set(zx, zy, zz);
+	}
+
+	void setScale(const v3f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
+	void setScale(const v4f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
 	}
 
 	void setRotation(const Quat& q)

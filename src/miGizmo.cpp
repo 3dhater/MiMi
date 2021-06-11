@@ -1028,13 +1028,28 @@ void miGizmo::Update(miViewport* vp) {
 	m_S.setScale(v3f(vp->m_activeCamera->m_positionPlatform.w / ((1.f / 600.f) * vp->m_currentRectSize.y)));
 
 	m_T.identity();
-	m_T.setTranslation(g_app->m_selectionAabb_center + m_var_move);
+
+	v4f aabb_position;
+	v4f point3D_for_2D;
+
+	if (g_app->m_selectedObjects.m_size == 1)
+	{
+		aabb_position = *g_app->m_selectedObjects.m_data[0]->GetGlobalPosition();
+		point3D_for_2D = aabb_position;
+		m_T.setTranslation(*g_app->m_selectedObjects.m_data[0]->GetGlobalPosition() );
+	}
+	else
+	{
+		aabb_position = g_app->m_selectionAabb_center;
+		point3D_for_2D = aabb_position + m_var_move;
+		m_T.setTranslation(g_app->m_selectionAabb_center + m_var_move);
+	}
 
 	m_W = m_T * m_S;
 	
 	m_2d_point = math::worldToScreen(
 		vp->m_activeCamera->m_viewProjectionMatrix, 
-		g_app->m_selectionAabb_center + m_var_move,
+		point3D_for_2D,
 		vp->m_currentRectSize, 
 		v2f(vp->m_currentRect.x, vp->m_currentRect.y)
 	);
@@ -1142,8 +1157,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_XAabbMod.m_min = math::mul(m_XAabb.m_min, m_S);
 		m_XAabbMod.m_max = math::mul(m_XAabb.m_max, m_S);
-		m_XAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_XAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_XAabbMod.m_max += aabb_position;
+		m_XAabbMod.m_min += aabb_position;
 		if (m_XAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1152,8 +1167,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_YAabbMod.m_min = math::mul(m_YAabb.m_min, m_S);
 		m_YAabbMod.m_max = math::mul(m_YAabb.m_max, m_S);
-		m_YAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_YAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_YAabbMod.m_max += aabb_position;
+		m_YAabbMod.m_min += aabb_position;
 		if (m_YAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1162,8 +1177,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_ZAabbMod.m_min = math::mul(m_ZAabb.m_min, m_S);
 		m_ZAabbMod.m_max = math::mul(m_ZAabb.m_max, m_S);
-		m_ZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_ZAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_ZAabbMod.m_max += aabb_position;
+		m_ZAabbMod.m_min += aabb_position;
 		if (m_ZAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1172,8 +1187,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_XZAabbMod.m_min = math::mul(m_XZAabb.m_min, m_S);
 		m_XZAabbMod.m_max = math::mul(m_XZAabb.m_max, m_S);
-		m_XZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_XZAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_XZAabbMod.m_max += aabb_position;
+		m_XZAabbMod.m_min += aabb_position;
 		if (m_XZAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1182,8 +1197,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_XYAabbMod.m_min = math::mul(m_XYAabb.m_min, m_S);
 		m_XYAabbMod.m_max = math::mul(m_XYAabb.m_max, m_S);
-		m_XYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_XYAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_XYAabbMod.m_max += aabb_position;
+		m_XYAabbMod.m_min += aabb_position;
 		if (m_XYAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1192,8 +1207,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_ZYAabbMod.m_min = math::mul(m_ZYAabb.m_min, m_S);
 		m_ZYAabbMod.m_max = math::mul(m_ZYAabb.m_max, m_S);
-		m_ZYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_ZYAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_ZYAabbMod.m_max += aabb_position;
+		m_ZYAabbMod.m_min += aabb_position;
 		if (m_ZYAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1208,11 +1223,10 @@ void miGizmo::Update(miViewport* vp) {
 	case miTransformMode::NoTransform:
 		break;
 	case miTransformMode::Scale:
-	case miTransformMode::Move:
 		m_HeadScaleXAabbMod.m_min = math::mul(m_HeadScaleXAabb.m_min, m_S);
 		m_HeadScaleXAabbMod.m_max = math::mul(m_HeadScaleXAabb.m_max, m_S);
-		m_HeadScaleXAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadScaleXAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadScaleXAabbMod.m_max += aabb_position;
+		m_HeadScaleXAabbMod.m_min += aabb_position;
 		if (m_HeadScaleXAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1221,8 +1235,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_HeadScaleYAabbMod.m_min = math::mul(m_HeadScaleYAabb.m_min, m_S);
 		m_HeadScaleYAabbMod.m_max = math::mul(m_HeadScaleYAabb.m_max, m_S);
-		m_HeadScaleYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadScaleYAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadScaleYAabbMod.m_max += aabb_position;
+		m_HeadScaleYAabbMod.m_min += aabb_position;
 		if (m_HeadScaleYAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1231,18 +1245,19 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_HeadScaleZAabbMod.m_min = math::mul(m_HeadScaleZAabb.m_min, m_S);
 		m_HeadScaleZAabbMod.m_max = math::mul(m_HeadScaleZAabb.m_max, m_S);
-		m_HeadScaleZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadScaleZAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadScaleZAabbMod.m_max += aabb_position;
+		m_HeadScaleZAabbMod.m_min += aabb_position;
 		if (m_HeadScaleZAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbScaleHeadZ = true;
 		}
-
+		break;
+	case miTransformMode::Move:
 		m_HeadXAabbMod.m_min = math::mul(m_HeadXAabb.m_min, m_S);
 		m_HeadXAabbMod.m_max = math::mul(m_HeadXAabb.m_max, m_S);
-		m_HeadXAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadXAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadXAabbMod.m_max += aabb_position;
+		m_HeadXAabbMod.m_min += aabb_position;
 		if (m_HeadXAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1251,8 +1266,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_HeadYAabbMod.m_min = math::mul(m_HeadYAabb.m_min, m_S);
 		m_HeadYAabbMod.m_max = math::mul(m_HeadYAabb.m_max, m_S);
-		m_HeadYAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadYAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadYAabbMod.m_max += aabb_position;
+		m_HeadYAabbMod.m_min += aabb_position;
 		if (m_HeadYAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1261,8 +1276,8 @@ void miGizmo::Update(miViewport* vp) {
 
 		m_HeadZAabbMod.m_min = math::mul(m_HeadZAabb.m_min, m_S);
 		m_HeadZAabbMod.m_max = math::mul(m_HeadZAabb.m_max, m_S);
-		m_HeadZAabbMod.m_max += g_app->m_selectionAabb_center;
-		m_HeadZAabbMod.m_min += g_app->m_selectionAabb_center;
+		m_HeadZAabbMod.m_max += aabb_position;
+		m_HeadZAabbMod.m_min += aabb_position;
 		if (m_HeadZAabbMod.rayTest(g_app->m_rayCursor))
 		{
 			g_app->m_isGizmoMouseHover = true;
@@ -1283,6 +1298,7 @@ void miGizmo::OnClick() {
 	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
 	{
 		g_app->m_selectedObjects.m_data[i]->m_localPositionOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_localPosition;
+		g_app->m_selectedObjects.m_data[i]->m_scaleOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_localScale;
 	}
 
 	miGizmoMode gm = miGizmoMode::NoTransform;
@@ -1326,7 +1342,7 @@ void miGizmo::OnClick() {
 		}
 	}
 
-	if (gm == miGizmoMode::MoveScreen || gm == miGizmoMode::ScaleScreen)
+	//if (gm == miGizmoMode::MoveScreen || gm == miGizmoMode::ScaleScreen)
 	{
 		g_app->ChangeCursorBehaviorMode(miCursorBehaviorMode::HideCursor);
 		v4f cclip;
@@ -1398,5 +1414,6 @@ void miGizmo::OnEscape() {
 
 void miGizmo::_reset_variables() {
 	m_var_move.set(0.f);
+	m_var_scale.set(1.f);
 //	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
 }

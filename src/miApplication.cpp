@@ -1109,8 +1109,7 @@ void miApplication::UpdateViewports() {
 	}
 
 	m_isCursorInViewport = false;
-	yyRay ray;
-
+	//yyRay ray;
 	if (!m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isLMBDown)
@@ -1134,11 +1133,11 @@ void miApplication::UpdateViewports() {
 
 			if (viewport->m_isCursorInRect)
 			{
-				m_sdk->GetRayFromScreen(&ray, m_inputContext->m_cursorCoords,
+				m_sdk->GetRayFromScreen(&m_screenRayCurrent, m_inputContext->m_cursorCoords,
 					m_activeViewportLayout->m_activeViewport->m_currentRect,
 					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-				m_cursorPosition3DNear = ray.m_origin;
-				m_cursorPosition3DFar = ray.m_end;
+			//	m_cursorPosition3DNear = ray.m_origin;
+			//	m_cursorPosition3DFar = ray.m_end;
 
 				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
@@ -1165,8 +1164,9 @@ void miApplication::UpdateViewports() {
 	if (m_inputContext->m_isLMBDown && !m_isCursorInGUI)
 	{
 		m_cursorLMBClickPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(m_inputContext->m_cursorCoords);
-		m_cursorLMBClickPosition3DNear = ray.m_origin;
-		m_cursorLMBClickPosition3DFar = ray.m_end;
+		//m_cursorLMBClickPosition3DNear = ray.m_origin;
+		//m_cursorLMBClickPosition3DFar = ray.m_end;
+		m_screenRayOnClick = m_screenRayCurrent;
 
 		m_cursorPosition3D = m_cursorLMBClickPosition3D;
 		//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);

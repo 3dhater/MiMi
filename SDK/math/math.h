@@ -3,6 +3,25 @@
 
 namespace math
 {
+	/*
+           0 : 0
+        22.5 : 0.3926991
+          45 : 0.7853982
+        67.5 : 1.1780972
+          90 : 1.5707963
+       112.5 : 1.9634954
+         135 : 2.3561945
+       157.5 : 2.7488936
+         180 : 3.1415927
+       202.5 : 3.5342917
+         225 : 3.9269908
+       247.5 : 4.3196899
+         270 : 4.7123890
+       292.5 : 5.1050881
+         315 : 5.4977871
+       337.5 : 5.8904862
+         360 : 0
+	*/
 	const f32 PI = static_cast<f32>(3.14159265358979323846);
 	const f32 PIHalf = static_cast<f32>(3.14159265358979323846 * 0.5);
 	const f32 PIPlusHalf = static_cast<f32>(3.14159265358979323846 + PIHalf);
@@ -124,6 +143,31 @@ namespace math
 		f32 get_0_1(f32 base, f32 val)
 	{
 		return val * (1.f / base);
+	}
+
+	YY_FORCE_INLINE
+	v2f worldToScreen(const Mat4& VP, const v4f& point3D, const v2f& viewportSize, const v2f& offset)
+	{
+		v4f point = point3D;
+		point.w = 1.f;
+
+		point = math::mul(point, VP);
+
+		return v2f
+		(
+			offset.x + (viewportSize.x * 0.5f + point.x * viewportSize.x * 0.5f / point.w)
+			,
+			offset.y + (viewportSize.y - (viewportSize.y * 0.5f + point.y * viewportSize.y * 0.5f / point.w))
+		);
+	}
+
+	YY_FORCE_INLINE
+	v2f screenToClient(const v2f& screen_coord, const v4f& client_rect)
+	{
+		return v2f(
+			screen_coord.x - client_rect.x,
+			screen_coord.y - client_rect.y
+		);
 	}
 }
 

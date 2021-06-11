@@ -528,7 +528,8 @@ void miVisualObjectImpl::Draw() {
 	static yyMaterial default_polygon_material;
 	default_polygon_material.m_baseColor.set(0.5f);
 	default_polygon_material.m_type = yyMaterialType::Standart;
-	default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
+	//default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
+	default_polygon_material.m_sunPos = v4f(0.f, 1000.f, 0.f, 0.f);
 
 	if (!m_texture) {
 		//m_texture = yyGetTextureFromCache("../res/exit.png");
@@ -614,7 +615,9 @@ bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 	assert(sf);
 	if (!m_mesh->m_first_edge)
 		return false;
-	auto rM = this->m_parentSceneObject->GetRotationMatrix();
+	
+	Mat4 M = this->m_parentSceneObject->GetWorldMatrix()->getBasis();
+
 	auto position = this->m_parentSceneObject->GetGlobalPosition();
 
 	bool result = false;
@@ -625,8 +628,8 @@ bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 	while (true) {
 
 		if (sf->LineInFrust(
-				math::mul(current_edge->m_vertex1->m_position, *rM) + *position,
-				math::mul(current_edge->m_vertex2->m_position, *rM) + *position)
+				math::mul(current_edge->m_vertex1->m_position, M) + *position,
+				math::mul(current_edge->m_vertex2->m_position, M) + *position)
 			)
 		{
 			result = true;
@@ -672,7 +675,8 @@ bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 	if (!m_mesh->m_first_polygon)
 		return false;
 
-	auto rM = this->m_parentSceneObject->GetRotationMatrix();
+	Mat4 M = this->m_parentSceneObject->GetWorldMatrix()->getBasis();
+
 	auto position = this->m_parentSceneObject->GetGlobalPosition();
 
 	if (!this->m_parentSceneObject->GetAABBTransformed()->rayTest(*r))
@@ -686,9 +690,9 @@ bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 		auto vertex_2 = vertex_1->m_right;
 		auto vertex_3 = vertex_2->m_right;
 		while (true) {
-			auto p1 = math::mul( vertex_1->m_data->m_position, *rM );
-			auto p2 = math::mul(vertex_2->m_data->m_position, *rM);
-			auto p3 = math::mul(vertex_3->m_data->m_position, *rM);
+			auto p1 = math::mul( vertex_1->m_data->m_position, M);
+			auto p2 = math::mul(vertex_2->m_data->m_position, M);
+			auto p3 = math::mul(vertex_3->m_data->m_position, M);
 
 			p1.add(*position);
 			p2.add(*position);

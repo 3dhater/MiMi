@@ -117,6 +117,8 @@ public:
 	yyColor m_color_z;
 
 	v3f m_var_move;
+	v3f m_var_scale;
+
 	//v4f m_selectionAabbCenterOnClick;
 	void OnClick();
 	void OnRelease();

@@ -205,10 +205,12 @@ public:
 	v2f m_cursorLMBClickPosition; // save coords onLMB
 	v4f m_cursorLMBClickPosition3D; // intersection point
 	v4f m_cursorPosition3D;         // intersection point
-	v4f m_cursorLMBClickPosition3DNear; // point on camera near plane
-	v4f m_cursorPosition3DNear;         // 
-	v4f m_cursorLMBClickPosition3DFar; // point on camera far plane
-	v4f m_cursorPosition3DFar;         // 
+	//v4f m_cursorLMBClickPosition3DNear; // point on camera near plane
+	//v4f m_cursorPosition3DNear;         // 
+	//v4f m_cursorLMBClickPosition3DFar; // point on camera far plane
+	//v4f m_cursorPosition3DFar;         // 
+	yyRay m_screenRayOnClick;
+	yyRay m_screenRayCurrent;
 
 	f32 m_dt;
 
