@@ -447,7 +447,7 @@ void miViewport::OnDraw() {
 		_drawSelectedObjectFrame();
 		_drawScene();
 		if (m_isDrawAabbs)
-			g_app->DrawAabb(g_app->m_sceneAabb, v4f(1.f));
+			g_app->DrawAabb(g_app->m_sceneAabb, v4f(1.f), v3f());
 	}
 }
 
@@ -469,12 +469,6 @@ void miViewport::_drawScene() {
 		auto object_position_v4f = *object_position;
 
 
-		//object->GetLocalPosition()->set(a, 0.f, 0.f, 0.f);
-
-
-		//auto rm = object->GetRotationMatrix();
-	//	rm->setRotation(q);
-
 		//auto taabb = object->GetAABBTransformed();
 		//taabb->transform(object->GetAABB(), rm, object_position);
 		//object->UpdateTransform();
@@ -485,12 +479,10 @@ void miViewport::_drawScene() {
 		m_gpu->UseDepth(true);
 		object->OnDraw();
 		
-	//	m_gpu->DrawLine3D(mimath::v4f_to_v4f(*object->GetGlobalPosition()), v4f(), ColorWhite);
-
 		if (object->IsSelected())
 		{
 			if (m_isDrawAabbs)
-				g_app->DrawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor());
+				g_app->DrawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), v3f());
 		}
 	}
 
@@ -498,44 +490,6 @@ void miViewport::_drawScene() {
 	{
 		g_app->m_gizmo->Draw(this);
 	}
-
-	//m_gpu->UseDepth(false);
-	//for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
-	//{
-	//	auto object = m_visibleObjects.m_data[i];
-	//	if (!object->IsSelected())
-	//		continue;
-
-	////	auto object_position = object->GetGlobalPosition();
-	////	auto object_position_v4f = *object_position;
-
-	//	//uto dir = object_position_v4f - m_activeCamera->m_positionCamera;
-
-	//	//auto sz = m_activeCamera->m_positionCamera.distance(object_position_v4f) * 0.1f;
-	//	//auto test = math::mul(v3f(sz),m_activeCamera->m_projectionMatrix);
-	//	//printf("%f %f %f\n", test.x, test.y, test.z);
-
-	//	//if (g_app->m_transformMode == miTransformMode::NoTransform)
-	//	//{
-	//	//	m_gpu->SetModel(g_app->m_pivotModel);
-	//	//	Mat4 S;
-	//	//	math::makeScaleMatrix(v4f(sz * m_activeCamera->m_fov), S);
-
-	//	//	Mat4 T;
-	//	//	math::makeTranslationMatrix(object->m_worldMatrix[3], T);
-
-	//	//	Mat4 W = T * S;
-
-	//	//	yySetMatrix(yyMatrixType::World, W);
-	//	//	yySetMatrix(yyMatrixType::WorldViewProjection, m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * W);
-	//	//	m_gpu->Draw();
-	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(sz, 0.f, 0.f, 0.f), ColorWhite);
-	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, sz, 0.f, 0.f), ColorWhite);
-	//	//	//m_gpu->DrawLine3D(object_position_v4f, object_position_v4f + v4f(0.f, 0.f, sz, 0.f), ColorWhite);
-	//	//}
-	//}
-
-//	g_app->UpdateSceneAabb();
 }
 
 void miViewport::SetDrawMode(DrawMode dm) {
@@ -730,48 +684,51 @@ void miViewport::_drawSelectedObjectFrame() {
 	{
 		auto obj = g_app->m_selectedObjects.m_data[i];
 
-		auto aabb = obj->GetAABBTransformed();
-		aabb->m_max.w = 0.f;
-		aabb->m_min.w = 0.f;
+		auto aabb = *obj->GetAABBTransformed();
+		aabb.m_max.w = 0.f;
+		aabb.m_min.w = 0.f;
 
-		frameSizeX = (aabb->m_max.x - aabb->m_min.x)*0.2f;
-		frameSizeY = (aabb->m_max.y - aabb->m_min.y)*0.2f;
-		frameSizeZ = (aabb->m_max.z - aabb->m_min.z)*0.2f;
+		aabb.m_max += g_app->m_gizmo->m_var_move;
+		aabb.m_min += g_app->m_gizmo->m_var_move;
+
+		frameSizeX = (aabb.m_max.x - aabb.m_min.x)*0.2f;
+		frameSizeY = (aabb.m_max.y - aabb.m_min.y)*0.2f;
+		frameSizeZ = (aabb.m_max.z - aabb.m_min.z)*0.2f;
 		//frameSize /= 12.f;
 		frameIndentX = frameSizeX * 0.2f;
 		frameIndentY = frameSizeY * 0.2f;
 		frameIndentZ = frameSizeZ * 0.2f;
 
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z + frameSizeZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y + frameSizeY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x + frameSizeX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z - frameSizeZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y - frameSizeY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x - frameSizeX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z + frameSizeZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y - frameSizeY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x - frameSizeX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y + frameSizeY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x + frameSizeX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x + frameSizeX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y - frameSizeY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x + frameSizeX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y - frameSizeY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_min.x - frameIndentX, aabb->m_max.y + frameIndentY, aabb->m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x - frameSizeX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y + frameSizeY, aabb->m_min.z - frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z - frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
 
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x - frameSizeX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y + frameSizeY, aabb->m_max.z + frameIndentZ, 0.f), ColorLightGray);
-		m_gpu->DrawLine3D(v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z + frameIndentZ, 0.f), v4f(aabb->m_max.x + frameIndentX, aabb->m_min.y - frameIndentY, aabb->m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 	}
 }

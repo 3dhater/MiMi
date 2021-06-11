@@ -1053,6 +1053,9 @@ void miApplication::UpdateViewports() {
 			else
 			{
 				m_gizmo->OnRelease();
+				_transformObjectsApply();
+				UpdateSceneAabb();
+				UpdateSelectionAabb();
 			}
 		}
 
@@ -1060,8 +1063,9 @@ void miApplication::UpdateViewports() {
 		{
 			if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
 			{
-				m_gizmo->OnRelease();
+				m_gizmo->OnEscape();
 				m_isViewportInFocus = false;
+				_transformObjectsReset();
 			}
 			else if (m_isCursorMove)
 			{
@@ -1600,7 +1604,7 @@ void miApplication::SetTransformMode(miTransformMode m) {
 	}
 }
 
-void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
+void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& positionOffset) {
 	auto & p1 = aabb.m_min;
 	auto & p2 = aabb.m_max;
 
@@ -1609,8 +1613,6 @@ void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color) {
 	color.m_data[1] = _color.y;
 	color.m_data[2] = _color.z;
 	color.m_data[3] = 1.f;
-
-	v4f positionOffset;
 
 	v4f v1 = p1;
 	v4f v2 = p2;

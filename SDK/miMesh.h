@@ -404,7 +404,7 @@ struct miMeshBuilder
 	std::unordered_map<std::string, miVertex*> m_weldMap;
 	std::string m_vertsMapHash;
 
-	v4f m_position;
+	//v4f m_position;
 	Aabb m_aabb;
 
 	bool m_isBegin;

@@ -164,6 +164,8 @@ class miApplication
 	void _transformObjects_move(miSceneObject* o);
 	void _transformObjects_scale(miSceneObject* o);
 	void _transformObjects_rotate(miSceneObject* o);
+	void _transformObjectsReset();
+	void _transformObjectsApply();
 
 	void _update_transforms(miSceneObject* o);
 
@@ -251,7 +253,7 @@ public:
 	void SetEditMode(miEditMode);
 	void SetTransformMode(miTransformMode);
 
-	void DrawAabb(const Aabb& aabb, const v4f& _color);
+	void DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& offset);
 
 	friend class miGizmo;
 	friend class miGUIManager;

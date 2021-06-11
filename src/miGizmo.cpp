@@ -863,47 +863,47 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->SetModel(m_X);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbX)
-			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
-			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f(), m_var_move);
 		
 		g_app->m_gpu->SetModel(m_Z);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZ)
-			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadMoveX);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadX)
-			g_app->DrawAabb(m_HeadXAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_HeadXAabbMod, m_color_x.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadMoveY);
 		g_app->m_gpu->Draw();
 		if(m_isDrawAabbHeadY)
-			g_app->DrawAabb(m_HeadYAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_HeadYAabbMod, m_color_y.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadMoveZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadZ)
-			g_app->DrawAabb(m_HeadZAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_HeadZAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_XZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXZ)
-			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_XY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXY)
-			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_ZY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
-			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f(), m_var_move);
 		
 		{
 			f32 _x = vp->m_currentRect.x + m_2d_point.x;
@@ -925,48 +925,48 @@ void miGizmo::Draw(miViewport* vp) {
 		g_app->m_gpu->SetModel(m_X);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbX)
-			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f(), m_var_move);
 
 		yySetMaterial(&m_commonMaterial);
 		g_app->m_gpu->SetModel(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
-			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_Z);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZ)
-			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadScaleX);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadX)
-			g_app->DrawAabb(m_HeadScaleXAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_HeadScaleXAabbMod, m_color_x.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadScaleY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadY)
-			g_app->DrawAabb(m_HeadScaleYAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_HeadScaleYAabbMod, m_color_y.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_HeadScaleZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadZ)
-			g_app->DrawAabb(m_HeadScaleZAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_HeadScaleZAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_XZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXZ)
-			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f());
+			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_XY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXY)
-			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f());
+			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f(), m_var_move);
 
 		g_app->m_gpu->SetModel(m_ZY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
-			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f());
+			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f(), m_var_move);
 
 		{
 			f32 _x = vp->m_currentRect.x + m_2d_point.x;
@@ -1028,13 +1028,13 @@ void miGizmo::Update(miViewport* vp) {
 	m_S.setScale(v3f(vp->m_activeCamera->m_positionPlatform.w / ((1.f / 600.f) * vp->m_currentRectSize.y)));
 
 	m_T.identity();
-	m_T.setTranslation(g_app->m_selectionAabb_center);
+	m_T.setTranslation(g_app->m_selectionAabb_center + m_var_move);
 
 	m_W = m_T * m_S;
 	
 	m_2d_point = math::worldToScreen(
 		vp->m_activeCamera->m_viewProjectionMatrix, 
-		g_app->m_selectionAabb_center, 
+		g_app->m_selectionAabb_center + m_var_move,
 		vp->m_currentRectSize, 
 		v2f(vp->m_currentRect.x, vp->m_currentRect.y)
 	);
@@ -1279,10 +1279,7 @@ void miGizmo::Update(miViewport* vp) {
 }
 
 void miGizmo::OnClick() {
-	//m_variable = 0.f;
-	m_variable.set(0.f);
-	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
-	//printf("OnClick\n");
+	_reset_variables();
 
 	miGizmoMode gm = miGizmoMode::NoTransform;
 	if (m_isDrawAabbHeadZ) gm = miGizmoMode::MoveZ;
@@ -1387,4 +1384,15 @@ void miGizmo::OnEndFrame() {
 
 void miGizmo::OnRelease() {
 	g_app->_setGizmoMode(miGizmoMode::NoTransform);
+	_reset_variables();
+}
+
+void miGizmo::OnEscape() {
+	g_app->_setGizmoMode(miGizmoMode::NoTransform);
+	_reset_variables();
+}
+
+void miGizmo::_reset_variables() {
+	m_var_move.set(0.f);
+	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
 }

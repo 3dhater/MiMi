@@ -123,7 +123,7 @@ void miplPolygonObjectPlane_generate(
 	v4f aabbcenter;
 	aabb.center(aabbcenter);
 
-	mb->m_position = aabbcenter;
+//	mb->m_position = aabbcenter;
 
 	segment_size_h = size.y / (float)y_segments;
 	segment_size_w = size.x / (float)x_segments;
@@ -445,10 +445,6 @@ void miplPolygonObjectPlane::OnCreationLMBUp() {
 }
 
 void miplPolygonObjectPlane::_generate() {
-	m_creationAabb.reset();
-	m_creationAabb.add(m_firstPoint);
-	m_creationAabb.add(m_secondPoint);
-
 	m_meshBuilder->DeleteMesh();
 	m_meshBuilder->Begin();
 
@@ -467,7 +463,7 @@ void miplPolygonObjectPlane::_generate() {
 	{
 		m_visualObject->CreateNewGPUModels(&m_meshBuilder->m_mesh);
 		
-		m_localPosition = m_meshBuilder->m_position;
+		//m_localPosition = m_meshBuilder->m_position;
 		
 
 		// object can contain a lot of m_visualObject
@@ -488,6 +484,13 @@ void miplPolygonObjectPlane::OnCreationMouseMove() {
 	if (!m_isLMBDown) return;
 
 	m_secondPoint = m_sdk->GetCursorPosition3D();
+
+	m_creationAabb.reset();
+	m_creationAabb.add(m_firstPoint);
+	m_creationAabb.add(m_secondPoint);
+	//m_localPosition = m_meshBuilder->m_position;
+	m_creationAabb.center(m_localPosition);
+
 	m_viewportCameraType = m_sdk->GetActiveViewportCameraType();
 
 	_generate();
