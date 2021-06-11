@@ -68,6 +68,10 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 }
 
 void miApplication::_transformObjects_scale(miSceneObject* o) {
+	Mat4 S;
+	S.setScale(m_gizmo->m_var_scale);
+
+	bool isGlobal = true;
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -76,8 +80,18 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 		break;
 	case miEditMode::Object:
 	default:
-		auto scale = o->GetScale();
-		*scale = o->m_scaleOnGizmoClick + (m_gizmo->m_var_scale - 1.f);
+		//auto scale = o->GetScale();
+		//*scale = o->m_scaleOnGizmoClick + (m_gizmo->m_var_scale - 0.f);
+		auto R = o->GetRotationMatrix();
+		*R = S * o->m_rotationMatrixOnGizmoClick;
+
+		if (isGlobal)
+		{
+			auto C = m_selectionAabb_center;
+
+			auto position = o->GetLocalPosition();
+			*position = math::mul(o->m_localPositionOnGizmoClick - C, S) + C;
+		}
 		break;
 	}
 
@@ -319,6 +333,8 @@ void miApplication::_transformObjects() {
 	auto mouse_delta_d = m_inputContext->m_mouseDelta.distance(v2f());
 
 	f32 scale_speed = 0.05f * camera_zoom;
+	if (m_keyboardModifier == miKeyboardModifier::Alt)
+		scale_speed *= 0.01f;
 	f32 scale_v = mouse_delta_d * 0.01f * scale_speed;
 	//printf("%f\n", mouse_delta_d);
 	
@@ -327,33 +343,54 @@ void miApplication::_transformObjects() {
 	switch (m_gizmoMode)
 	{
 	case miGizmoMode::ScaleX:
-		if (s.x < 0.f)m_gizmo->m_var_scale.x -= scale_v;else if (s.x > 0.f)m_gizmo->m_var_scale.x += scale_v;
+		if (s.x < 0.f)m_gizmo->m_var_scale2.x -= scale_v;else if (s.x > 0.f)m_gizmo->m_var_scale2.x += scale_v;
 		break;
 	case miGizmoMode::ScaleY:
-		if (s.y < 0.f)m_gizmo->m_var_scale.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale.y += scale_v;
+		if (s.y < 0.f)m_gizmo->m_var_scale2.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale2.y += scale_v;
 		break;
 	case miGizmoMode::ScaleZ:
-		if (s.z < 0.f)m_gizmo->m_var_scale.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale.z += scale_v;
+		if (s.z < 0.f)m_gizmo->m_var_scale2.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale2.z += scale_v;
 		break;
 	case miGizmoMode::ScaleXZ:
-		if (s.x < 0.f)m_gizmo->m_var_scale.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale.x += scale_v;
-		if (s.z < 0.f)m_gizmo->m_var_scale.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale.z += scale_v;
+		if (s.x < 0.f)m_gizmo->m_var_scale2.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale2.x += scale_v;
+		if (s.z < 0.f)m_gizmo->m_var_scale2.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale2.z += scale_v;
 		break;
 	case miGizmoMode::ScaleXY:
-		if (s.x < 0.f)m_gizmo->m_var_scale.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale.x += scale_v;
-		if (s.y < 0.f)m_gizmo->m_var_scale.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale.y += scale_v;
+		if (s.x < 0.f)m_gizmo->m_var_scale2.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale2.x += scale_v;
+		if (s.y < 0.f)m_gizmo->m_var_scale2.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale2.y += scale_v;
 		break;
 	case miGizmoMode::ScaleZY:
-		if (s.y < 0.f)m_gizmo->m_var_scale.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale.y += scale_v;
-		if (s.z < 0.f)m_gizmo->m_var_scale.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale.z += scale_v;
+		if (s.y < 0.f)m_gizmo->m_var_scale2.y -= scale_v; else if (s.y > 0.f)m_gizmo->m_var_scale2.y += scale_v;
+		if (s.z < 0.f)m_gizmo->m_var_scale2.z -= scale_v; else if (s.z > 0.f)m_gizmo->m_var_scale2.z += scale_v;
 		break;
 	case miGizmoMode::ScaleScreen:
-		if (s.x < 0.f)m_gizmo->m_var_scale.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale.x += scale_v;
-		m_gizmo->m_var_scale.y = m_gizmo->m_var_scale.z = m_gizmo->m_var_scale.x;
+		if (s.x < 0.f)m_gizmo->m_var_scale2.x -= scale_v; else if (s.x > 0.f)m_gizmo->m_var_scale2.x += scale_v;
+		m_gizmo->m_var_scale2.y = m_gizmo->m_var_scale2.z = m_gizmo->m_var_scale2.x;
 		break;
 	default:
 		break;
 	}
+
+	{
+		f32 x = m_gizmo->m_var_scale2.x - 1.f;
+		f32 y = m_gizmo->m_var_scale2.y - 1.f;
+		f32 z = m_gizmo->m_var_scale2.z - 1.f;
+		if (x<0.f) { x = x * 1.f / (1.f - x); }
+		if (y<0.f) { y = y * 1.f / (1.f - y); }
+		if (z<0.f) { z = z * 1.f / (1.f - z); }
+		x += 1.f;
+		y += 1.f;
+		z += 1.f;
+		if (x <= 0.f) x = FLT_MIN;
+		if (y <= 0.f) y = FLT_MIN;
+		if (z <= 0.f) z = FLT_MIN;
+		//printf("%f %f %f\n", x, y, z);
+		m_gizmo->m_var_scale.x = x;
+		m_gizmo->m_var_scale.y = y;
+		m_gizmo->m_var_scale.z = z;
+	}
+
+	//printf("%f %f %f\n", m_gizmo->m_var_scale2.x, m_gizmo->m_var_scale2.y, m_gizmo->m_var_scale2.z);
 
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{

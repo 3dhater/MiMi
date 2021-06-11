@@ -17,13 +17,14 @@ protected:
 	miList<miSceneObject*> m_children;
 	
 	Mat4 m_rotationMatrix;
+	Mat4 m_rotationMatrixOnGizmoClick;
 	Mat4 m_worldMatrix;
 	Mat4 m_worldViewProjection;
 
 	v4f m_localPosition;
 	v4f m_globalPosition;
 
-	v4f m_localScale;
+	//v4f m_localScale;
 	//v4f m_globalScale;
 
 	v4f m_edgeColor;
@@ -47,7 +48,7 @@ protected:
 	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
-		m_localScale.set(1.f);
+		//m_localScale.set(1.f);
 		m_gui = 0;
 		m_parent = 0;
 		m_isSelected = false;
@@ -69,10 +70,10 @@ public:
 		Mat4 T;
 		T.setTranslation(m_localPosition);
 
-		Mat4 S;
-		S.setScale(m_localScale);
+		//Mat4 S;
+		//S.setScale(m_localScale);
 		
-		m_worldMatrix = T * m_rotationMatrix * S;
+		m_worldMatrix = T * m_rotationMatrix;// *S;
 
 		if (m_parent)
 		{
@@ -84,7 +85,7 @@ public:
 
 	virtual v4f* GetLocalPosition() { return &m_localPosition; }
 	virtual v4f* GetGlobalPosition() { return &m_globalPosition; }
-	virtual v4f* GetScale() { return &m_localScale; }
+	//virtual v4f* GetScale() { return &m_localScale; }
 
 	virtual v4f* GetEdgeColor() { return &m_edgeColor; }
 	virtual void SetEdgeColor(const v4f& c) { m_edgeColor = c; }
@@ -136,9 +137,9 @@ public:
 		//m_aabb.m_max += m_globalPosition;//no
 		// m_aabb must be in space center
 
-		Mat4 S;
-		S.setScale(m_localScale);
-		Mat4 m = m_rotationMatrix * S;
+		//Mat4 S;
+		//S.setScale(m_localScale);
+		Mat4 m = m_rotationMatrix;// *S;
 
 		m_aabbTransformed = m_aabb;
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);

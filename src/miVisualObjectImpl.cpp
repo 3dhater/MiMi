@@ -528,8 +528,8 @@ void miVisualObjectImpl::Draw() {
 	static yyMaterial default_polygon_material;
 	default_polygon_material.m_baseColor.set(0.5f);
 	default_polygon_material.m_type = yyMaterialType::Standart;
-	//default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
-	default_polygon_material.m_sunPos = v4f(0.f, 1000.f, 0.f, 0.f);
+	default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
+	//default_polygon_material.m_sunPos = v4f(0.f, 1000.f, 0.f, 0.f);
 
 	if (!m_texture) {
 		//m_texture = yyGetTextureFromCache("../res/exit.png");
