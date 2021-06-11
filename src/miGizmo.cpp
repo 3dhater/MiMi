@@ -1280,6 +1280,10 @@ void miGizmo::Update(miViewport* vp) {
 
 void miGizmo::OnClick() {
 	_reset_variables();
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->m_localPositionOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_localPosition;
+	}
 
 	miGizmoMode gm = miGizmoMode::NoTransform;
 	if (m_isDrawAabbHeadZ) gm = miGizmoMode::MoveZ;
@@ -1394,5 +1398,5 @@ void miGizmo::OnEscape() {
 
 void miGizmo::_reset_variables() {
 	m_var_move.set(0.f);
-	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
+//	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
 }

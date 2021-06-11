@@ -45,9 +45,6 @@ void miApplication::_transformObjectsReset() {
 void miApplication::_transformObjects_move(miSceneObject* o) {
 //	auto n = o->GetName();
 //	wprintf(L"%s\n", n.c_str());
-	
-
-	
 	//m_gizmo->m_var_move += var;
 	//printf("%f\n", m_gizmo->m_var_move);
 
@@ -61,7 +58,8 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 	default:
 	{
 		auto position = o->GetLocalPosition();
-		*position = m_gizmo->m_selectionAabbCenterOnClick + o->m_selectionAabbOffset + m_gizmo->m_var_move;
+		//*position = m_gizmo->m_selectionAabbCenterOnClick + o->m_selectionAabbOffset + m_gizmo->m_var_move;
+		*position = o->m_localPositionOnGizmoClick + m_gizmo->m_var_move;
 	}break;
 	}
 

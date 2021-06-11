@@ -462,9 +462,6 @@ void miplPolygonObjectPlane::_generate() {
 	if (m_meshBuilder->m_mesh.m_first_polygon)
 	{
 		m_visualObject->CreateNewGPUModels(&m_meshBuilder->m_mesh);
-		
-		//m_localPosition = m_meshBuilder->m_position;
-		
 
 		// object can contain a lot of m_visualObject
 		// build aabb here
@@ -488,7 +485,6 @@ void miplPolygonObjectPlane::OnCreationMouseMove() {
 	m_creationAabb.reset();
 	m_creationAabb.add(m_firstPoint);
 	m_creationAabb.add(m_secondPoint);
-	//m_localPosition = m_meshBuilder->m_position;
 	m_creationAabb.center(m_localPosition);
 
 	m_viewportCameraType = m_sdk->GetActiveViewportCameraType();

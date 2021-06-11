@@ -34,9 +34,11 @@ protected:
 
 	// will be set when user select object
 	// it will be used in transformations
-	v4f m_selectionAabbOffset;
+	//v4f m_selectionAabbOffset;
+	v3f m_localPositionOnGizmoClick; // 
 	
 	friend class miApplication;
+	friend class miGizmo;
 	friend struct miViewport;
 	friend class miVisualObjectImpl;
 public:

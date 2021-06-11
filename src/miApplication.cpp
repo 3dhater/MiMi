@@ -1558,10 +1558,10 @@ void miApplication::UpdateSelectionAabb() {
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);
 
-	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	/*for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
 		m_selectedObjects.m_data[i]->m_selectionAabbOffset = m_selectedObjects.m_data[i]->m_globalPosition - m_selectionAabb_center;
-	}
+	}*/
 //	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
 }
 
