@@ -11,6 +11,7 @@
 extern miApplication * g_app;
 
 miGizmo::miGizmo() {
+	m_var_rotate_snap = 0.f;
 	m_gizmo_arrow_body_size = 0.125f;
 	m_gizmo_head_size = 0.01f;
 	m_gizmo_head_len = 0.025f;
@@ -1298,8 +1299,9 @@ void miGizmo::OnClick() {
 	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
 	{
 		g_app->m_selectedObjects.m_data[i]->m_localPositionOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_localPosition;
-		//g_app->m_selectedObjects.m_data[i]->m_scaleOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_localScale;
-		g_app->m_selectedObjects.m_data[i]->m_rotationMatrixOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_rotationMatrix;
+		g_app->m_selectedObjects.m_data[i]->m_rotationScaleMatrixOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_rotationScaleMatrix;
+		g_app->m_selectedObjects.m_data[i]->m_rotationOnlyMatrixOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_rotationOnlyMatrix;
+		//g_app->m_selectedObjects.m_data[i]->m_scaleMatrixOnGizmoClick = g_app->m_selectedObjects.m_data[i]->m_scaleMatrix;
 	}
 
 	miGizmoMode gm = miGizmoMode::NoTransform;
@@ -1417,5 +1419,7 @@ void miGizmo::_reset_variables() {
 	m_var_move.set(0.f);
 	m_var_scale.set(1.f);
 	m_var_scale2.set(1.f);
+	m_var_rotate.set(0.f);
+	m_var_rotate_snap = 0.f;
 //	m_selectionAabbCenterOnClick = g_app->m_selectionAabb_center;
 }

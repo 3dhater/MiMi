@@ -16,16 +16,15 @@ protected:
 	miSceneObject* m_parent;
 	miList<miSceneObject*> m_children;
 	
-	Mat4 m_rotationMatrix;
-	Mat4 m_rotationMatrixOnGizmoClick;
+	Mat4 m_rotationScaleMatrix;
+	Mat4 m_rotationScaleMatrixOnGizmoClick;
+	Mat4 m_rotationOnlyMatrix; // i don't know how to get angles from Mat4(ScaleM*RotM)
+	Mat4 m_rotationOnlyMatrixOnGizmoClick;  // so I will use this just for information
 	Mat4 m_worldMatrix;
 	Mat4 m_worldViewProjection;
 
 	v4f m_localPosition;
 	v4f m_globalPosition;
-
-	//v4f m_localScale;
-	//v4f m_globalScale;
 
 	v4f m_edgeColor;
 
@@ -40,7 +39,6 @@ protected:
 	// it will be used in transformations
 	//v4f m_selectionAabbOffset;
 	v3f m_localPositionOnGizmoClick; // 
-	v3f m_scaleOnGizmoClick;
 	
 	friend class miApplication;
 	friend class miGizmo;
@@ -48,7 +46,6 @@ protected:
 	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
-		//m_localScale.set(1.f);
 		m_gui = 0;
 		m_parent = 0;
 		m_isSelected = false;
@@ -63,17 +60,19 @@ public:
 	virtual v4f* GetCursorIntersectionPoint() { return &m_cursorIntersectionPoint; }
 	virtual bool IsSelected() { return m_isSelected; }
 	
-	virtual Mat4* GetRotationMatrix() { return &m_rotationMatrix; }
+	virtual Mat4* GetRotationScaleMatrix() { return &m_rotationScaleMatrix; }
+	virtual Mat4* GetRotationOnlyMatrix() { return &m_rotationOnlyMatrix; }
+	//virtual Mat4* GetScaleMatrix() { return &m_scaleMatrix; }
 	virtual Mat4* GetWorldMatrix() { return &m_worldMatrix; }
 
 	virtual void UpdateTransform() {
 		Mat4 T;
 		T.setTranslation(m_localPosition);
 
-		//Mat4 S;
-		//S.setScale(m_localScale);
+		/*Mat4 S;
+		S.setScale(m_scale);*/
 		
-		m_worldMatrix = T * m_rotationMatrix;// *S;
+		m_worldMatrix = T * m_rotationScaleMatrix;// *S;
 
 		if (m_parent)
 		{
@@ -85,7 +84,6 @@ public:
 
 	virtual v4f* GetLocalPosition() { return &m_localPosition; }
 	virtual v4f* GetGlobalPosition() { return &m_globalPosition; }
-	//virtual v4f* GetScale() { return &m_localScale; }
 
 	virtual v4f* GetEdgeColor() { return &m_edgeColor; }
 	virtual void SetEdgeColor(const v4f& c) { m_edgeColor = c; }
@@ -139,7 +137,7 @@ public:
 
 		//Mat4 S;
 		//S.setScale(m_localScale);
-		Mat4 m = m_rotationMatrix;// *S;
+		Mat4 m = m_rotationScaleMatrix;// *S;
 
 		m_aabbTransformed = m_aabb;
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);

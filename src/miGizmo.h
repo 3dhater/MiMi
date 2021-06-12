@@ -119,6 +119,9 @@ public:
 	v3f m_var_move;
 	v3f m_var_scale;
 	v3f m_var_scale2;
+	v4f m_var_rotate;
+	f32 m_var_rotate_snap;
+	Mat4 m_rotateScreenMatrix;
 
 	//v4f m_selectionAabbCenterOnClick;
 	void OnClick();

@@ -15,6 +15,7 @@ void miApplication::_transformObjectsApply() {
 			m_selectedObjects.m_data[i]->UpdateAabb();
 			break;
 		case miTransformMode::Rotate:
+			m_selectedObjects.m_data[i]->UpdateAabb();
 			break;
 		default:
 			break;
@@ -44,11 +45,6 @@ void miApplication::_transformObjectsReset() {
 }
 
 void miApplication::_transformObjects_move(miSceneObject* o) {
-//	auto n = o->GetName();
-//	wprintf(L"%s\n", n.c_str());
-	//m_gizmo->m_var_move += var;
-	//printf("%f\n", m_gizmo->m_var_move);
-
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -80,15 +76,11 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 		break;
 	case miEditMode::Object:
 	default:
-		//auto scale = o->GetScale();
-		//*scale = o->m_scaleOnGizmoClick + (m_gizmo->m_var_scale - 0.f);
-		auto R = o->GetRotationMatrix();
-		*R = S * o->m_rotationMatrixOnGizmoClick;
-
+		auto R = o->GetRotationScaleMatrix();
+		*R = S * o->m_rotationScaleMatrixOnGizmoClick;
 		if (isGlobal)
 		{
 			auto C = m_selectionAabb_center;
-
 			auto position = o->GetLocalPosition();
 			*position = math::mul(o->m_localPositionOnGizmoClick - C, S) + C;
 		}
@@ -100,6 +92,22 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 }
 
 void miApplication::_transformObjects_rotate(miSceneObject* o) {
+	Mat4 RX, RY, RZ;
+	RX.setRotation(Quat(m_gizmo->m_var_rotate.x, 0.f, 0.f));
+	RY.setRotation(Quat(0.f, m_gizmo->m_var_rotate.y, 0.f));
+	RZ.setRotation(Quat(0.f, 0.f, m_gizmo->m_var_rotate.z));
+
+	Mat4 R;
+	if (m_gizmoMode == miGizmoMode::RotateScreen)
+	{
+		R = m_gizmo->m_rotateScreenMatrix;
+	}
+	else
+	{
+		R = RX * RY * RZ;
+	}
+
+	bool isGlobal = true;
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -108,8 +116,23 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 		break;
 	case miEditMode::Object:
 	default:
+		auto R2 = o->GetRotationScaleMatrix();
+		auto R3 = o->GetRotationOnlyMatrix();
+		*R2 = R * o->m_rotationScaleMatrixOnGizmoClick;
+		*R3 = R * o->m_rotationOnlyMatrixOnGizmoClick;
+
+		if (isGlobal)
+		{
+			auto C = m_selectionAabb_center;
+			auto position = o->GetLocalPosition();
+			*position = math::mul(o->m_localPositionOnGizmoClick - C, R) + C;
+		}
+		//auto a = R3->getAngles();
+		//printf("a: %f %f %f\n", a.x, a.y, a.z);
 		break;
 	}
+	o->UpdateTransform();
+	UpdateSceneAabb();
 }
 
 void miApplication::_transformObjects() {
@@ -391,6 +414,67 @@ void miApplication::_transformObjects() {
 	}
 
 	//printf("%f %f %f\n", m_gizmo->m_var_scale2.x, m_gizmo->m_var_scale2.y, m_gizmo->m_var_scale2.z);
+
+	f32 rot = m_inputContext->m_mouseDelta.x * 0.005f;
+	if (m_keyboardModifier == miKeyboardModifier::Alt)
+	{
+		rot *= 0.001f;
+	}
+	if (m_keyboardModifier == miKeyboardModifier::Shift)
+	{
+		f32 angle_snap = math::degToRad(10.f);
+		
+		m_gizmo->m_var_rotate_snap += rot;
+		rot = 0.f;
+
+		if (m_gizmo->m_var_rotate_snap >= angle_snap || m_gizmo->m_var_rotate_snap <= -angle_snap)
+		{
+			if(m_gizmo->m_var_rotate_snap <= -angle_snap)
+				rot = (-angle_snap);
+			else
+				rot = (angle_snap);
+
+			m_gizmo->m_var_rotate_snap = 0.f;
+		}
+	}
+
+	switch (m_gizmoMode)
+	{
+	case miGizmoMode::RotateX:
+		m_gizmo->m_var_rotate.x += rot;
+		//printf("x %f\n", math::radToDeg(m_gizmo->m_var_rotate.x));
+		break;
+	case miGizmoMode::RotateY:
+		m_gizmo->m_var_rotate.y += rot;
+		//printf("y %f\n", math::radToDeg(m_gizmo->m_var_rotate.y));
+		break;
+	case miGizmoMode::RotateZ:
+		m_gizmo->m_var_rotate.z += rot;
+		//printf("z %f\n", math::radToDeg(m_gizmo->m_var_rotate.z));
+		break;
+	case miGizmoMode::RotateScreen:
+	{
+		m_gizmo->m_var_rotate.w += rot;
+		Mat4 m;
+		m.setRotation(Quat(0.f, m_gizmo->m_var_rotate.w, 0.f));
+		
+		Mat4 mX, mY, mYi, mXi;
+		mX.setRotation(Quat(m_activeViewportLayout->m_activeViewport->m_activeCamera->m_rotationPlatform.x, 0.f, 0.f));
+		mY.setRotation(Quat(0.f, m_activeViewportLayout->m_activeViewport->m_activeCamera->m_rotationPlatform.y, 0.f));
+		mYi = mY;
+		mYi.invert();
+		mXi = mX;
+		mXi.invert();
+
+		m = mY * mX * m;
+		m = m * mXi;
+		m = m * mYi;
+
+		m_gizmo->m_rotateScreenMatrix = m;
+	}break;
+	default:
+		break;
+	}
 
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
