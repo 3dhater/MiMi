@@ -26,9 +26,10 @@ struct miImporter;
 
 #define miViewportBorderSize 1.f
 #define miViewportLeftIndent 25.f
-#define miViewportRightIndent 200.f
+#define miViewportRightIndent 225.f
 #define miViewportTopIndent 25.f
 #define miViewportBottomIndent 50.f
+#define miRightSideButtonSize 25.f
 
 #define miCommandID_CameraReset 1
 #define miCommandID_CameraMoveToSelection 2
@@ -64,6 +65,12 @@ struct miImporter;
 //	u32 m_objectID;
 //};
 
+// right side of GUI
+enum class miObjectParametersMode
+{
+	CommonParameters,
+	ObjectParameters
+};
 
 class miApplication
 {
@@ -77,6 +84,8 @@ class miApplication
 
 	// draw selection rectangle and other things
 	miGraphics2D* m_2d;
+
+	miObjectParametersMode m_objectParametersMode;
 
 	miSelectionFrust* m_selectionFrust;
 
@@ -256,6 +265,7 @@ public:
 
 	void SetEditMode(miEditMode);
 	void SetTransformMode(miTransformMode, bool local);
+	void SetObjectParametersMode(miObjectParametersMode opm);
 
 	void DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& offset);
 

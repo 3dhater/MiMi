@@ -12,8 +12,8 @@ void miPluginGUIImpl_gui_group_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
 	switch (gui->m_type)
 	{
 	case miPluginGUIType::ObjectParams:
-		gui->m_gui_group->m_buildRectInPixels.x = g_app->GetWindowMain()->m_currentSize.x - miViewportRightIndent;
-		gui->m_gui_group->m_buildRectInPixels.y = miViewportTopIndent + 15.f;
+		gui->m_gui_group->m_buildRectInPixels.x = g_app->GetWindowMain()->m_currentSize.x - miViewportRightIndent + miRightSideButtonSize;
+		gui->m_gui_group->m_buildRectInPixels.y = miViewportTopIndent;
 		gui->m_gui_group->m_buildRectInPixels.z = g_app->GetWindowMain()->m_currentSize.x;
 		gui->m_gui_group->m_buildRectInPixels.w = g_app->GetWindowMain()->m_currentSize.y;
 		break;
@@ -67,6 +67,11 @@ void miPluginGUIImpl::_init(miPluginGUIType t) {
 }
 
 void miPluginGUIImpl::Show(bool show) {
+	if (show)
+	{
+		if (g_app->m_objectParametersMode != miObjectParametersMode::ObjectParameters)
+			return;
+	}
 	m_gui_drawGroup->MoveFront();
 	m_gui_drawGroup->SetInput(show);
 	m_gui_drawGroup->SetDraw(show);

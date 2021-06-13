@@ -142,6 +142,7 @@ int main(int argc, char* argv[]) {
 
 miApplication::miApplication() {
 	m_isLocalTransform = false;
+	m_objectParametersMode = miObjectParametersMode::CommonParameters;
 	m_gizmoMode = miGizmoMode::NoTransform;
 	//m_isGizmoInput = false;
 	m_isGizmoMouseHover = false;
@@ -1077,6 +1078,14 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
+	if (m_gizmoMode == miGizmoMode::NoTransform && m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode)
+	{
+		if (m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
+		{
+			DeselectAll();
+		}
+	}
+
 	if (m_isSelectByRectangle)
 	{
 		if (m_inputContext->m_isLMBUp
@@ -1664,4 +1673,7 @@ void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& pos
 
 void miApplication::_setGizmoMode(miGizmoMode gm) {
 	m_gizmoMode = gm;
+}
+void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
+	m_objectParametersMode = opm;
 }

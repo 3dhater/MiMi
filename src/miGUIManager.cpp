@@ -27,6 +27,12 @@ void gui_buttonTransformModeScaleLocal_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonTransformModeRotateLocal_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetTransformMode(miTransformMode::Rotate, true);
 }
+void gui_buttonObjectCommonParams_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetObjectParametersMode(miObjectParametersMode::CommonParameters);
+}
+void gui_buttonObjectObjectParams_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetObjectParametersMode(miObjectParametersMode::ObjectParameters);
+}
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
 		return false;
@@ -200,6 +206,7 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 
 miGUIManager::miGUIManager(){
 	m_buttonGroup_transformMode = new yyGUIButtonGroup;
+	m_buttonGroup_rightSide = new yyGUIButtonGroup;
 	m_mainMenu_Y = 0.f;
 	m_button_selectByName = 0;
 	m_button_importWindow_import = 0;
@@ -215,6 +222,8 @@ miGUIManager::miGUIManager(){
 	m_button_transformModeRotate = 0;
 	m_button_transformModeScaleLocal = 0;
 	m_button_transformModeRotateLocal = 0;
+	m_button_objectCommonParams = 0;
+	m_button_objectObjectParams = 0;
 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -467,6 +476,48 @@ miGUIManager::miGUIManager(){
 		m_button_transformModeRotateLocal->m_useAsCheckbox = true;
 		m_button_transformModeRotateLocal->m_buttonGroup = m_buttonGroup_transformMode;
 		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeRotateLocal);
+		m_mainMenu_Y += h;
+	}
+
+	// RIGHT SIDE
+	m_mainMenu_Y = miViewportTopIndent;
+	{
+		v4f uvregion1(0.f, 120.f, 23.f, 143.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_objectCommonParams = yyGUICreateButton(v4f(
+			window->m_creationSize.x - miViewportRightIndent,
+			m_mainMenu_Y,
+			window->m_creationSize.x - miViewportRightIndent + w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_objectCommonParams->m_align = yyGUIElement::AlignRightTop;
+		m_button_objectCommonParams->m_onClick = gui_buttonObjectCommonParams_onClick;
+		m_button_objectCommonParams->m_useBackground = true;
+		m_button_objectCommonParams->m_isAnimated = true;
+		m_button_objectCommonParams->m_useAsCheckbox = true;
+		m_button_objectCommonParams->m_isChecked = true;
+		m_button_objectCommonParams->m_buttonGroup = m_buttonGroup_rightSide;
+		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectCommonParams);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(24.f, 120.f, 47.f, 143.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_objectObjectParams = yyGUICreateButton(v4f(
+			window->m_creationSize.x - miViewportRightIndent,
+			m_mainMenu_Y,
+			window->m_creationSize.x - miViewportRightIndent + w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_objectObjectParams->m_align = yyGUIElement::AlignRightTop;
+		m_button_objectObjectParams->m_onClick = gui_buttonObjectObjectParams_onClick;
+		m_button_objectObjectParams->m_useBackground = true;
+		m_button_objectObjectParams->m_isAnimated = true;
+		m_button_objectObjectParams->m_useAsCheckbox = true;
+		m_button_objectObjectParams->m_buttonGroup = m_buttonGroup_rightSide;
+		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectObjectParams);
 		m_mainMenu_Y += h;
 	}
 }
