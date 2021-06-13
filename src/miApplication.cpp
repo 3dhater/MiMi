@@ -141,6 +141,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_currentPluginGUI = 0;
 	m_isLocalTransform = false;
 	m_objectParametersMode = miObjectParametersMode::CommonParameters;
 	m_gizmoMode = miGizmoMode::NoTransform;
@@ -995,20 +996,19 @@ void miApplication::update_selected_objects_array() {
 	//printf("selected objects: %u\n", m_selectedObjects.m_size);
 	m_GUIManager->m_textInput_rename->DeleteAll();
 
-	static miPluginGUIImpl * old_gui = 0;
-	if (old_gui)
+	if (m_currentPluginGUI)
 	{
-		old_gui->Show(false);
+		m_currentPluginGUI->Show(false);
 	}
 
 	if (m_selectedObjects.m_size == 1)
 	{
-		old_gui = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
+		m_currentPluginGUI = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
 
-		if (old_gui)
+		if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
 		{
-			old_gui->OnSelectObject(m_selectedObjects.m_data[0]);
-			old_gui->Show(true);
+			m_currentPluginGUI->OnSelectObject(m_selectedObjects.m_data[0]);
+			m_currentPluginGUI->Show(true);
 		}
 
 		m_GUIManager->m_textInput_rename->SetText(L"%s", m_selectedObjects.m_data[0]->m_name.data());
@@ -1676,4 +1676,27 @@ void miApplication::_setGizmoMode(miGizmoMode gm) {
 }
 void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 	m_objectParametersMode = opm;
+
+	auto showPluginGui = [=](bool show) {
+		if (m_currentPluginGUI)
+		{
+			if (m_selectedObjects.m_size == 1)
+				m_currentPluginGUI->Show(show);
+		}
+	};
+
+	switch (m_objectParametersMode)
+	{
+	case miObjectParametersMode::CommonParameters:
+		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(true);
+		showPluginGui(false);
+		break;
+	case miObjectParametersMode::ObjectParameters:
+		showPluginGui(true);
+		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
+		break;
+	default:
+		YY_PRINT_FAILED;
+		break;
+	}
 }

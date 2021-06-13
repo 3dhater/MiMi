@@ -11,6 +11,7 @@
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
 
+class miPluginGUIImpl;
 class miGUIManager;
 class miShortcutManager;
 class miSDKImpl;
@@ -192,6 +193,8 @@ class miApplication
 	void _update_selected_objects_array(miSceneObject*);
 
 	miGizmo* m_gizmo;
+
+	miPluginGUIImpl * m_currentPluginGUI;
 
 public:
 	miApplication();

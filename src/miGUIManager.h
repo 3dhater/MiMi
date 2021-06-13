@@ -96,9 +96,14 @@ public:
 	yyGUIButton*  m_button_transformModeRotate;
 	yyGUIButton*  m_button_transformModeScaleLocal;
 	yyGUIButton*  m_button_transformModeRotateLocal;
+	
 	yyGUIButtonGroup* m_buttonGroup_rightSide;
 	yyGUIButton*  m_button_objectCommonParams;
 	yyGUIButton*  m_button_objectObjectParams;
+	
+	yyGUIGroup*   m_gui_group_commonParams;
+	yyGUIDrawGroup* m_gui_drawGroup_commonParams;
+	yyGUIText*    m_gui_group_commonParams_text_Position;
 };
 
 #endif

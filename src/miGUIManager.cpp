@@ -230,6 +230,7 @@ miGUIManager::miGUIManager(){
 	g_guiManager = this;
 	m_gpu = yyGetVideoDriverAPI();
 
+	
 	m_fontDefault = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
 	if (!m_fontDefault)
 		YY_PRINT_FAILED;
@@ -520,9 +521,26 @@ miGUIManager::miGUIManager(){
 		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectObjectParams);
 		m_mainMenu_Y += h;
 	}
+
+	// COMMON PARAMS
+	auto y = miViewportTopIndent;
+	m_gui_drawGroup_commonParams = yyGUICreateDrawGroup();
+	m_gui_drawGroup_commonParams->SetDraw(true);
+	m_gui_group_commonParams = yyGUICreateGroup(v4f(), -1, m_gui_drawGroup_commonParams);
+	m_gui_group_commonParams->m_align = m_gui_group_commonParams->AlignRightTop;
+	{
+		m_gui_group_commonParams_text_Position = yyGUICreateText(v2f(
+			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize, y),
+			m_fontDefault, L"Position:", m_gui_drawGroup_commonParams);
+		m_gui_group_commonParams_text_Position->IgnoreInput(true);
+		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_text_Position);
+	}
 }
 
 miGUIManager::~miGUIManager(){
+	if (m_gui_drawGroup_commonParams)
+		yyGUIDeleteDrawGroup(m_gui_drawGroup_commonParams);
+
 	if (m_buttonGroup_transformMode)
 		delete m_buttonGroup_transformMode;
 
