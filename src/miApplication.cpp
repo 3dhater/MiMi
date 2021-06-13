@@ -1553,11 +1553,12 @@ void miApplication::UpdateSelectionAabb() {
 		m_selectionAabb.reset();
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
-			v4f c;
-			m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
+			//v4f c;
+			//m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
 			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
-			m_gizmo->m_position += c;
+			//m_gizmo->m_position += c;
 			//printf("center: %f %f %f\n", c.x, c.y, c.z);
+			m_gizmo->m_position += *m_selectedObjects.m_data[i]->GetGlobalPosition();
 		}
 		if (m_selectedObjects.m_size)
 		{

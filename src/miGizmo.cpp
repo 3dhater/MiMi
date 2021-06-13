@@ -1051,8 +1051,8 @@ void miGizmo::Update(miViewport* vp) {
 		//aabb_position = g_app->m_selectionAabb_center;
 		//point3D_for_2D = aabb_position + m_var_move;
 		point3D_for_2D = m_position + m_var_move;		
-		//m_T.setTranslation(g_app->m_selectionAabb_center + m_var_move);
 		m_T.setTranslation(m_position + m_var_move);
+		//m_T.setTranslation(g_app->m_selectionAabb_center + m_var_move);
 	}
 
 	m_W = m_T * m_S;
