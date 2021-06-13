@@ -123,6 +123,8 @@ public:
 	f32 m_var_rotate_snap;
 	Mat4 m_rotateScreenMatrix;
 
+	v3f m_position;
+
 	//v4f m_selectionAabbCenterOnClick;
 	void OnClick();
 	void OnRelease();

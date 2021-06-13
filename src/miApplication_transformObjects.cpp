@@ -79,7 +79,8 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 		*R = S * o->m_rotationScaleMatrixOnGizmoClick;
 		if (!m_isLocalTransform)
 		{
-			auto C = m_selectionAabb_center;
+			//auto C = m_selectionAabb_center;
+			auto C = m_gizmo->m_position;
 			auto position = o->GetLocalPosition();
 			*position = math::mul(o->m_localPositionOnGizmoClick - C, S) + C;
 		}
@@ -121,7 +122,9 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 
 		if (!m_isLocalTransform)
 		{
-			auto C = m_selectionAabb_center;
+			//auto C = m_selectionAabb_center;
+			auto C = m_gizmo->m_position;
+			
 			auto position = o->GetLocalPosition();
 			*position = math::mul(o->m_localPositionOnGizmoClick - C, R) + C;
 		}
@@ -137,7 +140,10 @@ void miApplication::_transformObjects() {
 	f32 camera_zoom = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionPlatform.w;
 	auto camera_direction = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_direction;
 	f32 move_speed = 0.003f * camera_zoom;
-	
+	if (m_keyboardModifier == miKeyboardModifier::Alt)
+	{
+		move_speed *= 0.01f;
+	}
 	switch (m_gizmoMode)
 	{
 	case miGizmoMode::MoveX:

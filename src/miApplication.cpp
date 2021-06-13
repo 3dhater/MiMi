@@ -1309,7 +1309,8 @@ void miApplication::DrawViewports() {
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
 
-		m_gizmo->Update(viewport);
+		if(g_app->m_selectedObjects.m_size)
+			m_gizmo->Update(viewport);
 		
 		if (m_isCursorInViewport && viewport == m_viewportUnderCursor)
 		{
@@ -1537,6 +1538,7 @@ void miApplication::UpdateSceneAabb() {
 		_buildSceneAabb(m_rootObject);
 }
 void miApplication::UpdateSelectionAabb() {
+	m_gizmo->m_position.set(0.f);
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -1551,8 +1553,10 @@ void miApplication::UpdateSelectionAabb() {
 		{
 			v4f c;
 			m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
-			m_selectionAabb.add(c);
+			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
+			m_gizmo->m_position += c;
 		}
+		m_gizmo->m_position /= m_selectedObjects.m_size;
 	}break;
 	default:
 		break;
