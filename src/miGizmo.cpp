@@ -1026,7 +1026,13 @@ void miGizmo::Draw(miViewport* vp) {
 void miGizmo::Update(miViewport* vp) {
 	//g_app->m_selectionAabb_center;
 	m_S.identity();
-	m_S.setScale(v3f(vp->m_activeCamera->m_positionPlatform.w / ((1.f / 600.f) * vp->m_currentRectSize.y)));
+
+	f32 camera_distance = vp->m_activeCamera->m_positionPlatform.w;
+	if (g_app->m_selectedObjects.m_size == 1)
+	{
+		camera_distance += g_app->m_selectionAabb_center.distance(*g_app->m_selectedObjects.m_data[0]->GetGlobalPosition());
+	}
+	m_S.setScale(v3f(camera_distance / ((1.f / 600.f) * vp->m_currentRectSize.y)));
 
 	m_T.identity();
 
@@ -1036,8 +1042,8 @@ void miGizmo::Update(miViewport* vp) {
 	{
 		//aabb_position = *g_app->m_selectedObjects.m_data[0]->GetGlobalPosition();
 		//point3D_for_2D = aabb_position;
-		point3D_for_2D = m_position;
-		m_T.setTranslation(g_app->m_selectionAabb_center);
+		point3D_for_2D = m_position + m_var_move;
+		m_T.setTranslation(m_position + m_var_move);
 		//m_T.setTranslation(*g_app->m_selectedObjects.m_data[0]->GetGlobalPosition() );
 	}
 	else

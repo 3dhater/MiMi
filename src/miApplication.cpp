@@ -875,7 +875,9 @@ void miApplication::_deselect_all(miSceneObject* o) {
 }
 
 void miApplication::_select_all(miSceneObject* o) {
-	o->SelectAll(m_editMode);
+	if(o != m_rootObject)
+		o->SelectAll(m_editMode);
+
 	auto node = o->GetChildren()->m_head;
 	if (node) {
 		auto last = node->m_left;
@@ -1555,15 +1557,30 @@ void miApplication::UpdateSelectionAabb() {
 			m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
 			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
 			m_gizmo->m_position += c;
+			//printf("center: %f %f %f\n", c.x, c.y, c.z);
 		}
-		m_gizmo->m_position /= m_selectedObjects.m_size;
+		if (m_selectedObjects.m_size)
+		{
+			//m_gizmo->m_position *= v3f(1.f) / v3f((f32)m_selectedObjects.m_size);
+			if (m_gizmo->m_position.x != 0.f) m_gizmo->m_position.x /= (f32)m_selectedObjects.m_size;
+			if (m_gizmo->m_position.y != 0.f) m_gizmo->m_position.y /= (f32)m_selectedObjects.m_size;
+			if (m_gizmo->m_position.z != 0.f) m_gizmo->m_position.z /= (f32)m_selectedObjects.m_size;
+			//printf("m_gizmo->m_position: %f %f %f\n", m_gizmo->m_position.x, m_gizmo->m_position.y, m_gizmo->m_position.z);
+		}
 	}break;
 	default:
 		break;
 	}
 
+
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);
+///	m_gizmo->m_position = m_selectionAabb_center;
+	
+	if (m_selectedObjects.m_size == 1)
+	{ 
+		m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
+	}
 
 	/*for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{

@@ -192,6 +192,7 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	 
 	newObject->m_meshBuilder = ih->m_meshBuilder;
 	newObject->m_visualObject->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+	newObject->UpdateTransform();
 	newObject->UpdateAabb();
 	AddObjectToScene(newObject, name);
 }

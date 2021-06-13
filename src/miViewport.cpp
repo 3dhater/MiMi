@@ -12,7 +12,7 @@ extern Mat4 g_emptyMatrix;
 
 miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	m_creationRect = rect1_0;
-	m_isDrawAabbs = false;
+	m_isDrawAabbs = true;
 	m_isOnLeftBorder = false;
 	m_isOnRightBorder = false;
 	m_isOnTopBorder = false;
@@ -352,12 +352,12 @@ void miViewport::_frustum_cull(miSceneObject* o) {
 	if (o != g_app->m_rootObject)
 	{
 		v4f center;
-		o->GetAABB()->center(center);
-		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()))
+		o->GetAABBTransformed()->center(center);
+		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()) || m_activeCamera->m_frust.PointInFrustum(center))
 		{
 			m_visibleObjects.push_back(o);
 		}
-		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABB()->radius(), *o->GetGlobalPosition() + center))
+		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABBTransformed()->radius(), *o->GetGlobalPosition() + center))
 		{
 			m_visibleObjects.push_back(o);
 		}
