@@ -1548,7 +1548,9 @@ void miApplication::UpdateSelectionAabb() {
 		m_selectionAabb.reset();
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
-			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
+			v4f c;
+			m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
+			m_selectionAabb.add(c);
 		}
 	}break;
 	default:
