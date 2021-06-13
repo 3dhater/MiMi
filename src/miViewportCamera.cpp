@@ -156,11 +156,12 @@ void miViewportCamera::Reset() {
 		break;
 	}
 
+	Rotate(0, 0);
+
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
 	m_viewport->UpdateAspect();
 	//m_viewport->OnWindowSize();
 
-	Rotate(0, 0);
 }
 
 void miViewportCamera::PanMove() {

@@ -608,9 +608,8 @@ void miViewport::_drawGrid() {
 			m_gpu->SetModel(g_app->m_gridModel_perspective1);
 		break;
 	case miViewportCameraType::Left: {
-		bool front = ((m_activeCamera->m_rotationPlatform.y < 0.f) &&
-			(m_activeCamera->m_rotationPlatform.y > -math::PI));
-
+		bool front = ((m_activeCamera->m_rotationPlatform.y < math::PIPI) &&
+			(m_activeCamera->m_rotationPlatform.y > math::PI));
 		if (m_activeCamera->m_positionPlatform.w < 40.f)
 			front ? m_gpu->SetModel(g_app->m_gridModel_left1) : m_gpu->SetModel(g_app->m_gridModel_left2);
 		else if (m_activeCamera->m_positionPlatform.w < 140.f)
