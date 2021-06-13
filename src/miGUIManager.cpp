@@ -10,16 +10,22 @@ f32 g_guiButtonMinimumOpacity = 0.1f;
 v4f g_guiWindowBackgroundPBRect;
 
 void gui_buttonTransformModeNoTransform_onClick(yyGUIElement* elem, s32 m_id) {
-	g_app->SetTransformMode(miTransformMode::NoTransform);
+	g_app->SetTransformMode(miTransformMode::NoTransform, false);
 }
 void gui_buttonTransformModeMove_onClick(yyGUIElement* elem, s32 m_id) {
-	g_app->SetTransformMode(miTransformMode::Move);
+	g_app->SetTransformMode(miTransformMode::Move, false);
 }
 void gui_buttonTransformModeScale_onClick(yyGUIElement* elem, s32 m_id) {
-	g_app->SetTransformMode(miTransformMode::Scale);
+	g_app->SetTransformMode(miTransformMode::Scale, false);
 }
 void gui_buttonTransformModeRotate_onClick(yyGUIElement* elem, s32 m_id) {
-	g_app->SetTransformMode(miTransformMode::Rotate);
+	g_app->SetTransformMode(miTransformMode::Rotate, false);
+}
+void gui_buttonTransformModeScaleLocal_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::Scale, true);
+}
+void gui_buttonTransformModeRotateLocal_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetTransformMode(miTransformMode::Rotate, true);
 }
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
@@ -207,7 +213,9 @@ miGUIManager::miGUIManager(){
 	m_button_transformModeMove = 0;
 	m_button_transformModeScale = 0;
 	m_button_transformModeRotate = 0;
-		 
+	m_button_transformModeScaleLocal = 0;
+	m_button_transformModeRotateLocal = 0;
+
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
 	g_guiManager = this;
@@ -423,6 +431,42 @@ miGUIManager::miGUIManager(){
 		m_button_transformModeRotate->m_useAsCheckbox = true;
 		m_button_transformModeRotate->m_buttonGroup = m_buttonGroup_transformMode;
 		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeRotate);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(120.f, 96.f, 143.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeScaleLocal = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeScaleLocal->m_onClick = gui_buttonTransformModeScaleLocal_onClick;
+		m_button_transformModeScaleLocal->m_useBackground = true;
+		m_button_transformModeScaleLocal->m_isAnimated = true;
+		m_button_transformModeScaleLocal->m_useAsCheckbox = true;
+		m_button_transformModeScaleLocal->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeScaleLocal);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(144.f, 96.f, 167.f, 119.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_transformModeRotateLocal = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_transformModeRotateLocal->m_onClick = gui_buttonTransformModeRotateLocal_onClick;
+		m_button_transformModeRotateLocal->m_useBackground = true;
+		m_button_transformModeRotateLocal->m_isAnimated = true;
+		m_button_transformModeRotateLocal->m_useAsCheckbox = true;
+		m_button_transformModeRotateLocal->m_buttonGroup = m_buttonGroup_transformMode;
+		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeRotateLocal);
 		m_mainMenu_Y += h;
 	}
 }

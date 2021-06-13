@@ -67,7 +67,6 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 	Mat4 S;
 	S.setScale(m_gizmo->m_var_scale);
 
-	bool isGlobal = true;
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -78,7 +77,7 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 	default:
 		auto R = o->GetRotationScaleMatrix();
 		*R = S * o->m_rotationScaleMatrixOnGizmoClick;
-		if (isGlobal)
+		if (!m_isLocalTransform)
 		{
 			auto C = m_selectionAabb_center;
 			auto position = o->GetLocalPosition();
@@ -107,7 +106,6 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 		R = RX * RY * RZ;
 	}
 
-	bool isGlobal = true;
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
@@ -121,7 +119,7 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 		*R2 = R * o->m_rotationScaleMatrixOnGizmoClick;
 		*R3 = R * o->m_rotationOnlyMatrixOnGizmoClick;
 
-		if (isGlobal)
+		if (!m_isLocalTransform)
 		{
 			auto C = m_selectionAabb_center;
 			auto position = o->GetLocalPosition();

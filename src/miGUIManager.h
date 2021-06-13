@@ -94,6 +94,8 @@ public:
 	yyGUIButton*  m_button_transformModeMove;
 	yyGUIButton*  m_button_transformModeScale;
 	yyGUIButton*  m_button_transformModeRotate;
+	yyGUIButton*  m_button_transformModeScaleLocal;
+	yyGUIButton*  m_button_transformModeRotateLocal;
 };
 
 #endif

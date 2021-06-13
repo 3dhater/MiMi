@@ -212,6 +212,8 @@ public:
 	yyRay m_screenRayOnClick;
 	yyRay m_screenRayCurrent;
 
+	bool m_isLocalTransform;
+
 	f32 m_dt;
 
 	//bool m_isGizmoInput;
@@ -253,7 +255,7 @@ public:
 	void OnImport_openDialog();
 
 	void SetEditMode(miEditMode);
-	void SetTransformMode(miTransformMode);
+	void SetTransformMode(miTransformMode, bool local);
 
 	void DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& offset);
 

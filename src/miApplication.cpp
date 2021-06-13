@@ -141,6 +141,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_isLocalTransform = false;
 	m_gizmoMode = miGizmoMode::NoTransform;
 	//m_isGizmoInput = false;
 	m_isGizmoMouseHover = false;
@@ -1395,7 +1396,7 @@ void miApplication::CommandViewportToggleDrawWireframe(miViewport* vp) {
 	vp->ToggleDrawModeWireframe();
 }
 void miApplication::CommandTransformModeSet(miTransformMode m) {
-	this->SetTransformMode(m);
+	this->SetTransformMode(m, false);
 	m_GUIManager->UpdateTransformModeButtons();
 }
 
@@ -1599,11 +1600,10 @@ void miApplication::OnImport(miImporter* importer) {
 void miApplication::SetEditMode(miEditMode m) {
 	m_editMode = m;
 }
-void miApplication::SetTransformMode(miTransformMode m) {
+void miApplication::SetTransformMode(miTransformMode m, bool local) {
+	m_isLocalTransform = local;
 	if (m_gizmoMode == miGizmoMode::NoTransform)
-	{
 		m_transformMode = m;
-	}
 }
 
 void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& positionOffset) {
