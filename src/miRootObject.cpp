@@ -19,3 +19,4 @@ miPlugin* miRootObject::GetPlugin() { return 0; }
 
 int miRootObject::GetVisualObjectCount() { return 0; }
 miVisualObject* miRootObject::GetVisualObject(int){ return 0; }
+void miRootObject::DeleteSelectedObjects(miEditMode em) {}

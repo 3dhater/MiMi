@@ -122,6 +122,8 @@ public:
 
 	virtual miPlugin* GetPlugin() = 0;
 
+	// will call only for vertex/edge/polygon
+	virtual void DeleteSelectedObjects (miEditMode em) = 0;
 
 	virtual int GetVisualObjectCount() = 0;
 	virtual miVisualObject* GetVisualObject(int) = 0;

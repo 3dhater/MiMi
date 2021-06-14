@@ -501,3 +501,18 @@ void miplPolygonObjectPlane::OnCreation(miPluginGUI* gui) {
 		(40000,80400,40401); // 200x200
 	m_sdk->AddObjectToScene(this, L"Plane");
 }
+
+void miplPolygonObjectPlane::DeleteSelectedObjects(miEditMode em) {
+	switch (em)
+	{
+	case miEditMode::Vertex:
+		break;
+	case miEditMode::Edge:
+		break;
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}

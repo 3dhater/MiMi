@@ -39,7 +39,7 @@ public:
 	virtual void OnCreationEnd();
 
 	virtual miPlugin* GetPlugin();
-
+	virtual void DeleteSelectedObjects(miEditMode em);
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
 

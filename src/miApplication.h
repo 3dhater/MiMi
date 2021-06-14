@@ -202,6 +202,7 @@ public:
 	void SelectAll();
 	void DeselectAll();
 	void InvertSelection();
+	void DeleteSelected();
 
 	miString GetFreeName(const wchar_t* name);
 

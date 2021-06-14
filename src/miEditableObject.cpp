@@ -46,3 +46,18 @@ int miEditableObject::GetVisualObjectCount() {
 miVisualObject* miEditableObject::GetVisualObject(int){ 
 	return m_visualObject;
 }
+
+void miEditableObject::DeleteSelectedObjects(miEditMode em) {
+	switch (em)
+	{
+	case miEditMode::Vertex:
+		break;
+	case miEditMode::Edge:
+		break;
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}

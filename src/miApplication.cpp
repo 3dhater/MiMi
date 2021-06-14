@@ -727,7 +727,15 @@ void miApplication::MainLoop() {
 			m_gpu->BeginDraw();
 			m_gpu->ClearAll();
 
-			_update_transforms(m_rootObject);
+			if (m_inputContext->IsKeyHit(yyKey::K_DELETE) && !m_isGUIInputFocus)
+			{
+				if (m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode)
+				{
+					DeleteSelected();
+				}
+			}
+
+			//_update_transforms(m_rootObject);
 
 			DrawViewports();
 
@@ -1683,6 +1691,7 @@ void miApplication::DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& pos
 void miApplication::_setGizmoMode(miGizmoMode gm) {
 	m_gizmoMode = gm;
 }
+
 void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 	m_objectParametersMode = opm;
 
@@ -1710,4 +1719,32 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 		YY_PRINT_FAILED;
 		break;
 	}
+}
+
+void miApplication::DeleteSelected() {
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+	default:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			m_selectedObjects.m_data[i]->DeleteSelectedObjects(m_editMode);
+		}
+		break;
+	case miEditMode::Object:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			m_selectedObjects.m_data[i]->SetParent(0);
+			m_selectedObjects.m_data[i]->~miSceneObject();
+			miFree(m_selectedObjects.m_data[i]);
+		}
+		m_selectedObjects.clear();
+		DeselectAll();
+		break;
+	}
+	this->UpdateSceneAabb();
+	this->UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
