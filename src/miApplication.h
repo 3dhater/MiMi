@@ -192,7 +192,6 @@ class miApplication
 	void _get_objects_under_cursor();
 	void _update_selected_objects_array(miSceneObject*);
 
-	miGizmo* m_gizmo;
 
 	miPluginGUIImpl * m_currentPluginGUI;
 
@@ -246,7 +245,9 @@ public:
 	miPopup m_popup_NewObject;
 	miPopup m_popup_Importers;
 	void ShowPopupAtCursor(miPopup* popup);
-	
+
+	miGizmo* m_gizmo;
+
 	void CommandCameraReset(miViewport* vp);
 	void CommandCameraMoveToSelection(miViewport* vp);
 	void CommandViewportChangeView(miViewport* vp, miViewportCameraType);

@@ -104,6 +104,14 @@ public:
 	yyGUIGroup*   m_gui_group_commonParams;
 	yyGUIDrawGroup* m_gui_drawGroup_commonParams;
 	yyGUIText*    m_gui_group_commonParams_text_Position;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionX;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionY;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionZ;
+	f32 m_default_value_float;
+	// call this when select/deselect object
+	void SetCommonParamsRangePosition();
+	v3f m_commonParams_range_Position_many;
+
 };
 
 #endif

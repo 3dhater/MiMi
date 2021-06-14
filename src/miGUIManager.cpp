@@ -9,6 +9,26 @@ f32 g_guiBGOpacity = 0.3f;
 f32 g_guiButtonMinimumOpacity = 0.1f;
 v4f g_guiWindowBackgroundPBRect;
 
+void gui_group_commonParams_range_Position(yyGUIRangeSlider* slider) {
+	if (g_app->m_selectedObjects.m_size > 1)
+	{
+		auto p = g_guiManager->m_commonParams_range_Position_many - g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
+		for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+		{
+			auto pos = g_app->m_selectedObjects.m_data[i]->GetLocalPosition();
+			*pos += p;
+		}
+
+		g_app->m_gizmo->m_position = g_guiManager->m_commonParams_range_Position_many;
+	}
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->UpdateTransform();
+		g_app->m_selectedObjects.m_data[i]->UpdateAabb();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+}
 void gui_buttonTransformModeNoTransform_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetTransformMode(miTransformMode::NoTransform, false);
 }
@@ -205,6 +225,7 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 
 miGUIManager::miGUIManager(){
+	m_default_value_float = 0.f;
 	m_buttonGroup_transformMode = new yyGUIButtonGroup;
 	m_buttonGroup_rightSide = new yyGUIButtonGroup;
 	m_mainMenu_Y = 0.f;
@@ -224,6 +245,9 @@ miGUIManager::miGUIManager(){
 	m_button_transformModeRotateLocal = 0;
 	m_button_objectCommonParams = 0;
 	m_button_objectObjectParams = 0;
+	m_gui_group_commonParams_range_PositionX = 0;
+	m_gui_group_commonParams_range_PositionY = 0;
+	m_gui_group_commonParams_range_PositionZ = 0;
 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -531,9 +555,63 @@ miGUIManager::miGUIManager(){
 	{
 		m_gui_group_commonParams_text_Position = yyGUICreateText(v2f(
 			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize, y),
-			m_fontDefault, L"Position:", m_gui_drawGroup_commonParams);
+			m_fontDefault, L"Position XYZ:", m_gui_drawGroup_commonParams);
 		m_gui_group_commonParams_text_Position->IgnoreInput(true);
 		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_text_Position);
+	}
+	{
+		m_gui_group_commonParams_range_PositionX = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize + 
+				m_gui_group_commonParams_text_Position->m_sensorRectInPixels.z - m_gui_group_commonParams_text_Position->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_default_value_float,
+			false, m_gui_drawGroup_commonParams);
+		m_gui_group_commonParams_range_PositionX->UseText(m_fontDefault);
+		m_gui_group_commonParams_range_PositionX->m_valueMultiplerNormal = 0.1f;
+		m_gui_group_commonParams_range_PositionX->m_valueMultiplerAlt = 0.01f;
+		m_gui_group_commonParams_range_PositionX->m_onValueChanged = gui_group_commonParams_range_Position;
+		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_range_PositionX);
+		y += 15.f;
+	}
+	{
+		m_gui_group_commonParams_range_PositionY = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize +
+				m_gui_group_commonParams_text_Position->m_sensorRectInPixels.z - m_gui_group_commonParams_text_Position->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_default_value_float,
+			false, m_gui_drawGroup_commonParams);
+		m_gui_group_commonParams_range_PositionY->UseText(m_fontDefault);
+		m_gui_group_commonParams_range_PositionY->m_valueMultiplerNormal = 0.1f;
+		m_gui_group_commonParams_range_PositionY->m_valueMultiplerAlt = 0.01f;
+		m_gui_group_commonParams_range_PositionY->m_onValueChanged = gui_group_commonParams_range_Position;
+		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_range_PositionY);
+		y += 15.f;
+	}
+	{
+		m_gui_group_commonParams_range_PositionZ = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize +
+				m_gui_group_commonParams_text_Position->m_sensorRectInPixels.z - m_gui_group_commonParams_text_Position->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_default_value_float,
+			false, m_gui_drawGroup_commonParams);
+		m_gui_group_commonParams_range_PositionZ->UseText(m_fontDefault);
+		m_gui_group_commonParams_range_PositionZ->m_valueMultiplerNormal = 0.1f;
+		m_gui_group_commonParams_range_PositionZ->m_valueMultiplerAlt = 0.01f;
+		m_gui_group_commonParams_range_PositionZ->m_onValueChanged = gui_group_commonParams_range_Position;
+		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_range_PositionZ);
+		y += 15.f;
 	}
 }
 
@@ -745,5 +823,25 @@ void miGUIManager::UpdateTransformModeButtons() {
 	case miTransformMode::Rotate:
 		m_button_transformModeRotate->m_isChecked = true;
 		break;
+	}
+}
+
+void miGUIManager::SetCommonParamsRangePosition() {
+	m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_default_value_float;
+	m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_default_value_float;
+	m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_default_value_float;
+	if (g_app->m_selectedObjects.m_size == 1)
+	{
+		auto pos = g_app->m_selectedObjects.m_data[0]->GetLocalPosition();
+		m_gui_group_commonParams_range_PositionX->m_ptr_f = &pos->x;
+		m_gui_group_commonParams_range_PositionY->m_ptr_f = &pos->y;
+		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &pos->z;
+	}
+	else
+	{
+		m_commonParams_range_Position_many = g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
+		m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_commonParams_range_Position_many.x;
+		m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_commonParams_range_Position_many.y;
+		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_commonParams_range_Position_many.z;
 	}
 }

@@ -568,13 +568,13 @@ vidOk:
 
 	m_color_viewportColor.set(0.35f);
 	
+	m_gizmo = new miGizmo;
 	m_GUIManager = new miGUIManager;
 
 	_initPlugins();
 	_initPopups();
 	_initGrid();
 
-	m_gizmo = new miGizmo;
 	
 	m_2d = new miGraphics2D;
 	m_2d->Init(m_window);
@@ -609,6 +609,7 @@ void miApplication::MainLoop() {
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
 	
+		m_GUIManager->m_default_value_float = 0.f;
 
 		//m_isGizmoMouseHover = false;
 		m_gizmo->OnStartFrame();
@@ -910,18 +911,21 @@ void miApplication::DeselectAll() {
 	_deselect_all(m_rootObject);
 	update_selected_objects_array();
 	UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
 	update_selected_objects_array();
 	UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::InvertSelection() {
 	_invert_selection(m_rootObject);
 	update_selected_objects_array();
 	UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_select_multiple() {
@@ -934,6 +938,7 @@ void miApplication::_select_multiple() {
 	}
 	update_selected_objects_array();
 	UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_select_single_call(miSceneObject* o) {
@@ -973,6 +978,7 @@ void miApplication::_select_single() {
 		break;
 	}
 	UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_update_selected_objects_array(miSceneObject* o) {
@@ -1005,9 +1011,12 @@ void miApplication::update_selected_objects_array() {
 	{
 		m_currentPluginGUI = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
 
-		if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
+		if (m_currentPluginGUI)
 		{
 			m_currentPluginGUI->OnSelectObject(m_selectedObjects.m_data[0]);
+		}
+		if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
+		{
 			m_currentPluginGUI->Show(true);
 		}
 
@@ -1689,11 +1698,13 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 	{
 	case miObjectParametersMode::CommonParameters:
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(true);
+		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(true);
 		showPluginGui(false);
 		break;
 	case miObjectParametersMode::ObjectParameters:
 		showPluginGui(true);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
 		break;
 	default:
 		YY_PRINT_FAILED;

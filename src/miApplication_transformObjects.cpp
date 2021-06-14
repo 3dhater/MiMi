@@ -1,5 +1,6 @@
 ﻿#include "miApplication.h"
 #include "miRootObject.h"
+#include "miGUIManager.h"
 
 void miApplication::_transformObjectsApply() {
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
@@ -61,6 +62,7 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 
 	o->UpdateTransform();
 	UpdateSceneAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_transformObjects_scale(miSceneObject* o) {
