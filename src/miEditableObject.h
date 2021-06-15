@@ -23,6 +23,7 @@ public:
 	virtual void OnCreationLMBUp();
 	virtual void OnCreationMouseMove();
 	virtual void OnCreationEnd();
+	virtual void OnConvertToEditableObject();
 
 	virtual miPlugin* GetPlugin();
 	virtual void DeleteSelectedObjects(miEditMode em);

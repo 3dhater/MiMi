@@ -48,6 +48,8 @@ struct miImporter;
 #define miCommandID_ViewportDrawWireframe 14
 #define miCommandID_ViewportToggleDrawMaterial 15
 #define miCommandID_ViewportToggleDrawWireframe 16
+#define miCommandID_ConvertToEditableObject 17
+#define miCommandID_DeleteSelectedObjects 18
 #define miCommandID_for_plugins 100
 
 #define miEventId_ShowMainMenu 1
@@ -195,6 +197,8 @@ class miApplication
 
 	miPluginGUIImpl * m_currentPluginGUI;
 
+	miPopup* _getPopupInViewport();
+
 public:
 	miApplication();
 	~miApplication();
@@ -245,6 +249,7 @@ public:
 	miPopup m_popup_ViewportParameters;
 	miPopup m_popup_NewObject;
 	miPopup m_popup_Importers;
+	//miPopup m_popup_InViewport;
 	void ShowPopupAtCursor(miPopup* popup);
 
 	miGizmo* m_gizmo;

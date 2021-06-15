@@ -8,6 +8,7 @@ extern miApplication * g_app;
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_visualObject = sdk->CreateVisualObject(this);
+	m_flags = 0;
 	m_meshBuilder = 0;
 }
 
@@ -60,4 +61,8 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	default:
 		break;
 	}
+}
+
+void miEditableObject::OnConvertToEditableObject() {
+
 }

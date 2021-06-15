@@ -73,6 +73,8 @@ void window_callbackOnCommand(s32 commandID) {
 	
 	case miCommandID_ViewportToggleDrawMaterial: g_app->CommandViewportToggleDrawMaterial(g_app->m_popupViewport); break;
 	case miCommandID_ViewportToggleDrawWireframe: g_app->CommandViewportToggleDrawWireframe(g_app->m_popupViewport); break;
+	
+	case miCommandID_DeleteSelectedObjects: g_app->DeleteSelected(); break;
 	}
 	if (commandID >= miCommandID_for_plugins)
 	{
@@ -379,7 +381,7 @@ void miApplication::_initPopups() {
 	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
 	m_popup_ViewportParameters.AddItem(L"Toggle draw material", miCommandID_ViewportToggleDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMMaterial));
 	m_popup_ViewportParameters.AddItem(L"Toggle draw wireframe", miCommandID_ViewportToggleDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMWireframe));
-
+	
 	//m_popup_NewObject
 	for (u16 i = 0, sz = m_sdk->m_objectCategories.size(); i < sz; ++i)
 	{
@@ -409,6 +411,7 @@ void miApplication::_initPopups() {
 		
 		m_popup_Importers.AddItem(imp->m_title.data(), imp->m_popupIndex, 0);
 	}
+
 }
 
 void miApplication::_initPlugins() {
@@ -1171,6 +1174,14 @@ void miApplication::UpdateViewports() {
 				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
 
+				if (m_inputContext->m_isRMBUp)
+				{
+					miPopup* p = _getPopupInViewport();
+					ShowPopupAtCursor(p);
+					delete p;
+					//ShowPopupAtCursor(&m_popup_InViewport);
+				}
+
 				if(m_inputContext->m_wheelDelta)
 					viewport->m_activeCamera->Zoom();
 
@@ -1747,4 +1758,22 @@ void miApplication::DeleteSelected() {
 	this->UpdateSceneAabb();
 	this->UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
+}
+
+miPopup* miApplication::_getPopupInViewport() {
+	miPopup* p = new miPopup;
+	if (m_selectedObjects.m_size)
+	{
+		p->AddItem(L"Delete", miCommandID_DeleteSelectedObjects, 0);
+
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			auto flags = obj->GetFlags();
+
+			if(flags & miSceneObjectFlag_CanConvertToEditableObject)
+				p->AddItem(L"Convert to editable object", miCommandID_ConvertToEditableObject, 0);
+		}
+	}
+	return p;
 }

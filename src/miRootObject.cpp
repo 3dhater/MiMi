@@ -13,6 +13,7 @@ void miRootObject::OnCreationLMBDown() {}
 void miRootObject::OnCreationLMBUp() {}
 void miRootObject::OnCreationMouseMove() {}
 void miRootObject::OnCreationEnd() {}
+void miRootObject::OnConvertToEditableObject() {}
 
 
 miPlugin* miRootObject::GetPlugin() { return 0; }

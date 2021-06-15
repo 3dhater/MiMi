@@ -4,6 +4,11 @@
 class miApplication;
 class miPluginGUI;
 
+enum miSceneObjectFlag
+{
+	miSceneObjectFlag_CanConvertToEditableObject = BIT(0)
+};
+
 // base class for all scene objects
 // children classe must be implemented in plugins
 class miSceneObject
@@ -40,12 +45,15 @@ protected:
 	//v4f m_selectionAabbOffset;
 	v3f m_localPositionOnGizmoClick; // 
 	
+	u32 m_flags;
+
 	friend class miApplication;
 	friend class miGizmo;
 	friend struct miViewport;
 	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
+		m_flags = 0;
 		m_gui = 0;
 		m_parent = 0;
 		m_isSelected = false;
@@ -53,6 +61,8 @@ public:
 		m_cursorIntersectionPointDistance = 0.f;
 	}
 	virtual ~miSceneObject() {}
+
+	virtual u32 GetFlags() { return m_flags; }
 
 	virtual miPluginGUI* GetGui() { return m_gui; }
 	virtual float GetDistanceToCamera() { return m_distanceToCamera; }
@@ -119,6 +129,7 @@ public:
 	virtual void OnCreationLMBUp() = 0;
 	virtual void OnCreationMouseMove() = 0;
 	virtual void OnCreationEnd() = 0;
+	virtual void OnConvertToEditableObject() = 0;
 
 	virtual miPlugin* GetPlugin() = 0;
 

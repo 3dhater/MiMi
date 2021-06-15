@@ -391,6 +391,8 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 	m_visualObject = m_sdk->CreateVisualObject(this);
 	m_meshBuilder = 0;
 
+	m_flags |= miSceneObjectFlag_CanConvertToEditableObject;
+
 	m_x_segments = 1;
 	m_y_segments = 1;
 }
@@ -515,4 +517,8 @@ void miplPolygonObjectPlane::DeleteSelectedObjects(miEditMode em) {
 	default:
 		break;
 	}
+}
+
+void miplPolygonObjectPlane::OnConvertToEditableObject() {
+
 }
