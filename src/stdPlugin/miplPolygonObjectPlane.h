@@ -19,7 +19,7 @@ class miplPolygonObjectPlane : public miSceneObject
 	miViewportCameraType m_viewportCameraType;
 
 	miVisualObject* m_visualObject_polygon;
-	miVisualObject* m_visualObject_vertex;
+	//miVisualObject* m_visualObject_vertex;
 	miVisualObject* m_visualObject_edge;
 
 	void _generate();

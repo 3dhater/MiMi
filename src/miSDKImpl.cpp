@@ -192,7 +192,9 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	new(newObject)miEditableObject(this, 0);
 	 
 	newObject->m_meshBuilder = ih->m_meshBuilder;
-	newObject->m_visualObject->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+	newObject->m_visualObject_polygon->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+	newObject->m_visualObject_vertex->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+	newObject->m_visualObject_edge->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
 	newObject->UpdateTransform();
 	newObject->UpdateAabb();
 	AddObjectToScene(newObject, name);

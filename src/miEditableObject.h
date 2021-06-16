@@ -6,7 +6,9 @@ class miEditableObject : public miSceneObject
 	miSDK* m_sdk;
 	miPlugin* m_plugin;
 
-	miVisualObject* m_visualObject;
+	miVisualObject* m_visualObject_polygon;
+	miVisualObject* m_visualObject_vertex;
+	miVisualObject* m_visualObject_edge;
 
 	miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>
 		* m_meshBuilder;
