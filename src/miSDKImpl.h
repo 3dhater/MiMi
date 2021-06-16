@@ -70,7 +70,7 @@ public:
 	virtual ~miSDKImpl();
 
 	virtual miPluginGUI* CreatePluginGUI(miPluginGUIType);
-	virtual miVisualObject* CreateVisualObject(miSceneObject* parent);
+	virtual miVisualObject* CreateVisualObject(miSceneObject* parent, miVisualObjectType type);
 
 	virtual miViewportCameraType GetActiveViewportCameraType();
 

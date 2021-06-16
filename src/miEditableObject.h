@@ -16,7 +16,7 @@ public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
 
-	virtual void OnDraw();
+	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt);
 	virtual void OnUpdate(float dt);
 	virtual void OnCreation(miPluginGUI*);
 	virtual void OnCreationLMBDown();

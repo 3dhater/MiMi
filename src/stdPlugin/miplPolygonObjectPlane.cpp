@@ -388,7 +388,9 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 	m_needToCreateNewGPUBuffers = true;
 
 	m_polygonCreator = new miPolygonCreator;
-	m_visualObject = m_sdk->CreateVisualObject(this);
+	m_visualObject_polygon = m_sdk->CreateVisualObject(this, miVisualObjectType::Polygon);
+	m_visualObject_vertex = m_sdk->CreateVisualObject(this, miVisualObjectType::Vertex);
+	m_visualObject_edge = m_sdk->CreateVisualObject(this, miVisualObjectType::Edge);
 	m_meshBuilder = 0;
 
 	m_flags |= miSceneObjectFlag_CanConvertToEditableObject;
@@ -400,25 +402,54 @@ miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
 miplPolygonObjectPlane::~miplPolygonObjectPlane() {
 	if (m_polygonCreator) delete m_polygonCreator;
 	if (m_meshBuilder) delete m_meshBuilder;
-	if (m_visualObject) miDestroy(m_visualObject);
+	if (m_visualObject_polygon) miDestroy(m_visualObject_polygon);
+	if (m_visualObject_vertex) miDestroy(m_visualObject_vertex);
+	if (m_visualObject_edge) miDestroy(m_visualObject_edge);
 	//printf("destroy\n");
 }
 
 int miplPolygonObjectPlane::GetVisualObjectCount() {
-	return 1;
+	return 3;
 }
-miVisualObject* miplPolygonObjectPlane::GetVisualObject(int) {
-	return m_visualObject;
+miVisualObject* miplPolygonObjectPlane::GetVisualObject(int i) {
+	switch (i)
+	{
+	default:
+	case 0: return m_visualObject_polygon; break;
+	case 1: return m_visualObject_vertex; break;
+	case 2: return m_visualObject_edge; break;
+	}
+	return m_visualObject_polygon;
 }
 
 
 void miplPolygonObjectPlane::OnUpdate(float dt) {
 }
 
-void miplPolygonObjectPlane::OnDraw() {
-	if (m_visualObject) {
-		m_visualObject->Draw();
+void miplPolygonObjectPlane::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
+	if (dm == miViewportDrawMode::Material
+		|| dm == miViewportDrawMode::MaterialWireframe)
+	{
+		if (m_visualObject_polygon) m_visualObject_polygon->Draw();
 	}
+
+	if (dm == miViewportDrawMode::Wireframe
+		|| dm == miViewportDrawMode::MaterialWireframe)
+	{
+		if (m_visualObject_edge) m_visualObject_edge->Draw();
+	}
+
+	if (dm == miViewportDrawMode::Wireframe
+		|| em == miEditMode::Edge)
+	{
+		if (m_visualObject_edge) m_visualObject_edge->Draw();
+	}
+
+	if (em == miEditMode::Vertex)
+	{
+		if (m_visualObject_vertex) m_visualObject_vertex->Draw();
+	}
+
 }
 
 miPlugin* miplPolygonObjectPlane::GetPlugin() {
@@ -463,7 +494,9 @@ void miplPolygonObjectPlane::_generate() {
 
 	if (m_meshBuilder->m_mesh.m_first_polygon)
 	{
-		m_visualObject->CreateNewGPUModels(&m_meshBuilder->m_mesh);
+		m_visualObject_polygon->CreateNewGPUModels(&m_meshBuilder->m_mesh);
+		m_visualObject_vertex->CreateNewGPUModels(&m_meshBuilder->m_mesh);
+		m_visualObject_edge->CreateNewGPUModels(&m_meshBuilder->m_mesh);
 
 		// object can contain a lot of m_visualObject
 		// build aabb here

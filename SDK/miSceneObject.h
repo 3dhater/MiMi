@@ -9,6 +9,7 @@ enum miSceneObjectFlag
 	miSceneObjectFlag_CanConvertToEditableObject = BIT(0)
 };
 
+
 // base class for all scene objects
 // children classe must be implemented in plugins
 class miSceneObject
@@ -121,7 +122,7 @@ public:
 	}
 
 	// when app need to draw this object
-	virtual void OnDraw() = 0;
+	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt) = 0;
 	virtual void OnUpdate(float dt) = 0;
 	// when plugin create object
 	virtual void OnCreation(miPluginGUI*) = 0; // when press button\menu command

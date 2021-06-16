@@ -62,12 +62,8 @@ struct miViewport
 	v2f m_currentRectSize;
 	bool m_isCursorInRect;
 
-	enum DrawMode{
-		Draw_Material,
-		Draw_Wireframe,
-		Draw_MaterialWireframe
-	}m_drawMode;
-	void SetDrawMode(DrawMode);
+	miViewportDrawMode m_drawMode;
+	void SetDrawMode(miViewportDrawMode);
 
 
 	bool m_drawGrid;

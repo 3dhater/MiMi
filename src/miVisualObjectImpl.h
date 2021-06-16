@@ -24,14 +24,17 @@ class miVisualObjectImpl : public miVisualObject
 	
 	yyResource* m_texture;
 
-	yyArray<model_node_GPU*> m_nodes_polygons_GPU;
+	yyArray<model_node_GPU*> m_nodes_GPU;
+	yyArray<model_node_CPU*> m_nodes_CPU;
+
+	/*yyArray<model_node_GPU*> m_nodes_polygons_GPU;
 	yyArray<model_node_CPU*> m_nodes_polygons_CPU;
 	
 	yyArray<model_node_GPU*> m_nodes_edges_GPU;
 	yyArray<model_node_CPU*> m_nodes_edges_CPU;
 
 	yyArray<model_node_GPU*> m_nodes_verts_GPU;
-	yyArray<model_node_CPU*> m_nodes_verts_CPU;
+	yyArray<model_node_CPU*> m_nodes_verts_CPU;*/
 
 	void _destroy();
 	void _createSoftwareModel_polys();
@@ -43,6 +46,8 @@ class miVisualObjectImpl : public miVisualObject
 	
 	miSceneObject* m_parentSceneObject;
 
+	miVisualObjectType m_type;
+
 	friend class miSDKImpl;
 
 public:
@@ -53,7 +58,7 @@ public:
 	virtual size_t GetBufferCount();
 	virtual unsigned char* GetVertexBuffer(size_t index) ;
 	//virtual void MarkBufferToRemap(size_t index) ;
-	virtual void RemapBuffers() ;
+	//virtual void RemapBuffers() ;
 	//virtual void UpdateCPUModelsOnly(miMesh*);
 	//virtual void RemapAllBuffers();
 
@@ -67,6 +72,7 @@ public:
 	virtual void DeselectAll();
 	virtual void InvertSelection();
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d);
+	virtual miVisualObjectType GetType();
 };
 
 #endif

@@ -9,7 +9,7 @@ extern miApplication * g_app;
 miVisualObjectImpl::miVisualObjectImpl() {
 	m_texture = 0;
 	m_mesh = 0;
-
+	m_type = miVisualObjectType::Polygon;
 }
 
 miVisualObjectImpl::~miVisualObjectImpl() {
@@ -25,7 +25,11 @@ miVisualObjectImpl::~miVisualObjectImpl() {
 }
 
 void miVisualObjectImpl::_destroy() {
-	for(u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i){delete m_nodes_polygons_GPU[i];}
+	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i) { delete m_nodes_GPU[i]; }
+	m_nodes_GPU.clear();
+	for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i) { delete m_nodes_CPU[i]; }
+	m_nodes_CPU.clear();
+	/*for(u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i){delete m_nodes_polygons_GPU[i];}
 	m_nodes_polygons_GPU.clear();
 	for (u32 i = 0, sz = m_nodes_polygons_CPU.size(); i < sz; ++i) { delete m_nodes_polygons_CPU[i]; }
 	m_nodes_polygons_CPU.clear();
@@ -38,7 +42,7 @@ void miVisualObjectImpl::_destroy() {
 	for (u32 i = 0, sz = m_nodes_verts_GPU.size(); i < sz; ++i) { delete m_nodes_verts_GPU[i]; }
 	m_nodes_verts_GPU.clear();
 	for (u32 i = 0, sz = m_nodes_verts_CPU.size(); i < sz; ++i) { delete m_nodes_verts_CPU[i]; }
-	m_nodes_verts_CPU.clear();
+	m_nodes_verts_CPU.clear();*/
 }
 
 void miVisualObjectImpl::_createSoftwareModel_verts() {
@@ -83,10 +87,11 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 			_modelNode = new miVisualObjectImpl::model_node_CPU;
 			_modelNode->m_modelCPU = softwareModel;
 
-			m_nodes_verts_CPU.push_back(_modelNode);
+			m_nodes_CPU.push_back(_modelNode);
 		}
 
 		auto vpos = current_vertex->m_position;
+		m_aabb.add(current_vertex->m_position);
 		float size = 1.f;
 
 		if (m_mesh->m_skeleton)
@@ -166,7 +171,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			_modelNode = new miVisualObjectImpl::model_node_CPU;
 			_modelNode->m_modelCPU = softwareModel;
 
-			m_nodes_edges_CPU.push_back(_modelNode);
+			m_nodes_CPU.push_back(_modelNode);
 
 			index = 0;
 		}
@@ -189,6 +194,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			vertex_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
 			++vertex_ptr;
 		}
+		m_aabb.add(current_edge->m_vertex1->m_position);
 		*inds_ptr = index;
 		++index;
 		++inds_ptr;
@@ -211,6 +217,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			vertex_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
 			++vertex_ptr;
 		}
+		m_aabb.add(current_edge->m_vertex1->m_position);
 		*inds_ptr = index;
 		++index;
 		++inds_ptr;
@@ -283,7 +290,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				_modelNode = new miVisualObjectImpl::model_node_CPU;
 				_modelNode->m_modelCPU = softwareModel;
 
-				m_nodes_polygons_CPU.push_back(_modelNode);
+				m_nodes_CPU.push_back(_modelNode);
 
 				//softwareModelIndex = (u32)m_SoftwareModels_polys.size() - 1;
 				index = 0;
@@ -413,37 +420,28 @@ void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
 	m_mesh = mesh;
 	_destroy();
 	m_aabb.reset();
-	_createSoftwareModel_polys();
-	_createSoftwareModel_edges();
-	_createSoftwareModel_verts();
-
-	for (u32 i = 0, sz = m_nodes_polygons_CPU.size(); i < sz; ++i)
+	switch (m_type)
 	{
-		auto node = m_nodes_polygons_CPU[i];
-
-		auto _modelNode = new miVisualObjectImpl::model_node_GPU;
-
-		_modelNode->m_modelGPU = yyCreateModel(node->m_modelCPU);
-		_modelNode->m_modelGPU->Load();
-		m_nodes_polygons_GPU.push_back(_modelNode);
+	case miVisualObjectType::Vertex:
+		_createSoftwareModel_verts();
+		break;
+	case miVisualObjectType::Edge:
+		_createSoftwareModel_edges();
+		break;
+	case miVisualObjectType::Polygon:
+		_createSoftwareModel_polys();
+		break;
+	default:
+		break;
 	}
 
-	for (u32 i = 0, sz = m_nodes_edges_CPU.size(); i < sz; ++i)
+	for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
 	{
-		auto node = m_nodes_edges_CPU[i];
+		auto node = m_nodes_CPU[i];
 		auto _modelNode = new miVisualObjectImpl::model_node_GPU;
 		_modelNode->m_modelGPU = yyCreateModel(node->m_modelCPU);
 		_modelNode->m_modelGPU->Load();
-		m_nodes_edges_GPU.push_back(_modelNode);
-	}
-
-	for (u32 i = 0, sz = m_nodes_verts_CPU.size(); i < sz; ++i)
-	{
-		auto node = m_nodes_verts_CPU[i];
-		auto _modelNode = new miVisualObjectImpl::model_node_GPU;
-		_modelNode->m_modelGPU = yyCreateModel(node->m_modelCPU);
-		_modelNode->m_modelGPU->Load();
-		m_nodes_verts_GPU.push_back(_modelNode);
+		m_nodes_GPU.push_back(_modelNode);
 	}
 }
 
@@ -486,41 +484,41 @@ unsigned char* miVisualObjectImpl::GetVertexBuffer(size_t index) {
 //		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
 //	}
 //}
-void miVisualObjectImpl::RemapBuffers() {
-	for (u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i)
-	{
-		auto gpu_node = m_nodes_polygons_GPU[i];
-		//if (!gpu_node->m_remap)
-		//	continue;
-		auto cpu_node = m_nodes_polygons_CPU[i];
-		u8* verts = 0;
-		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
-		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
-		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
-	}
-	for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i)
-	{
-		auto gpu_node = m_nodes_edges_GPU[i];
-		//if (!gpu_node->m_remap)
-		//	continue;
-		auto cpu_node = m_nodes_edges_CPU[i];
-		u8* verts = 0;
-		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
-		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
-		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
-	}
-	for (u32 i = 0, sz = m_nodes_verts_GPU.size(); i < sz; ++i)
-	{
-		auto gpu_node = m_nodes_verts_GPU[i];
-		//if (!gpu_node->m_remap)
-		//	continue;
-		auto cpu_node = m_nodes_verts_CPU[i];
-		u8* verts = 0;
-		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
-		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
-		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
-	}
-}
+//void miVisualObjectImpl::RemapBuffers() {
+//	for (u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i)
+//	{
+//		auto gpu_node = m_nodes_polygons_GPU[i];
+//		//if (!gpu_node->m_remap)
+//		//	continue;
+//		auto cpu_node = m_nodes_polygons_CPU[i];
+//		u8* verts = 0;
+//		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
+//		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
+//		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
+//	}
+//	for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i)
+//	{
+//		auto gpu_node = m_nodes_edges_GPU[i];
+//		//if (!gpu_node->m_remap)
+//		//	continue;
+//		auto cpu_node = m_nodes_edges_CPU[i];
+//		u8* verts = 0;
+//		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
+//		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
+//		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
+//	}
+//	for (u32 i = 0, sz = m_nodes_verts_GPU.size(); i < sz; ++i)
+//	{
+//		auto gpu_node = m_nodes_verts_GPU[i];
+//		//if (!gpu_node->m_remap)
+//		//	continue;
+//		auto cpu_node = m_nodes_verts_CPU[i];
+//		u8* verts = 0;
+//		gpu_node->m_modelGPU->MapModelForWriteVerts(&verts);
+//		memcpy(verts, cpu_node->m_modelCPU->m_vertices, cpu_node->m_modelCPU->m_vCount * cpu_node->m_modelCPU->m_stride);
+//		gpu_node->m_modelGPU->UnmapModelForWriteVerts();
+//	}
+//}
 
 void miVisualObjectImpl::Draw() {	
 	auto camera = g_app->m_currentViewportDraw->m_activeCamera;
@@ -538,31 +536,30 @@ void miVisualObjectImpl::Draw() {
 			m_texture->Load();
 	}
 
-	if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Material
-		|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe)
+	static yyMaterial wireframe_model_material;
+	static Mat4 Vi;
+	auto ec = this->m_parentSceneObject->GetEdgeColor();
+
+	switch (m_type)
 	{
-		for (u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i)
+	case miVisualObjectType::Vertex:
+		Vi = camera->m_viewMatrix;
+		Vi.m_data[3].set(0.f, 0.f, 0.f, 1.f);
+		Vi.invert();
+
+		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
 		{
-			auto node = m_nodes_polygons_GPU[i];
+			auto node = m_nodes_GPU[i];
 
 			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
+			yySetMatrix(yyMatrixType::ViewInvert, &Vi);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			g_app->m_gpu->SetTexture(0, m_texture);
-
-			default_polygon_material.m_cullBackFace = true;
-			yySetMaterial(&default_polygon_material);
-
 			g_app->m_gpu->Draw();
 		}
-	}
-
-	if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Wireframe
-		|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe
-		|| g_app->m_editMode == miEditMode::Edge)
-	{
-		static yyMaterial wireframe_model_material;
-		auto ec = this->m_parentSceneObject->GetEdgeColor();
+		break;
+	case miVisualObjectType::Edge:
 		if (this->m_parentSceneObject->IsSelected())
 		{
 			wireframe_model_material.m_baseColor.m_data[0] = 1.f;
@@ -577,9 +574,9 @@ void miVisualObjectImpl::Draw() {
 		}
 		yySetMaterial(&wireframe_model_material);
 
-		for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i)
+		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
 		{
-			auto node = m_nodes_edges_GPU[i];
+			auto node = m_nodes_GPU[i];
 
 			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
@@ -587,28 +584,98 @@ void miVisualObjectImpl::Draw() {
 			g_app->m_gpu->SetTexture(0, m_texture);
 			g_app->m_gpu->Draw();
 		}
-	}
-
-	if ( g_app->m_editMode == miEditMode::Vertex )
-	{
-		static Mat4 Vi;
-		Vi = camera->m_viewMatrix;
-		Vi.m_data[3].set(0.f, 0.f, 0.f, 1.f);
-		Vi.invert();
-
-		for (u32 i = 0, sz = m_nodes_verts_GPU.size(); i < sz; ++i)
+		break;
+	case miVisualObjectType::Polygon:
+		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
 		{
-			auto node = m_nodes_verts_GPU[i];
+			auto node = m_nodes_GPU[i];
 
 			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
-			yySetMatrix(yyMatrixType::ViewInvert, &Vi);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
-			//		g_app->m_gpu->SetMaterial();
 			g_app->m_gpu->SetTexture(0, m_texture);
+
+			default_polygon_material.m_cullBackFace = true;
+			yySetMaterial(&default_polygon_material);
+
 			g_app->m_gpu->Draw();
 		}
+		break;
+	default:
+		break;
 	}
+
+	//if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Material
+	//	|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe)
+	//{
+	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
+	//	{
+	//		auto node = m_nodes_GPU[i];
+
+	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
+	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
+	//		g_app->m_gpu->SetModel(node->m_modelGPU);
+	//		g_app->m_gpu->SetTexture(0, m_texture);
+
+	//		default_polygon_material.m_cullBackFace = true;
+	//		yySetMaterial(&default_polygon_material);
+
+	//		g_app->m_gpu->Draw();
+	//	}
+	//}
+
+	//if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Wireframe
+	//	|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe
+	//	|| g_app->m_editMode == miEditMode::Edge)
+	//{
+	//	static yyMaterial wireframe_model_material;
+	//	auto ec = this->m_parentSceneObject->GetEdgeColor();
+	//	if (this->m_parentSceneObject->IsSelected())
+	//	{
+	//		wireframe_model_material.m_baseColor.m_data[0] = 1.f;
+	//		wireframe_model_material.m_baseColor.m_data[1] = 1.f;
+	//		wireframe_model_material.m_baseColor.m_data[2] = 1.f;
+	//	}
+	//	else
+	//	{
+	//		wireframe_model_material.m_baseColor.m_data[0] = ec->x;
+	//		wireframe_model_material.m_baseColor.m_data[1] = ec->y;
+	//		wireframe_model_material.m_baseColor.m_data[2] = ec->z;
+	//	}
+	//	yySetMaterial(&wireframe_model_material);
+
+	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
+	//	{
+	//		auto node = m_nodes_GPU[i];
+
+	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
+	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
+	//		g_app->m_gpu->SetModel(node->m_modelGPU);
+	//		g_app->m_gpu->SetTexture(0, m_texture);
+	//		g_app->m_gpu->Draw();
+	//	}
+	//}
+
+	//if ( g_app->m_editMode == miEditMode::Vertex )
+	//{
+	//	static Mat4 Vi;
+	//	Vi = camera->m_viewMatrix;
+	//	Vi.m_data[3].set(0.f, 0.f, 0.f, 1.f);
+	//	Vi.invert();
+
+	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
+	//	{
+	//		auto node = m_nodes_GPU[i];
+
+	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
+	//		yySetMatrix(yyMatrixType::ViewInvert, &Vi);
+	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
+	//		g_app->m_gpu->SetModel(node->m_modelGPU);
+	//		//		g_app->m_gpu->SetMaterial();
+	//		g_app->m_gpu->SetTexture(0, m_texture);
+	//		g_app->m_gpu->Draw();
+	//	}
+	//}
 }
 
 bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
@@ -724,4 +791,8 @@ bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 	}
 
 	return false;
+}
+
+miVisualObjectType miVisualObjectImpl::GetType() {
+	return m_type;
 }

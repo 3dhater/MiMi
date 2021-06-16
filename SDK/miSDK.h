@@ -34,8 +34,15 @@
 
 
 #include "umHalf.h"
+#include "yumi.h"
 
-enum class miGizmoMode : unsigned int {
+enum class miViewportDrawMode : u32 {
+	Material,
+	Wireframe,
+	MaterialWireframe
+};
+
+enum class miGizmoMode : u32 {
 	NoTransform,
 	MoveX,
 	MoveY,
@@ -57,7 +64,7 @@ enum class miGizmoMode : unsigned int {
 	RotateScreen,
 };
 
-enum class miViewportCameraType : unsigned int {
+enum class miViewportCameraType : u32 {
 	Perspective,
 	Left,
 	Right,
@@ -67,7 +74,7 @@ enum class miViewportCameraType : unsigned int {
 	Back
 };
 
-enum class miDirection : unsigned int {
+enum class miDirection : u32 {
 	North,
 	NorthEast,
 	East,
@@ -101,27 +108,27 @@ const char* miGetDirectionName(miDirection d) {
 	return "";
 }
 
-enum class miEditMode : unsigned int {
+enum class miEditMode : u32 {
 	Vertex,
 	Edge,
 	Polygon,
 	Object,
 };
 
-enum class miTransformMode : unsigned int {
+enum class miTransformMode : u32 {
 	NoTransform,
 	Move,
 	Scale,
 	Rotate,
 };
 
-enum class miCursorBehaviorMode : unsigned int {
+enum class miCursorBehaviorMode : u32 {
 	CommonMode, // select by rect
 	ClickAndDrag, // like target weld or creation new object like plane
 	HideCursor, // hide cursor, save coords, and setCursorPo( this coords )
 };
 
-enum class miKeyboardModifier : unsigned int {
+enum class miKeyboardModifier : u32 {
 	None,
 	Ctrl,
 	Alt,
@@ -133,7 +140,6 @@ enum class miKeyboardModifier : unsigned int {
 	END
 };
 
-#include "yumi.h"
 
 #include "miLib.h"
 #include "miMemory.h"
@@ -150,7 +156,7 @@ enum class miKeyboardModifier : unsigned int {
 
 
 
-typedef void(*miCallback_onClickPopup)(unsigned int id);
+typedef void(*miCallback_onClickPopup)(u32 id);
 typedef void(miPlugin::*miCallback_onUpdate)();
 
 enum class miPluginGUIType {
@@ -225,7 +231,7 @@ public:
 
 	virtual miPluginGUI* CreatePluginGUI(miPluginGUIType) = 0;
 
-	virtual miVisualObject* CreateVisualObject(miSceneObject* parent) = 0;
+	virtual miVisualObject* CreateVisualObject(miSceneObject* parent, miVisualObjectType type) = 0;
 
 	virtual miViewportCameraType GetActiveViewportCameraType() = 0;
 

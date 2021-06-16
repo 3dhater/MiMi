@@ -29,8 +29,9 @@ miPluginGUI* miSDKImpl::CreatePluginGUI(miPluginGUIType t) {
 	return new_gui;
 }
 
-miVisualObject* miSDKImpl::CreateVisualObject(miSceneObject* parent) {
+miVisualObject* miSDKImpl::CreateVisualObject(miSceneObject* parent, miVisualObjectType type) {
 	auto o = miCreate<miVisualObjectImpl>();
+	o->m_type = type;
 	o->m_parentSceneObject = parent;
 	return o;
 }

@@ -25,7 +25,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 
 	m_gpu = yyGetVideoDriverAPI();
 	m_gui_group = 0;
-	m_drawMode = this->Draw_MaterialWireframe;
+	m_drawMode = miViewportDrawMode::MaterialWireframe;
 	m_drawGrid = true;
 	m_index = 0;
 	m_isCursorInRect = false;
@@ -468,16 +468,11 @@ void miViewport::_drawScene() {
 		auto object_position = object->GetGlobalPosition();
 		auto object_position_v4f = *object_position;
 
-
-		//auto taabb = object->GetAABBTransformed();
-		//taabb->transform(object->GetAABB(), rm, object_position);
-		//object->UpdateTransform();
-
 		object->m_worldViewProjection = m_activeCamera->m_projectionMatrix* m_activeCamera->m_viewMatrix* object->m_worldMatrix;
 		object->OnUpdate(g_app->m_dt);
 		
 		m_gpu->UseDepth(true);
-		object->OnDraw();
+		object->OnDraw(m_drawMode, g_app->m_editMode, g_app->m_dt);
 		
 		if (object->IsSelected())
 		{
@@ -492,7 +487,7 @@ void miViewport::_drawScene() {
 	}
 }
 
-void miViewport::SetDrawMode(DrawMode dm) {
+void miViewport::SetDrawMode(miViewportDrawMode dm) {
 	m_drawMode = dm;
 }
 
@@ -502,30 +497,30 @@ void miViewport::SetDrawGrid(bool v) {
 
 void miViewport::ToggleDrawModeMaterial() {
 	static bool is_materail_mode = false;
-	if (m_drawMode == DrawMode::Draw_Wireframe)
+	if (m_drawMode == miViewportDrawMode::Wireframe)
 	{
 		if (is_materail_mode)
 		{
-			m_drawMode = DrawMode::Draw_Material;
+			m_drawMode = miViewportDrawMode::Material;
 			is_materail_mode = false;
 		}
 		else
-			m_drawMode = DrawMode::Draw_MaterialWireframe;
+			m_drawMode = miViewportDrawMode::MaterialWireframe;
 	}
-	else if (m_drawMode == DrawMode::Draw_MaterialWireframe)
-		m_drawMode = DrawMode::Draw_Wireframe;
-	else if (m_drawMode == DrawMode::Draw_Material)
+	else if (m_drawMode == miViewportDrawMode::MaterialWireframe)
+		m_drawMode = miViewportDrawMode::Wireframe;
+	else if (m_drawMode == miViewportDrawMode::Material)
 	{
-		m_drawMode = DrawMode::Draw_Wireframe;
+		m_drawMode = miViewportDrawMode::Wireframe;
 		is_materail_mode = true;
 	}
 	//kkDrawAll();
 }
 void miViewport::ToggleDrawModeWireframe() {
-	if (m_drawMode == DrawMode::Draw_Material)
-		m_drawMode = DrawMode::Draw_MaterialWireframe;
-	else if (m_drawMode == DrawMode::Draw_MaterialWireframe)
-		m_drawMode = DrawMode::Draw_Material;
+	if (m_drawMode == miViewportDrawMode::Material)
+		m_drawMode = miViewportDrawMode::MaterialWireframe;
+	else if (m_drawMode == miViewportDrawMode::MaterialWireframe)
+		m_drawMode = miViewportDrawMode::Material;
 	//kkDrawAll();
 }
 

@@ -18,7 +18,9 @@ class miplPolygonObjectPlane : public miSceneObject
 
 	miViewportCameraType m_viewportCameraType;
 
-	miVisualObject* m_visualObject;
+	miVisualObject* m_visualObject_polygon;
+	miVisualObject* m_visualObject_vertex;
+	miVisualObject* m_visualObject_edge;
 
 	void _generate();
 	bool m_needToCreateNewGPUBuffers;
@@ -30,7 +32,7 @@ public:
 	miplPolygonObjectPlane(miSDK*, miPlugin*);
 	virtual ~miplPolygonObjectPlane();
 
-	virtual void OnDraw();
+	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt);
 	virtual void OnUpdate(float dt);
 	virtual void OnCreation(miPluginGUI*);
 	virtual void OnCreationLMBDown();

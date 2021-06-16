@@ -261,7 +261,7 @@ public:
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportToggleDrawMaterial(miViewport* vp);
 	void CommandViewportToggleDrawWireframe(miViewport* vp);
-	void CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode);
+	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
 
 	void UpdateSceneAabb();

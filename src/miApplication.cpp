@@ -67,9 +67,9 @@ void window_callbackOnCommand(s32 commandID) {
 	case miCommandID_ViewportToggleFullView: g_app->CommandViewportToggleFullView(g_app->m_popupViewport); break;
 	case miCommandID_ViewportToggleGrid: g_app->CommandViewportToggleGrid(g_app->m_popupViewport); break;
 	
-	case miCommandID_ViewportDrawMaterial: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Material); break;
-	case miCommandID_ViewportDrawMaterialWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_MaterialWireframe); break;
-	case miCommandID_ViewportDrawWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewport::DrawMode::Draw_Wireframe); break;
+	case miCommandID_ViewportDrawMaterial: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewportDrawMode::Material); break;
+	case miCommandID_ViewportDrawMaterialWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewportDrawMode::MaterialWireframe); break;
+	case miCommandID_ViewportDrawWireframe: g_app->CommandViewportSetDrawMode(g_app->m_popupViewport, miViewportDrawMode::Wireframe); break;
 	
 	case miCommandID_ViewportToggleDrawMaterial: g_app->CommandViewportToggleDrawMaterial(g_app->m_popupViewport); break;
 	case miCommandID_ViewportToggleDrawWireframe: g_app->CommandViewportToggleDrawWireframe(g_app->m_popupViewport); break;
@@ -824,9 +824,9 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewBack)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Back);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleGrid)) this->CommandViewportToggleGrid(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleFullView)) this->CommandViewportToggleFullView(m_activeViewportLayout->m_activeViewport);
-	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterial)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Material);
-	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterialWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_MaterialWireframe);
-	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewport::DrawMode::Draw_Wireframe);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterial)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewportDrawMode::Material);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmMaterialWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewportDrawMode::MaterialWireframe);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_dmWireframe)) this->CommandViewportSetDrawMode(m_activeViewportLayout->m_activeViewport, miViewportDrawMode::Wireframe);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMMaterial)) this->CommandViewportToggleDrawMaterial(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_toggleDMWireframe)) this->CommandViewportToggleDrawWireframe(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_NoTransform)) this->CommandTransformModeSet(miTransformMode::NoTransform);
@@ -1425,7 +1425,7 @@ void miApplication::CommandViewportToggleGrid(miViewport* vp) {
 	vp->SetDrawGrid(vp->m_drawGrid ? false : true);
 }
 
-void miApplication::CommandViewportSetDrawMode(miViewport* vp, miViewport::DrawMode dm) {
+void miApplication::CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode dm) {
 	vp->SetDrawMode(dm);
 }
 

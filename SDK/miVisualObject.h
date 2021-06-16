@@ -1,6 +1,13 @@
 ﻿#ifndef _MI_VISOBJ_H_
 #define _MI_VISOBJ_H_
 
+enum class miVisualObjectType
+{
+	Vertex,
+	Edge,
+	Polygon
+};
+
 // contain GPU models
 class miVisualObject
 {
@@ -17,11 +24,12 @@ public:
 	virtual unsigned char* GetVertexBuffer(size_t index) = 0;
 	
 	//virtual void MarkBufferToRemap(size_t index) = 0;
-
-	virtual void RemapBuffers() = 0;
+	//virtual void RemapBuffers() = 0;
 
 	// call this in miSceneObject::OnDraw()
 	virtual void Draw() = 0;
+
+	virtual miVisualObjectType GetType() = 0;
 
 	virtual Aabb GetAabb() = 0;
 

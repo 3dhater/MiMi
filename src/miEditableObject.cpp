@@ -7,7 +7,7 @@ extern miApplication * g_app;
 
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
-	m_visualObject = sdk->CreateVisualObject(this);
+	m_visualObject = sdk->CreateVisualObject(this, miVisualObjectType::Polygon);
 	m_flags = 0;
 	m_meshBuilder = 0;
 }
@@ -16,7 +16,7 @@ miEditableObject::~miEditableObject() {
 	if (m_visualObject) miDestroy(m_visualObject);
 }
 
-void miEditableObject::OnDraw() {
+void miEditableObject::OnDraw(miViewportDrawMode, miEditMode, float dt) {
 	if (m_visualObject) {
 		m_visualObject->Draw();
 	}
