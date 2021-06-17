@@ -836,6 +836,9 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_selectAll)) this->SelectAll();
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_deselectAll)) this->DeselectAll();
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::select_invertSelection)) this->InvertSelection();
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Vertex)) this->ToggleEditMode(miEditMode::Vertex);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Edge)) this->ToggleEditMode(miEditMode::Edge);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
@@ -1040,6 +1043,16 @@ void miApplication::update_selected_objects_array() {
 }
 
 void miApplication::UpdateViewports() {
+	if (m_isCursorInViewport)
+	{
+		if (m_inputContext->m_isRMBUp && m_gizmoMode == miGizmoMode::NoTransform)
+		{
+			miPopup* p = _getPopupInViewport();
+			ShowPopupAtCursor(p);
+			delete p;
+		}
+	}
+
 	if (m_isViewportInFocus)
 	{
 		if (m_inputContext->m_isLMBUp)
@@ -1174,13 +1187,7 @@ void miApplication::UpdateViewports() {
 				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
 
-				if (m_inputContext->m_isRMBUp)
-				{
-					miPopup* p = _getPopupInViewport();
-					ShowPopupAtCursor(p);
-					delete p;
-					//ShowPopupAtCursor(&m_popup_InViewport);
-				}
+				
 
 				if(m_inputContext->m_wheelDelta)
 					viewport->m_activeCamera->Zoom();
@@ -1656,8 +1663,41 @@ void miApplication::OnImport(miImporter* importer) {
 		OnImport_openDialog();
 	}
 }
+void miApplication::ToggleEditMode(miEditMode m) {
+	miEditMode mode = miEditMode::Object;
+	if (m_editMode != m)
+	{
+		mode = m;
+	}
+	SetEditMode(mode);
+}
 void miApplication::SetEditMode(miEditMode m) {
 	m_editMode = m;
+	switch (m)
+	{
+	case miEditMode::Vertex:
+		m_GUIManager->m_button_editModeVertex->m_isChecked = true;
+		m_GUIManager->m_button_editModeEdge->m_isChecked = false;
+		m_GUIManager->m_button_editModePolygon->m_isChecked = false;
+		break;
+	case miEditMode::Edge:
+		m_GUIManager->m_button_editModeVertex->m_isChecked = false;
+		m_GUIManager->m_button_editModeEdge->m_isChecked = true;
+		m_GUIManager->m_button_editModePolygon->m_isChecked = false;
+		break;
+	case miEditMode::Polygon:
+		m_GUIManager->m_button_editModeVertex->m_isChecked = false;
+		m_GUIManager->m_button_editModeEdge->m_isChecked = false;
+		m_GUIManager->m_button_editModePolygon->m_isChecked = true;
+		break;
+	case miEditMode::Object:
+		m_GUIManager->m_button_editModeVertex->m_isChecked = false;
+		m_GUIManager->m_button_editModeEdge->m_isChecked = false;
+		m_GUIManager->m_button_editModePolygon->m_isChecked = false;
+		break;
+	default:
+		break;
+	}
 }
 void miApplication::SetTransformMode(miTransformMode m, bool local) {
 	m_isLocalTransform = local;

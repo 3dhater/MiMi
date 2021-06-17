@@ -47,6 +47,22 @@ void gui_buttonTransformModeScaleLocal_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonTransformModeRotateLocal_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetTransformMode(miTransformMode::Rotate, true);
 }
+void gui_buttonEditModeVertex_onClick(yyGUIElement* elem, s32 m_id) {
+	yyGUIButton* b = (yyGUIButton*)elem;
+	switch (m_id)
+	{
+	default:
+	case 0:
+		b->m_isChecked ? g_app->SetEditMode(miEditMode::Vertex) : g_app->SetEditMode(miEditMode::Object);
+		break;
+	case 1:
+		b->m_isChecked ? g_app->SetEditMode(miEditMode::Edge) : g_app->SetEditMode(miEditMode::Object);
+		break;
+	case 2:
+		b->m_isChecked ? g_app->SetEditMode(miEditMode::Polygon) : g_app->SetEditMode(miEditMode::Object);
+		break;
+	}
+}
 void gui_buttonObjectCommonParams_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::CommonParameters);
 }
@@ -243,6 +259,9 @@ miGUIManager::miGUIManager(){
 	m_button_transformModeRotate = 0;
 	m_button_transformModeScaleLocal = 0;
 	m_button_transformModeRotateLocal = 0;
+	m_button_editModeVertex = 0;
+	m_button_editModeEdge = 0;
+	m_button_editModePolygon = 0;
 	m_button_objectCommonParams = 0;
 	m_button_objectObjectParams = 0;
 	m_gui_group_commonParams_range_PositionX = 0;
@@ -501,6 +520,54 @@ miGUIManager::miGUIManager(){
 		m_button_transformModeRotateLocal->m_useAsCheckbox = true;
 		m_button_transformModeRotateLocal->m_buttonGroup = m_buttonGroup_transformMode;
 		m_buttonGroup_transformMode->m_buttons.push_back(m_button_transformModeRotateLocal);
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(0.f, 144.f, 23.f, 167.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_editModeVertex = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), 0, 0, &uvregion1);
+		m_button_editModeVertex->m_onClick = gui_buttonEditModeVertex_onClick;
+		m_button_editModeVertex->m_useBackground = true;
+		m_button_editModeVertex->m_isAnimated = true;
+		m_button_editModeVertex->m_useAsCheckbox = true;
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(24.f, 144.f, 47.f, 167.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_editModeEdge = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), 1, 0, &uvregion1);
+		m_button_editModeEdge->m_onClick = gui_buttonEditModeVertex_onClick;
+		m_button_editModeEdge->m_useBackground = true;
+		m_button_editModeEdge->m_isAnimated = true;
+		m_button_editModeEdge->m_useAsCheckbox = true;
+		m_mainMenu_Y += h;
+	}
+	{
+		v4f uvregion1(48.f, 144.f, 71.f, 167.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_editModePolygon = yyGUICreateButton(v4f(
+			0.f,
+			m_mainMenu_Y,
+			w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), 2, 0, &uvregion1);
+		m_button_editModePolygon->m_onClick = gui_buttonEditModeVertex_onClick;
+		m_button_editModePolygon->m_useBackground = true;
+		m_button_editModePolygon->m_isAnimated = true;
+		m_button_editModePolygon->m_useAsCheckbox = true;
 		m_mainMenu_Y += h;
 	}
 

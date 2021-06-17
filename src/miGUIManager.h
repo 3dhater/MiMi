@@ -96,6 +96,9 @@ public:
 	yyGUIButton*  m_button_transformModeRotate;
 	yyGUIButton*  m_button_transformModeScaleLocal;
 	yyGUIButton*  m_button_transformModeRotateLocal;
+	yyGUIButton*  m_button_editModeVertex;
+	yyGUIButton*  m_button_editModeEdge;
+	yyGUIButton*  m_button_editModePolygon;
 	
 	yyGUIButtonGroup* m_buttonGroup_rightSide;
 	yyGUIButton*  m_button_objectCommonParams;

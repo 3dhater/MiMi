@@ -273,6 +273,7 @@ public:
 	void OnImport(miImporter* importer);
 	void OnImport_openDialog();
 
+	void ToggleEditMode(miEditMode);
 	void SetEditMode(miEditMode);
 	void SetTransformMode(miTransformMode, bool local);
 	void SetObjectParametersMode(miObjectParametersMode opm);

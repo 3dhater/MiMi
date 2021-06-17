@@ -25,6 +25,9 @@ enum class miShortcutCommandType : u32 {
 	select_selectAll,
 	select_deselectAll,
 	select_invertSelection,
+	editMode_Vertex,
+	editMode_Edge,
+	editMode_Polygon,
 
 	count
 };
