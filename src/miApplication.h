@@ -11,6 +11,8 @@
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
 
+void miAppendMesh(miMesh* thisMesh, miMesh* other);
+
 class miPluginGUIImpl;
 class miGUIManager;
 class miShortcutManager;
@@ -194,8 +196,9 @@ class miApplication
 	void _get_objects_under_cursor();
 	void _update_selected_objects_array(miSceneObject*);
 
-
 	miPluginGUIImpl * m_currentPluginGUI;
+	miPluginGUIImpl * m_pluginGuiForEditableObject;
+	yyArray<miPluginGUI*> m_pluginGuiAll;
 
 	miPopup* _getPopupInViewport();
 
@@ -211,7 +214,7 @@ public:
 	miString GetFreeName(const wchar_t* name);
 
 	yyArraySimple<miSceneObject*> m_selectedObjects;
-	void update_selected_objects_array();
+	void UpdateSelectedObjectsArray();
 
 	std::vector<yyRay> g_rays;
 

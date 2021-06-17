@@ -26,6 +26,7 @@ miSDKImpl::~miSDKImpl() {
 miPluginGUI* miSDKImpl::CreatePluginGUI(miPluginGUIType t) {
 	miPluginGUIImpl * new_gui = miCreate<miPluginGUIImpl>();
 	new_gui->_init(t);
+	g_app->m_pluginGuiAll.push_back(new_gui);
 	return new_gui;
 }
 
@@ -190,11 +191,13 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	wprintf(L"Hello %s\n", name);
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
-	 
-	newObject->m_meshBuilder = ih->m_meshBuilder;
-	newObject->m_visualObject_polygon->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
-	newObject->m_visualObject_vertex->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
-	newObject->m_visualObject_edge->CreateNewGPUModels(&ih->m_meshBuilder->m_mesh);
+
+	miAppendMesh(newObject->m_mesh, &ih->m_meshBuilder->m_mesh);
+
+	//newObject->m_meshBuilder = ih->m_meshBuilder;
+	newObject->m_visualObject_polygon->CreateNewGPUModels(newObject->m_mesh);
+	newObject->m_visualObject_vertex->CreateNewGPUModels(newObject->m_mesh);
+	newObject->m_visualObject_edge->CreateNewGPUModels(newObject->m_mesh);
 	newObject->UpdateTransform();
 	newObject->UpdateAabb();
 	AddObjectToScene(newObject, name);

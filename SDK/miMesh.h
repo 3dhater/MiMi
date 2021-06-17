@@ -323,6 +323,8 @@ struct miSkeleton {
 
 };
 
+// m_mesh = miCreate<miMesh>();
+// miDestroy(m_mesh);
 struct miMesh
 {
 	miMesh() {

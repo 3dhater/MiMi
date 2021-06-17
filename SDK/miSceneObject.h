@@ -63,6 +63,31 @@ public:
 	}
 	virtual ~miSceneObject() {}
 
+	virtual void CopyBase(miSceneObject* other)
+	{
+		m_aabb = other->m_aabb;
+		m_aabbTransformed = other->m_aabbTransformed;
+		m_name = other->m_name;
+		//m_parent = other->m_parent;
+		//m_children = other->m_children;
+		m_rotationScaleMatrix = other->m_rotationScaleMatrix;
+		m_rotationScaleMatrixOnGizmoClick = other->m_rotationScaleMatrixOnGizmoClick;
+		m_rotationOnlyMatrix = other->m_rotationOnlyMatrix;
+		m_rotationOnlyMatrixOnGizmoClick = other->m_rotationOnlyMatrixOnGizmoClick;
+		m_worldMatrix = other->m_worldMatrix;
+		m_worldViewProjection = other->m_worldViewProjection;
+		m_localPosition = other->m_localPosition;
+		m_globalPosition = other->m_globalPosition;
+		m_edgeColor = other->m_edgeColor;
+		m_gui = other->m_gui;
+		m_isSelected = other->m_isSelected;
+		m_distanceToCamera = other->m_distanceToCamera;
+		m_cursorIntersectionPointDistance = other->m_cursorIntersectionPointDistance;
+		m_cursorIntersectionPoint = other->m_cursorIntersectionPoint;
+		m_localPositionOnGizmoClick = other->m_localPositionOnGizmoClick;
+		m_flags = other->m_flags;
+	}
+
 	virtual u32 GetFlags() { return m_flags; }
 
 	virtual miPluginGUI* GetGui() { return m_gui; }

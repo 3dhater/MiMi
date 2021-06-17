@@ -10,8 +10,8 @@ class miEditableObject : public miSceneObject
 	miVisualObject* m_visualObject_vertex;
 	miVisualObject* m_visualObject_edge;
 
-	miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>
-		* m_meshBuilder;
+	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
+	miMesh* m_mesh;
 
 	friend class miSDKImpl;
 public:

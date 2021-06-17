@@ -391,7 +391,6 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				break;
 		}
 
-
 		if (current_polygon == last_polygon)
 			break;
 		current_polygon = current_polygon->m_right;

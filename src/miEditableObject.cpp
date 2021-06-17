@@ -5,6 +5,56 @@
 
 extern miApplication * g_app;
 
+// only for miDefaultAllocator for this mesh
+// obviously
+void miAppendMesh(miMesh* thisMesh, miMesh* other)
+{
+	miDefaultAllocator<miPolygon> pa(0);
+	miDefaultAllocator<miEdge> ea(0);
+	miDefaultAllocator<miVertex> va(0);
+
+	// 1. Create maps-dictionaries
+	// 2. Create verts/polys/edges
+	// 3. Change addresses using maps
+
+	// old address, new address
+	std::unordered_map<size_t, size_t> pmap;
+	std::unordered_map<size_t, size_t> emap;
+	std::unordered_map<size_t, size_t> vmap;
+
+	{
+		auto current_polygon = other->m_first_polygon;
+		auto last_polygon = current_polygon->m_left;
+		while (true) {
+
+			if (current_polygon == last_polygon)
+				break;
+			current_polygon = current_polygon->m_right;
+		}
+	}
+
+	{
+		auto current_vertex = other->m_first_vertex;
+		auto last_vertex = current_vertex->m_left;
+		while (true) {
+
+			if (current_vertex == last_vertex)
+				break;
+			current_vertex = current_vertex->m_right;
+		}
+	}
+
+	{
+		auto current_edge = other->m_first_edge;
+		auto last_edge = current_edge->m_left;
+		while (true) {
+
+			if (current_edge == last_edge)
+				break;
+			current_edge = current_edge->m_right;
+		}
+	}
+}
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_sdk = sdk;
@@ -12,7 +62,8 @@ miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_visualObject_vertex = m_sdk->CreateVisualObject(this, miVisualObjectType::Vertex);
 	m_visualObject_edge = m_sdk->CreateVisualObject(this, miVisualObjectType::Edge);
 	m_flags = 0;
-	m_meshBuilder = 0;
+	//m_meshBuilder = 0;
+	m_mesh = miCreate<miMesh>();
 }
 
 miEditableObject::~miEditableObject() {
@@ -72,7 +123,7 @@ int miEditableObject::GetMeshCount() {
 	return 1;
 }
 miMesh* miEditableObject::GetMesh(int) {
-	return &m_meshBuilder->m_mesh;
+	return m_mesh;
 }
 
 miVisualObject* miEditableObject::GetVisualObject(int i){ 
@@ -193,3 +244,4 @@ void miEditableObject::InvertSelection(miEditMode em) {
 		break;
 	}
 }
+

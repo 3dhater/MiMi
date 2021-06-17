@@ -8,6 +8,7 @@
 #include "miSelectionFrustImpl.h"
 #include "miRootObject.h"
 #include "miPluginGUIImpl.h"
+#include "miEditableObject.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -149,6 +150,7 @@ int main(int argc, char* argv[]) {
 
 miApplication::miApplication() {
 	m_currentPluginGUI = 0;
+	m_pluginGuiForEditableObject = 0;
 	m_isLocalTransform = false;
 	m_objectParametersMode = miObjectParametersMode::CommonParameters;
 	m_gizmoMode = miGizmoMode::NoTransform;
@@ -231,7 +233,10 @@ miApplication::~miApplication() {
 	{
 		DestroyAllSceneObjects(m_rootObject);
 	}
-
+	for (s32 i = 0, sz = m_pluginGuiAll.size(); i < sz; ++i)
+	{
+		miDestroy(m_pluginGuiAll[i]);
+	}
 	for (s32 i = 0; i < m_plugins.size(); ++i)
 	{
 		m_plugins[i]->~miPlugin();
@@ -300,6 +305,7 @@ void miApplication::ChangeCursorBehaviorMode(miCursorBehaviorMode bm) {
 	//printf("ChangeCursorBehaviorMode %i\n", (s32)bm);
 }
 
+// need to move children somewhere !!!!
 void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 	assert(o);
 	o->SetParent(0);
@@ -308,7 +314,7 @@ void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 	{
 		auto last = node->m_left;
 		while (true) {
-			node->m_data->SetParent(m_rootObject);
+			node->m_data->SetParent(m_rootObject); // or maybe to other object/ to grandparent?
 
 			if (node == last)
 				break;
@@ -474,6 +480,8 @@ void miApplication::_initPlugins() {
 		m_plugins.push_back(newPlugin);
 	}
 	m_plugins.shrink_to_fit();
+
+	m_pluginGuiForEditableObject = (miPluginGUIImpl*)m_sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
 }
 
 bool miApplication::Init(const char* videoDriver) {
@@ -928,21 +936,21 @@ void miApplication::_invert_selection(miSceneObject* o) {
 
 void miApplication::DeselectAll() {
 	_deselect_all(m_rootObject);
-	update_selected_objects_array();
+	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::SelectAll() {
 	_select_all(m_rootObject);
-	update_selected_objects_array();
+	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::InvertSelection() {
 	_invert_selection(m_rootObject);
-	update_selected_objects_array();
+	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
@@ -955,7 +963,7 @@ void miApplication::_select_multiple() {
 	{
 		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
 	}
-	update_selected_objects_array();
+	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
@@ -992,7 +1000,7 @@ void miApplication::_select_single() {
 		if (m_objectsUnderCursor.m_size)
 		{
 			m_objectsUnderCursor.m_data[0]->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
-			update_selected_objects_array();
+			UpdateSelectedObjectsArray();
 		}
 		break;
 	}
@@ -1015,7 +1023,7 @@ void miApplication::_update_selected_objects_array(miSceneObject* o) {
 		}
 	}
 }
-void miApplication::update_selected_objects_array() {
+void miApplication::UpdateSelectedObjectsArray() {
 	m_selectedObjects.clear();
 	_update_selected_objects_array(m_rootObject);
 	//printf("selected objects: %u\n", m_selectedObjects.m_size);
@@ -1452,7 +1460,49 @@ void miApplication::CommandTransformModeSet(miTransformMode m) {
 	m_GUIManager->UpdateTransformModeButtons();
 }
 void miApplication::ConvertSelectedObjectsToEditableObjects() {
-	//printf("Convert\n");
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		auto flags = obj->GetFlags();
+		auto meshCount = obj->GetMeshCount();
+		if (flags & miSceneObjectFlag_CanConvertToEditableObject && meshCount)
+		{
+			miEditableObject* newEditableObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
+			new(newEditableObject)miEditableObject(m_sdk, 0);
+			newEditableObject->CopyBase(obj);
+
+			newEditableObject->m_gui = m_pluginGuiForEditableObject;
+
+			// must real parent or m_rootObject
+			newEditableObject->SetParent(obj->m_parent);
+			obj->SetParent(0);
+
+			m_selectedObjects.m_data[i] = newEditableObject;
+
+			for (int o = 0; o < meshCount; ++o)
+			{
+				auto mesh = obj->GetMesh(o);
+			}
+
+			if (obj->m_children.m_head)
+			{
+				auto curr_child = obj->m_children.m_head;
+				auto last_child = obj->m_children.m_head->m_left;
+				while (true)
+				{
+					curr_child->m_data->SetParent(newEditableObject);
+
+					if (curr_child == last_child)
+						break;
+					curr_child = curr_child->m_right;
+				}
+				obj->m_children.clear();
+			}
+
+			this->RemoveObjectFromScene(obj);
+		}
+	}
+	UpdateSelectedObjectsArray();
 }
 
 bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
@@ -1802,6 +1852,7 @@ void miApplication::DeleteSelected() {
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
 			m_selectedObjects.m_data[i]->SetParent(0);
+			// need to move children somewhere !!!!
 			m_selectedObjects.m_data[i]->~miSceneObject();
 			miFree(m_selectedObjects.m_data[i]);
 		}
@@ -1825,8 +1876,11 @@ miPopup* miApplication::_getPopupInViewport() {
 			auto obj = m_selectedObjects.m_data[i];
 			auto flags = obj->GetFlags();
 
-			if(flags & miSceneObjectFlag_CanConvertToEditableObject)
-				p->AddItem(L"Convert to editable object", miCommandID_ConvertToEditableObject, 0);
+			if (m_editMode == miEditMode::Object)
+			{
+				if (flags & miSceneObjectFlag_CanConvertToEditableObject)
+					p->AddItem(L"Convert to editable object", miCommandID_ConvertToEditableObject, 0);
+			}
 		}
 	}
 	return p;

@@ -87,12 +87,12 @@ void gui_textInput_onEnter(yyGUIElement* elem, s32 m_id) {
 			g_app->m_selectedObjects.m_data[0]->SetName(newName.data());
 		}
 	}
-	g_app->update_selected_objects_array();
+	g_app->UpdateSelectedObjectsArray();
 }
 void gui_textInput_onEscape(yyGUIElement* elem, s32 m_id) {
 	yyGUITextInput* ti = (yyGUITextInput*)elem;
 	ti->DeleteAll();
-	g_app->update_selected_objects_array();
+	g_app->UpdateSelectedObjectsArray();
 }
 void gui_textInput_onLMB(yyGUIElement* elem, s32 m_id) {
 	yyGUITextInput* ti = (yyGUITextInput*)elem;
