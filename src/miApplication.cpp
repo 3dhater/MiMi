@@ -74,6 +74,11 @@ void window_callbackOnCommand(s32 commandID) {
 	case miCommandID_ViewportToggleDrawMaterial: g_app->CommandViewportToggleDrawMaterial(g_app->m_popupViewport); break;
 	case miCommandID_ViewportToggleDrawWireframe: g_app->CommandViewportToggleDrawWireframe(g_app->m_popupViewport); break;
 	
+	case miCommandID_ConvertToEditableObject: 
+		g_app->ConvertSelectedObjectsToEditableObjects(); 
+		g_app->SetObjectParametersMode(miObjectParametersMode::ObjectParameters);
+		break;
+	
 	case miCommandID_DeleteSelectedObjects: g_app->DeleteSelected(); break;
 	}
 	if (commandID >= miCommandID_for_plugins)
@@ -1446,6 +1451,9 @@ void miApplication::CommandTransformModeSet(miTransformMode m) {
 	this->SetTransformMode(m, false);
 	m_GUIManager->UpdateTransformModeButtons();
 }
+void miApplication::ConvertSelectedObjectsToEditableObjects() {
+	//printf("Convert\n");
+}
 
 bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
 	auto & n = o->GetName();
@@ -1757,11 +1765,17 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 	switch (m_objectParametersMode)
 	{
 	case miObjectParametersMode::CommonParameters:
+		m_GUIManager->m_button_objectCommonParams->m_isChecked = true;
+		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
+
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(true);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(true);
 		showPluginGui(false);
 		break;
 	case miObjectParametersMode::ObjectParameters:
+		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
+		m_GUIManager->m_button_objectObjectParams->m_isChecked = true;
+
 		showPluginGui(true);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);

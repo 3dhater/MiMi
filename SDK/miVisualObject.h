@@ -34,12 +34,6 @@ public:
 	virtual Aabb GetAabb() = 0;
 
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf) = 0;
-	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
-	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) = 0;
-	virtual void SelectAll() = 0;
-	virtual void DeselectAll() = 0;
-	virtual void InvertSelection() = 0;
-
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d) = 0;
 };
 

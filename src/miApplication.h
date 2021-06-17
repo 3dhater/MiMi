@@ -263,6 +263,8 @@ public:
 	void CommandViewportToggleDrawWireframe(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
+	
+	void ConvertSelectedObjectsToEditableObjects();
 
 	void UpdateSceneAabb();
 	void UpdateSelectionAabb();

@@ -41,10 +41,20 @@ public:
 	virtual void OnCreationEnd();
 	virtual void OnConvertToEditableObject();
 
+	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
+	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
+	virtual void SelectAll(miEditMode em);
+	virtual void DeselectAll(miEditMode em);
+	virtual void InvertSelection(miEditMode em);
+
 	virtual miPlugin* GetPlugin();
 	virtual void DeleteSelectedObjects(miEditMode em);
+	
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
+	
+	virtual int GetMeshCount();
+	virtual miMesh* GetMesh(int);
 
 	int m_x_segments;
 	int m_y_segments;

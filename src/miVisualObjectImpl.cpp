@@ -604,78 +604,6 @@ void miVisualObjectImpl::Draw() {
 	default:
 		break;
 	}
-
-	//if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Material
-	//	|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe)
-	//{
-	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
-	//	{
-	//		auto node = m_nodes_GPU[i];
-
-	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
-	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-	//		g_app->m_gpu->SetModel(node->m_modelGPU);
-	//		g_app->m_gpu->SetTexture(0, m_texture);
-
-	//		default_polygon_material.m_cullBackFace = true;
-	//		yySetMaterial(&default_polygon_material);
-
-	//		g_app->m_gpu->Draw();
-	//	}
-	//}
-
-	//if (g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_Wireframe
-	//	|| g_app->m_currentViewportDraw->m_drawMode == miViewport::Draw_MaterialWireframe
-	//	|| g_app->m_editMode == miEditMode::Edge)
-	//{
-	//	static yyMaterial wireframe_model_material;
-	//	auto ec = this->m_parentSceneObject->GetEdgeColor();
-	//	if (this->m_parentSceneObject->IsSelected())
-	//	{
-	//		wireframe_model_material.m_baseColor.m_data[0] = 1.f;
-	//		wireframe_model_material.m_baseColor.m_data[1] = 1.f;
-	//		wireframe_model_material.m_baseColor.m_data[2] = 1.f;
-	//	}
-	//	else
-	//	{
-	//		wireframe_model_material.m_baseColor.m_data[0] = ec->x;
-	//		wireframe_model_material.m_baseColor.m_data[1] = ec->y;
-	//		wireframe_model_material.m_baseColor.m_data[2] = ec->z;
-	//	}
-	//	yySetMaterial(&wireframe_model_material);
-
-	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
-	//	{
-	//		auto node = m_nodes_GPU[i];
-
-	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
-	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-	//		g_app->m_gpu->SetModel(node->m_modelGPU);
-	//		g_app->m_gpu->SetTexture(0, m_texture);
-	//		g_app->m_gpu->Draw();
-	//	}
-	//}
-
-	//if ( g_app->m_editMode == miEditMode::Vertex )
-	//{
-	//	static Mat4 Vi;
-	//	Vi = camera->m_viewMatrix;
-	//	Vi.m_data[3].set(0.f, 0.f, 0.f, 1.f);
-	//	Vi.invert();
-
-	//	for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
-	//	{
-	//		auto node = m_nodes_GPU[i];
-
-	//		yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
-	//		yySetMatrix(yyMatrixType::ViewInvert, &Vi);
-	//		yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-	//		g_app->m_gpu->SetModel(node->m_modelGPU);
-	//		//		g_app->m_gpu->SetMaterial();
-	//		g_app->m_gpu->SetTexture(0, m_texture);
-	//		g_app->m_gpu->Draw();
-	//	}
-	//}
 }
 
 bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
@@ -709,28 +637,6 @@ bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 	}
 
 	return result;
-}
-
-void miVisualObjectImpl::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	assert(sf);
-
-}
-
-void miVisualObjectImpl::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	assert(sf);
-
-}
-
-void miVisualObjectImpl::SelectAll() {
-
-}
-
-void miVisualObjectImpl::DeselectAll() {
-
-}
-
-void miVisualObjectImpl::InvertSelection() {
-
 }
 
 bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {

@@ -22,6 +22,10 @@ public:
 
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
+
+	virtual int GetMeshCount();
+	virtual miMesh* GetMesh(int);
+
 	virtual void DeleteSelectedObjects(miEditMode em);
 };
 

@@ -40,7 +40,7 @@ void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
 		if (m_visualObject_edge) m_visualObject_edge->Draw();
 	}
 
-	if (em == miEditMode::Vertex)
+	if (em == miEditMode::Vertex && m_isSelected)
 	{
 		if (m_visualObject_vertex) m_visualObject_vertex->Draw();
 	}
@@ -66,6 +66,13 @@ miPlugin* miEditableObject::GetPlugin() {
 
 int miEditableObject::GetVisualObjectCount() { 
 	return 3;
+}
+
+int miEditableObject::GetMeshCount() {
+	return 1;
+}
+miMesh* miEditableObject::GetMesh(int) {
+	return &m_meshBuilder->m_mesh;
 }
 
 miVisualObject* miEditableObject::GetVisualObject(int i){ 
@@ -96,4 +103,93 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 
 void miEditableObject::OnConvertToEditableObject() {
 
+}
+
+void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	miSceneObject::SelectSingle(em, km, sf);
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+		}*/
+		break;
+	}
+}
+
+void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	miSceneObject::Select(em, km, sf);
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+		if (m_isSelected)
+		{
+			//printf("select verts\n");
+
+		}
+		break;
+	case miEditMode::Edge:
+		break;
+	case miEditMode::Polygon:
+		break;
+	}
+}
+
+void miEditableObject::SelectAll(miEditMode em) {
+	miSceneObject::SelectAll(em);
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+		}*/
+		break;
+	}
+}
+
+void miEditableObject::DeselectAll(miEditMode em) {
+	miSceneObject::DeselectAll(em);
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+		}*/
+		break;
+	}
+}
+
+void miEditableObject::InvertSelection(miEditMode em) {
+	miSceneObject::InvertSelection(em);
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+		}*/
+		break;
+	}
 }

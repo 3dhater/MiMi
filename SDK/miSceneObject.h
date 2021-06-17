@@ -130,6 +130,7 @@ public:
 	virtual void OnCreationLMBUp() = 0;
 	virtual void OnCreationMouseMove() = 0;
 	virtual void OnCreationEnd() = 0;
+	// you can remove/modify some meshes before convert
 	virtual void OnConvertToEditableObject() = 0;
 
 	virtual miPlugin* GetPlugin() = 0;
@@ -139,6 +140,10 @@ public:
 
 	virtual int GetVisualObjectCount() = 0;
 	virtual miVisualObject* GetVisualObject(int) = 0;
+	virtual int GetMeshCount() = 0;
+	virtual miMesh* GetMesh(int) = 0;
+
+
 	virtual void UpdateAabb() {
 		m_aabb.reset();
 		for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
@@ -160,7 +165,7 @@ public:
 
 	// select object
 	//  or select one vertex/edge/polygon using miSelectionFrust
-	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf){
 		switch (em)
 		{
 		default:
@@ -177,10 +182,6 @@ public:
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
 		case miEditMode::Polygon:
-			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-			{
-				GetVisualObject(i)->SelectSingle(em, km, sf);
-			}
 			break;
 		}
 	}
@@ -210,10 +211,6 @@ public:
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
 		case miEditMode::Polygon:
-			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-			{
-				GetVisualObject(i)->Select(em, km, sf);
-			}
 			break;
 		}
 	}
@@ -227,10 +224,6 @@ public:
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
 		case miEditMode::Polygon:
-			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-			{
-				GetVisualObject(i)->SelectAll();
-			}
 			break;
 		}
 	}
@@ -244,10 +237,6 @@ public:
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
 		case miEditMode::Polygon:
-			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-			{
-				GetVisualObject(i)->DeselectAll();
-			}
 			break;
 		}
 	}
@@ -261,10 +250,6 @@ public:
 		case miEditMode::Vertex:
 		case miEditMode::Edge:
 		case miEditMode::Polygon:
-			for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-			{
-				GetVisualObject(i)->InvertSelection();
-			}
 			break;
 		}
 	}

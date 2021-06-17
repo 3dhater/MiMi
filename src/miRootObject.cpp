@@ -20,4 +20,7 @@ miPlugin* miRootObject::GetPlugin() { return 0; }
 
 int miRootObject::GetVisualObjectCount() { return 0; }
 miVisualObject* miRootObject::GetVisualObject(int){ return 0; }
+int miRootObject::GetMeshCount() {return 0;}
+miMesh* miRootObject::GetMesh(int) {return 0;}
+
 void miRootObject::DeleteSelectedObjects(miEditMode em) {}

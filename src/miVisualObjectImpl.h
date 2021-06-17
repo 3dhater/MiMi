@@ -27,15 +27,6 @@ class miVisualObjectImpl : public miVisualObject
 	yyArray<model_node_GPU*> m_nodes_GPU;
 	yyArray<model_node_CPU*> m_nodes_CPU;
 
-	/*yyArray<model_node_GPU*> m_nodes_polygons_GPU;
-	yyArray<model_node_CPU*> m_nodes_polygons_CPU;
-	
-	yyArray<model_node_GPU*> m_nodes_edges_GPU;
-	yyArray<model_node_CPU*> m_nodes_edges_CPU;
-
-	yyArray<model_node_GPU*> m_nodes_verts_GPU;
-	yyArray<model_node_CPU*> m_nodes_verts_CPU;*/
-
 	void _destroy();
 	void _createSoftwareModel_polys();
 	void _createSoftwareModel_edges();
@@ -66,11 +57,7 @@ public:
 	virtual Aabb GetAabb();
 	
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf);
-	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
-	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
-	virtual void SelectAll();
-	virtual void DeselectAll();
-	virtual void InvertSelection();
+
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d);
 	virtual miVisualObjectType GetType();
 };
