@@ -65,6 +65,7 @@ class miSDKImpl : public miSDK
 	miObjectCategory* _getObjectCategory(const wchar_t* category);
 	
 	yyArraySmall<miImporter*> m_importers;
+	yyArraySimple<std::pair<miVertex*,miSceneObject*>> m_vertsForSelect;
 public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
@@ -98,6 +99,8 @@ public:
 
 	virtual size_t FileSize(const char* fileName);
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other);
+
+	virtual void AddVertexToSelection(miVertex*, miSceneObject*);
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

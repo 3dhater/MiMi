@@ -402,7 +402,8 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 //	_createSoftwareModel_verts();
 //}
 void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
-	m_mesh = mesh;
+	if(mesh)
+		m_mesh = mesh;
 	_destroy();
 	m_aabb.reset();
 	switch (m_type)

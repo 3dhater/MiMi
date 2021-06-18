@@ -1159,6 +1159,56 @@ void miApplication::UpdateViewports() {
 				else
 				{
 					_select_single();
+					if (m_editMode == miEditMode::Vertex)
+					{
+						if (m_sdk->m_vertsForSelect.m_size)
+						{
+							
+							if (m_sdk->m_vertsForSelect.m_size > 1)
+							{
+								struct _pred {
+									bool operator() (
+										const std::pair<miVertex*, miSceneObject*>& a,
+										const std::pair<miVertex*, miSceneObject*>& b
+										)
+										const
+									{
+										auto camera = g_app->GetActiveCamera();
+										return (
+											a.first->m_position + *a.second->GetGlobalPosition()).distance(camera->m_positionCamera) >
+											(b.first->m_position + *b.second->GetGlobalPosition()).distance(camera->m_positionCamera);
+									}
+								};
+								m_sdk->m_vertsForSelect.sort_insertion(_pred());
+							}
+
+							if (m_keyboardModifier == miKeyboardModifier::Alt)
+							{
+								if (m_sdk->m_vertsForSelect.m_data[0].first->m_flags & miVertex::flag_isSelected)
+									m_sdk->m_vertsForSelect.m_data[0].first->m_flags ^= miVertex::flag_isSelected;
+							}
+							else
+							{
+								m_sdk->m_vertsForSelect.m_data[0].first->m_flags |= miVertex::flag_isSelected;
+							}
+							
+
+							for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+							{
+								auto obj = m_selectedObjects.m_data[i];
+								auto voc = obj->GetVisualObjectCount();
+								for (s32 i2 = 0; i2 < voc; ++i2)
+								{
+									auto vo = obj->GetVisualObject(i2);
+									if (vo->GetType() == miVisualObjectType::Vertex)
+									{
+										vo->CreateNewGPUModels(0);
+									}
+								}
+							}
+							m_sdk->m_vertsForSelect.clear();
+						}
+					}
 				}
 			}
 			else

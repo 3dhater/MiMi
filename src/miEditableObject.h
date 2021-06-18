@@ -14,6 +14,10 @@ class miEditableObject : public miSceneObject
 	miMesh* m_mesh;
 
 	void _selectVerts(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectAllVerts();
+	void _deselectAllVerts();
+	void _selectInvertVerts();
 
 	friend class miApplication;
 	friend class miSDKImpl;
