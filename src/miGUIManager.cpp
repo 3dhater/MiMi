@@ -536,6 +536,8 @@ miGUIManager::miGUIManager(){
 		m_button_editModeVertex->m_useBackground = true;
 		m_button_editModeVertex->m_isAnimated = true;
 		m_button_editModeVertex->m_useAsCheckbox = true;
+		m_button_editModeVertex->m_bgColorHover = ColorYellow;
+		m_button_editModeVertex->m_bgColorPress = ColorRed;
 		m_mainMenu_Y += h;
 	}
 	{
@@ -552,6 +554,8 @@ miGUIManager::miGUIManager(){
 		m_button_editModeEdge->m_useBackground = true;
 		m_button_editModeEdge->m_isAnimated = true;
 		m_button_editModeEdge->m_useAsCheckbox = true;
+		m_button_editModeEdge->m_bgColorHover = ColorYellow;
+		m_button_editModeEdge->m_bgColorPress = ColorRed;
 		m_mainMenu_Y += h;
 	}
 	{
@@ -568,6 +572,8 @@ miGUIManager::miGUIManager(){
 		m_button_editModePolygon->m_useBackground = true;
 		m_button_editModePolygon->m_isAnimated = true;
 		m_button_editModePolygon->m_useAsCheckbox = true;
+		m_button_editModePolygon->m_bgColorHover = ColorYellow;
+		m_button_editModePolygon->m_bgColorPress = ColorRed;
 		m_mainMenu_Y += h;
 	}
 
