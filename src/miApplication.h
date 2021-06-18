@@ -11,8 +11,6 @@
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
 
-void miAppendMesh(miMesh* thisMesh, miMesh* other);
-
 class miPluginGUIImpl;
 class miGUIManager;
 class miShortcutManager;

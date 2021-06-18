@@ -266,6 +266,10 @@ public:
 	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*,const wchar_t* name) = 0;
 
 	virtual size_t FileSize(const char* fileName) = 0;
+
+	// only for miDefaultAllocator for this mesh
+	// obviously
+	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) = 0;
 };
 
 #endif

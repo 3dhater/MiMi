@@ -97,6 +97,7 @@ public:
 	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name);
 
 	virtual size_t FileSize(const char* fileName);
+	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other);
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

@@ -179,6 +179,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin32/;../SDK/lib32/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -203,6 +204,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin32/;../SDK/lib32/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Production|Win32'">
@@ -227,6 +229,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin32/;../SDK/lib32/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -245,6 +248,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin64/;../SDK/lib64/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -269,6 +273,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin64/;../SDK/lib64/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Production|x64'">
@@ -293,6 +298,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);miLib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../YuYu/bin64/;../SDK/lib64/</AdditionalLibraryDirectories>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

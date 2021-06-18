@@ -8,10 +8,8 @@ class miBinarySearchTree
 		_node() {
 			m_left = m_right = 0;
 			m_value = 0;
-		//	printf("Constructor\n");
 		}
 		~_node() {
-		//	printf("Destructor\n");
 		}
 
 		_type m_data;
@@ -19,7 +17,7 @@ class miBinarySearchTree
 		_node* m_left;
 		_node* m_right;
 
-		unsigned int m_value;
+		uint64_t m_value;
 	};
 
 	_node * m_root;
@@ -32,7 +30,7 @@ class miBinarySearchTree
 		delete node;
 	}
 
-	void _add(_node * node, unsigned int value, const _type& data) {
+	void _add(_node * node, uint64_t value, const _type& data) {
 		if (node->m_value == value)
 		{
 			node->m_data = data;
@@ -66,7 +64,7 @@ class miBinarySearchTree
 		}
 	}
 
-	bool _get(_node * node, unsigned int value, _type& data) {
+	bool _get(_node * node, uint64_t value, _type& data) {
 		if (node->m_value == value)
 		{
 			data = node->m_data;
@@ -98,6 +96,40 @@ class miBinarySearchTree
 		return false;
 	}
 
+	uint64_t MurmurHash64A(const void * key, int len, unsigned int seed)
+	{
+		const uint64_t m = 0xc6a4a7935bd1e995;
+		const int r = 47;
+		uint64_t h = seed ^ (len * m);
+		const uint64_t * data = (const uint64_t *)key;
+		const uint64_t * end = data + (len / 8);
+		while (data != end)
+		{
+			uint64_t k = *data++;
+			k *= m;
+			k ^= k >> r;
+			k *= m;
+			h ^= k;
+			h *= m;
+		}
+		const unsigned char * data2 = (const unsigned char*)data;
+		switch (len & 7)
+		{
+		case 7: h ^= uint64_t(data2[6]) << 48;
+		case 6: h ^= uint64_t(data2[5]) << 40;
+		case 5: h ^= uint64_t(data2[4]) << 32;
+		case 4: h ^= uint64_t(data2[3]) << 24;
+		case 3: h ^= uint64_t(data2[2]) << 16;
+		case 2: h ^= uint64_t(data2[1]) << 8;
+		case 1: h ^= uint64_t(data2[0]);
+			h *= m;
+		};
+		h ^= h >> r;
+		h *= m;
+		h ^= h >> r;
+		return h;
+	}
+
 public:
 	miBinarySearchTree() {
 		m_root = 0;
@@ -111,7 +143,9 @@ public:
 			_delete_all(m_root);
 	}
 
-	void Add(unsigned int value, const _type& data) {
+	void Add(uint64_t value, const _type& data) {
+		value = MurmurHash64A(&value, sizeof(uint64_t), 1);
+
 		if (!m_root)
 		{
 			m_root = new _node;
@@ -123,7 +157,9 @@ public:
 		_add(m_root, value, data);
 	}
 
-	bool Get(unsigned int value, _type& data) {
+	bool Get(uint64_t value, _type& data) {
+		value = MurmurHash64A(&value, sizeof(uint64_t), 1);
+		
 		if(m_root)
 			return _get(m_root, value, data);
 		return false;

@@ -484,6 +484,7 @@ void miApplication::_initPlugins() {
 	m_pluginGuiForEditableObject = (miPluginGUIImpl*)m_sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
 }
 
+
 bool miApplication::Init(const char* videoDriver) {
 	{
 		FILE * f = fopen("log.txt", "w");

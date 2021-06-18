@@ -16,8 +16,6 @@ struct miVertex
 		m_flags = 0;
 	}
 	~miVertex() {}
-	unsigned char m_flags;
-	enum { flag_isSelected = 1, };
 
 	miVertex* m_left;
 	miVertex* m_right;
@@ -25,6 +23,17 @@ struct miVertex
 	v3f m_position;
 	v2f m_tCoords;
 	half m_normal[3];
+	unsigned char m_flags;
+	enum { flag_isSelected = 1, };
+	void CopyData(miVertex* other)
+	{
+		m_position = other->m_position;
+		m_tCoords = other->m_tCoords;
+		m_normal[0] = other->m_normal[0];
+		m_normal[1] = other->m_normal[1];
+		m_normal[2] = other->m_normal[2];
+		m_flags = other->m_flags;
+	}
 
 
 	miList<miPolygon*> m_polygons;
@@ -47,8 +56,13 @@ struct miEdge
 		m_flags = 0;
 	}
 	~miEdge() {}
+	
 	unsigned char m_flags;
 	enum { flag_isSelected = 1, };
+	
+	void CopyData(miEdge* other) {
+		m_flags = other->m_flags;
+	}
 
 	miEdge* m_left;
 	miEdge* m_right;
@@ -70,8 +84,13 @@ struct miPolygon
 		m_flags = 0;
 	}
 	~miPolygon() {}
+	
 	unsigned char m_flags;
 	enum { flag_isSelected = 1, };
+
+	void CopyData(miPolygon* other) {
+		m_flags = other->m_flags;
+	}
 
 	miPolygon* m_left;
 	miPolygon* m_right;
