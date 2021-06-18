@@ -106,6 +106,26 @@ void miEditableObject::OnConvertToEditableObject() {
 
 }
 
+bool miEditableObject::IsEdgeMouseHover(miSelectionFrust* sf) {
+	Mat4 M = this->GetWorldMatrix()->getBasis();
+	auto position = this->GetGlobalPosition();
+
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+
+	while (true) {
+		if (sf->LineInFrust(
+			math::mul(current_edge->m_vertex1->m_position, M) + *position,
+			math::mul(current_edge->m_vertex2->m_position, M) + *position))
+			return true;
+
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+	return false;
+}
+
 bool miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
 	Mat4 M = this->GetWorldMatrix()->getBasis();
 	auto position = this->GetGlobalPosition();
@@ -113,25 +133,18 @@ bool miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
 
-	static yyArraySimple<miVertex*> verts_in_frust;
-	verts_in_frust.clear();
-
 	while (true) {
-
 		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-		{
-			verts_in_frust.push_back(current_vertex);
-			break;
-		}
+			return true;
 
 		if (current_vertex == last_vertex)
 			break;
 		current_vertex = current_vertex->m_right;
 	}
-	return verts_in_frust.m_size != 0;
+	return false;
 }
 
-void miEditableObject::_selectVerts(miKeyboardModifier km, miSelectionFrust* sf) {
+void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {
 	Mat4 M = this->GetWorldMatrix()->getBasis();
 	auto position = this->GetGlobalPosition();
 
@@ -142,11 +155,8 @@ void miEditableObject::_selectVerts(miKeyboardModifier km, miSelectionFrust* sf)
 	verts_in_frust.clear();
 
 	while (true) {
-
 		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-		{
 			verts_in_frust.push_back(current_vertex);
-		}
 
 		if (current_vertex == last_vertex)
 			break;
@@ -190,6 +200,48 @@ void miEditableObject::_selectVerts(miKeyboardModifier km, miSelectionFrust* sf)
 	}
 }
 
+void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) {
+	Mat4 M = this->GetWorldMatrix()->getBasis();
+	auto position = this->GetGlobalPosition();
+
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+
+	static yyArraySimple<miEdge*> edges_in_frust;
+	edges_in_frust.clear();
+
+	while (true) {
+		if (sf->LineInFrust(
+			math::mul(current_edge->m_vertex1->m_position, M) + *position,
+			math::mul(current_edge->m_vertex2->m_position, M) + *position))
+		{
+			edges_in_frust.push_back(current_edge);
+		}
+
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+	if (edges_in_frust.m_size)
+	{
+		static miEditableObject* o;
+		o = this;
+		struct _pred {
+			bool operator() (miEdge* a, miEdge* b) const {
+				auto camera = g_app->GetActiveCamera();
+				
+				auto center = a->m_vertex1->m_position + b->m_vertex1->m_position;
+				center *= 0.5f;
+				center += *o->GetGlobalPosition();
+
+				return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
+			}
+		};
+		edges_in_frust.sort_insertion(_pred());
+		m_sdk->AddEdgeToSelection(edges_in_frust.m_data[0], this);
+	}
+}
+
 void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
 	miSceneObject::SelectSingle(em, km, sf);
 	switch (em)
@@ -198,15 +250,55 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 	case miEditMode::Object:
 		break;
 	case miEditMode::Vertex:
-		if (m_isSelected) _selectVerts(km, sf);
+		if (m_isSelected) _selectVertex(km, sf);
 		break;
 	case miEditMode::Edge:
+		if (m_isSelected) _selectEdge(km, sf);
 		break;
 	case miEditMode::Polygon:
 		break;
 	}
 }
 
+void miEditableObject::_selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
+	Mat4 M = this->GetWorldMatrix()->getBasis();
+	auto position = this->GetGlobalPosition();
+
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+
+	static yyArraySimple<miEdge*> edges_in_frust;
+	edges_in_frust.clear();
+
+	while (true) {
+		if (sf->LineInFrust(
+			math::mul(current_edge->m_vertex1->m_position, M) + *position,
+			math::mul(current_edge->m_vertex2->m_position, M) + *position))
+			edges_in_frust.push_back(current_edge);
+
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+
+	//printf("Select verts %u\n", verts_in_frust.m_size);
+	if (edges_in_frust.m_size)
+	{
+		for (u32 i = 0; i < edges_in_frust.m_size; ++i)
+		{
+			auto v = edges_in_frust.m_data[i];
+			if (km == miKeyboardModifier::Alt)
+			{
+				if (v->m_flags & miEdge::flag_isSelected)
+					v->m_flags ^= miEdge::flag_isSelected;
+			}
+			else
+				v->m_flags |= miEdge::flag_isSelected;
+		}
+
+		m_visualObject_edge->CreateNewGPUModels(m_mesh);
+	}
+}
 void miEditableObject::_selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
 	Mat4 M = this->GetWorldMatrix()->getBasis();
 	auto position = this->GetGlobalPosition();
@@ -218,11 +310,8 @@ void miEditableObject::_selectVerts_rectangle(miKeyboardModifier km, miSelection
 	verts_in_frust.clear();
 
 	while (true) {
-
 		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-		{
 			verts_in_frust.push_back(current_vertex);
-		}
 
 		if (current_vertex == last_vertex)
 			break;
@@ -259,12 +348,24 @@ void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionF
 		if(m_isSelected) _selectVerts_rectangle(km, sf);
 		break;
 	case miEditMode::Edge:
+		if (m_isSelected) _selectEdges_rectangle(km, sf);
 		break;
 	case miEditMode::Polygon:
 		break;
 	}
 }
 
+void miEditableObject::_selectAllEdges() {
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+	while (true) {
+		current_edge->m_flags |= current_edge->flag_isSelected;
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+	m_visualObject_edge->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_selectAllVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
@@ -288,14 +389,25 @@ void miEditableObject::SelectAll(miEditMode em) {
 		if (m_isSelected) _selectAllVerts();
 		break;
 	case miEditMode::Edge:
+		if (m_isSelected) _selectAllEdges();
+		break;
 	case miEditMode::Polygon:
-		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-		{
-		}*/
 		break;
 	}
 }
 
+void miEditableObject::_deselectAllEdges() {
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+	while (true) {
+		if(current_edge->m_flags & current_edge->flag_isSelected)
+			current_edge->m_flags ^= current_edge->flag_isSelected;
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+	m_visualObject_edge->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_deselectAllVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
@@ -320,14 +432,27 @@ void miEditableObject::DeselectAll(miEditMode em) {
 		if (m_isSelected) _deselectAllVerts();
 		break;
 	case miEditMode::Edge:
+		if (m_isSelected) _deselectAllEdges();
+		break;
 	case miEditMode::Polygon:
-		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-		{
-		}*/
 		break;
 	}
 }
 
+void miEditableObject::_selectInvertEdges() {
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+	while (true) {
+		if (current_edge->m_flags & current_edge->flag_isSelected)
+			current_edge->m_flags ^= current_edge->flag_isSelected;
+		else
+			current_edge->m_flags |= current_edge->flag_isSelected;
+		if (current_edge == last_edge)
+			break;
+		current_edge = current_edge->m_right;
+	}
+	m_visualObject_edge->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_selectInvertVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
@@ -355,10 +480,9 @@ void miEditableObject::InvertSelection(miEditMode em) {
 		if (m_isSelected) _selectInvertVerts();
 		break;
 	case miEditMode::Edge:
+		if (m_isSelected) _selectInvertEdges();
+		break;
 	case miEditMode::Polygon:
-		/*for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
-		{
-		}*/
 		break;
 	}
 }

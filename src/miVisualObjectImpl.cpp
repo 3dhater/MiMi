@@ -127,7 +127,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		if (g_app->m_editMode == miEditMode::Edge)
 		{
 			if (current_edge->m_flags & miEdge::flag_isSelected)
-				color.set(1.0f, 0.f, 0.f, 0.f);
+				color.set(1.0f, 0.f, 0.f, 1.f);
 		}
 
 		if (lineCount == 0)

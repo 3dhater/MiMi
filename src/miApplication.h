@@ -130,8 +130,10 @@ class miApplication
 	bool m_isGUIInputFocus;
 
 	bool _isVertexMouseHover(miSceneObject*);
-	void _isVertexMouseHover();
+	bool _isEdgeMouseHover(miSceneObject*);
+	void _isObjectMouseHover();
 	bool m_isVertexMouseHover;
+	bool m_isEdgeMouseHover;
 
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
 	// только если m_isViewportInFocus == true;
@@ -185,6 +187,7 @@ class miApplication
 
 	void _update_transforms(miSceneObject* o);
 
+	void _onSelect();
 	void _select_multiple();
 	void _select_single();
 	void _select_single_call(miSceneObject* o);

@@ -152,6 +152,7 @@ miApplication::miApplication() {
 	m_currentPluginGUI = 0;
 	m_pluginGuiForEditableObject = 0;
 	m_isLocalTransform = false;
+	m_isEdgeMouseHover = false;
 	m_objectParametersMode = miObjectParametersMode::CommonParameters;
 	m_gizmoMode = miGizmoMode::NoTransform;
 	//m_isGizmoInput = false;
@@ -1057,13 +1058,35 @@ void miApplication::UpdateSelectedObjectsArray() {
 	}
 }
 
+bool miApplication::_isEdgeMouseHover(miSceneObject* o) {
+	if (o->IsSelected())
+	{
+		if (o->IsEdgeMouseHover(m_selectionFrust))
+		{
+			m_isEdgeMouseHover = true;
+			return true;
+		}
+	}
+
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			if (_isEdgeMouseHover(node->m_data))
+				return true;
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+	return false;
+}
 bool miApplication::_isVertexMouseHover(miSceneObject* o) {
 	if (o->IsSelected())
 	{
 		if (o->IsVertexMouseHover(m_selectionFrust))
 		{
 			m_isVertexMouseHover = true;
-			//printf("H");
 			return true;
 		}
 	}
@@ -1081,14 +1104,17 @@ bool miApplication::_isVertexMouseHover(miSceneObject* o) {
 	}
 	return false;
 }
-void miApplication::_isVertexMouseHover() {
+void miApplication::_isObjectMouseHover() {
 	m_isVertexMouseHover = false;
+	m_isEdgeMouseHover = false;
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
 		_isVertexMouseHover(m_rootObject);
 		break;
 	case miEditMode::Edge:
+		_isEdgeMouseHover(m_rootObject);
+		break;
 	case miEditMode::Polygon:
 		break;
 	case miEditMode::Object:
@@ -1121,8 +1147,22 @@ void miApplication::UpdateViewports() {
 					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 				if (m_editMode == miEditMode::Vertex)
 				{
-					_isVertexMouseHover();
-					if (m_isVertexMouseHover)
+					_isObjectMouseHover();
+					if (m_isVertexMouseHover )
+					{
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
+						m_cursors[(u32)yyCursorType::Cross]->Activate();
+					}
+					else
+					{
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+						m_cursors[(u32)yyCursorType::Arrow]->Activate();
+					}
+				}
+				else if (m_editMode == miEditMode::Edge)
+				{
+					_isObjectMouseHover();
+					if (m_isEdgeMouseHover)
 					{
 						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
 						m_cursors[(u32)yyCursorType::Cross]->Activate();
@@ -1143,73 +1183,7 @@ void miApplication::UpdateViewports() {
 		{
 			if (m_inputContext->m_isLMBUp)
 			{
-				if (m_isSelectByRectangle)
-				{
-					Aabb aabb;
-					aabb.add(v3f(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y, 0.f));
-					aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
-
-					m_selectionFrust->CreateWithFrame(
-						v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
-						m_activeViewportLayout->m_activeViewport->m_currentRect,
-						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-
-					_select_multiple();
-				}
-				else
-				{
-					_select_single();
-					if (m_editMode == miEditMode::Vertex)
-					{
-						if (m_sdk->m_vertsForSelect.m_size)
-						{
-							
-							if (m_sdk->m_vertsForSelect.m_size > 1)
-							{
-								struct _pred {
-									bool operator() (
-										const std::pair<miVertex*, miSceneObject*>& a,
-										const std::pair<miVertex*, miSceneObject*>& b
-										)
-										const
-									{
-										auto camera = g_app->GetActiveCamera();
-										return (
-											a.first->m_position + *a.second->GetGlobalPosition()).distance(camera->m_positionCamera) >
-											(b.first->m_position + *b.second->GetGlobalPosition()).distance(camera->m_positionCamera);
-									}
-								};
-								m_sdk->m_vertsForSelect.sort_insertion(_pred());
-							}
-
-							if (m_keyboardModifier == miKeyboardModifier::Alt)
-							{
-								if (m_sdk->m_vertsForSelect.m_data[0].first->m_flags & miVertex::flag_isSelected)
-									m_sdk->m_vertsForSelect.m_data[0].first->m_flags ^= miVertex::flag_isSelected;
-							}
-							else
-							{
-								m_sdk->m_vertsForSelect.m_data[0].first->m_flags |= miVertex::flag_isSelected;
-							}
-							
-
-							for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-							{
-								auto obj = m_selectedObjects.m_data[i];
-								auto voc = obj->GetVisualObjectCount();
-								for (s32 i2 = 0; i2 < voc; ++i2)
-								{
-									auto vo = obj->GetVisualObject(i2);
-									if (vo->GetType() == miVisualObjectType::Vertex)
-									{
-										vo->CreateNewGPUModels(0);
-									}
-								}
-							}
-							m_sdk->m_vertsForSelect.clear();
-						}
-					}
-				}
+				_onSelect();
 			}
 			else
 			{

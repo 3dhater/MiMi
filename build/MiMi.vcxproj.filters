@@ -25,6 +25,7 @@
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miGizmo.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
+    <ClCompile Include="..\src\miApplication_selection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

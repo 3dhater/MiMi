@@ -272,6 +272,7 @@ public:
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) = 0;
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) = 0;
+	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) = 0;
 };
 
 #endif

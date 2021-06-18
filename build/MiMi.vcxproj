@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\YuYu\common\Win32\yy_window.cpp" />
     <ClCompile Include="..\src\miApplication.cpp" />
     <ClCompile Include="..\src\miApplication_initGrid.cpp" />
+    <ClCompile Include="..\src\miApplication_selection.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miGizmo.cpp" />

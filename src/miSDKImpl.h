@@ -65,7 +65,8 @@ class miSDKImpl : public miSDK
 	miObjectCategory* _getObjectCategory(const wchar_t* category);
 	
 	yyArraySmall<miImporter*> m_importers;
-	yyArraySimple<std::pair<miVertex*,miSceneObject*>> m_vertsForSelect;
+	yyArraySimple<std::pair<miVertex*, miSceneObject*>> m_vertsForSelect;
+	yyArraySimple<std::pair<miEdge*, miSceneObject*>> m_edgesForSelect;
 public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
@@ -101,6 +102,7 @@ public:
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other);
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*);
+	virtual void AddEdgeToSelection(miEdge*, miSceneObject*);
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

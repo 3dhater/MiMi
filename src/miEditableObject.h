@@ -13,11 +13,16 @@ class miEditableObject : public miSceneObject
 	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
 	miMesh* m_mesh;
 
-	void _selectVerts(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectEdge(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectAllVerts();
+	void _selectAllEdges();
 	void _deselectAllVerts();
+	void _deselectAllEdges();
 	void _selectInvertVerts();
+	void _selectInvertEdges();
 
 	friend class miApplication;
 	friend class miSDKImpl;
@@ -50,6 +55,7 @@ public:
 	virtual miMesh* GetMesh(int);
 
 	virtual bool IsVertexMouseHover(miSelectionFrust* sf) override;
+	virtual bool IsEdgeMouseHover(miSelectionFrust*) override;
 };
 
 #endif

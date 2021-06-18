@@ -475,3 +475,7 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 void miSDKImpl::AddVertexToSelection(miVertex* vertex, miSceneObject* o) {
 	m_vertsForSelect.push_back(std::pair<miVertex*, miSceneObject*>(vertex, o));
 }
+
+void miSDKImpl::AddEdgeToSelection(miEdge* e, miSceneObject* o) {
+	m_edgesForSelect.push_back(std::pair<miEdge*, miSceneObject*>(e, o));
+}
