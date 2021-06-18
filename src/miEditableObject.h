@@ -13,6 +13,9 @@ class miEditableObject : public miSceneObject
 	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
 	miMesh* m_mesh;
 
+	void _selectVerts(miKeyboardModifier km, miSelectionFrust* sf);
+
+	friend class miApplication;
 	friend class miSDKImpl;
 public:
 	miEditableObject(miSDK*, miPlugin*);
@@ -41,6 +44,8 @@ public:
 	
 	virtual int GetMeshCount();
 	virtual miMesh* GetMesh(int);
+
+	virtual bool IsVertexMouseHover(miSelectionFrust* sf) override;
 };
 
 #endif

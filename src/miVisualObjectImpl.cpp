@@ -29,20 +29,6 @@ void miVisualObjectImpl::_destroy() {
 	m_nodes_GPU.clear();
 	for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i) { delete m_nodes_CPU[i]; }
 	m_nodes_CPU.clear();
-	/*for(u32 i = 0, sz = m_nodes_polygons_GPU.size(); i < sz; ++i){delete m_nodes_polygons_GPU[i];}
-	m_nodes_polygons_GPU.clear();
-	for (u32 i = 0, sz = m_nodes_polygons_CPU.size(); i < sz; ++i) { delete m_nodes_polygons_CPU[i]; }
-	m_nodes_polygons_CPU.clear();
-
-	for (u32 i = 0, sz = m_nodes_edges_GPU.size(); i < sz; ++i){delete m_nodes_edges_GPU[i];}
-	m_nodes_edges_GPU.clear();
-	for (u32 i = 0, sz = m_nodes_edges_CPU.size(); i < sz; ++i) { delete m_nodes_edges_CPU[i]; }
-	m_nodes_edges_CPU.clear();
-
-	for (u32 i = 0, sz = m_nodes_verts_GPU.size(); i < sz; ++i) { delete m_nodes_verts_GPU[i]; }
-	m_nodes_verts_GPU.clear();
-	for (u32 i = 0, sz = m_nodes_verts_CPU.size(); i < sz; ++i) { delete m_nodes_verts_CPU[i]; }
-	m_nodes_verts_CPU.clear();*/
 }
 
 void miVisualObjectImpl::_createSoftwareModel_verts() {

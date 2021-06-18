@@ -204,6 +204,7 @@ miApplication::miApplication() {
 	m_gridModel_left2_10 = 0;
 	m_gridModel_left1_100 = 0;
 	m_gridModel_left2_100 = 0;
+	m_isVertexMouseHover = false;
 
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -1056,6 +1057,46 @@ void miApplication::UpdateSelectedObjectsArray() {
 	}
 }
 
+bool miApplication::_isVertexMouseHover(miSceneObject* o) {
+	if (o->IsSelected())
+	{
+		if (o->IsVertexMouseHover(m_selectionFrust))
+		{
+			m_isVertexMouseHover = true;
+			//printf("H");
+			return true;
+		}
+	}
+
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			if (_isVertexMouseHover(node->m_data))
+				return true;
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+	}
+	return false;
+}
+void miApplication::_isVertexMouseHover() {
+	m_isVertexMouseHover = false;
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+		_isVertexMouseHover(m_rootObject);
+		break;
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}
+
 void miApplication::UpdateViewports() {
 	if (m_isCursorInViewport)
 	{
@@ -1065,13 +1106,42 @@ void miApplication::UpdateViewports() {
 			ShowPopupAtCursor(p);
 			delete p;
 		}
+		if (m_gizmoMode == miGizmoMode::NoTransform)
+		{
+			if (m_isCursorMove)
+			{
+				const f32 _size = 6.f;
+				m_selectionFrust->CreateWithFrame(
+					v4f(
+						m_inputContext->m_cursorCoords.x - _size,
+						m_inputContext->m_cursorCoords.y - _size,
+						m_inputContext->m_cursorCoords.x + _size,
+						m_inputContext->m_cursorCoords.y + _size),
+					m_activeViewportLayout->m_activeViewport->m_currentRect,
+					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				if (m_editMode == miEditMode::Vertex)
+				{
+					_isVertexMouseHover();
+					if (m_isVertexMouseHover)
+					{
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
+						m_cursors[(u32)yyCursorType::Cross]->Activate();
+					}
+					else
+					{
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
+						m_cursors[(u32)yyCursorType::Arrow]->Activate();
+					}
+				}
+			}
+		}
 	}
 
 	if (m_isViewportInFocus)
 	{
-		if (m_inputContext->m_isLMBUp)
+		if (m_gizmoMode == miGizmoMode::NoTransform)
 		{
-			if (m_gizmoMode == miGizmoMode::NoTransform)
+			if (m_inputContext->m_isLMBUp)
 			{
 				if (m_isSelectByRectangle)
 				{
@@ -1088,16 +1158,6 @@ void miApplication::UpdateViewports() {
 				}
 				else
 				{
-					const f32 _size = 2.f;
-					m_selectionFrust->CreateWithFrame(
-						v4f(
-							m_inputContext->m_cursorCoords.x - _size,
-							m_inputContext->m_cursorCoords.y - _size,
-							m_inputContext->m_cursorCoords.x + _size,
-							m_inputContext->m_cursorCoords.y + _size),
-						m_activeViewportLayout->m_activeViewport->m_currentRect,
-						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-
 					_select_single();
 				}
 			}
@@ -1483,7 +1543,15 @@ void miApplication::ConvertSelectedObjectsToEditableObjects() {
 			for (int o = 0; o < meshCount; ++o)
 			{
 				auto mesh = obj->GetMesh(o);
+				
+				m_sdk->AppendMesh(newEditableObject->m_mesh, mesh);
 			}
+			newEditableObject->m_visualObject_polygon->CreateNewGPUModels(newEditableObject->m_mesh);
+			newEditableObject->m_visualObject_vertex->CreateNewGPUModels(newEditableObject->m_mesh);
+			newEditableObject->m_visualObject_edge->CreateNewGPUModels(newEditableObject->m_mesh);
+			newEditableObject->UpdateTransform();
+			newEditableObject->UpdateAabb();
+			
 
 			if (obj->m_children.m_head)
 			{

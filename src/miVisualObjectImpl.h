@@ -46,6 +46,7 @@ public:
 	virtual ~miVisualObjectImpl();
 
 	virtual void CreateNewGPUModels(miMesh*);
+
 	virtual size_t GetBufferCount();
 	virtual unsigned char* GetVertexBuffer(size_t index) ;
 	//virtual void MarkBufferToRemap(size_t index) ;

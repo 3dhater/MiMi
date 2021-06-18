@@ -316,7 +316,7 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 		}
 	}
 
-	// Stage 3
+	// step 3
 	{
 		auto current_polygon = other->m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
@@ -432,7 +432,7 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 		}
 	}
 
-	// Stage 4
+	// step 4
 	if (!mesh_with_miDefaultAllocator->m_first_polygon)
 	{
 		mesh_with_miDefaultAllocator->m_first_polygon = P;

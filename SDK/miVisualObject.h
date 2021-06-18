@@ -15,10 +15,10 @@ public:
 	miVisualObject() {}
 	virtual ~miVisualObject() {}
 
-	// create CPU beffers then create GPU models
+	// create CPU buffers then create GPU models
 	virtual void CreateNewGPUModels(miMesh*) = 0;
 
-	// vertex and index beffuer count
+	// vertex and index buffer count
 	virtual size_t GetBufferCount() = 0;
 	
 	virtual unsigned char* GetVertexBuffer(size_t index) = 0;
