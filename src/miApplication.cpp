@@ -280,7 +280,7 @@ miApplication::~miApplication() {
 	if (m_inputContext) yyDestroy(m_inputContext);
 }
 
-void miApplication::ChangeCursorBehaviorMode(miCursorBehaviorMode bm) {
+void miApplication::SetCursorBehaviorMode(miCursorBehaviorMode bm) {
 	m_cursorBehaviorMode = bm;
 	switch (m_cursorBehaviorMode)
 	{
@@ -304,7 +304,7 @@ void miApplication::ChangeCursorBehaviorMode(miCursorBehaviorMode bm) {
 		yyShowCursor(false);
 		break;
 	}
-	//printf("ChangeCursorBehaviorMode %i\n", (s32)bm);
+	//printf("SetCursorBehaviorMode %i\n", (s32)bm);
 }
 
 // need to move children somewhere !!!!
@@ -858,15 +858,18 @@ void miApplication::ProcessShortcuts() {
 }
 
 void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
-	v4f ip;
-	f32 d = 0.f;
-	if (o->IsRayIntersect(&m_rayCursor, &ip, &d))
+	if (o != m_rootObject)
 	{
-		o->m_cursorIntersectionPointDistance = d;
-		o->m_cursorIntersectionPoint = ip;
-		m_objectsUnderCursor.push_back(o);
+		v4f ip;
+		f32 d = 0.f;
+		if (o->IsRayIntersect(&m_rayCursor, &ip, &d))
+		{
+			o->m_cursorIntersectionPointDistance = d;
+			o->m_cursorIntersectionPoint = ip;
+			m_objectsUnderCursor.push_back(o);
 
-		//wprintf(L"%s", o->GetName().data());
+			//wprintf(L"%s", o->GetName().data());
+		}
 	}
 
 	auto node = o->GetChildren()->m_head;
@@ -894,7 +897,8 @@ void miApplication::_get_objects_under_cursor() {
 }
 
 void miApplication::_deselect_all(miSceneObject* o) {
-	o->DeselectAll(m_editMode);
+	if (o != m_rootObject)
+		o->DeselectAll(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node){
 		auto last = node->m_left;
@@ -924,7 +928,8 @@ void miApplication::_select_all(miSceneObject* o) {
 }
 
 void miApplication::_invert_selection(miSceneObject* o) {
-	o->InvertSelection(m_editMode);
+	if (o != m_rootObject)
+		o->InvertSelection(m_editMode);
 	auto node = o->GetChildren()->m_head;
 	if (node) {
 		auto last = node->m_left;
@@ -1179,9 +1184,9 @@ void miApplication::UpdateViewports() {
 
 	if (m_isViewportInFocus)
 	{
-		if (m_gizmoMode == miGizmoMode::NoTransform)
+		if (m_inputContext->m_isLMBUp)
 		{
-			if (m_inputContext->m_isLMBUp)
+			if (m_gizmoMode == miGizmoMode::NoTransform)
 			{
 				_onSelect();
 			}
@@ -1342,7 +1347,7 @@ void miApplication::UpdateViewports() {
 			is_pan_move = false;
 			//yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
 			//m_cursors[(u32)yyCursorType::Arrow]->Activate();
-			ChangeCursorBehaviorMode(m_cursorBehaviorMode);
+			SetCursorBehaviorMode(m_cursorBehaviorMode);
 		}
 	}
 
@@ -1363,7 +1368,7 @@ void miApplication::UpdateViewports() {
 			yySetCursorPosition(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, m_window);
 
 		if (m_inputContext->m_isLMBUp || m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
-			this->ChangeCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+			this->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
 	}
 
 	if (m_isCursorMove && m_isViewportInFocus)
@@ -1734,56 +1739,6 @@ void miApplication::UpdateSceneAabb() {
 	if(m_rootObject)
 		_buildSceneAabb(m_rootObject);
 }
-void miApplication::UpdateSelectionAabb() {
-	m_gizmo->m_position.set(0.f);
-	switch (m_editMode)
-	{
-	case miEditMode::Vertex:
-		break;
-	case miEditMode::Edge:
-		break;
-	case miEditMode::Polygon:
-		break;
-	case miEditMode::Object: {
-		m_selectionAabb.reset();
-		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-		{
-			//v4f c;
-			//m_selectedObjects.m_data[i]->GetAABBTransformed()->center(c);
-			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
-			//m_gizmo->m_position += c;
-			//printf("center: %f %f %f\n", c.x, c.y, c.z);
-			m_gizmo->m_position += *m_selectedObjects.m_data[i]->GetGlobalPosition();
-		}
-		if (m_selectedObjects.m_size)
-		{
-			//m_gizmo->m_position *= v3f(1.f) / v3f((f32)m_selectedObjects.m_size);
-			if (m_gizmo->m_position.x != 0.f) m_gizmo->m_position.x /= (f32)m_selectedObjects.m_size;
-			if (m_gizmo->m_position.y != 0.f) m_gizmo->m_position.y /= (f32)m_selectedObjects.m_size;
-			if (m_gizmo->m_position.z != 0.f) m_gizmo->m_position.z /= (f32)m_selectedObjects.m_size;
-			//printf("m_gizmo->m_position: %f %f %f\n", m_gizmo->m_position.x, m_gizmo->m_position.y, m_gizmo->m_position.z);
-		}
-	}break;
-	default:
-		break;
-	}
-
-
-	m_selectionAabb.center(m_selectionAabb_center);
-	m_selectionAabb.extent(m_selectionAabb_extent);
-///	m_gizmo->m_position = m_selectionAabb_center;
-	
-	if (m_selectedObjects.m_size == 1)
-	{ 
-		m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
-	}
-
-	/*for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-	{
-		m_selectedObjects.m_data[i]->m_selectionAabbOffset = m_selectedObjects.m_data[i]->m_globalPosition - m_selectionAabb_center;
-	}*/
-//	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
-}
 
 void miApplication::OnImport_openDialog() {
 	yyStringA title;
@@ -1823,7 +1778,25 @@ void miApplication::ToggleEditMode(miEditMode m) {
 	SetEditMode(mode);
 }
 void miApplication::SetEditMode(miEditMode m) {
+	auto old = m_editMode;
 	m_editMode = m;
+	if ((old == miEditMode::Edge && m != miEditMode::Edge)
+		|| m == miEditMode::Edge)
+	{
+		// rebuild edge models
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			auto voc = obj->GetVisualObjectCount();
+			for (s32 o = 0; o < voc; ++o)
+			{
+				auto vo = obj->GetVisualObject(o);
+				if(vo->GetType() == miVisualObjectType::Edge)
+					vo->CreateNewGPUModels(0);
+			}
+		}
+	}
+
 	switch (m)
 	{
 	case miEditMode::Vertex:

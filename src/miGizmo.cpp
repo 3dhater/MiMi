@@ -1356,7 +1356,7 @@ void miGizmo::OnClick() {
 
 	//if (gm == miGizmoMode::MoveScreen || gm == miGizmoMode::ScaleScreen)
 	{
-		g_app->ChangeCursorBehaviorMode(miCursorBehaviorMode::HideCursor);
+		g_app->SetCursorBehaviorMode(miCursorBehaviorMode::HideCursor);
 		v4f cclip;
 		f32 _x = g_app->m_cursorLMBClickPosition.x;
 		f32 _y = g_app->m_cursorLMBClickPosition.y;

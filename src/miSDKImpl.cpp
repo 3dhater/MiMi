@@ -52,7 +52,7 @@ v3f miSDKImpl::GetCursorPosition3DFirstClick() {
 	return v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z);
 }
 void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
-	g_app->ChangeCursorBehaviorMode(m);
+	g_app->SetCursorBehaviorMode(m);
 	g_app->UpdateSceneAabb();
 }
 miCursorBehaviorMode miSDKImpl::GetCursorBehaviorModer() {

@@ -18,12 +18,12 @@ struct miSelectionFrustData {
 	v4f m_BackC;
 
 	// normal
-	v4f m_LN;
-	v4f m_TN;
-	v4f m_RN;
-	v4f m_BN;
-	v4f m_FrontN;
-	v4f m_BackN;
+	v3f m_LN;
+	v3f m_TN;
+	v3f m_RN;
+	v3f m_BN;
+	v3f m_FrontN;
+	v3f m_BackN;
 };
 
 /*

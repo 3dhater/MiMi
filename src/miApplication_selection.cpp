@@ -4,6 +4,62 @@
 
 extern miApplication * g_app;
 
+void miApplication::UpdateSelectionAabb() {
+	m_gizmo->m_position.set(0.f);
+	m_selectionAabb.reset();
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		auto mc = obj->GetMeshCount();
+		Mat4 M = obj->GetWorldMatrix()->getBasis();
+
+		switch (m_editMode)
+		{
+		case miEditMode::Vertex:
+		case miEditMode::Edge:
+		case miEditMode::Polygon:
+			for (s32 o = 0; o < mc; ++o)
+			{
+				auto m = obj->GetMesh(o);
+				auto current_vertex = m->m_first_vertex;
+				auto last_vertex = current_vertex->m_left;
+				while (true) {
+					if (current_vertex->m_flags & current_vertex->flag_isSelected)
+					{
+						m_selectionAabb.add(math::mul(current_vertex->m_position, M)
+							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+					}
+					if (current_vertex == last_vertex)
+						break;
+					current_vertex = current_vertex->m_right;
+				}
+			}
+			break;
+		case miEditMode::Object: {
+			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
+			m_gizmo->m_position += *m_selectedObjects.m_data[i]->GetGlobalPosition();
+			if (m_selectedObjects.m_size)
+			{
+				if (m_gizmo->m_position.x != 0.f) m_gizmo->m_position.x /= (f32)m_selectedObjects.m_size;
+				if (m_gizmo->m_position.y != 0.f) m_gizmo->m_position.y /= (f32)m_selectedObjects.m_size;
+				if (m_gizmo->m_position.z != 0.f) m_gizmo->m_position.z /= (f32)m_selectedObjects.m_size;
+			}
+	
+			if (m_selectedObjects.m_size == 1)
+			{
+				m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
+			}
+		}break;
+		default:
+			break;
+		}
+	}
+
+	m_selectionAabb.center(m_selectionAabb_center);
+	m_selectionAabb.extent(m_selectionAabb_extent);
+	//	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
+}
+
 void miApplication::_onSelect() {
 	if (m_isSelectByRectangle)
 	{

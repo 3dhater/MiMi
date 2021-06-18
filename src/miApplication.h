@@ -277,7 +277,7 @@ public:
 	void UpdateSceneAabb();
 	void UpdateSelectionAabb();
 
-	void ChangeCursorBehaviorMode(miCursorBehaviorMode bm);
+	void SetCursorBehaviorMode(miCursorBehaviorMode bm);
 
 	miImporter* m_onImport_importer;
 	void OnImport(miImporter* importer);

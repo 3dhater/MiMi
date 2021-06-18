@@ -40,7 +40,7 @@ void miSelectionFrustImpl::CreateWithAabb(const Aabb& aabb){
 	m_data.m_back[2].set(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z, 1.f);
 	m_data.m_back[3].set(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z, 1.f);
 
-	v4f e1, e2;
+	v3f e1, e2;
 
 	e1 = m_data.m_right[1] - m_data.m_right[0];
 	e2 = m_data.m_right[2] - m_data.m_right[0];
@@ -95,46 +95,46 @@ void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect,
 
 	m_data.m_top[0] = ray1.m_origin;
 	m_data.m_top[1] = ray2.m_origin;
-	m_data.m_top[2] = ray1.m_end;
-	m_data.m_top[3] = ray2.m_end;
+	m_data.m_top[2] = ray2.m_end;
+	m_data.m_top[3] = ray1.m_end;
 
 	m_data.m_right[0] = ray2.m_origin;
 	m_data.m_right[1] = ray4.m_origin;
-	m_data.m_right[2] = ray2.m_end;
-	m_data.m_right[3] = ray4.m_end;
+	m_data.m_right[2] = ray4.m_end;
+	m_data.m_right[3] = ray2.m_end;
 
 	m_data.m_bottom[0] = ray4.m_origin;
 	m_data.m_bottom[1] = ray3.m_origin;
-	m_data.m_bottom[2] = ray4.m_end;
-	m_data.m_bottom[3] = ray3.m_end;
+	m_data.m_bottom[2] = ray3.m_end;
+	m_data.m_bottom[3] = ray4.m_end;
 
 	m_data.m_left[0] = ray3.m_origin;
 	m_data.m_left[1] = ray1.m_origin;
-	m_data.m_left[2] = ray3.m_end;
-	m_data.m_left[3] = ray1.m_end;
+	m_data.m_left[2] = ray1.m_end;
+	m_data.m_left[3] = ray3.m_end;
 
-	v4f e1, e2;
+	v3f e1, e2;
 
-	e1 = m_data.m_right[1] - m_data.m_right[0];
-	e2 = m_data.m_right[2] - m_data.m_right[0];
+	e1 = m_data.m_right[1] - m_data.m_right[3];
+	e2 = m_data.m_right[2] - m_data.m_right[3];
 	e1.cross2(e2, m_data.m_RN);
 	m_data.m_RC = m_data.m_right[0] + m_data.m_right[1] + m_data.m_right[2] + m_data.m_right[3];
 	m_data.m_RC *= 0.25;
 
-	e1 = m_data.m_bottom[1] - m_data.m_bottom[0];
-	e2 = m_data.m_bottom[2] - m_data.m_bottom[0];
+	e1 = m_data.m_bottom[1] - m_data.m_bottom[3];
+	e2 = m_data.m_bottom[2] - m_data.m_bottom[3];
 	e1.cross2(e2, m_data.m_BN);
 	m_data.m_BC = m_data.m_bottom[0] + m_data.m_bottom[1] + m_data.m_bottom[2] + m_data.m_bottom[3];
 	m_data.m_BC *= 0.25;
 
-	e1 = m_data.m_top[1] - m_data.m_top[0];
-	e2 = m_data.m_top[2] - m_data.m_top[0];
+	e1 = m_data.m_top[1] - m_data.m_top[3];
+	e2 = m_data.m_top[2] - m_data.m_top[3];
 	e1.cross2(e2, m_data.m_TN);
 	m_data.m_TC = m_data.m_top[0] + m_data.m_top[1] + m_data.m_top[2] + m_data.m_top[3];
 	m_data.m_TC *= 0.25;
 
-	e1 = m_data.m_left[1] - m_data.m_left[0];
-	e2 = m_data.m_left[2] - m_data.m_left[0];
+	e1 = m_data.m_left[1] - m_data.m_left[3];
+	e2 = m_data.m_left[2] - m_data.m_left[3];
 	e1.cross2(e2, m_data.m_LN);
 	m_data.m_LC = m_data.m_left[0] + m_data.m_left[1] + m_data.m_left[2] + m_data.m_left[3];
 	m_data.m_LC *= 0.25;

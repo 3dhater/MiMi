@@ -306,35 +306,27 @@ void miEditableObject::_selectVerts_rectangle(miKeyboardModifier km, miSelection
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
 
-	static yyArraySimple<miVertex*> verts_in_frust;
-	verts_in_frust.clear();
-
+	bool need_update = false;
 	while (true) {
 		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-			verts_in_frust.push_back(current_vertex);
+		{
+			need_update = true;
+			if (km == miKeyboardModifier::Alt)
+			{
+				if (current_vertex->m_flags & miVertex::flag_isSelected)
+					current_vertex->m_flags ^= miVertex::flag_isSelected;
+			}
+			else
+				current_vertex->m_flags |= miVertex::flag_isSelected;
+		}
 
 		if (current_vertex == last_vertex)
 			break;
 		current_vertex = current_vertex->m_right;
 	}
 
-	//printf("Select verts %u\n", verts_in_frust.m_size);
-	if (verts_in_frust.m_size)
-	{
-		for (u32 i = 0; i < verts_in_frust.m_size; ++i)
-		{
-			auto v = verts_in_frust.m_data[i];
-			if (km == miKeyboardModifier::Alt)
-			{
-				if (v->m_flags & miVertex::flag_isSelected)
-					v->m_flags ^= miVertex::flag_isSelected;
-			}
-			else
-				v->m_flags |= miVertex::flag_isSelected;
-		}
-
+	if(need_update)
 		m_visualObject_vertex->CreateNewGPUModels(m_mesh);
-	}
 }
 
 void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
