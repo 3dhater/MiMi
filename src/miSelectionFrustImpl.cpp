@@ -113,6 +113,16 @@ void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect,
 	m_data.m_left[2] = ray1.m_end;
 	m_data.m_left[3] = ray3.m_end;
 
+	m_data.m_front[0] = ray1.m_origin;
+	m_data.m_front[1] = ray2.m_origin;
+	m_data.m_front[2] = ray3.m_origin;
+	m_data.m_front[3] = ray4.m_origin;
+
+	m_data.m_back[0] = ray1.m_end;
+	m_data.m_back[1] = ray2.m_end;
+	m_data.m_back[2] = ray3.m_end;
+	m_data.m_back[3] = ray4.m_end;
+
 	v3f e1, e2;
 
 	e1 = m_data.m_right[1] - m_data.m_right[3];
@@ -138,6 +148,18 @@ void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect,
 	e1.cross2(e2, m_data.m_LN);
 	m_data.m_LC = m_data.m_left[0] + m_data.m_left[1] + m_data.m_left[2] + m_data.m_left[3];
 	m_data.m_LC *= 0.25;
+
+	e1 = m_data.m_front[1] - m_data.m_front[0];
+	e2 = m_data.m_front[2] - m_data.m_front[0];
+	e1.cross2(e2, m_data.m_FrontN);
+	m_data.m_FrontC = m_data.m_front[0] + m_data.m_front[1] + m_data.m_front[2] + m_data.m_front[3];
+	m_data.m_FrontC *= 0.25;
+
+	e1 = m_data.m_back[1] - m_data.m_back[0];
+	e2 = m_data.m_back[2] - m_data.m_back[0];
+	e1.cross2(e2, m_data.m_BackN);
+	m_data.m_BackC = m_data.m_back[0] + m_data.m_back[1] + m_data.m_back[2] + m_data.m_back[3];
+	m_data.m_BackC *= 0.25;
 }
 
 bool miSelectionFrustImpl::PointInFrust(const v4f& v)const{

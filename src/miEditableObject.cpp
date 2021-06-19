@@ -242,6 +242,77 @@ void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) 
 	}
 }
 
+void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* sf) {
+	yyRay r;
+	r.m_origin = sf->m_data.m_BackC;
+	r.m_end = sf->m_data.m_FrontC;
+	r.update();
+	
+	if (!m_aabbTransformed.rayTest(r))
+		return;
+
+	Mat4 M = this->GetWorldMatrix()->getBasis();
+	auto position = this->GetGlobalPosition();
+
+	auto current_polygon = m_mesh->m_first_polygon;
+	auto last_edge = current_polygon->m_left;
+
+	static yyArraySimple<miPolygon*> polygons_in_frust;
+	polygons_in_frust.clear();
+
+	while (true) {
+
+		auto current_vertex = current_polygon->m_verts.m_head;
+		auto last_vertex = current_vertex->m_left;
+		while (true)
+		{
+			auto next_vertex = current_vertex->m_right;
+
+			miTriangle tri;
+			tri.v1 = math::mul(current_vertex->m_data->m_position, M)
+				+ *this->GetGlobalPosition();
+			tri.v2 = math::mul(next_vertex->m_data->m_position, M)
+				+ *this->GetGlobalPosition();
+			tri.v3 = math::mul(next_vertex->m_right->m_data->m_position, M)
+				+ *this->GetGlobalPosition();
+			tri.update();
+			f32 T, U, V, W;
+			T = U = V = W = 0.f;
+			if (tri.rayTest_MT(r, true, T, U, V, W))
+			{
+				polygons_in_frust.push_back(current_polygon);
+				break;
+			}
+
+			if (current_vertex == last_vertex)
+				break;
+			current_vertex = current_vertex->m_right;
+		}
+
+		if (current_polygon == last_edge)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+	if (polygons_in_frust.m_size)
+	{
+		/*static miEditableObject* o;
+		o = this;
+		struct _pred {
+			bool operator() (miEdge* a, miEdge* b) const {
+				auto camera = g_app->GetActiveCamera();
+
+				auto center = a->m_vertex1->m_position + b->m_vertex1->m_position;
+				center *= 0.5f;
+				center += *o->GetGlobalPosition();
+
+				return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
+			}
+		};
+		polygons_in_frust.sort_insertion(_pred());*/
+		//m_sdk->AddEdgeToSelection(polygons_in_frust.m_data[0], this);
+	}
+}
+
 void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
 	miSceneObject::SelectSingle(em, km, sf);
 	switch (em)
@@ -256,6 +327,7 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 		if (m_isSelected) _selectEdge(km, sf);
 		break;
 	case miEditMode::Polygon:
+		if (m_isSelected) _selectPolygon(km, sf);
 		break;
 	}
 }

@@ -16,6 +16,7 @@ class miEditableObject : public miSceneObject
 	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectEdge(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectPolygon(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectAllVerts();
 	void _selectAllEdges();

@@ -16,8 +16,6 @@ void miApplication::UpdateSelectionAabb() {
 		switch (m_editMode)
 		{
 		case miEditMode::Vertex:
-		case miEditMode::Edge:
-		case miEditMode::Polygon:
 			for (s32 o = 0; o < mc; ++o)
 			{
 				auto m = obj->GetMesh(o);
@@ -32,6 +30,54 @@ void miApplication::UpdateSelectionAabb() {
 					if (current_vertex == last_vertex)
 						break;
 					current_vertex = current_vertex->m_right;
+				}
+			}
+			break;
+		case miEditMode::Edge:
+			for (s32 o = 0; o < mc; ++o)
+			{
+				auto m = obj->GetMesh(o);
+				auto current_edge = m->m_first_edge;
+				auto last_edge = current_edge->m_left;
+				while (true) {
+					if (current_edge->m_flags & current_edge->flag_isSelected)
+					{
+						m_selectionAabb.add(math::mul(current_edge->m_vertex1->m_position, M)
+							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+						m_selectionAabb.add(math::mul(current_edge->m_vertex2->m_position, M)
+							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+					}
+					if (current_edge == last_edge)
+						break;
+					current_edge = current_edge->m_right;
+				}
+			}
+			break;
+		case miEditMode::Polygon:
+			for (s32 o = 0; o < mc; ++o)
+			{
+				auto m = obj->GetMesh(o);
+				auto current_polygon = m->m_first_polygon;
+				auto last_polygon = current_polygon->m_left;
+				while (true) {
+					if (current_polygon->m_flags & current_polygon->flag_isSelected)
+					{
+						auto current_vertex = current_polygon->m_verts.m_head;
+						auto last_vertex = current_vertex->m_left;
+						while (true)
+						{
+							m_selectionAabb.add(math::mul(current_vertex->m_data->m_position, M)
+								+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+
+							if (current_vertex == last_vertex)
+								break;
+							current_vertex = current_vertex->m_right;
+						}
+
+					}
+					if (current_polygon == last_polygon)
+						break;
+					current_polygon = current_polygon->m_right;
 				}
 			}
 			break;

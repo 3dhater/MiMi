@@ -977,7 +977,7 @@ void miApplication::_select_multiple() {
 }
 
 void miApplication::_select_single_call(miSceneObject* o) {
-	if(o->IsSelected())
+	if(o != m_rootObject && o->IsSelected())
 		o->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
 	
 	auto node = o->GetChildren()->m_head;
