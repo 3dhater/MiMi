@@ -226,10 +226,10 @@ void miApplication::_onSelect() {
 				{
 					m_sdk->m_edgesForSelect.m_data[0].m_first->m_flags |= miEdge::flag_isSelected;
 
-					if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon1)
+					/*if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon1)
 						m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon1->m_flags |= miPolygon::flag_isSelected;
 					if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon2)
-						m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon2->m_flags |= miPolygon::flag_isSelected;
+						m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon2->m_flags |= miPolygon::flag_isSelected;*/
 				}
 
 
@@ -242,8 +242,8 @@ void miApplication::_onSelect() {
 						auto vo = obj->GetVisualObject(i2);
 						if (vo->GetType() == miVisualObjectType::Edge)
 							vo->CreateNewGPUModels(0);
-						if (vo->GetType() == miVisualObjectType::Polygon)
-							vo->CreateNewGPUModels(0);
+						/*if (vo->GetType() == miVisualObjectType::Polygon)
+							vo->CreateNewGPUModels(0);*/
 					}
 				}
 				m_sdk->m_edgesForSelect.clear();
@@ -286,14 +286,14 @@ void miApplication::_onSelect() {
 							break;
 						cv = cv->m_right;
 					}*/
-					auto ce = p->m_edges.m_head;
+					/*auto ce = p->m_edges.m_head;
 					auto le = ce->m_left;
 					while (true) {
 						ce->m_data->m_flags |= miEdge::flag_isSelected;
 						if (ce == le)
 							break;
 						ce = ce->m_right;
-					}
+					}*/
 				}
 
 
@@ -308,8 +308,8 @@ void miApplication::_onSelect() {
 							vo->CreateNewGPUModels(0);
 						/*if (vo->GetType() == miVisualObjectType::Vertex)
 							vo->CreateNewGPUModels(0);*/
-						if (vo->GetType() == miVisualObjectType::Edge)
-							vo->CreateNewGPUModels(0);
+						/*if (vo->GetType() == miVisualObjectType::Edge)
+							vo->CreateNewGPUModels(0);*/
 					}
 				}
 				m_sdk->m_polygonsForSelect.clear();

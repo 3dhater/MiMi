@@ -21,10 +21,13 @@ class miEditableObject : public miSceneObject
 	void _selectPolygons_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectAllVerts();
 	void _selectAllEdges();
+	void _selectAllPolygons();
+	void _deselectAllPolygons();
 	void _deselectAllVerts();
 	void _deselectAllEdges();
 	void _selectInvertVerts();
 	void _selectInvertEdges();
+	void _selectInvertPolygons();
 
 	friend class miApplication;
 	friend class miSDKImpl;

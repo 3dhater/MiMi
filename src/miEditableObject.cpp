@@ -474,6 +474,17 @@ void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionF
 	}
 }
 
+void miEditableObject::_selectAllPolygons() {
+	auto current_polygon = m_mesh->m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true) {
+		current_polygon->m_flags |= current_polygon->flag_isSelected;
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_selectAllEdges() {
 	auto current_edge = m_mesh->m_first_edge;
 	auto last_edge = current_edge->m_left;
@@ -511,10 +522,23 @@ void miEditableObject::SelectAll(miEditMode em) {
 		if (m_isSelected) _selectAllEdges();
 		break;
 	case miEditMode::Polygon:
+		if (m_isSelected) _selectAllPolygons();
 		break;
 	}
 }
 
+void miEditableObject::_deselectAllPolygons() {
+	auto current_polygon = m_mesh->m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true) {
+		if (current_polygon->m_flags & current_polygon->flag_isSelected)
+			current_polygon->m_flags ^= current_polygon->flag_isSelected;
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_deselectAllEdges() {
 	auto current_edge = m_mesh->m_first_edge;
 	auto last_edge = current_edge->m_left;
@@ -554,10 +578,25 @@ void miEditableObject::DeselectAll(miEditMode em) {
 		if (m_isSelected) _deselectAllEdges();
 		break;
 	case miEditMode::Polygon:
+		if (m_isSelected) _deselectAllPolygons();
 		break;
 	}
 }
 
+void miEditableObject::_selectInvertPolygons() {
+	auto current_polygon = m_mesh->m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true) {
+		if (current_polygon->m_flags & current_polygon->flag_isSelected)
+			current_polygon->m_flags ^= current_polygon->flag_isSelected;
+		else
+			current_polygon->m_flags |= current_polygon->flag_isSelected;
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+}
 void miEditableObject::_selectInvertEdges() {
 	auto current_edge = m_mesh->m_first_edge;
 	auto last_edge = current_edge->m_left;
@@ -602,6 +641,7 @@ void miEditableObject::InvertSelection(miEditMode em) {
 		if (m_isSelected) _selectInvertEdges();
 		break;
 	case miEditMode::Polygon:
+		if (m_isSelected) _selectInvertPolygons();
 		break;
 	}
 }
