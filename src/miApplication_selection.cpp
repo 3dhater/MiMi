@@ -132,15 +132,15 @@ void miApplication::_onSelect() {
 				{
 					struct _pred {
 						bool operator() (
-							const std::pair<miVertex*, miSceneObject*>& a,
-							const std::pair<miVertex*, miSceneObject*>& b
+							const miPair<miVertex*, miSceneObject*>& a,
+							const miPair<miVertex*, miSceneObject*>& b
 							)
 							const
 						{
 							auto camera = g_app->GetActiveCamera();
 							return (
-								a.first->m_position + *a.second->GetGlobalPosition()).distance(camera->m_positionCamera) >
-								(b.first->m_position + *b.second->GetGlobalPosition()).distance(camera->m_positionCamera);
+								a.m_first->m_position + *a.m_second->GetGlobalPosition()).distance(camera->m_positionCamera) >
+								(b.m_first->m_position + *b.m_second->GetGlobalPosition()).distance(camera->m_positionCamera);
 						}
 					};
 					m_sdk->m_vertsForSelect.sort_insertion(_pred());
@@ -148,12 +148,30 @@ void miApplication::_onSelect() {
 
 				if (m_keyboardModifier == miKeyboardModifier::Alt)
 				{
-					if (m_sdk->m_vertsForSelect.m_data[0].first->m_flags & miVertex::flag_isSelected)
-						m_sdk->m_vertsForSelect.m_data[0].first->m_flags ^= miVertex::flag_isSelected;
+					if (m_sdk->m_vertsForSelect.m_data[0].m_first->m_flags & miVertex::flag_isSelected)
+						m_sdk->m_vertsForSelect.m_data[0].m_first->m_flags ^= miVertex::flag_isSelected;
 				}
 				else
 				{
-					m_sdk->m_vertsForSelect.m_data[0].first->m_flags |= miVertex::flag_isSelected;
+					m_sdk->m_vertsForSelect.m_data[0].m_first->m_flags |= miVertex::flag_isSelected;
+
+					auto v = m_sdk->m_vertsForSelect.m_data[0].m_first;
+					/*auto cp = v->m_polygons.m_head;
+					auto lp = cp->m_left;
+					while (true){
+						cp->m_data->m_flags |= miPolygon::flag_isSelected;
+						if (cp == lp)
+							break;
+						cp = cp->m_right;
+					}*/
+					/*auto ce = v->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true) {
+						ce->m_data->m_flags |= miEdge::flag_isSelected;
+						if (ce == le)
+							break;
+						ce = ce->m_right;
+					}*/
 				}
 
 
@@ -165,9 +183,11 @@ void miApplication::_onSelect() {
 					{
 						auto vo = obj->GetVisualObject(i2);
 						if (vo->GetType() == miVisualObjectType::Vertex)
-						{
 							vo->CreateNewGPUModels(0);
-						}
+						/*if (vo->GetType() == miVisualObjectType::Polygon)
+							vo->CreateNewGPUModels(0);*/
+						/*if (vo->GetType() == miVisualObjectType::Edge)
+							vo->CreateNewGPUModels(0);*/
 					}
 				}
 				m_sdk->m_vertsForSelect.clear();
@@ -181,15 +201,15 @@ void miApplication::_onSelect() {
 				{
 					struct _pred {
 						bool operator() (
-							const std::pair<miEdge*, miSceneObject*>& a,
-							const std::pair<miEdge*, miSceneObject*>& b
+							const miPair<miEdge*, miSceneObject*>& a,
+							const miPair<miEdge*, miSceneObject*>& b
 							)
 							const
 						{
 							auto camera = g_app->GetActiveCamera();
-							auto center = a.first->m_vertex1->m_position + b.first->m_vertex1->m_position;
+							auto center = a.m_first->m_vertex1->m_position + b.m_first->m_vertex1->m_position;
 							center *= 0.5f;
-							center += *a.second->GetGlobalPosition();
+							center += *a.m_second->GetGlobalPosition();
 
 							return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
 						}
@@ -199,12 +219,17 @@ void miApplication::_onSelect() {
 
 				if (m_keyboardModifier == miKeyboardModifier::Alt)
 				{
-					if (m_sdk->m_edgesForSelect.m_data[0].first->m_flags & miEdge::flag_isSelected)
-						m_sdk->m_edgesForSelect.m_data[0].first->m_flags ^= miEdge::flag_isSelected;
+					if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_flags & miEdge::flag_isSelected)
+						m_sdk->m_edgesForSelect.m_data[0].m_first->m_flags ^= miEdge::flag_isSelected;
 				}
 				else
 				{
-					m_sdk->m_edgesForSelect.m_data[0].first->m_flags |= miEdge::flag_isSelected;
+					m_sdk->m_edgesForSelect.m_data[0].m_first->m_flags |= miEdge::flag_isSelected;
+
+					if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon1)
+						m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon1->m_flags |= miPolygon::flag_isSelected;
+					if (m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon2)
+						m_sdk->m_edgesForSelect.m_data[0].m_first->m_polygon2->m_flags |= miPolygon::flag_isSelected;
 				}
 
 
@@ -216,12 +241,78 @@ void miApplication::_onSelect() {
 					{
 						auto vo = obj->GetVisualObject(i2);
 						if (vo->GetType() == miVisualObjectType::Edge)
-						{
 							vo->CreateNewGPUModels(0);
-						}
+						if (vo->GetType() == miVisualObjectType::Polygon)
+							vo->CreateNewGPUModels(0);
 					}
 				}
 				m_sdk->m_edgesForSelect.clear();
+			}
+		}
+		else if (m_editMode == miEditMode::Polygon)
+		{
+			if (m_sdk->m_polygonsForSelect.m_size)
+			{
+				if (m_sdk->m_polygonsForSelect.m_size > 1)
+				{
+					struct _pred {
+						bool operator() (
+							const miPair<miPair<miPolygon*, f32>, miSceneObject*>& a,
+							const miPair<miPair<miPolygon*, f32>, miSceneObject*>& b
+							)
+							const
+						{
+							return a.m_first.m_second < b.m_first.m_second;
+						}
+					};
+					m_sdk->m_polygonsForSelect.sort_insertion(_pred());
+				}
+
+				if (m_keyboardModifier == miKeyboardModifier::Alt)
+				{
+					if (m_sdk->m_polygonsForSelect.m_data[0].m_first.m_first->m_flags & miPolygon::flag_isSelected)
+						m_sdk->m_polygonsForSelect.m_data[0].m_first.m_first->m_flags ^= miPolygon::flag_isSelected;
+				}
+				else
+				{
+					m_sdk->m_polygonsForSelect.m_data[0].m_first.m_first->m_flags |= miPolygon::flag_isSelected;
+
+					auto p = m_sdk->m_polygonsForSelect.m_data[0].m_first.m_first;
+					/*auto cv = p->m_verts.m_head;
+					auto lv = cv->m_left;
+					while (true) {
+						cv->m_data->m_flags |= miVertex::flag_isSelected;
+						if (cv == lv)
+							break;
+						cv = cv->m_right;
+					}*/
+					auto ce = p->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true) {
+						ce->m_data->m_flags |= miEdge::flag_isSelected;
+						if (ce == le)
+							break;
+						ce = ce->m_right;
+					}
+				}
+
+
+				for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+				{
+					auto obj = m_selectedObjects.m_data[i];
+					auto voc = obj->GetVisualObjectCount();
+					for (s32 i2 = 0; i2 < voc; ++i2)
+					{
+						auto vo = obj->GetVisualObject(i2);
+						if (vo->GetType() == miVisualObjectType::Polygon)
+							vo->CreateNewGPUModels(0);
+						/*if (vo->GetType() == miVisualObjectType::Vertex)
+							vo->CreateNewGPUModels(0);*/
+						if (vo->GetType() == miVisualObjectType::Edge)
+							vo->CreateNewGPUModels(0);
+					}
+				}
+				m_sdk->m_polygonsForSelect.clear();
 			}
 		}
 	}

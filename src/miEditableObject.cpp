@@ -255,32 +255,35 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 	auto position = this->GetGlobalPosition();
 
 	auto current_polygon = m_mesh->m_first_polygon;
-	auto last_edge = current_polygon->m_left;
+	auto last_polygon = current_polygon->m_left;
 
-	static yyArraySimple<miPolygon*> polygons_in_frust;
+	// m_second - distance T
+	static yyArraySimple<miPair<miPolygon*,f32>> polygons_in_frust;
 	polygons_in_frust.clear();
 
 	while (true) {
 
 		auto current_vertex = current_polygon->m_verts.m_head;
 		auto last_vertex = current_vertex->m_left;
+		auto first_vertex = current_vertex;
 		while (true)
 		{
 			auto next_vertex = current_vertex->m_right;
 
 			miTriangle tri;
-			tri.v1 = math::mul(current_vertex->m_data->m_position, M)
+			tri.v1 = math::mul(first_vertex->m_data->m_position, M)
 				+ *this->GetGlobalPosition();
 			tri.v2 = math::mul(next_vertex->m_data->m_position, M)
 				+ *this->GetGlobalPosition();
 			tri.v3 = math::mul(next_vertex->m_right->m_data->m_position, M)
 				+ *this->GetGlobalPosition();
 			tri.update();
+			
 			f32 T, U, V, W;
 			T = U = V = W = 0.f;
 			if (tri.rayTest_MT(r, true, T, U, V, W))
 			{
-				polygons_in_frust.push_back(current_polygon);
+				polygons_in_frust.push_back(miPair<miPolygon*, f32>(current_polygon,T));
 				break;
 			}
 
@@ -289,27 +292,24 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 			current_vertex = current_vertex->m_right;
 		}
 
-		if (current_polygon == last_edge)
+		if (current_polygon == last_polygon)
 			break;
 		current_polygon = current_polygon->m_right;
 	}
 	if (polygons_in_frust.m_size)
 	{
-		/*static miEditableObject* o;
+		static miEditableObject* o;
 		o = this;
 		struct _pred {
-			bool operator() (miEdge* a, miEdge* b) const {
-				auto camera = g_app->GetActiveCamera();
-
-				auto center = a->m_vertex1->m_position + b->m_vertex1->m_position;
-				center *= 0.5f;
-				center += *o->GetGlobalPosition();
-
-				return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
+			bool operator() (
+				const miPair<miPolygon*, f32>& a, 
+				const miPair<miPolygon*, f32>& b) const 
+			{
+				return a.m_second < b.m_second;
 			}
 		};
-		polygons_in_frust.sort_insertion(_pred());*/
-		//m_sdk->AddEdgeToSelection(polygons_in_frust.m_data[0], this);
+		polygons_in_frust.sort_insertion(_pred());
+		m_sdk->AddPolygonToSelection(polygons_in_frust.m_data[0], this);
 	}
 }
 
@@ -330,6 +330,60 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 		if (m_isSelected) _selectPolygon(km, sf);
 		break;
 	}
+}
+
+void miEditableObject::_selectPolygons_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
+	Mat4 M = this->GetWorldMatrix()->getBasis();
+	auto position = this->GetGlobalPosition();
+
+	auto current_edge = m_mesh->m_first_edge;
+	auto last_edge = current_edge->m_left;
+
+	bool needUpdate = false;
+	if (km == miKeyboardModifier::Alt)
+	{
+		while (true) {
+			if (sf->LineInFrust(
+				math::mul(current_edge->m_vertex1->m_position, M) + *position,
+				math::mul(current_edge->m_vertex2->m_position, M) + *position))
+			{
+				needUpdate = true;
+				if (current_edge->m_polygon1)
+				{
+					if (current_edge->m_polygon1->m_flags & miPolygon::flag_isSelected)
+						current_edge->m_polygon1->m_flags ^= miPolygon::flag_isSelected;
+				}
+				if (current_edge->m_polygon2)
+				{
+					if (current_edge->m_polygon2->m_flags & miPolygon::flag_isSelected)
+						current_edge->m_polygon2->m_flags ^= miPolygon::flag_isSelected;
+				}
+			}
+			if (current_edge == last_edge)
+				break;
+			current_edge = current_edge->m_right;
+		}
+	}
+	else
+	{
+		while (true) {
+			if (sf->LineInFrust(
+				math::mul(current_edge->m_vertex1->m_position, M) + *position,
+				math::mul(current_edge->m_vertex2->m_position, M) + *position))
+			{
+				needUpdate = true;
+				if (current_edge->m_polygon1)
+					current_edge->m_polygon1->m_flags |= miPolygon::flag_isSelected;
+				if (current_edge->m_polygon2)
+					current_edge->m_polygon2->m_flags |= miPolygon::flag_isSelected;
+			}
+			if (current_edge == last_edge)
+				break;
+			current_edge = current_edge->m_right;
+		}
+	}
+	if(needUpdate)
+		m_visualObject_polygon->CreateNewGPUModels(m_mesh);
 }
 
 void miEditableObject::_selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
@@ -415,6 +469,7 @@ void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionF
 		if (m_isSelected) _selectEdges_rectangle(km, sf);
 		break;
 	case miEditMode::Polygon:
+		if (m_isSelected) _selectPolygons_rectangle(km, sf);
 		break;
 	}
 }

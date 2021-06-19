@@ -473,9 +473,13 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 }
 
 void miSDKImpl::AddVertexToSelection(miVertex* vertex, miSceneObject* o) {
-	m_vertsForSelect.push_back(std::pair<miVertex*, miSceneObject*>(vertex, o));
+	m_vertsForSelect.push_back(miPair<miVertex*, miSceneObject*>(vertex, o));
 }
 
 void miSDKImpl::AddEdgeToSelection(miEdge* e, miSceneObject* o) {
-	m_edgesForSelect.push_back(std::pair<miEdge*, miSceneObject*>(e, o));
+	m_edgesForSelect.push_back(miPair<miEdge*, miSceneObject*>(e, o));
+}
+
+void miSDKImpl::AddPolygonToSelection(const miPair<miPolygon*,f32>& p, miSceneObject* o) {
+	m_polygonsForSelect.push_back(miPair<miPair<miPolygon*, f32>, miSceneObject*>(p, o));
 }

@@ -521,12 +521,14 @@ struct miMeshBuilder
 			_delete_edges();
 		if (!m_mesh.m_first_polygon)
 			return;
+
 		auto current_polygon = m_mesh.m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
+
 		while (true) {
 			auto next_polygon = current_polygon->m_right;
 			
-			auto current_vertex = next_polygon->m_verts.m_head;
+			auto current_vertex = current_polygon->m_verts.m_head;
 			auto next_vertex = current_vertex->m_right;
 			auto last_vertex = current_vertex->m_left;
 			while (true) {

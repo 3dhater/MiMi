@@ -36,6 +36,15 @@
 #include "umHalf.h"
 #include "yumi.h"
 
+template<typename T1, typename T2>
+struct miPair
+{
+	miPair() {}
+	miPair(const T1& _t1, const T2& _t2):m_first(_t1), m_second(_t2) {}
+	T1 m_first;
+	T2 m_second;
+};
+
 enum class miViewportDrawMode : u32 {
 	Material,
 	Wireframe,
@@ -273,6 +282,7 @@ public:
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) = 0;
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) = 0;
+	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) = 0;
 };
 
 #endif
