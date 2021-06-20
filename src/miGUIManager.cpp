@@ -12,13 +12,14 @@ v4f g_guiWindowBackgroundPBRect;
 void gui_group_commonParams_range_Position(yyGUIRangeSlider* slider) {
 	if (g_app->m_selectedObjects.m_size > 1)
 	{
-		auto p = g_guiManager->m_commonParams_range_Position_many - g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
+		auto p = g_guiManager->m_commonParams_range_Position_many - 
+			g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
+
 		for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
 		{
 			auto pos = g_app->m_selectedObjects.m_data[i]->GetLocalPosition();
 			*pos += p;
 		}
-
 		g_app->m_gizmo->m_position = g_guiManager->m_commonParams_range_Position_many;
 	}
 	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
@@ -910,6 +911,7 @@ void miGUIManager::SetCommonParamsRangePosition() {
 	else
 	{
 		m_commonParams_range_Position_many = g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
+		printf("CLICK: %f %f %f\n", m_commonParams_range_Position_many.x, m_commonParams_range_Position_many.y, m_commonParams_range_Position_many.z);
 		m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_commonParams_range_Position_many.x;
 		m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_commonParams_range_Position_many.y;
 		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_commonParams_range_Position_many.z;

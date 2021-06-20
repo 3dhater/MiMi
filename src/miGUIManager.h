@@ -114,6 +114,7 @@ public:
 	// call this when select/deselect object
 	void SetCommonParamsRangePosition();
 	v3f m_commonParams_range_Position_many;
+	v3f m_commonParams_range_Position_many_onClick;
 
 };
 

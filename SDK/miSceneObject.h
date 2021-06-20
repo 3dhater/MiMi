@@ -41,11 +41,6 @@ protected:
 	float m_cursorIntersectionPointDistance;
 	v4f m_cursorIntersectionPoint;
 
-	// will be set when user select object
-	// it will be used in transformations
-	//v4f m_selectionAabbOffset;
-	v3f m_localPositionOnGizmoClick; // 
-	
 	u32 m_flags;
 
 	friend class miApplication;
@@ -289,6 +284,11 @@ public:
 		}
 		return false;
 	}
+
+	// will be set when user select object
+	// it will be used in transformations
+	//v4f m_selectionAabbOffset;
+	v3f m_localPositionOnGizmoClick; // 
 };
 
 #endif

@@ -1725,6 +1725,7 @@ void miApplication::DeleteSelected() {
 			miFree(m_selectedObjects.m_data[i]);
 		}
 		m_selectedObjects.clear();
+		this->_updateObjectsOnSceneArray();
 		DeselectAll();
 		break;
 	}

@@ -138,7 +138,7 @@ void miApplication::UpdateSelectionAabb() {
 					if (current_vertex->m_flags & current_vertex->flag_isSelected)
 					{
 						m_selectionAabb.add(math::mul(current_vertex->m_position, M)
-							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+							+ *obj->GetGlobalPosition());
 					}
 					if (current_vertex == last_vertex)
 						break;
@@ -156,9 +156,9 @@ void miApplication::UpdateSelectionAabb() {
 					if (current_edge->m_flags & current_edge->flag_isSelected)
 					{
 						m_selectionAabb.add(math::mul(current_edge->m_vertex1->m_position, M)
-							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+							+ *obj->GetGlobalPosition());
 						m_selectionAabb.add(math::mul(current_edge->m_vertex2->m_position, M)
-							+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+							+ *obj->GetGlobalPosition());
 					}
 					if (current_edge == last_edge)
 						break;
@@ -180,7 +180,7 @@ void miApplication::UpdateSelectionAabb() {
 						while (true)
 						{
 							m_selectionAabb.add(math::mul(current_vertex->m_data->m_position, M)
-								+ *m_selectedObjects.m_data[i]->GetGlobalPosition());
+								+ *obj->GetGlobalPosition());
 
 							if (current_vertex == last_vertex)
 								break;
@@ -195,24 +195,28 @@ void miApplication::UpdateSelectionAabb() {
 			}
 			break;
 		case miEditMode::Object: {
-			m_selectionAabb.add(*m_selectedObjects.m_data[i]->GetAABBTransformed());
-			m_gizmo->m_position += *m_selectedObjects.m_data[i]->GetGlobalPosition();
-			if (m_selectedObjects.m_size)
-			{
-				if (m_gizmo->m_position.x != 0.f) m_gizmo->m_position.x /= (f32)m_selectedObjects.m_size;
-				if (m_gizmo->m_position.y != 0.f) m_gizmo->m_position.y /= (f32)m_selectedObjects.m_size;
-				if (m_gizmo->m_position.z != 0.f) m_gizmo->m_position.z /= (f32)m_selectedObjects.m_size;
-			}
-	
-			if (m_selectedObjects.m_size == 1)
-			{
-				m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
-			}
+			m_selectionAabb.add(*obj->GetAABBTransformed());
+			m_gizmo->m_position += *obj->GetGlobalPosition();
+			
+			
 		}break;
 		default:
 			break;
 		}
 	}
+
+	if(m_editMode == miEditMode::Object)
+	{
+		if (m_selectedObjects.m_size)
+		{
+			if (m_gizmo->m_position.x != 0.f) m_gizmo->m_position.x /= (f32)m_selectedObjects.m_size;
+			if (m_gizmo->m_position.y != 0.f) m_gizmo->m_position.y /= (f32)m_selectedObjects.m_size;
+			if (m_gizmo->m_position.z != 0.f) m_gizmo->m_position.z /= (f32)m_selectedObjects.m_size;
+		}
+	}
+
+	if (m_selectedObjects.m_size == 1)
+		m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
 
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);
