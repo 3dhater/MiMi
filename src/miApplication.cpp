@@ -604,6 +604,8 @@ vidOk:
 	m_gpu->UseVSync(true);
 	yySetDefaultTexture(yyGetTextureFromCache("../res/gui/white.dds"));
 
+	m_transparentTexture = yyGetTextureFromCache("../res/gui/tr.dds");
+
 	m_color_viewportBorder = ColorYellow;
 
 	m_color_windowClearColor.set(0.41f);
@@ -1571,6 +1573,34 @@ void miApplication::OnImport(miImporter* importer) {
 		OnImport_openDialog();
 	}
 }
+
+void miApplication::_rebuildEdgeModels() {
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+	{
+		auto obj = m_objectsOnScene.m_data[i];
+		auto voc = obj->GetVisualObjectCount();
+		for (s32 o = 0; o < voc; ++o)
+		{
+			auto vo = obj->GetVisualObject(o);
+			if (vo->GetType() == miVisualObjectType::Edge)
+				vo->CreateNewGPUModels(0);
+		}
+	}
+}
+void miApplication::_rebuildPolygonModels() {
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+	{
+		auto obj = m_objectsOnScene.m_data[i];
+		auto voc = obj->GetVisualObjectCount();
+		for (s32 o = 0; o < voc; ++o)
+		{
+			auto vo = obj->GetVisualObject(o);
+			if (vo->GetType() == miVisualObjectType::Polygon)
+				vo->CreateNewGPUModels(0);
+		}
+	}
+}
+
 void miApplication::ToggleEditMode(miEditMode m) {
 	miEditMode mode = miEditMode::Object;
 	if (m_editMode != m)
@@ -1579,25 +1609,11 @@ void miApplication::ToggleEditMode(miEditMode m) {
 	}
 	SetEditMode(mode);
 }
+
 void miApplication::SetEditMode(miEditMode m) {
-	auto old = m_editMode;
 	m_editMode = m;
-	if ((old == miEditMode::Edge && m != miEditMode::Edge)
-		|| m == miEditMode::Edge)
-	{
-		// rebuild edge models
-		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-		{
-			auto obj = m_selectedObjects.m_data[i];
-			auto voc = obj->GetVisualObjectCount();
-			for (s32 o = 0; o < voc; ++o)
-			{
-				auto vo = obj->GetVisualObject(o);
-				if(vo->GetType() == miVisualObjectType::Edge)
-					vo->CreateNewGPUModels(0);
-			}
-		}
-	}
+	_rebuildEdgeModels();
+	_rebuildPolygonModels();
 
 	switch (m)
 	{

@@ -118,6 +118,8 @@ class miApplication
 	yyMaterial m_gridModelMaterial;
 	void _initGrid();
 
+	yyResource* m_transparentTexture;
+
 
 	yyColor m_color_windowClearColor;
 	yyColor m_color_viewportColor;
@@ -204,6 +206,9 @@ class miApplication
 	// call it when acreate/import/duplicate/delete...other_operations object
 	void _updateObjectsOnSceneArray(miSceneObject*);
 	void _updateObjectsOnSceneArray();
+
+	void _rebuildEdgeModels();
+	void _rebuildPolygonModels();
 
 public:
 	miApplication();

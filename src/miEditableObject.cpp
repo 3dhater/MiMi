@@ -26,17 +26,19 @@ void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
 	if (dm == miViewportDrawMode::Material
 		|| dm == miViewportDrawMode::MaterialWireframe)
 	{
+
 		if (m_visualObject_polygon) m_visualObject_polygon->Draw();
 	}
 
-	if (dm == miViewportDrawMode::Wireframe
-		|| dm == miViewportDrawMode::MaterialWireframe)
+	if (em == miEditMode::Polygon)
 	{
-		if (m_visualObject_edge) m_visualObject_edge->Draw();
+		if (m_visualObject_polygon && m_isSelected) m_visualObject_polygon->Draw();
 	}
 
-	if (dm == miViewportDrawMode::Wireframe
-		|| em == miEditMode::Edge)
+	if ((dm == miViewportDrawMode::Wireframe || dm == miViewportDrawMode::MaterialWireframe)
+		|| (m_isSelected && em == miEditMode::Edge)
+		|| (m_isSelected && em == miEditMode::Polygon)
+		)
 	{
 		if (m_visualObject_edge) m_visualObject_edge->Draw();
 	}

@@ -197,8 +197,6 @@ void miApplication::UpdateSelectionAabb() {
 		case miEditMode::Object: {
 			m_selectionAabb.add(*obj->GetAABBTransformed());
 			m_gizmo->m_position += *obj->GetGlobalPosition();
-			
-			
 		}break;
 		default:
 			break;

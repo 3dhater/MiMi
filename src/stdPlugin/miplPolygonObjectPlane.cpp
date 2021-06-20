@@ -440,14 +440,10 @@ void miplPolygonObjectPlane::OnDraw(miViewportDrawMode dm, miEditMode em, float 
 		if (m_visualObject_polygon) m_visualObject_polygon->Draw();
 	}
 
-	if (dm == miViewportDrawMode::Wireframe
-		|| dm == miViewportDrawMode::MaterialWireframe)
-	{
-		if (m_visualObject_edge) m_visualObject_edge->Draw();
-	}
-
-	if (dm == miViewportDrawMode::Wireframe
-		|| em == miEditMode::Edge)
+	if ((dm == miViewportDrawMode::Wireframe || dm == miViewportDrawMode::MaterialWireframe)
+		|| (m_isSelected && em == miEditMode::Edge)
+		|| (m_isSelected && em == miEditMode::Polygon)
+		)
 	{
 		if (m_visualObject_edge) m_visualObject_edge->Draw();
 	}

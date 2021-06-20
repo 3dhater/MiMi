@@ -238,7 +238,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 	auto last_polygon = current_polygon->m_left;
 	while (true) {
 
-		v4f color(0.f,0.f,0.f,0.0f);
+		v4f color(0.f, 0.f, 0.f, 0.0f);
 		if (g_app->m_editMode == miEditMode::Polygon)
 		{
 			if (current_polygon->m_flags & miPolygon::flag_isSelected)
@@ -580,9 +580,25 @@ void miVisualObjectImpl::Draw() {
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
 			g_app->m_gpu->SetTexture(0, m_texture);
+			
+			if (g_app->m_currentViewportDraw->m_drawMode == miViewportDrawMode::Wireframe)
+			{
+				g_app->m_gpu->SetTexture(0, g_app->m_transparentTexture);
+			}
+
+			auto old_cullBF = default_polygon_material.m_cullBackFace;
 
 			default_polygon_material.m_cullBackFace = true;
+			
+			if (g_app->m_editMode == miEditMode::Polygon
+				&& g_app->m_currentViewportDraw->m_drawMode == miViewportDrawMode::Wireframe)
+			{
+				default_polygon_material.m_cullBackFace = false;
+			}
+
 			yySetMaterial(&default_polygon_material);
+
+			default_polygon_material.m_cullBackFace = old_cullBF;
 
 			g_app->m_gpu->Draw();
 		}
