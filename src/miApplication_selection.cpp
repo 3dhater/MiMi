@@ -7,68 +7,34 @@
 
 extern miApplication * g_app;
 
-void miApplication::_deselect_all(miSceneObject* o) {
-	if (o != m_rootObject)
-		o->DeselectAll(m_editMode);
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			_deselect_all(node->m_data);
-			if (node == last)
-				break;
-			node = node->m_right;
-		}
-	}
-}
-
-void miApplication::_select_all(miSceneObject* o) {
-	if (o != m_rootObject)
-		o->SelectAll(m_editMode);
-
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			_select_all(node->m_data);
-			if (node == last)
-				break;
-			node = node->m_right;
-		}
-	}
-}
-
-void miApplication::_invert_selection(miSceneObject* o) {
-	if (o != m_rootObject)
-		o->InvertSelection(m_editMode);
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			_invert_selection(node->m_data);
-			if (node == last)
-				break;
-			node = node->m_right;
-		}
-	}
-}
-
 void miApplication::DeselectAll() {
-	_deselect_all(m_rootObject);
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+	{
+		auto o = m_objectsOnScene.m_data[i];
+		o->DeselectAll(m_editMode);
+	}
 	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::SelectAll() {
-	_select_all(m_rootObject);
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+	{
+		auto o = m_objectsOnScene.m_data[i];
+		o->SelectAll(m_editMode);
+	}
 	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::InvertSelection() {
-	_invert_selection(m_rootObject);
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+	{
+		auto o = m_objectsOnScene.m_data[i];
+		o->InvertSelection(m_editMode);
+	}
 	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
@@ -83,24 +49,6 @@ void miApplication::_select_multiple() {
 		m_activeViewportLayout->m_activeViewport->m_visibleObjects.m_data[i]->Select(m_editMode, m_keyboardModifier, m_selectionFrust);
 	}
 	UpdateSelectedObjectsArray();
-	/*UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();*/
-}
-
-void miApplication::_select_single_call(miSceneObject* o) {
-	if (o != m_rootObject && o->IsSelected())
-		o->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
-
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			_select_single_call(node->m_data);
-			if (node == last)
-				break;
-			node = node->m_right;
-		}
-	}
 }
 
 void miApplication::_select_single() {
@@ -112,7 +60,12 @@ void miApplication::_select_single() {
 	case miEditMode::Vertex:
 	case miEditMode::Edge:
 	case miEditMode::Polygon:
-		_select_single_call(m_rootObject);
+		for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+		{
+			auto o = m_objectsOnScene.m_data[i];
+			if(o->IsSelected())
+				o->SelectSingle(m_editMode, m_keyboardModifier, m_selectionFrust);
+		}
 		break;
 	case miEditMode::Object:
 	default:
@@ -123,8 +76,6 @@ void miApplication::_select_single() {
 		}
 		break;
 	}
-	/*UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();*/
 }
 
 void miApplication::_update_selected_objects_array(miSceneObject* o) {
@@ -149,29 +100,21 @@ void miApplication::UpdateSelectedObjectsArray() {
 	m_GUIManager->m_textInput_rename->DeleteAll();
 
 	if (m_currentPluginGUI)
-	{
 		m_currentPluginGUI->Show(false);
-	}
 
 	if (m_selectedObjects.m_size == 1)
 	{
 		m_currentPluginGUI = (miPluginGUIImpl*)m_selectedObjects.m_data[0]->m_gui;
 
 		if (m_currentPluginGUI)
-		{
 			m_currentPluginGUI->OnSelectObject(m_selectedObjects.m_data[0]);
-		}
 		if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
-		{
 			m_currentPluginGUI->Show(true);
-		}
 
 		m_GUIManager->m_textInput_rename->SetText(L"%s", m_selectedObjects.m_data[0]->m_name.data());
 	}
 	else if (m_selectedObjects.m_size > 1)
-	{
 		m_GUIManager->m_textInput_rename->SetText(L"Many objects");
-	}
 }
 
 void miApplication::UpdateSelectionAabb() {

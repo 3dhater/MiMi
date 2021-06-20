@@ -81,47 +81,47 @@ void miSelectionFrustImpl::CreateWithAabb(const Aabb& aabb){
 
 void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect, const Mat4& VP_invert){
 	// get 4 rays from screen
-	yyRay ray1, ray2, ray3, ray4;
+	
 
-	g_app->m_sdk->GetRayFromScreen(&ray1, v2f(frame.x, frame.y), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray2, v2f(frame.z, frame.y), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray3, v2f(frame.x, frame.w), vp_rect, VP_invert);
-	g_app->m_sdk->GetRayFromScreen(&ray4, v2f(frame.z, frame.w), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&m_data.m_ray1, v2f(frame.x, frame.y), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&m_data.m_ray2, v2f(frame.z, frame.y), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&m_data.m_ray3, v2f(frame.x, frame.w), vp_rect, VP_invert);
+	g_app->m_sdk->GetRayFromScreen(&m_data.m_ray4, v2f(frame.z, frame.w), vp_rect, VP_invert);
 
-	ray1.update();
-	ray2.update();
-	ray3.update();
-	ray4.update();
+	m_data.m_ray1.update();
+	m_data.m_ray2.update();
+	m_data.m_ray3.update();
+	m_data.m_ray4.update();
 
-	m_data.m_top[0] = ray1.m_origin;
-	m_data.m_top[1] = ray2.m_origin;
-	m_data.m_top[2] = ray2.m_end;
-	m_data.m_top[3] = ray1.m_end;
+	m_data.m_top[0] = m_data.m_ray1.m_origin;
+	m_data.m_top[1] = m_data.m_ray2.m_origin;
+	m_data.m_top[2] = m_data.m_ray2.m_end;
+	m_data.m_top[3] = m_data.m_ray1.m_end;
 
-	m_data.m_right[0] = ray2.m_origin;
-	m_data.m_right[1] = ray4.m_origin;
-	m_data.m_right[2] = ray4.m_end;
-	m_data.m_right[3] = ray2.m_end;
+	m_data.m_right[0] = m_data.m_ray2.m_origin;
+	m_data.m_right[1] = m_data.m_ray4.m_origin;
+	m_data.m_right[2] = m_data.m_ray4.m_end;
+	m_data.m_right[3] = m_data.m_ray2.m_end;
 
-	m_data.m_bottom[0] = ray4.m_origin;
-	m_data.m_bottom[1] = ray3.m_origin;
-	m_data.m_bottom[2] = ray3.m_end;
-	m_data.m_bottom[3] = ray4.m_end;
+	m_data.m_bottom[0] = m_data.m_ray4.m_origin;
+	m_data.m_bottom[1] = m_data.m_ray3.m_origin;
+	m_data.m_bottom[2] = m_data.m_ray3.m_end;
+	m_data.m_bottom[3] = m_data.m_ray4.m_end;
 
-	m_data.m_left[0] = ray3.m_origin;
-	m_data.m_left[1] = ray1.m_origin;
-	m_data.m_left[2] = ray1.m_end;
-	m_data.m_left[3] = ray3.m_end;
+	m_data.m_left[0] = m_data.m_ray3.m_origin;
+	m_data.m_left[1] = m_data.m_ray1.m_origin;
+	m_data.m_left[2] = m_data.m_ray1.m_end;
+	m_data.m_left[3] = m_data.m_ray3.m_end;
 
-	m_data.m_front[0] = ray1.m_origin;
-	m_data.m_front[1] = ray2.m_origin;
-	m_data.m_front[2] = ray3.m_origin;
-	m_data.m_front[3] = ray4.m_origin;
+	m_data.m_front[0] = m_data.m_ray1.m_origin;
+	m_data.m_front[1] = m_data.m_ray2.m_origin;
+	m_data.m_front[2] = m_data.m_ray3.m_origin;
+	m_data.m_front[3] = m_data.m_ray4.m_origin;
 
-	m_data.m_back[0] = ray1.m_end;
-	m_data.m_back[1] = ray2.m_end;
-	m_data.m_back[2] = ray3.m_end;
-	m_data.m_back[3] = ray4.m_end;
+	m_data.m_back[0] = m_data.m_ray1.m_end;
+	m_data.m_back[1] = m_data.m_ray2.m_end;
+	m_data.m_back[2] = m_data.m_ray3.m_end;
+	m_data.m_back[3] = m_data.m_ray4.m_end;
 
 	v3f e1, e2;
 
@@ -160,6 +160,10 @@ void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect,
 	e1.cross2(e2, m_data.m_BackN);
 	m_data.m_BackC = m_data.m_back[0] + m_data.m_back[1] + m_data.m_back[2] + m_data.m_back[3];
 	m_data.m_BackC *= 0.25;
+
+	m_data.m_ray5.m_origin = m_data.m_BackC;
+	m_data.m_ray5.m_end = m_data.m_FrontC;
+	m_data.m_ray5.update();
 }
 
 bool miSelectionFrustImpl::PointInFrust(const v4f& v)const{

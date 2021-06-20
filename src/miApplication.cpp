@@ -280,6 +280,31 @@ miApplication::~miApplication() {
 	if (m_inputContext) yyDestroy(m_inputContext);
 }
 
+void miApplication::_updateObjectsOnSceneArray(miSceneObject* o) {
+	m_objectsOnScene.push_back(o);
+	auto node = o->GetChildren()->m_head;
+	if (node) {
+		auto last = node->m_left;
+		while (true) {
+			_updateObjectsOnSceneArray(node->m_data);
+			if (node == last) break;
+			node = node->m_right;
+		}
+	}
+}
+void miApplication::_updateObjectsOnSceneArray() {
+	m_objectsOnScene.clear();
+	auto node = m_rootObject->GetChildren()->m_head;
+	if (node){
+		auto last = node->m_left;
+		while (true) {
+			_updateObjectsOnSceneArray(node->m_data);
+			if (node == last) break;
+			node = node->m_right;
+		}
+	}
+}
+
 void miApplication::SetCursorBehaviorMode(miCursorBehaviorMode bm) {
 	m_cursorBehaviorMode = bm;
 	switch (m_cursorBehaviorMode)
@@ -324,6 +349,7 @@ void miApplication::RemoveObjectFromScene(miSceneObject* o) {
 			node = node->m_right;
 		}
 	}
+	this->_updateObjectsOnSceneArray();
 	UpdateSceneAabb();
 }
 
@@ -341,7 +367,6 @@ void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 			node = node->m_right;
 		}
 	}
-
 	miDestroy(o);
 }
 
@@ -754,8 +779,6 @@ void miApplication::MainLoop() {
 				}
 			}
 
-			//_update_transforms(m_rootObject);
-
 			DrawViewports();
 
 			yyGUIDrawAll(m_dt);
@@ -785,24 +808,6 @@ void miApplication::MainLoop() {
 
 	if (m_pluginActive)
 		m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
-}
-
-void miApplication::_update_transforms(miSceneObject* o) {
-	o->UpdateTransform();
-
-	auto node = o->GetChildren()->m_head;
-	if (node)
-	{
-		auto last = node->m_left;
-		while (true) {
-			_update_transforms(node->m_data);
-
-			if (node == last)
-				break;
-
-			node = node->m_right;
-		}
-	}
 }
 
 void miApplication::_updateKeyboardModifier() {
@@ -857,9 +862,12 @@ void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
 }
 
-void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
-	if (o != m_rootObject)
+
+void miApplication::_get_objects_under_cursor() {
+	m_objectsUnderCursor.clear();
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
+		auto o = m_objectsOnScene.m_data[i];
 		v4f ip;
 		f32 d = 0.f;
 		if (o->IsRayIntersect(&m_rayCursor, &ip, &d))
@@ -867,26 +875,9 @@ void miApplication::_get_objects_under_cursor_(miSceneObject* o) {
 			o->m_cursorIntersectionPointDistance = d;
 			o->m_cursorIntersectionPoint = ip;
 			m_objectsUnderCursor.push_back(o);
-
 			//wprintf(L"%s", o->GetName().data());
 		}
 	}
-
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			_get_objects_under_cursor_(node->m_data);
-			if (node == last)
-				break;
-			node = node->m_right;
-		}
-	}
-}
-
-void miApplication::_get_objects_under_cursor() {
-	m_objectsUnderCursor.clear();
-	_get_objects_under_cursor_(m_rootObject);
 
 	struct _pred{
 		bool operator() (miSceneObject* a, miSceneObject* b) const{
@@ -896,48 +887,32 @@ void miApplication::_get_objects_under_cursor() {
 	m_objectsUnderCursor.sort_insertion(_pred());
 }
 
-bool miApplication::_isEdgeMouseHover(miSceneObject* o) {
-	if (o->IsSelected())
+bool miApplication::_isEdgeMouseHover() {
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
-		if (o->IsEdgeMouseHover(m_selectionFrust))
+		auto o = m_objectsOnScene.m_data[i];
+		if (o->IsSelected())
 		{
-			m_isEdgeMouseHover = true;
-			return true;
-		}
-	}
-
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			if (_isEdgeMouseHover(node->m_data))
+			if (o->IsEdgeMouseHover(m_selectionFrust))
+			{
+				m_isEdgeMouseHover = true;
 				return true;
-			if (node == last)
-				break;
-			node = node->m_right;
+			}
 		}
 	}
 	return false;
 }
-bool miApplication::_isVertexMouseHover(miSceneObject* o) {
-	if (o->IsSelected())
+bool miApplication::_isVertexMouseHover() {
+	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
-		if (o->IsVertexMouseHover(m_selectionFrust))
+		auto o = m_objectsOnScene.m_data[i];
+		if (o->IsSelected())
 		{
-			m_isVertexMouseHover = true;
-			return true;
-		}
-	}
-
-	auto node = o->GetChildren()->m_head;
-	if (node) {
-		auto last = node->m_left;
-		while (true) {
-			if (_isVertexMouseHover(node->m_data))
+			if (o->IsVertexMouseHover(m_selectionFrust))
+			{
+				m_isVertexMouseHover = true;
 				return true;
-			if (node == last)
-				break;
-			node = node->m_right;
+			}
 		}
 	}
 	return false;
@@ -948,10 +923,10 @@ void miApplication::_isObjectMouseHover() {
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
-		_isVertexMouseHover(m_rootObject);
+		_isVertexMouseHover();
 		break;
 	case miEditMode::Edge:
-		_isEdgeMouseHover(m_rootObject);
+		_isEdgeMouseHover();
 		break;
 	case miEditMode::Polygon:
 		break;
@@ -1394,6 +1369,9 @@ void miApplication::ConvertSelectedObjectsToEditableObjects() {
 			new(newEditableObject)miEditableObject(m_sdk, 0);
 			newEditableObject->CopyBase(obj);
 
+			if (newEditableObject->m_flags & miSceneObjectFlag_CanConvertToEditableObject)
+				newEditableObject->m_flags ^= miSceneObjectFlag_CanConvertToEditableObject;
+
 			newEditableObject->m_gui = m_pluginGuiForEditableObject;
 
 			// must real parent or m_rootObject
@@ -1549,28 +1527,19 @@ void miApplication::AddObjectToScene(miSceneObject* o, const wchar_t* name) {
 	ec.z = g_colors[result].m_data[2];
 
 	o->SetEdgeColor(ec);
+	_updateObjectsOnSceneArray();
 }
 
-void miApplication::_buildSceneAabb(miSceneObject* o) {
-	m_sceneAabb.add(*o->GetAABBTransformed());
-	auto node = o->GetChildren()->m_head;
-	if (node)
-	{
-		auto last = node->m_left;
-		while (true) {
-			_buildSceneAabb(node->m_data);
-
-			if (node == last)
-				break;
-
-			node = node->m_right;
-		}
-	}
-}
 void miApplication::UpdateSceneAabb() {
 	m_sceneAabb.reset();
-	if(m_rootObject)
-		_buildSceneAabb(m_rootObject);
+	if (m_rootObject)
+	{
+		for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
+		{
+			auto o = m_objectsOnScene.m_data[i];
+			m_sceneAabb.add(*o->GetAABBTransformed());
+		}
+	}
 }
 
 void miApplication::OnImport_openDialog() {
@@ -1759,12 +1728,14 @@ void miApplication::DeleteSelected() {
 		DeselectAll();
 		break;
 	}
+	this->_updateObjectsOnSceneArray();
 	this->UpdateSceneAabb();
 	this->UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 miPopup* miApplication::_getPopupInViewport() {
+	bool is_CanConvertToEditableObject = false;
 	miPopup* p = new miPopup;
 	if (m_selectedObjects.m_size)
 	{
@@ -1777,8 +1748,12 @@ miPopup* miApplication::_getPopupInViewport() {
 
 			if (m_editMode == miEditMode::Object)
 			{
-				if (flags & miSceneObjectFlag_CanConvertToEditableObject)
+				if (flags & miSceneObjectFlag_CanConvertToEditableObject
+					&& !is_CanConvertToEditableObject)
+				{
+					is_CanConvertToEditableObject = true;
 					p->AddItem(L"Convert to editable object", miCommandID_ConvertToEditableObject, 0);
+				}
 			}
 		}
 	}

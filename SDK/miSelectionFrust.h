@@ -24,6 +24,9 @@ struct miSelectionFrustData {
 	v3f m_BN;
 	v3f m_FrontN;
 	v3f m_BackN;
+
+	// only for CreateWithFrame 
+	yyRay m_ray1, m_ray2, m_ray3, m_ray4, m_ray5;
 };
 
 /*

@@ -129,8 +129,8 @@ class miApplication
 	bool m_isCursorMove;
 	bool m_isGUIInputFocus;
 
-	bool _isVertexMouseHover(miSceneObject*);
-	bool _isEdgeMouseHover(miSceneObject*);
+	bool _isVertexMouseHover();
+	bool _isEdgeMouseHover();
 	void _isObjectMouseHover();
 	bool m_isVertexMouseHover;
 	bool m_isEdgeMouseHover;
@@ -146,7 +146,6 @@ class miApplication
 	Aabb m_selectionAabb;
 	v4f m_selectionAabb_center;
 	v4f m_selectionAabb_extent;
-	void _buildSceneAabb(miSceneObject*);
 
 	//miViewportCamera* m_currentViewportDrawCamera;
 	miViewport* m_currentViewportDraw;
@@ -184,20 +183,14 @@ class miApplication
 	void _transformObjects_rotate(miSceneObject* o);
 	void _transformObjectsReset();
 	void _transformObjectsApply();
-
-	void _update_transforms(miSceneObject* o);
-
+	
 	void _onSelect();
 	void _select_multiple();
 	void _select_single();
-	void _select_single_call(miSceneObject* o);
-	void _deselect_all(miSceneObject* o);
-	void _select_all(miSceneObject* o);
-	void _invert_selection(miSceneObject* o);
 	
 	yyRay m_rayCursor;
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
-	void _get_objects_under_cursor_(miSceneObject*);
+	//void _get_objects_under_cursor_(miSceneObject*);
 	void _get_objects_under_cursor();
 	void _update_selected_objects_array(miSceneObject*);
 
@@ -206,6 +199,11 @@ class miApplication
 	yyArray<miPluginGUI*> m_pluginGuiAll;
 
 	miPopup* _getPopupInViewport();
+
+	yyArraySimple<miSceneObject*> m_objectsOnScene;
+	// call it when acreate/import/duplicate/delete...other_operations object
+	void _updateObjectsOnSceneArray(miSceneObject*);
+	void _updateObjectsOnSceneArray();
 
 public:
 	miApplication();
