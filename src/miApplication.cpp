@@ -702,7 +702,15 @@ void miApplication::MainLoop() {
 				m_viewportUnderCursor->m_currentRect,
 				m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix
 			);
-			_get_objects_under_cursor();
+
+			if (m_gizmoMode == miGizmoMode::NoTransform
+				&& !m_inputContext->m_isMMBHold // camera move/rotate
+				&& m_editMode == miEditMode::Object
+				&& m_isCursorMove
+				)
+			{
+				_get_objects_under_cursor();
+			}
 		}
 
 		while (yyPollEvent(currentEvent))
@@ -1612,6 +1620,18 @@ void miApplication::SetEditMode(miEditMode m) {
 	m_editMode = m;
 	_rebuildEdgeModels();
 	_rebuildPolygonModels();
+
+	// update arrays with visual object nodes for update
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		obj->OnSetEditMode(m_editMode);
+		/*auto voc = obj->GetVisualObjectCount();
+		for (s32 o = 0; o < voc; ++o)
+		{
+			obj->GetVisualObject(o)->OnSelect(m_editMode);
+		}*/
+	}
 
 	switch (m)
 	{

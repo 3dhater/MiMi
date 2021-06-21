@@ -292,8 +292,11 @@ public:
 	virtual bool IsPolygonSelected() { return false; }
 
 	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
-	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta) {}
-	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta) {}
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
+	
+	virtual void OnSelect(miEditMode) {}
+	virtual void OnSetEditMode(miEditMode) {}
 };
 
 #endif

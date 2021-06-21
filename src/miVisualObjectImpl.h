@@ -21,7 +21,7 @@ class miVisualObjectImpl : public miVisualObject
 		}
 		yyModel* m_modelCPU;
 
-		// miPolygon or miEdge or miVertex, yyVertex___
+		// miVertex, yyVertex___
 		yyArraySimple<miPair<void*,void*>> m_ptrs;
 	};
 	

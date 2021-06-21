@@ -71,6 +71,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 			}
 
 			_modelNode = new miVisualObjectImpl::model_node_CPU;
+			_modelNode->m_ptrs.reserve(0xffff);
 			_modelNode->m_modelCPU = softwareModel;
 
 			m_nodes_CPU.push_back(_modelNode);
@@ -126,7 +127,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		//v4f color = *m_parentSceneObject->GetEdgeColor();
 		v4f color(1.f);
-		if (g_app->m_editMode == miEditMode::Edge)
+		if (g_app->m_editMode == miEditMode::Edge && m_parentSceneObject->m_isSelected)
 		{
 			if (current_edge->m_flags & miEdge::flag_isSelected)
 				color.set(1.0f, 0.f, 0.f, 1.f);
@@ -157,6 +158,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			inds_ptr = (u16*)softwareModel->m_indices;
 
 			_modelNode = new miVisualObjectImpl::model_node_CPU;
+			_modelNode->m_ptrs.reserve(0xffff);
 			_modelNode->m_modelCPU = softwareModel;
 
 			m_nodes_CPU.push_back(_modelNode);
@@ -243,7 +245,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 	while (true) {
 
 		v4f color(0.f, 0.f, 0.f, 0.0f);
-		if (g_app->m_editMode == miEditMode::Polygon)
+		if (g_app->m_editMode == miEditMode::Polygon && m_parentSceneObject->m_isSelected)
 		{
 			if (current_polygon->m_flags & miPolygon::flag_isSelected)
 				color.set(1.0f, 0.f, 0.f, 1.f);
@@ -278,6 +280,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				inds_ptr = (u16*)softwareModel->m_indices;
 
 				_modelNode = new miVisualObjectImpl::model_node_CPU;
+				_modelNode->m_ptrs.reserve(0xffff);
 				_modelNode->m_modelCPU = softwareModel;
 
 				m_nodes_CPU.push_back(_modelNode);
@@ -792,60 +795,69 @@ void miVisualObjectImpl::OnSelect(miEditMode em) {
 	{
 	case miEditMode::Vertex:
 	{
-		if (m_type == miVisualObjectType::Vertex)
+		for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
 		{
-			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+			auto n = m_nodes_CPU[i];
+			for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
 			{
-				auto n = m_nodes_CPU[i];
-				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+				auto vertex = (miVertex*)n->m_ptrs.m_data[o].m_first;
+				if (vertex->m_flags & vertex->flag_isSelected)
 				{
-					auto vertex = (miVertex*)n->m_ptrs.m_data[o].m_first;
-					if (vertex->m_flags & vertex->flag_isSelected)
-					{
-						m_nodesForUpdate.push_back(i);
-						break;
-					}
+					m_nodesForUpdate.push_back(i);
+					break;
 				}
 			}
 		}
-		else if (m_type == miVisualObjectType::Edge)
-		{
-			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
-			{
-				auto n = m_nodes_CPU[i];
-				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
-				{
-					auto v = (miVertex*)n->m_ptrs.m_data[o].m_first;
-					if (v->m_flags & v->flag_isSelected)
-					{
-						m_nodesForUpdate.push_back(i);
-						break;
-					}
-				}
-			}
-		}
-		else if (m_type == miVisualObjectType::Polygon)
-		{
-			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
-			{
-				auto n = m_nodes_CPU[i];
-				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
-				{
-					auto v = (miVertex*)n->m_ptrs.m_data[o].m_first;
-					if (v->m_flags & v->flag_isSelected)
-					{
-						m_nodesForUpdate.push_back(i);
-						break;
-					}
-				}
-			}
-		}
-		//printf("m_nodesForUpdate: %u\n", m_nodesForUpdate.m_size);
 	}break;
 	case miEditMode::Edge:
-		
+		for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+		{
+			auto n = m_nodes_CPU[i];
+			for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+			{
+				auto vertex = (miVertex*)n->m_ptrs.m_data[o].m_first;
+					
+				auto c = vertex->m_edges.m_head;
+				auto l = c->m_left;
+				while (true)
+				{
+					if (c->m_data->m_flags & miEdge::flag_isSelected)
+					{
+						m_nodesForUpdate.push_back(i);
+						o = n->m_ptrs.m_size;
+						break;
+					}
+					if (c == l)
+						break;
+					c = c->m_right;
+				}
+			}
+		}
 		break;
 	case miEditMode::Polygon:
+		for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+		{
+			auto n = m_nodes_CPU[i];
+			for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+			{
+				auto vertex = (miVertex*)n->m_ptrs.m_data[o].m_first;
+
+				auto c = vertex->m_polygons.m_head;
+				auto l = c->m_left;
+				while (true)
+				{
+					if (c->m_data->m_flags & miPolygon::flag_isSelected)
+					{
+						m_nodesForUpdate.push_back(i);
+						o = n->m_ptrs.m_size;
+						break;
+					}
+					if (c == l)
+						break;
+					c = c->m_right;
+				}
+			}
+		}
 		break;
 	case miEditMode::Object:
 	default:

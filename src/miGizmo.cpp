@@ -1030,7 +1030,7 @@ void miGizmo::Update(miViewport* vp) {
 	f32 camera_distance = vp->m_activeCamera->m_positionPlatform.w;
 	if (g_app->m_selectedObjects.m_size == 1)
 	{
-		camera_distance += g_app->m_selectionAabb_center.distance(*g_app->m_selectedObjects.m_data[0]->GetGlobalPosition());
+	//	camera_distance += g_app->m_selectionAabb_center.distance(*g_app->m_selectedObjects.m_data[0]->GetGlobalPosition());
 	}
 	m_S.setScale(v3f(camera_distance / ((1.f / 600.f) * vp->m_currentRectSize.y)));
 

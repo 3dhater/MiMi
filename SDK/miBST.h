@@ -22,6 +22,16 @@ class miBinarySearchTree
 
 	_node * m_root;
 
+	template<typename _array>
+	void _get(_array* __array, _node* node) {
+		__array->push_back(node->m_data);
+
+		if (node->m_right)
+			_get(__array, node->m_right);
+		if (node->m_left)
+			_get(__array, node->m_left);
+	}
+
 	void _delete_all(_node* node) {
 		if (node->m_right)
 			_delete_all(node->m_right);
@@ -163,6 +173,12 @@ public:
 		if(m_root)
 			return _get(m_root, value, data);
 		return false;
+	}
+
+	template<typename _array>
+	void Get(_array* __array) {
+		if (m_root)
+			_get(__array, m_root);
 	}
 };
 

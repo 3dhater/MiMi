@@ -353,11 +353,12 @@ void miViewport::_frustum_cull(miSceneObject* o) {
 	{
 		v4f center;
 		o->GetAABBTransformed()->center(center);
+		auto r = o->GetAABBTransformed()->radius();
 		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()) || m_activeCamera->m_frust.PointInFrustum(center))
 		{
 			m_visibleObjects.push_back(o);
 		}
-		else if (m_activeCamera->m_frust.SphereInFrustum(o->GetAABBTransformed()->radius(), *o->GetGlobalPosition() + center))
+		else if (m_activeCamera->m_frust.SphereInFrustum(r+r, center))
 		{
 			m_visibleObjects.push_back(o);
 		}

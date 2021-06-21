@@ -73,7 +73,7 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 	if (isCancel)
 	{
 		var_move = m_gizmo->m_var_move_onEscape;
-		//printf("isCancel\n");
+		printf("isCancel\n");
 	}
 
 	auto M = *o->GetRotationScaleMatrix();
@@ -85,10 +85,10 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 		o->OnTransformVertex(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
 		break;
 	case miEditMode::Edge:
-		o->OnTransformEdge(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M));
+		o->OnTransformEdge(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
 		break;
 	case miEditMode::Polygon:
-		o->OnTransformPolygon(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M));
+		o->OnTransformPolygon(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
 		break;
 	case miEditMode::Object:
 	default:

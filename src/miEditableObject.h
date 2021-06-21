@@ -29,6 +29,11 @@ class miEditableObject : public miSceneObject
 	void _selectInvertEdges();
 	void _selectInvertPolygons();
 
+	yyArraySimple<miVertex*> m_vertsForTransform;
+	void _updateVertsForTransformArray(miEditMode em);
+
+	void _callVisualObjectOnTransform();
+
 	friend class miApplication;
 	friend class miSDKImpl;
 public:
@@ -67,8 +72,11 @@ public:
 	virtual bool IsPolygonSelected() override;
 
 	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
-	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta) override;
-	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta) override;
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
+
+	virtual void OnSelect(miEditMode) override;
+	virtual void OnSetEditMode(miEditMode) override;
 };
 
 #endif

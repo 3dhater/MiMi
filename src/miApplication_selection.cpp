@@ -471,6 +471,12 @@ void miApplication::_onSelect() {
 				m_sdk->m_polygonsForSelect.clear();
 			}
 		}
+
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			obj->OnSelect(m_editMode);
+		}
 	}
 
 	_updateIsVertexEdgePolygonSelected();
