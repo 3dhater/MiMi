@@ -180,6 +180,7 @@ miApplication::miApplication() {
 	g_app = this;
 	m_dt = 0.f;
 	m_gpu = 0;
+	m_isVertexEdgePolygonSelected = false;
 	m_GUIManager = 0;
 	m_activeViewportLayout = 0;
 	m_previousViewportLayout = 0;
@@ -657,7 +658,6 @@ void miApplication::MainLoop() {
 	
 		m_GUIManager->m_default_value_float = 0.f;
 
-		//m_isGizmoMouseHover = false;
 		m_gizmo->OnStartFrame();
 
 		m_isCursorInWindow = false;
@@ -1161,17 +1161,6 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
-	/*if (m_isCursorInViewport)
-	{
-		if (m_isGizmoMouseHover)
-		{
-			if (m_inputContext->m_isLMBDown)
-			{
-				m_gizmo->OnClick();
-			}
-		}
-	}*/
-
 	if (m_cursorBehaviorMode == miCursorBehaviorMode::HideCursor)
 	{
 		if(m_isCursorMove)
@@ -1268,8 +1257,17 @@ void miApplication::DrawViewports() {
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
 
-		if(g_app->m_selectedObjects.m_size)
-			m_gizmo->Update(viewport);
+		switch (m_editMode)
+		{
+		case miEditMode::Object:
+			if(g_app->m_selectedObjects.m_size)
+				m_gizmo->Update(viewport);
+			break;
+		default:
+			if(m_isVertexEdgePolygonSelected)
+				m_gizmo->Update(viewport);
+			break;
+		}
 		
 		if (m_isCursorInViewport && viewport == m_viewportUnderCursor)
 		{
@@ -1640,6 +1638,8 @@ void miApplication::SetEditMode(miEditMode m) {
 	default:
 		break;
 	}
+	_updateIsVertexEdgePolygonSelected();
+	this->UpdateSelectionAabb();
 }
 void miApplication::SetTransformMode(miTransformMode m, bool local) {
 	m_isLocalTransform = local;

@@ -61,6 +61,10 @@ public:
 
 	virtual bool IsVertexMouseHover(miSelectionFrust* sf) override;
 	virtual bool IsEdgeMouseHover(miSelectionFrust*) override;
+
+	virtual bool IsVertexSelected()override;
+	virtual bool IsEdgeSelected() override;
+	virtual bool IsPolygonSelected() override;
 };
 
 #endif

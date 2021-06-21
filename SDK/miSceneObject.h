@@ -289,6 +289,10 @@ public:
 	// it will be used in transformations
 	//v4f m_selectionAabbOffset;
 	v3f m_localPositionOnGizmoClick; // 
+
+	virtual bool IsVertexSelected() { return false; }
+	virtual bool IsEdgeSelected() { return false; }
+	virtual bool IsPolygonSelected() { return false; }
 };
 
 #endif

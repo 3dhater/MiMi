@@ -125,6 +125,7 @@ void miApplication::UpdateSelectionAabb() {
 		auto obj = m_selectedObjects.m_data[i];
 		auto mc = obj->GetMeshCount();
 		Mat4 M = obj->GetWorldMatrix()->getBasis();
+		
 
 		switch (m_editMode)
 		{
@@ -218,6 +219,19 @@ void miApplication::UpdateSelectionAabb() {
 
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);
+
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		m_gizmo->m_position = m_selectionAabb_center;
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+
 	//	printf("UpdateSelectionAabb %f %f %f\n", m_selectionAabb_center.x, m_selectionAabb_center.y, m_selectionAabb_center.z);
 }
 
@@ -307,6 +321,8 @@ void miApplication::_onSelect() {
 				}
 				m_sdk->m_vertsForSelect.clear();
 			}
+
+			
 		}
 		else if (m_editMode == miEditMode::Edge)
 		{
@@ -432,6 +448,42 @@ void miApplication::_onSelect() {
 		}
 	}
 
+	_updateIsVertexEdgePolygonSelected();
+	
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
+}
+
+void miApplication::_updateIsVertexEdgePolygonSelected() {
+	m_isVertexEdgePolygonSelected = false;
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			if (obj->IsVertexSelected())
+				m_isVertexEdgePolygonSelected = true;
+		}
+		break;
+	case miEditMode::Edge:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			if (obj->IsEdgeSelected())
+				m_isVertexEdgePolygonSelected = true;
+		}
+		break;
+	case miEditMode::Polygon:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+			if (obj->IsPolygonSelected())
+				m_isVertexEdgePolygonSelected = true;
+		}
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
 }

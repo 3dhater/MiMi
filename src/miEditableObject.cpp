@@ -648,3 +648,42 @@ void miEditableObject::InvertSelection(miEditMode em) {
 	}
 }
 
+bool miEditableObject::IsVertexSelected() {
+	auto c = m_mesh->m_first_vertex;
+	auto l = c->m_left;
+	while (true) {
+		if (c->m_flags & c->flag_isSelected)
+			return true;
+
+		if (c== l)
+			break;
+		c = c->m_right;
+	}
+	return false;
+}
+bool miEditableObject::IsEdgeSelected() {
+	auto c = m_mesh->m_first_edge;
+	auto l = c->m_left;
+	while (true) {
+		if (c->m_flags & c->flag_isSelected)
+			return true;
+
+		if (c == l)
+			break;
+		c = c->m_right;
+	}
+	return false;
+}
+bool miEditableObject::IsPolygonSelected() {
+	auto c = m_mesh->m_first_polygon;
+	auto l = c->m_left;
+	while (true) {
+		if (c->m_flags & c->flag_isSelected)
+			return true;
+
+		if (c == l)
+			break;
+		c = c->m_right;
+	}
+	return false;
+}

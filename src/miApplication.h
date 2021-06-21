@@ -186,6 +186,9 @@ class miApplication
 	void _transformObjectsReset();
 	void _transformObjectsApply();
 	
+	bool m_isVertexEdgePolygonSelected;
+	void _updateIsVertexEdgePolygonSelected();
+
 	void _onSelect();
 	void _select_multiple();
 	void _select_single();

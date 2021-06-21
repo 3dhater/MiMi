@@ -484,10 +484,18 @@ void miViewport::_drawScene() {
 		}
 	}
 
-	if (g_app->m_selectedObjects.m_size)
+	switch (g_app->m_editMode)
 	{
-		g_app->m_gizmo->Draw(this);
+	case miEditMode::Object:
+		if (g_app->m_selectedObjects.m_size)
+			g_app->m_gizmo->Draw(this);
+		break;
+	default:
+		if (g_app->m_isVertexEdgePolygonSelected)
+			g_app->m_gizmo->Draw(this);
+		break;
 	}
+
 }
 
 void miViewport::SetDrawMode(miViewportDrawMode dm) {
