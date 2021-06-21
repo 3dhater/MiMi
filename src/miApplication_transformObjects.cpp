@@ -22,6 +22,27 @@ void miApplication::_transformObjectsApply() {
 			break;
 		}
 	}
+
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto voc = m_selectedObjects.m_data[i]->GetVisualObjectCount();
+			for (s32 o = 0; o < voc; ++o)
+			{
+				m_selectedObjects.m_data[i]->GetVisualObject(o)->UpdateAabb();
+			}
+			m_selectedObjects.m_data[i]->UpdateAabb();
+		}
+		break;
+	case miEditMode::Object:
+		break;
+	default:
+		break;
+	}
 }
 void miApplication::_transformObjectsReset() {
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
@@ -46,11 +67,28 @@ void miApplication::_transformObjectsReset() {
 }
 
 void miApplication::_transformObjects_move(miSceneObject* o) {
+	bool isCancel = m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
+	
+	auto var_move = m_gizmo->m_var_move;
+	if (isCancel)
+	{
+		var_move = m_gizmo->m_var_move_onEscape;
+		//printf("isCancel\n");
+	}
+
+	auto M = *o->GetRotationScaleMatrix();
+	M.invert();
+
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
+		o->OnTransformVertex(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
+		break;
 	case miEditMode::Edge:
+		o->OnTransformEdge(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M));
+		break;
 	case miEditMode::Polygon:
+		o->OnTransformPolygon(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M));
 		break;
 	case miEditMode::Object:
 	default:
@@ -143,9 +181,9 @@ void miApplication::_transformObjects() {
 	auto camera_direction = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_direction;
 	f32 move_speed = 0.003f * camera_zoom;
 	if (m_keyboardModifier == miKeyboardModifier::Alt)
-	{
 		move_speed *= 0.01f;
-	}
+
+
 	switch (m_gizmoMode)
 	{
 	case miGizmoMode::MoveX:
@@ -358,6 +396,10 @@ void miApplication::_transformObjects() {
 	default:
 		break;
 	}
+
+	m_gizmo->m_moveDelta = m_gizmo->m_var_move - m_gizmo->m_var_move_old;
+	m_gizmo->m_var_move_old = m_gizmo->m_var_move;
+	//printf("MD: %f %f %f\n", m_gizmo->m_moveDelta.x, m_gizmo->m_moveDelta.y, m_gizmo->m_moveDelta.z);
 
 	auto mouse_delta_d = m_inputContext->m_mouseDelta.distance(v2f());
 

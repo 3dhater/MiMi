@@ -188,6 +188,7 @@ class miApplication
 	
 	bool m_isVertexEdgePolygonSelected;
 	void _updateIsVertexEdgePolygonSelected();
+	void _callVisualObjectOnSelect();
 
 	void _onSelect();
 	void _select_multiple();

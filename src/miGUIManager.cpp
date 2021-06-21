@@ -911,7 +911,6 @@ void miGUIManager::SetCommonParamsRangePosition() {
 	else
 	{
 		m_commonParams_range_Position_many = g_app->m_gizmo->m_position + g_app->m_gizmo->m_var_move;
-		printf("CLICK: %f %f %f\n", m_commonParams_range_Position_many.x, m_commonParams_range_Position_many.y, m_commonParams_range_Position_many.z);
 		m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_commonParams_range_Position_many.x;
 		m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_commonParams_range_Position_many.y;
 		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_commonParams_range_Position_many.z;

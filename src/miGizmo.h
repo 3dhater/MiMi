@@ -116,7 +116,10 @@ public:
 	yyColor m_color_y;
 	yyColor m_color_z;
 
+	v3f m_moveDelta;
+	v3f m_var_move_old;
 	v3f m_var_move;
+	v3f m_var_move_onEscape; // just for moving verts back to position 
 	v3f m_var_scale;
 	v3f m_var_scale2;
 	v4f m_var_rotate;

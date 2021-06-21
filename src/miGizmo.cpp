@@ -1420,11 +1420,13 @@ void miGizmo::OnRelease() {
 }
 
 void miGizmo::OnEscape() {
+	m_var_move_onEscape = m_var_move;
 	g_app->_setGizmoMode(miGizmoMode::NoTransform);
 	_reset_variables();
 }
 
 void miGizmo::_reset_variables() {
+	m_var_move_old.set(0.f);
 	m_var_move.set(0.f);
 	m_var_scale.set(1.f);
 	m_var_scale2.set(1.f);

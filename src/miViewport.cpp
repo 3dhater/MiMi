@@ -693,8 +693,11 @@ void miViewport::_drawSelectedObjectFrame() {
 		aabb.m_max.w = 0.f;
 		aabb.m_min.w = 0.f;
 
-		aabb.m_max += g_app->m_gizmo->m_var_move;
-		aabb.m_min += g_app->m_gizmo->m_var_move;
+		if (g_app->m_editMode == miEditMode::Object)
+		{
+			aabb.m_max += g_app->m_gizmo->m_var_move;
+			aabb.m_min += g_app->m_gizmo->m_var_move;
+		}
 
 		frameSizeX = (aabb.m_max.x - aabb.m_min.x)*0.2f;
 		frameSizeY = (aabb.m_max.y - aabb.m_min.y)*0.2f;

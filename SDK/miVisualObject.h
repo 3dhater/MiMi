@@ -32,9 +32,17 @@ public:
 	virtual miVisualObjectType GetType() = 0;
 
 	virtual Aabb GetAabb() = 0;
+	virtual void UpdateAabb() = 0;
 
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf) = 0;
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d) = 0;
+
+	// rebuild nodes with geometry
+	virtual void OnTransform() = 0;
+	
+	// update some information
+	// when select vertex/edge/polygon
+	virtual void OnSelect(miEditMode) = 0;
 };
 
 #endif

@@ -20,12 +20,16 @@ class miVisualObjectImpl : public miVisualObject
 			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
 		}
 		yyModel* m_modelCPU;
+
+		// miPolygon or miEdge or miVertex, yyVertex___
+		yyArraySimple<miPair<void*,void*>> m_ptrs;
 	};
 	
 	yyResource* m_texture;
 
 	yyArray<model_node_GPU*> m_nodes_GPU;
 	yyArray<model_node_CPU*> m_nodes_CPU;
+	yyArraySimple<u32> m_nodesForUpdate; // index array
 
 	void _destroy();
 	void _createSoftwareModel_polys();
@@ -56,11 +60,15 @@ public:
 
 	virtual void Draw();
 	virtual Aabb GetAabb();
-	
+	virtual void UpdateAabb();
+
 	virtual bool IsInSelectionFrust(miSelectionFrust* sf);
 
 	virtual bool IsRayIntersect(yyRay* r, v4f* ip, float* d);
 	virtual miVisualObjectType GetType();
+
+	virtual void OnTransform();
+	virtual void OnSelect(miEditMode);
 };
 
 #endif

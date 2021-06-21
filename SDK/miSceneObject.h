@@ -285,14 +285,15 @@ public:
 		return false;
 	}
 
-	// will be set when user select object
-	// it will be used in transformations
-	//v4f m_selectionAabbOffset;
-	v3f m_localPositionOnGizmoClick; // 
+	v3f m_localPositionOnGizmoClick; //  miGizmo::OnClick
 
 	virtual bool IsVertexSelected() { return false; }
 	virtual bool IsEdgeSelected() { return false; }
 	virtual bool IsPolygonSelected() { return false; }
+
+	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta) {}
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta) {}
 };
 
 #endif

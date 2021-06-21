@@ -661,6 +661,7 @@ bool miEditableObject::IsVertexSelected() {
 	}
 	return false;
 }
+
 bool miEditableObject::IsEdgeSelected() {
 	auto c = m_mesh->m_first_edge;
 	auto l = c->m_left;
@@ -674,6 +675,7 @@ bool miEditableObject::IsEdgeSelected() {
 	}
 	return false;
 }
+
 bool miEditableObject::IsPolygonSelected() {
 	auto c = m_mesh->m_first_polygon;
 	auto l = c->m_left;
@@ -687,3 +689,81 @@ bool miEditableObject::IsPolygonSelected() {
 	}
 	return false;
 }
+
+void miEditableObject::OnTransformEdge(miTransformMode tm, const v3f& move_value, const v3f& move_delta) {
+	switch (tm)
+	{
+	case miTransformMode::Move:
+		break;
+	case miTransformMode::Scale:
+		break;
+	case miTransformMode::Rotate:
+		break;
+	case miTransformMode::NoTransform:
+	default:
+		break;
+	}
+}
+
+void miEditableObject::OnTransformVertex(
+	miTransformMode tm, 
+	const v3f& move_value, 
+	const v3f& move_delta, 
+	bool isCancel) 
+{
+	switch (tm)
+	{
+	case miTransformMode::Move:
+	{
+		auto c = m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			if (c->m_flags & c->flag_isSelected)
+			{
+				if (isCancel)
+				{
+					c->m_position -= move_value;
+				}
+				else
+				{
+					c->m_position += move_delta;
+				}
+			}
+
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}break;
+	case miTransformMode::Scale:
+		break;
+	case miTransformMode::Rotate:
+		break;
+	case miTransformMode::NoTransform:
+	default:
+		break;
+	}
+	auto voc = GetVisualObjectCount();
+	for (int i = 0; i < voc; ++i)
+	{
+		auto vo = GetVisualObject(i);
+		vo->OnTransform();
+	}
+}
+
+void miEditableObject::OnTransformPolygon(miTransformMode tm, const v3f& move_value, const v3f& move_delta) {
+	switch (tm)
+	{
+	case miTransformMode::Move:
+		break;
+	case miTransformMode::Scale:
+		break;
+	case miTransformMode::Rotate:
+		break;
+	case miTransformMode::NoTransform:
+	default:
+		break;
+	}
+}
+

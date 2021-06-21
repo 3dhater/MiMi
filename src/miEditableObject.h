@@ -65,6 +65,10 @@ public:
 	virtual bool IsVertexSelected()override;
 	virtual bool IsEdgeSelected() override;
 	virtual bool IsPolygonSelected() override;
+
+	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta) override;
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta) override;
 };
 
 #endif

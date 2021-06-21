@@ -77,17 +77,18 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 		}
 
 		auto vpos = current_vertex->m_position;
-		m_aabb.add(current_vertex->m_position);
 		float size = 1.f;
 
 		if (m_mesh->m_skeleton)
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = vpos;
 			vertexAnimated_ptr++;
 		}
 		else
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = vpos;
 			vertex_ptr++;
@@ -95,6 +96,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 
 		_modelNode->m_modelCPU->m_vCount++;
 		_modelNode->m_modelCPU->m_iCount++;
+
 
 		++pointCount;
 		if (pointCount == pointLimit)
@@ -164,6 +166,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		if (m_mesh->m_skeleton)
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex1->m_position;
 			vertexAnimated_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
@@ -173,6 +176,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex1->m_position;
 			vertex_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
@@ -180,13 +184,13 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			vertex_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
 			++vertex_ptr;
 		}
-		m_aabb.add(current_edge->m_vertex1->m_position);
 		*inds_ptr = index;
 		++index;
 		++inds_ptr;
 
 		if (m_mesh->m_skeleton)
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex2->m_position;
 			vertexAnimated_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
@@ -196,6 +200,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
+			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex2->m_position;
 			vertex_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
@@ -203,7 +208,6 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			vertex_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
 			++vertex_ptr;
 		}
-		m_aabb.add(current_edge->m_vertex1->m_position);
 		*inds_ptr = index;
 		++index;
 		++inds_ptr;
@@ -284,6 +288,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_1->m_data->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
@@ -294,6 +299,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_1->m_data->m_position;
 				vertexModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
@@ -302,7 +308,6 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Normal.z = vertex_1->m_data->m_normal[2];
 				++vertexModel_ptr;
 			}
-			m_aabb.add(vertex_1->m_data->m_position);
 
 			//printf("Y: %f\n", vertex_1->m_data->m_position.y);
 
@@ -312,6 +317,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_2->m_data->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
@@ -322,6 +328,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_2->m_data->m_position;
 				vertexModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
@@ -330,7 +337,6 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Normal.z = vertex_2->m_data->m_normal[2];
 				++vertexModel_ptr;
 			}
-			m_aabb.add(vertex_2->m_data->m_position);
 
 			*inds_ptr = index;
 			++index;
@@ -338,6 +344,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_3->m_data->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
@@ -348,6 +355,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_3->m_data->m_position;
 				vertexModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
@@ -356,7 +364,6 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Normal.z = vertex_3->m_data->m_normal[2];
 				++vertexModel_ptr;
 			}
-			m_aabb.add(vertex_3->m_data->m_position);
 
 			*inds_ptr = index;
 			++index;
@@ -377,35 +384,17 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				break;
 		}
 
+
 		if (current_polygon == last_polygon)
 			break;
 		current_polygon = current_polygon->m_right;
 	}
 }
 
-//void miVisualObjectImpl::UpdateCPUModelsOnly(miMesh* mesh) {
-//	for (u32 i = 0, sz = m_nodes_polygons_CPU.size(); i < sz; ++i)
-//	{
-//		delete m_nodes_polygons_CPU[i];
-//	}
-//	m_nodes_polygons_CPU.clear();
-//
-//	for (u32 i = 0, sz = m_nodes_edges_CPU.size(); i < sz; ++i)
-//	{
-//		delete m_nodes_edges_CPU[i];
-//	}
-//	m_nodes_edges_CPU.clear();
-//
-//	m_aabb.reset();
-//	_createSoftwareModel_polys();
-//	_createSoftwareModel_edges();
-//	_createSoftwareModel_verts();
-//}
 void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
 	if(mesh)
 		m_mesh = mesh;
 	_destroy();
-	m_aabb.reset();
 	switch (m_type)
 	{
 	case miVisualObjectType::Vertex:
@@ -429,6 +418,7 @@ void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
 		_modelNode->m_modelGPU->Load();
 		m_nodes_GPU.push_back(_modelNode);
 	}
+	UpdateAabb();
 }
 
 Aabb miVisualObjectImpl::GetAabb() {
@@ -703,4 +693,174 @@ bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 
 miVisualObjectType miVisualObjectImpl::GetType() {
 	return m_type;
+}
+
+void miVisualObjectImpl::OnTransform() {
+	//CreateNewGPUModels(0);
+	switch (m_type)
+	{
+	case miVisualObjectType::Vertex:
+		for (u32 i = 0; i < m_nodesForUpdate.m_size; ++i)
+		{
+			auto cpu_node = m_nodes_CPU[m_nodesForUpdate.m_data[i]];
+			auto gpu_node = m_nodes_GPU[m_nodesForUpdate.m_data[i]];
+
+			for (u32 o = 0; o < cpu_node->m_ptrs.m_size; ++o)
+			{
+				auto & pair = cpu_node->m_ptrs.m_data[o];
+				auto mi_vertex = (miVertex*)pair.m_first;
+
+				if (m_mesh->m_skeleton)
+				{
+					auto point_vertex = (yyVertexAnimatedPoint*)pair.m_second;
+					point_vertex->Position = mi_vertex->m_position;
+				}
+				else
+				{
+					auto point_vertex = (yyVertexPoint*)pair.m_second;
+					point_vertex->Position = mi_vertex->m_position;
+				}
+			}
+
+			gpu_node->m_modelGPU->Unload();
+			gpu_node->m_modelGPU->Load();
+		}
+		break;
+	case miVisualObjectType::Edge:
+		for (u32 i = 0; i < m_nodesForUpdate.m_size; ++i)
+		{
+			auto cpu_node = m_nodes_CPU[m_nodesForUpdate.m_data[i]];
+			auto gpu_node = m_nodes_GPU[m_nodesForUpdate.m_data[i]];
+
+			for (u32 o = 0; o < cpu_node->m_ptrs.m_size; ++o)
+			{
+				auto & pair = cpu_node->m_ptrs.m_data[o];
+				auto mi_vertex = (miVertex*)pair.m_first;
+
+				if (m_mesh->m_skeleton)
+				{
+					auto edge_vertex = (yyVertexAnimatedLine*)pair.m_second;
+					edge_vertex->Position = mi_vertex->m_position;
+				}
+				else
+				{
+					auto edge_vertex = (yyVertexLine*)pair.m_second;
+					edge_vertex->Position = mi_vertex->m_position;
+				}
+			}
+
+			gpu_node->m_modelGPU->Unload();
+			gpu_node->m_modelGPU->Load();
+		}
+		break;
+	case miVisualObjectType::Polygon:
+		for (u32 i = 0; i < m_nodesForUpdate.m_size; ++i)
+		{
+			auto cpu_node = m_nodes_CPU[m_nodesForUpdate.m_data[i]];
+			auto gpu_node = m_nodes_GPU[m_nodesForUpdate.m_data[i]];
+
+			for (u32 o = 0; o < cpu_node->m_ptrs.m_size; ++o)
+			{
+				auto & pair = cpu_node->m_ptrs.m_data[o];
+				auto mi_vertex = (miVertex*)pair.m_first;
+
+				if (m_mesh->m_skeleton)
+				{
+					auto polygon_vertex = (yyVertexAnimatedTriangle*)pair.m_second;
+					polygon_vertex->Position = mi_vertex->m_position;
+				}
+				else
+				{
+					auto polygon_vertex = (yyVertexTriangle*)pair.m_second;
+					polygon_vertex->Position = mi_vertex->m_position;
+				}
+			}
+
+			gpu_node->m_modelGPU->Unload();
+			gpu_node->m_modelGPU->Load();
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void miVisualObjectImpl::OnSelect(miEditMode em) {
+	m_nodesForUpdate.clear();
+
+	switch (em)
+	{
+	case miEditMode::Vertex:
+	{
+		if (m_type == miVisualObjectType::Vertex)
+		{
+			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+			{
+				auto n = m_nodes_CPU[i];
+				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+				{
+					auto vertex = (miVertex*)n->m_ptrs.m_data[o].m_first;
+					if (vertex->m_flags & vertex->flag_isSelected)
+					{
+						m_nodesForUpdate.push_back(i);
+						break;
+					}
+				}
+			}
+		}
+		else if (m_type == miVisualObjectType::Edge)
+		{
+			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+			{
+				auto n = m_nodes_CPU[i];
+				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+				{
+					auto v = (miVertex*)n->m_ptrs.m_data[o].m_first;
+					if (v->m_flags & v->flag_isSelected)
+					{
+						m_nodesForUpdate.push_back(i);
+						break;
+					}
+				}
+			}
+		}
+		else if (m_type == miVisualObjectType::Polygon)
+		{
+			for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
+			{
+				auto n = m_nodes_CPU[i];
+				for (u32 o = 0; o < n->m_ptrs.m_size; ++o)
+				{
+					auto v = (miVertex*)n->m_ptrs.m_data[o].m_first;
+					if (v->m_flags & v->flag_isSelected)
+					{
+						m_nodesForUpdate.push_back(i);
+						break;
+					}
+				}
+			}
+		}
+		//printf("m_nodesForUpdate: %u\n", m_nodesForUpdate.m_size);
+	}break;
+	case miEditMode::Edge:
+		
+		break;
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}
+
+void miVisualObjectImpl::UpdateAabb() {
+	m_aabb.reset();
+	auto current_vertex = m_mesh->m_first_vertex;
+	auto last_vertex = current_vertex->m_left;
+	while (true) {
+		m_aabb.add(current_vertex->m_position);
+		if (current_vertex == last_vertex)
+			break;
+		current_vertex = current_vertex->m_right;
+	}
 }

@@ -1013,8 +1013,8 @@ void miApplication::UpdateViewports() {
 		{
 			if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
 			{
-				m_gizmo->OnEscape();
 				m_isViewportInFocus = false;
+				m_gizmo->OnEscape();
 				_transformObjectsReset();
 			}
 			else if (m_isCursorMove)

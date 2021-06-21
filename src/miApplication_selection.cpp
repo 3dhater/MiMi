@@ -7,6 +7,29 @@
 
 extern miApplication * g_app;
 
+void miApplication::_callVisualObjectOnSelect() {
+	switch (m_editMode)
+	{
+	case miEditMode::Vertex:
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			auto obj = m_selectedObjects.m_data[i];
+
+			auto voc = obj->GetVisualObjectCount();
+			for (int o = 0; o < voc; ++o)
+			{
+				obj->GetVisualObject(o)->OnSelect(m_editMode);
+			}
+		}
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}
+
 void miApplication::DeselectAll() {
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
@@ -27,6 +50,7 @@ void miApplication::SelectAll() {
 	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
+	_callVisualObjectOnSelect();
 }
 
 void miApplication::InvertSelection() {
@@ -38,6 +62,7 @@ void miApplication::InvertSelection() {
 	UpdateSelectedObjectsArray();
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
+	_callVisualObjectOnSelect();
 }
 
 void miApplication::_select_multiple() {
@@ -449,6 +474,7 @@ void miApplication::_onSelect() {
 	}
 
 	_updateIsVertexEdgePolygonSelected();
+	_callVisualObjectOnSelect();
 	
 	UpdateSelectionAabb();
 	m_GUIManager->SetCommonParamsRangePosition();
