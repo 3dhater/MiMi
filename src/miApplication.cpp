@@ -584,13 +584,9 @@ bool miApplication::Init(const char* videoDriver) {
 					yyLogWriteWarning("Trying to load video driver : %s\n", path.generic_string().c_str());
 
 					if (yyInitVideoDriver(path.generic_string().c_str(), m_window))
-					{
 						goto vidOk;
-					}
 					else
-					{
 						yyLogWriteWarning("Can't load video driver : %s\n", path.generic_string().c_str());
-					}
 				}
 			}
 		}

@@ -703,24 +703,52 @@ bool miEditableObject::IsPolygonSelected() {
 	return false;
 }
 
+void miEditableObject::_transformMove(const v3f& move_delta, bool isCancel) {
+	for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
+	{
+		if (isCancel)
+			m_vertsForTransform.m_data[i].m_first->m_position = m_vertsForTransform.m_data[i].m_second;
+		else
+			m_vertsForTransform.m_data[i].m_first->m_position += move_delta;
+	}
+}
+
+void miEditableObject::_transformScale(Mat4* S, const v3f& C, bool isCancel) {
+	auto M = *S;
+	Mat4 W = m_rotationOnlyMatrix;
+
+	auto WT = W;
+	WT.transpose();
+
+	auto WI = W;
+	WI.invert();
+
+	M = M * W;
+	M = WT * M;
+
+	for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
+	{
+		if (isCancel)
+			m_vertsForTransform.m_data[i].m_first->m_position = m_vertsForTransform.m_data[i].m_second;
+		else
+			m_vertsForTransform.m_data[i].m_first->m_position = math::mulBasis(m_vertsForTransform.m_data[i].m_second - C, M) + C;
+	}
+}
+
 void miEditableObject::OnTransformEdge(
 	miTransformMode tm, 
-	const v3f& move_value, 
 	const v3f& move_delta, 
+	Mat4* S,
+	const v3f& C,
 	bool isCancel) 
 {
 	switch (tm)
 	{
 	case miTransformMode::Move:
-		for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
-		{
-			if (isCancel)
-				m_vertsForTransform.m_data[i]->m_position -= move_value;
-			else
-				m_vertsForTransform.m_data[i]->m_position += move_delta;
-		}
+		_transformMove(move_delta, isCancel);
 		break;
 	case miTransformMode::Scale:
+		_transformScale(S, C, isCancel);
 		break;
 	case miTransformMode::Rotate:
 		break;
@@ -733,24 +761,19 @@ void miEditableObject::OnTransformEdge(
 
 void miEditableObject::OnTransformVertex(
 	miTransformMode tm, 
-	const v3f& move_value, 
 	const v3f& move_delta, 
+	Mat4* S,
+	const v3f& C,
 	bool isCancel) 
 {
 	switch (tm)
 	{
 	case miTransformMode::Move:
-	{
-		for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
-		{
-			if (isCancel)
-				m_vertsForTransform.m_data[i]->m_position -= move_value;
-			else
-				m_vertsForTransform.m_data[i]->m_position += move_delta;
-		}
-	}break;
+		_transformMove(move_delta, isCancel);
+	break;
 	case miTransformMode::Scale:
-		break;
+		_transformScale(S, C, isCancel);
+	break;
 	case miTransformMode::Rotate:
 		break;
 	case miTransformMode::NoTransform:
@@ -771,22 +794,18 @@ void miEditableObject::_callVisualObjectOnTransform() {
 
 void miEditableObject::OnTransformPolygon(
 	miTransformMode tm, 
-	const v3f& move_value, 
 	const v3f& move_delta, 
+	Mat4* S,
+	const v3f& C,
 	bool isCancel) 
 {
 	switch (tm)
 	{
 	case miTransformMode::Move:
-		for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
-		{
-			if (isCancel)
-				m_vertsForTransform.m_data[i]->m_position -= move_value;
-			else
-				m_vertsForTransform.m_data[i]->m_position += move_delta;
-		}
+		_transformMove(move_delta, isCancel);
 		break;
 	case miTransformMode::Scale:
+		_transformScale(S, C, isCancel);
 		break;
 	case miTransformMode::Rotate:
 		break;
@@ -805,6 +824,10 @@ void miEditableObject::OnSetEditMode(miEditMode em) {
 	_updateVertsForTransformArray(em);
 }
 
+void miEditableObject::OnEndTransform(miEditMode em) {
+	_updateVertsForTransformArray(em);
+}
+
 void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 	m_vertsForTransform.clear();
 	switch (em)
@@ -816,7 +839,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 		while (true)
 		{
 			if (c->m_flags & c->flag_isSelected)
-				m_vertsForTransform.push_back(c);
+				m_vertsForTransform.push_back(miPair<miVertex*, v3f>(c, c->m_position));
 
 			if (c == l)
 				break;
@@ -825,15 +848,15 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 	}break;
 	case miEditMode::Edge:
 	{
-		miBinarySearchTree<miVertex*> bst;
+		miBinarySearchTree<miPair<miVertex*, v3f>> bst;
 		auto ce = m_mesh->m_first_edge;
 		auto le = ce->m_left;
 		while (true)
 		{
 			if (ce->m_flags & miEdge::flag_isSelected)
 			{
-				bst.Add((uint64_t)ce->m_vertex1, ce->m_vertex1);
-				bst.Add((uint64_t)ce->m_vertex2, ce->m_vertex2);
+				bst.Add((uint64_t)ce->m_vertex1, miPair<miVertex*, v3f>(ce->m_vertex1, ce->m_vertex1->m_position));
+				bst.Add((uint64_t)ce->m_vertex2, miPair<miVertex*, v3f>(ce->m_vertex2, ce->m_vertex2->m_position));
 			}
 
 			if (ce == le)
@@ -845,7 +868,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 	}break;
 	case miEditMode::Polygon:
 	{
-		miBinarySearchTree<miVertex*> bst;
+		miBinarySearchTree<miPair<miVertex*, v3f>> bst;
 		auto cp = m_mesh->m_first_polygon;
 		auto lp = cp->m_left;
 		while (true)
@@ -856,7 +879,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 				auto lv = cv->m_left;
 				while (true)
 				{
-					bst.Add((uint64_t)cv->m_data, cv->m_data);
+					bst.Add((uint64_t)cv->m_data, miPair<miVertex*, v3f>(cv->m_data, cv->m_data->m_position));
 
 					if (cv == lv)
 						break;

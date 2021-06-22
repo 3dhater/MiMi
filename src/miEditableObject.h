@@ -28,8 +28,11 @@ class miEditableObject : public miSceneObject
 	void _selectInvertVerts();
 	void _selectInvertEdges();
 	void _selectInvertPolygons();
+	
+	void _transformMove(const v3f& move_delta, bool isCancel);
+	void _transformScale(Mat4* S, const v3f& C, bool isCancel);
 
-	yyArraySimple<miVertex*> m_vertsForTransform;
+	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);
 
 	void _callVisualObjectOnTransform();
@@ -71,12 +74,13 @@ public:
 	virtual bool IsEdgeSelected() override;
 	virtual bool IsPolygonSelected() override;
 
-	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
-	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
-	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) override;
+	virtual void OnTransformVertex(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) override;
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) override;
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) override;
 
 	virtual void OnSelect(miEditMode) override;
 	virtual void OnSetEditMode(miEditMode) override;
+	virtual void OnEndTransform(miEditMode) override;
 };
 
 #endif

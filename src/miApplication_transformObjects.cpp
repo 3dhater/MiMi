@@ -5,6 +5,8 @@
 void miApplication::_transformObjectsApply() {
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
+		m_selectedObjects.m_data[i]->OnEndTransform(m_editMode);
+
 		switch (m_transformMode)
 		{
 		case miTransformMode::NoTransform:
@@ -73,7 +75,6 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 	if (isCancel)
 	{
 		var_move = m_gizmo->m_var_move_onEscape;
-		printf("isCancel\n");
 	}
 
 	auto M = *o->GetRotationScaleMatrix();
@@ -82,13 +83,13 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
-		o->OnTransformVertex(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
+		o->OnTransformVertex(miTransformMode::Move, math::mulBasis(m_gizmo->m_moveDelta, M), nullptr, m_gizmo->m_position, isCancel);
 		break;
 	case miEditMode::Edge:
-		o->OnTransformEdge(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
+		o->OnTransformEdge(miTransformMode::Move, math::mulBasis(m_gizmo->m_moveDelta, M), nullptr, m_gizmo->m_position, isCancel);
 		break;
 	case miEditMode::Polygon:
-		o->OnTransformPolygon(miTransformMode::Move, math::mulBasis(var_move, M), math::mulBasis(m_gizmo->m_moveDelta, M), isCancel);
+		o->OnTransformPolygon(miTransformMode::Move, math::mulBasis(m_gizmo->m_moveDelta, M), nullptr, m_gizmo->m_position, isCancel);
 		break;
 	case miEditMode::Object:
 	default:
@@ -104,14 +105,30 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 }
 
 void miApplication::_transformObjects_scale(miSceneObject* o) {
+	bool isCancel = m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
+	
 	Mat4 S;
 	S.setScale(m_gizmo->m_var_scale);
+
+	auto M = *o->GetRotationScaleMatrix();
+	M.invert();
+	auto var_scale = m_gizmo->m_var_scale;
+	if (isCancel)
+	{
+		var_scale = m_gizmo->m_var_move_onEscape;
+	}
+	//printf("m_scaleDelta: %f %f %f\n", m_gizmo->m_scaleDelta.x, m_gizmo->m_scaleDelta.y, m_gizmo->m_scaleDelta.z);
 
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
+		o->OnTransformVertex(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
+		break;
 	case miEditMode::Edge:
+		o->OnTransformEdge(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
+		break;
 	case miEditMode::Polygon:
+		o->OnTransformPolygon(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
 		break;
 	case miEditMode::Object:
 	default:
@@ -119,7 +136,6 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 		*R = S * o->m_rotationScaleMatrixOnGizmoClick;
 		if (!m_isLocalTransform)
 		{
-			//auto C = m_selectionAabb_center;
 			auto C = m_gizmo->m_position;
 			auto position = o->GetLocalPosition();
 			*position = math::mul(o->m_localPositionOnGizmoClick - C, S) + C;
@@ -183,6 +199,8 @@ void miApplication::_transformObjects() {
 	if (m_keyboardModifier == miKeyboardModifier::Alt)
 		move_speed *= 0.01f;
 
+	v3f screen_vector = math::mulBasis(v3f(m_inputContext->m_mouseDelta.x * move_speed, -m_inputContext->m_mouseDelta.y * move_speed, 0.f), m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewMatrixInvert);
+	//printf("%f %f %f\n", screen_vector.x, screen_vector.y, screen_vector.z);
 
 	switch (m_gizmoMode)
 	{
@@ -381,17 +399,7 @@ void miApplication::_transformObjects() {
 		break;
 	case miGizmoMode::MoveScreen:
 	{
-		auto p1 = m_screenRayCurrent.m_end;
-		auto p2 = m_screenRayOnClick.m_end;
-
-		f32 D = m_screenRayCurrent.m_end.distance(m_screenRayOnClick.m_end);
-		//printf("D: %f\n", D);
-		if (D > 1.f)
-		{
-			p1 *= 0.0025f;
-			p2 *= 0.0025f;
-		}
-		m_gizmo->m_var_move += (p1 - p2);
+		m_gizmo->m_var_move += screen_vector;
 	}break;
 	default:
 		break;
@@ -407,9 +415,9 @@ void miApplication::_transformObjects() {
 	if (m_keyboardModifier == miKeyboardModifier::Alt)
 		scale_speed *= 0.01f;
 	f32 scale_v = mouse_delta_d * 0.01f * scale_speed;
-	//printf("%f\n", mouse_delta_d);
+	//printf("%f\n", scale_v);
 	
-	auto s = m_screenRayCurrent.m_origin - m_screenRayOnClick.m_origin;
+	auto s = screen_vector;
 	//printf("%f %f %f\n", s.x, s.y, s.z);
 	switch (m_gizmoMode)
 	{
@@ -441,6 +449,7 @@ void miApplication::_transformObjects() {
 	default:
 		break;
 	}
+	//printf("%f %f %f [%f]\n", m_gizmo->m_var_scale2.x, m_gizmo->m_var_scale2.y, m_gizmo->m_var_scale2.z, scale_v);
 
 	{
 		f32 x = m_gizmo->m_var_scale2.x - 1.f;
@@ -455,13 +464,11 @@ void miApplication::_transformObjects() {
 		if (x <= 0.f) x = FLT_MIN;
 		if (y <= 0.f) y = FLT_MIN;
 		if (z <= 0.f) z = FLT_MIN;
-		//printf("%f %f %f\n", x, y, z);
+	//	printf("%f %f %f\n", x, y, z);
 		m_gizmo->m_var_scale.x = x;
 		m_gizmo->m_var_scale.y = y;
 		m_gizmo->m_var_scale.z = z;
 	}
-
-	//printf("%f %f %f\n", m_gizmo->m_var_scale2.x, m_gizmo->m_var_scale2.y, m_gizmo->m_var_scale2.z);
 
 	f32 rot = m_inputContext->m_mouseDelta.x * 0.005f;
 	if (m_keyboardModifier == miKeyboardModifier::Alt)

@@ -291,12 +291,13 @@ public:
 	virtual bool IsEdgeSelected() { return false; }
 	virtual bool IsPolygonSelected() { return false; }
 
-	virtual void OnTransformVertex(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
-	virtual void OnTransformEdge(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
-	virtual void OnTransformPolygon(miTransformMode, const v3f& move_value, const v3f& move_delta, bool isCancel) {}
+	virtual void OnTransformVertex(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) {}
+	virtual void OnTransformEdge(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) {}
+	virtual void OnTransformPolygon(miTransformMode, const v3f& move_delta, Mat4* scale, const v3f& center, bool isCancel) {}
 	
 	virtual void OnSelect(miEditMode) {}
 	virtual void OnSetEditMode(miEditMode) {}
+	virtual void OnEndTransform(miEditMode) {}
 };
 
 #endif
