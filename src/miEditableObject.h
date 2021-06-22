@@ -31,6 +31,7 @@ class miEditableObject : public miSceneObject
 	
 	void _transformMove(const v3f& move_delta, bool isCancel);
 	void _transformScale(Mat4* S, const v3f& C, bool isCancel);
+	void _transformRotate(Mat4* R, const v3f& C, bool isCancel);
 
 	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);

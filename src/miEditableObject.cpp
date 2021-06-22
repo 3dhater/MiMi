@@ -713,7 +713,7 @@ void miEditableObject::_transformMove(const v3f& move_delta, bool isCancel) {
 	}
 }
 
-void miEditableObject::_transformScale(Mat4* S, const v3f& C, bool isCancel) {
+void miEditableObject::_transformScale(Mat4* S, const v3f& selectionCenter, bool isCancel) {
 	auto M = *S;
 	Mat4 W = m_rotationOnlyMatrix;
 
@@ -726,6 +726,11 @@ void miEditableObject::_transformScale(Mat4* S, const v3f& C, bool isCancel) {
 	M = M * W;
 	M = WT * M;
 
+	auto C = selectionCenter;
+	auto W2 = m_worldMatrix;
+	W2.invert();
+	C = math::mul(C, W2);
+
 	for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
 	{
 		if (isCancel)
@@ -733,6 +738,10 @@ void miEditableObject::_transformScale(Mat4* S, const v3f& C, bool isCancel) {
 		else
 			m_vertsForTransform.m_data[i].m_first->m_position = math::mulBasis(m_vertsForTransform.m_data[i].m_second - C, M) + C;
 	}
+}
+
+void miEditableObject::_transformRotate(Mat4* R, const v3f& selectionCenter, bool isCancel) {
+	_transformScale(R, selectionCenter, isCancel);
 }
 
 void miEditableObject::OnTransformEdge(
@@ -751,6 +760,7 @@ void miEditableObject::OnTransformEdge(
 		_transformScale(S, C, isCancel);
 		break;
 	case miTransformMode::Rotate:
+		_transformRotate(S, C, isCancel);
 		break;
 	case miTransformMode::NoTransform:
 	default:
@@ -775,6 +785,7 @@ void miEditableObject::OnTransformVertex(
 		_transformScale(S, C, isCancel);
 	break;
 	case miTransformMode::Rotate:
+		_transformRotate(S, C, isCancel);
 		break;
 	case miTransformMode::NoTransform:
 	default:
@@ -808,6 +819,7 @@ void miEditableObject::OnTransformPolygon(
 		_transformScale(S, C, isCancel);
 		break;
 	case miTransformMode::Rotate:
+		_transformRotate(S, C, isCancel);
 		break;
 	case miTransformMode::NoTransform:
 	default:

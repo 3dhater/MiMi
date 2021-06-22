@@ -122,13 +122,13 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
-		o->OnTransformVertex(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
+		o->OnTransformVertex(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position , isCancel);
 		break;
 	case miEditMode::Edge:
-		o->OnTransformEdge(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
+		o->OnTransformEdge(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position , isCancel);
 		break;
 	case miEditMode::Polygon:
-		o->OnTransformPolygon(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position - *o->GetGlobalPosition(), isCancel);
+		o->OnTransformPolygon(miTransformMode::Scale, v3f(), &S, m_gizmo->m_position , isCancel);
 		break;
 	case miEditMode::Object:
 	default:
@@ -148,6 +148,7 @@ void miApplication::_transformObjects_scale(miSceneObject* o) {
 }
 
 void miApplication::_transformObjects_rotate(miSceneObject* o) {
+	bool isCancel = m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
 	Mat4 RX, RY, RZ;
 	RX.setRotation(Quat(m_gizmo->m_var_rotate.x, 0.f, 0.f));
 	RY.setRotation(Quat(0.f, m_gizmo->m_var_rotate.y, 0.f));
@@ -166,8 +167,13 @@ void miApplication::_transformObjects_rotate(miSceneObject* o) {
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:
+		o->OnTransformVertex(miTransformMode::Rotate, v3f(), &R, m_gizmo->m_position , isCancel);
+		break;
 	case miEditMode::Edge:
+		o->OnTransformEdge(miTransformMode::Rotate, v3f(), &R, m_gizmo->m_position , isCancel);
+		break;
 	case miEditMode::Polygon:
+		o->OnTransformPolygon(miTransformMode::Rotate, v3f(), &R, m_gizmo->m_position, isCancel);
 		break;
 	case miEditMode::Object:
 	default:
