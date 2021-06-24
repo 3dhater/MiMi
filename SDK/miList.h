@@ -143,6 +143,7 @@ public:
 					node->~miListNode();
 					miFree(node);
 
+					// ???
 					if (node == m_head)
 						m_head = 0;
 				}

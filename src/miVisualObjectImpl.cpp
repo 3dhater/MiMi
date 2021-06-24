@@ -32,6 +32,9 @@ void miVisualObjectImpl::_destroy() {
 }
 
 void miVisualObjectImpl::_createSoftwareModel_verts() {
+	if (!m_mesh->m_first_vertex)
+		return;
+
 	const s32 pointLimit = 200;
 	s32 pointCount = 0;
 	yyModel* softwareModel = 0;
@@ -109,6 +112,9 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 	}
 }
 void miVisualObjectImpl::_createSoftwareModel_edges() {
+	if (!m_mesh->m_first_edge)
+		return;
+
 	const s32 lineLimit = 400;
 	s32 lineCount = 0;
 	yyModel* softwareModel = 0;
@@ -228,6 +234,9 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 }
 
 void miVisualObjectImpl::_createSoftwareModel_polys() {
+	if (!m_mesh->m_first_polygon)
+		return;
+
 	const s32 triLimit = 5000;
 	s32 triangleCount = 0;
 	yyModel* softwareModel = 0;
@@ -867,6 +876,9 @@ void miVisualObjectImpl::OnSelect(miEditMode em) {
 
 void miVisualObjectImpl::UpdateAabb() {
 	m_aabb.reset();
+	if (!m_mesh->m_first_vertex)
+		return;
+
 	auto current_vertex = m_mesh->m_first_vertex;
 	auto last_vertex = current_vertex->m_left;
 	while (true) {

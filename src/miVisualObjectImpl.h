@@ -8,7 +8,8 @@ class miVisualObjectImpl : public miVisualObject
 			m_modelGPU = 0;
 		}
 		~model_node_GPU() {
-			if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
+			if (m_modelGPU)
+				yyMegaAllocator::Destroy(m_modelGPU);
 		}
 		yyResource* m_modelGPU;
 	};
@@ -17,7 +18,8 @@ class miVisualObjectImpl : public miVisualObject
 			m_modelCPU = 0;
 		}
 		~model_node_CPU() {
-			if (m_modelCPU) yyMegaAllocator::Destroy(m_modelCPU);
+			if (m_modelCPU)
+				yyMegaAllocator::Destroy(m_modelCPU);
 		}
 		yyModel* m_modelCPU;
 

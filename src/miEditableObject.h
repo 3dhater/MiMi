@@ -12,6 +12,10 @@ class miEditableObject : public miSceneObject
 
 	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
 	miMesh* m_mesh;
+	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
+	miDefaultAllocator<miEdge>* m_allocatorEdge;
+	miDefaultAllocator<miVertex>* m_allocatorVertex;
+	void _destroyMesh();
 
 	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
@@ -32,6 +36,8 @@ class miEditableObject : public miSceneObject
 	void _transformMove(const v3f& move_delta, bool isCancel);
 	void _transformScale(Mat4* S, const v3f& C, bool isCancel);
 	void _transformRotate(Mat4* R, const v3f& C, bool isCancel);
+
+	void _deletePolygon(miPolygon*);
 
 	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);
