@@ -311,7 +311,7 @@ void miEditableObject::_deletePolygon(miPolygon* _polygon) {
 		auto c = edgesForDelete.m_data[i];
 
 		auto l = c->m_left;
-		auto r = c->m_left;
+		auto r = c->m_right;
 		l->m_right = r;
 		r->m_left = l;
 
