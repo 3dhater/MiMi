@@ -178,17 +178,27 @@ public:
 	miPluginGUI() {}
 	virtual ~miPluginGUI() {}
 
+	enum
+	{
+		Flag_OnlyForVertexEditMode = BIT(0),
+		Flag_OnlyForEdgeEditMode = BIT(1),
+		Flag_OnlyForPolygonEditMode = BIT(2),
+		Flag_OnlyForObjectEditMode = BIT(3),
+	};
+
 	// onSelectObject - will call when 1 object wil be selected
 	//   must return new or old text
-	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*)) = 0;
+	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*), u32 flags) = 0;
 	
 	//   must return new ptr
-	virtual void AddRangeSliderInt(const v4f& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*,int)) = 0;
-	virtual void AddRangeSliderFloat(const v4f& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
-	virtual void AddRangeSliderIntNoLimit(const v4f& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int)) = 0;
-	virtual void AddRangeSliderFloatNoLimit(const v4f& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float)) = 0;
+	virtual void AddRangeSliderInt(const v4f& positionSize, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*,int), u32 flags) = 0;
+	virtual void AddRangeSliderFloat(const v4f& positionSize, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) = 0;
+	virtual void AddRangeSliderIntNoLimit(const v4f& positionSize, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int), u32 flags) = 0;
+	virtual void AddRangeSliderFloatNoLimit(const v4f& positionSize, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) = 0;
 	
-	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void (*onClick)(bool isChecked), bool isChecked) = 0;
+	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked, u32 flags) = 0;
+	
+	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void (*onClick)(s32), u32 flags) = 0;
 };
 
 class miSDKImporterHelper

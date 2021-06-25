@@ -71,11 +71,11 @@ void miplStd_ImportOBJ_Tiangulate_onClick(bool isChecked) {
 void miplStd_initGuiForImportOBJ(miPluginGUI* gui) {
 	float X = 0.f;
 	float Y = 0.f;
-	gui->AddText(v2f(X, Y), L"Import parameters: ", 0);
+	gui->AddText(v2f(X, Y), L"Import parameters: ", 0, 0);
 
 	Y += 15.f;
 
-	gui->AddCheckBox(v2f(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, false);
+	gui->AddCheckBox(v2f(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, false, 0);
 }
 
 void miplStd_ImportOBJ(const wchar_t* fileName) {

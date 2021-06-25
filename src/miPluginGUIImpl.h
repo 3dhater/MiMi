@@ -16,6 +16,8 @@ class miPluginGUIImpl : public miPluginGUI
 			m_slider_onValueChanged_slider_i = 0;
 			m_slider_onValueChanged_slider_f = 0;
 			m_checkbox_onClick = 0;
+			m_button_onClick = 0;
+			m_flags = 0;
 		}
 
 		yyGUIElement* m_element;
@@ -26,12 +28,16 @@ class miPluginGUIImpl : public miPluginGUI
 		void   (*m_slider_onValueChanged_slider_f)(miSceneObject*, float);
 
 		void(*m_checkbox_onClick)(bool isChecked);
+		void(*m_button_onClick)(s32 id);
+
+		u32 m_flags;
 	};
 
-	yyArray<element_info> m_gui_elements;
+	yyArraySimple<element_info> m_gui_elements;
 
 	void _init(miPluginGUIType);
 
+	friend void miPluginGUIImpl_button_onClick(yyGUIElement* elem, s32 m_id);
 	friend void miPluginGUIImpl_checkBox_onClick(yyGUIElement* elem, s32 m_id);
 	friend void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider);
 	friend void miPluginGUIImpl_gui_group_onRebuildSetRects(yyGUIElement* elem, s32 m_id);
@@ -40,12 +46,13 @@ public:
 	miPluginGUIImpl();
 	virtual ~miPluginGUIImpl();
 
-	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*));
-	virtual void AddRangeSliderInt(const v4f& rect, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int));
-	virtual void AddRangeSliderFloat(const v4f& rect, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float));
-	virtual void AddRangeSliderIntNoLimit(const v4f& rect, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int));
-	virtual void AddRangeSliderFloatNoLimit(const v4f& rect, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float));
-	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked);
+	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*), u32 flags) override;
+	virtual void AddRangeSliderInt(const v4f& positionSize, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int), u32 flags) override;
+	virtual void AddRangeSliderFloat(const v4f& positionSize, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) override;
+	virtual void AddRangeSliderIntNoLimit(const v4f& positionSize, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int), u32 flags) override;
+	virtual void AddRangeSliderFloatNoLimit(const v4f& positionSize, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) override;
+	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked, u32 flags) override;
+	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) override;
 
 	virtual void Show(bool);
 

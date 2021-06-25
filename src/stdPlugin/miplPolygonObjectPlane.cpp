@@ -27,20 +27,35 @@ void miplStd_plane_sliderYSegments_onValueChanged(miSceneObject* object, int y) 
 	o->_generate();
 }
 
+void miplStd_plane_testbuttons_onClick(int id) {
+	printf("Test button %i\n", id);
+}
 void miplStd_initGuiForPlane(miPluginGUI* gui) {
 	float X = 0.f;
 	float Y = 0.f;
-	gui->AddText(v2f(X,Y), L"X segments: ", 0);
+	gui->AddText(v2f(X,Y), L"X segments: ", 0, 0);
 
 	X = 60.f;
-	gui->AddRangeSliderInt(v4f(X, Y, X + 100.f, Y + 15.f), 1, 100, miplStd_plane_sliderXSegments_onSelectObject, miplStd_plane_sliderXSegments_onValueChanged);
+	gui->AddRangeSliderInt(v4f(X, Y, 100.f, 15.f), 1, 100, miplStd_plane_sliderXSegments_onSelectObject, miplStd_plane_sliderXSegments_onValueChanged, 0);
 	
 	X = 0.f;
 	Y = 15.f;
-	gui->AddText(v2f(X, Y), L"Y segments: ", 0);
+	gui->AddText(v2f(X, Y), L"Y segments: ", 0, 0);
 
 	X = 60.f;
-	gui->AddRangeSliderInt(v4f(X, Y, X + 100.f, Y + 15.f), 1, 100, miplStd_plane_sliderYSegments_onSelectObject, miplStd_plane_sliderYSegments_onValueChanged);
+	gui->AddRangeSliderInt(v4f(X, Y, 100.f, 15.f), 1, 100, miplStd_plane_sliderYSegments_onSelectObject, miplStd_plane_sliderYSegments_onValueChanged, 0);
+
+	gui->AddText(v2f(0, 50), L"Object edit: ", 0, miPluginGUI::Flag_OnlyForObjectEditMode);
+	gui->AddButton(v4f(70.f, 50.f, 100.f, 20.f), L"Button 1", 0, miplStd_plane_testbuttons_onClick, miPluginGUI::Flag_OnlyForObjectEditMode);
+	
+	gui->AddText(v2f(0, 50), L"Vertex edit: ", 0, miPluginGUI::Flag_OnlyForVertexEditMode);
+	gui->AddButton(v4f(70.f, 50.f, 100.f, 20.f), L"Button 2", 1, miplStd_plane_testbuttons_onClick, miPluginGUI::Flag_OnlyForVertexEditMode);
+	
+	gui->AddText(v2f(0, 50), L"Edge edit: ", 0, miPluginGUI::Flag_OnlyForEdgeEditMode);
+	gui->AddButton(v4f(70.f, 50.f, 100.f, 20.f), L"Button 3", 2, miplStd_plane_testbuttons_onClick, miPluginGUI::Flag_OnlyForEdgeEditMode);
+	
+	gui->AddText(v2f(0, 50), L"Polygon edit: ", 0, miPluginGUI::Flag_OnlyForPolygonEditMode);
+	gui->AddButton(v4f(70.f, 50.f, 100.f, 20.f), L"Button 4", 3, miplStd_plane_testbuttons_onClick, miPluginGUI::Flag_OnlyForPolygonEditMode);
 }
 
 void miplPolygonObjectPlane_generate(

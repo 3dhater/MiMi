@@ -1622,11 +1622,12 @@ void miApplication::SetEditMode(miEditMode m) {
 	{
 		auto obj = m_selectedObjects.m_data[i];
 		obj->OnSetEditMode(m_editMode);
-		/*auto voc = obj->GetVisualObjectCount();
-		for (s32 o = 0; o < voc; ++o)
-		{
-			obj->GetVisualObject(o)->OnSelect(m_editMode);
-		}*/
+	}
+
+	if (m_currentPluginGUI)
+	{
+		if (m_selectedObjects.m_size == 1)
+			m_currentPluginGUI->Show(true);
 	}
 
 	switch (m)
