@@ -11,6 +11,7 @@
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
 
+class miEditableObject;
 class miPluginGUIImpl;
 class miGUIManager;
 class miShortcutManager;
@@ -204,6 +205,8 @@ class miApplication
 	miPluginGUIImpl * m_pluginGuiForEditableObject;
 	yyArray<miPluginGUI*> m_pluginGuiAll;
 
+	void _initEditableObjectGUI();
+
 	miPopup* _getPopupInViewport();
 
 	yyArraySimple<miSceneObject*> m_objectsOnScene;
@@ -269,6 +272,8 @@ public:
 
 	miGizmo* m_gizmo;
 
+	miEditMode GetEditMode();
+
 	void CommandCameraReset(miViewport* vp);
 	void CommandCameraMoveToSelection(miViewport* vp);
 	void CommandViewportChangeView(miViewport* vp, miViewportCameraType);
@@ -297,6 +302,7 @@ public:
 
 	void DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& offset);
 
+	friend class miEditableObject;
 	friend class miGizmo;
 	friend class miGUIManager;
 	friend class miPluginGUIImpl;

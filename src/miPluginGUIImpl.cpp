@@ -73,14 +73,31 @@ void miPluginGUIImpl::Show(bool show) {
 		{
 			auto & e = m_gui_elements.m_data[i];
 		
-			if (e.m_flags & miPluginGUI::Flag_OnlyForObjectEditMode)
-				e.m_element->SetVisible(g_app->m_editMode == miEditMode::Object);
-			else if (e.m_flags & miPluginGUI::Flag_OnlyForVertexEditMode)
-				e.m_element->SetVisible(g_app->m_editMode == miEditMode::Vertex);
-			else if (e.m_flags & miPluginGUI::Flag_OnlyForEdgeEditMode)
-				e.m_element->SetVisible(g_app->m_editMode == miEditMode::Edge);
-			else if (e.m_flags & miPluginGUI::Flag_OnlyForPolygonEditMode)
-				e.m_element->SetVisible(g_app->m_editMode == miEditMode::Polygon);
+			bool v = false;
+
+			switch (g_app->m_editMode)
+			{
+			default:
+			case miEditMode::Object:
+				if (e.m_flags & miPluginGUI::Flag_ForVertexEditMode
+					|| e.m_flags & miPluginGUI::Flag_ForEdgeEditMode
+					|| e.m_flags & miPluginGUI::Flag_ForPolygonEditMode)
+					v = false;
+				else
+					v =	true;
+				break;
+			case miEditMode::Vertex:
+				v = e.m_flags & miPluginGUI::Flag_ForVertexEditMode ? true : false;
+				break;
+			case miEditMode::Edge:
+				v = e.m_flags & miPluginGUI::Flag_ForEdgeEditMode ? true : false;
+				break;
+			case miEditMode::Polygon:
+				v = e.m_flags & miPluginGUI::Flag_ForPolygonEditMode ? true : false;
+				break;
+			}
+
+			e.m_element->SetVisible(v);
 		}
 	}
 

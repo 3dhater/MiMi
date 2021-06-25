@@ -509,7 +509,7 @@ void miApplication::_initPlugins() {
 	}
 	m_plugins.shrink_to_fit();
 
-	m_pluginGuiForEditableObject = (miPluginGUIImpl*)m_sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
+	_initEditableObjectGUI();
 }
 
 
@@ -1612,6 +1612,10 @@ void miApplication::ToggleEditMode(miEditMode m) {
 	SetEditMode(mode);
 }
 
+miEditMode miApplication::GetEditMode() {
+	return m_editMode;
+}
+
 void miApplication::SetEditMode(miEditMode m) {
 	m_editMode = m;
 	_rebuildEdgeModels();
@@ -1624,7 +1628,7 @@ void miApplication::SetEditMode(miEditMode m) {
 		obj->OnSetEditMode(m_editMode);
 	}
 
-	if (m_currentPluginGUI)
+	if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
 	{
 		if (m_selectedObjects.m_size == 1)
 			m_currentPluginGUI->Show(true);

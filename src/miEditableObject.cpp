@@ -1,10 +1,54 @@
 ﻿#include "../SDK/miSDK.h"
 #include "miApplication.h"
 #include "miViewportCamera.h"
+#include "miPluginGUIImpl.h"
 #include "miSDKImpl.h"
 #include "miEditableObject.h"
 
 extern miApplication * g_app;
+
+const s32 g_SelectButtonID_More = 0;
+const s32 g_SelectButtonID_Less = 1;
+
+void editableObjectGUI_selectButtons_onClick(s32 id) {
+	auto em = g_app->GetEditMode();
+	switch (em)
+	{
+	case miEditMode::Vertex:
+		if (id == g_SelectButtonID_More) printf("More Vertex\n");
+		else if (id == g_SelectButtonID_Less) printf("Less Vertex\n");
+		break;
+	case miEditMode::Edge:
+		if (id == g_SelectButtonID_More) printf("More Edge\n");
+		else if (id == g_SelectButtonID_Less) printf("Less Edge\n");
+		break;
+	case miEditMode::Polygon:
+		if (id == g_SelectButtonID_More) printf("More Polygon\n");
+		else if (id == g_SelectButtonID_Less) printf("Less Polygon\n");
+		break;
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}
+
+void miApplication::_initEditableObjectGUI() {
+	m_pluginGuiForEditableObject = (miPluginGUIImpl*)m_sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
+	m_pluginGuiForEditableObject->AddText(v2f(0.f, 0.f), L"Select:", 0,
+		miPluginGUI::Flag_ForEdgeEditMode |
+		miPluginGUI::Flag_ForVertexEditMode |
+		miPluginGUI::Flag_ForPolygonEditMode);
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, 0.f, 50.f, 20.f), L"More", g_SelectButtonID_More,
+		editableObjectGUI_selectButtons_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode |
+		miPluginGUI::Flag_ForVertexEditMode |
+		miPluginGUI::Flag_ForPolygonEditMode);
+	m_pluginGuiForEditableObject->AddButton(v4f(105.f, 0.f, 50.f, 20.f), L"Less", g_SelectButtonID_Less,
+		editableObjectGUI_selectButtons_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode |
+		miPluginGUI::Flag_ForVertexEditMode |
+		miPluginGUI::Flag_ForPolygonEditMode);
+}
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_sdk = sdk;
@@ -17,6 +61,7 @@ miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_allocatorEdge = new miDefaultAllocator<miEdge>(0);
 	m_allocatorVertex = new miDefaultAllocator<miVertex>(0);
 	m_mesh = miCreate<miMesh>();
+	m_gui = (miPluginGUI*)g_app->m_pluginGuiForEditableObject;
 }
 
 miEditableObject::~miEditableObject() {

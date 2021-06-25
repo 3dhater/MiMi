@@ -180,10 +180,9 @@ public:
 
 	enum
 	{
-		Flag_OnlyForVertexEditMode = BIT(0),
-		Flag_OnlyForEdgeEditMode = BIT(1),
-		Flag_OnlyForPolygonEditMode = BIT(2),
-		Flag_OnlyForObjectEditMode = BIT(3),
+		Flag_ForVertexEditMode = BIT(0),
+		Flag_ForEdgeEditMode = BIT(1),
+		Flag_ForPolygonEditMode = BIT(2),
 	};
 
 	// onSelectObject - will call when 1 object wil be selected
