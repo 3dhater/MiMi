@@ -49,7 +49,7 @@ public:
 
 	virtual miPlugin* GetPlugin();
 	virtual void DeleteSelectedObjects(miEditMode em);
-	
+	virtual void RebuildVisualObjects() override;
 	virtual int GetVisualObjectCount();
 	virtual miVisualObject* GetVisualObject(int);
 	

@@ -27,6 +27,7 @@ public:
 	virtual miMesh* GetMesh(int);
 
 	virtual void DeleteSelectedObjects(miEditMode em);
+	virtual void RebuildVisualObjects() override;
 };
 
 #endif

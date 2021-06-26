@@ -656,3 +656,6 @@ void miplPolygonObjectPlane::InvertSelection(miEditMode em) {
 		break;
 	}
 }
+
+void miplPolygonObjectPlane::RebuildVisualObjects() {
+}

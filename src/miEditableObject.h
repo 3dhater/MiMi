@@ -1,6 +1,8 @@
 ﻿#ifndef _MI_EDITABLEOBJECT_H_
 #define _MI_EDITABLEOBJECT_H_
 
+
+
 class miEditableObject : public miSceneObject
 {
 	miSDK* m_sdk;
@@ -18,11 +20,11 @@ class miEditableObject : public miSceneObject
 	void _destroyMesh();
 
 	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
-	void _selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectEdge(miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectPolygon(miKeyboardModifier km, miSelectionFrust* sf);
-	void _selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
-	void _selectPolygons_rectangle(miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectVerts_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectEdges_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
+	void _selectPolygons_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
 	void _selectAllVerts();
 	void _selectAllEdges();
 	void _selectAllPolygons();
@@ -65,11 +67,11 @@ public:
 	virtual void DeselectAll(miEditMode em);
 	virtual void InvertSelection(miEditMode em);
 
-	virtual miPlugin* GetPlugin();
-	virtual void DeleteSelectedObjects(miEditMode em);
-
-	virtual int GetVisualObjectCount();
-	virtual miVisualObject* GetVisualObject(int);
+	virtual miPlugin* GetPlugin() override;
+	virtual void DeleteSelectedObjects(miEditMode em) override;
+	virtual void RebuildVisualObjects() override;
+	virtual int GetVisualObjectCount() override;
+	virtual miVisualObject* GetVisualObject(int) override;
 	
 	virtual int GetMeshCount();
 	virtual miMesh* GetMesh(int);

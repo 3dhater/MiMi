@@ -20,6 +20,11 @@
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
 
+miApplicationPlugin::miApplicationPlugin() {}
+miApplicationPlugin::~miApplicationPlugin() {}
+void miApplicationPlugin::Init(miSDK* sdk) {
+}
+
 void log_writeToFile(const char* message) {
 	auto l = strlen(message);
 	if (l < 1) return;
@@ -149,6 +154,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_pluginForApp = 0;
 	m_currentPluginGUI = 0;
 	m_pluginGuiForEditableObject = 0;
 	m_isLocalTransform = false;
@@ -507,6 +513,11 @@ void miApplication::_initPlugins() {
 
 		m_plugins.push_back(newPlugin);
 	}
+
+	m_pluginForApp = (miApplicationPlugin*)miMalloc(sizeof(miApplicationPlugin));
+	new(m_pluginForApp)miApplicationPlugin();
+	m_plugins.push_back(m_pluginForApp);
+
 	m_plugins.shrink_to_fit();
 
 	_initEditableObjectGUI();

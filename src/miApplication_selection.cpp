@@ -487,7 +487,10 @@ void miApplication::_onSelect() {
 			obj->OnSelect(m_editMode);
 		}
 	}
+	OnSelect();
+}
 
+void miApplication::OnSelect() {
 	_updateIsVertexEdgePolygonSelected();
 	_callVisualObjectOnSelect();
 	

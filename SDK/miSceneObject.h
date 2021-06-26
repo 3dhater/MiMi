@@ -43,12 +43,16 @@ protected:
 
 	u32 m_flags;
 
+	// plugin must know type of this object
+	u32 m_typeForPlugin;
+
 	friend class miApplication;
 	friend class miGizmo;
 	friend struct miViewport;
 	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
+		m_typeForPlugin = 0;
 		m_flags = 0;
 		m_gui = 0;
 		m_parent = 0;
@@ -58,8 +62,13 @@ public:
 	}
 	virtual ~miSceneObject() {}
 
+	virtual u32 GetTypeForPlugin() {
+		return m_typeForPlugin;
+	}
+
 	virtual void CopyBase(miSceneObject* other)
 	{
+		m_typeForPlugin = other->m_typeForPlugin;
 		m_aabb = other->m_aabb;
 		m_aabbTransformed = other->m_aabbTransformed;
 		m_name = other->m_name;
@@ -157,6 +166,8 @@ public:
 
 	// will call only for vertex/edge/polygon
 	virtual void DeleteSelectedObjects (miEditMode em) = 0;
+
+	virtual void RebuildVisualObjects() = 0;
 
 	virtual int GetVisualObjectCount() = 0;
 	virtual miVisualObject* GetVisualObject(int) = 0;

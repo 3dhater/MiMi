@@ -55,19 +55,13 @@ struct miImporter;
 
 #define miEventId_ShowMainMenu 1
 
-
-
-//struct miPluginCommandIDMapNode{
-//	miPluginCommandIDMapNode() {
-//		m_plugin = 0;
-//		m_commandID = 0;
-//		m_objectID = 0;
-//	}
-//	miPluginCommandIDMapNode(miPlugin* p, u32 id, u32 objectID) :m_plugin(p), m_commandID(id), m_objectID(objectID){}
-//	miPlugin* m_plugin;
-//	u32 m_commandID;
-//	u32 m_objectID;
-//};
+class miApplicationPlugin : public miPlugin
+{
+public:
+	miApplicationPlugin();
+	virtual ~miApplicationPlugin();
+	virtual void Init(miSDK* sdk) override;
+};
 
 // right side of GUI
 enum class miObjectParametersMode
@@ -158,8 +152,6 @@ class miApplication
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
 	void _initViewports();
 
-	miPlugin* m_pluginActive;
-	yyArraySmall<miPlugin*> m_plugins;
 	void _initPlugins();
 
 	void _initPopups();
@@ -301,6 +293,12 @@ public:
 	void SetObjectParametersMode(miObjectParametersMode opm);
 
 	void DrawAabb(const Aabb& aabb, const v4f& _color, const v3f& offset);
+
+	miPlugin* m_pluginActive;
+	miPlugin* m_pluginForApp;
+	yyArraySmall<miPlugin*> m_plugins;
+
+	void OnSelect();
 
 	friend class miEditableObject;
 	friend class miGizmo;

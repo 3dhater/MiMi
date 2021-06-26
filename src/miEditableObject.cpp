@@ -11,25 +11,203 @@ const s32 g_SelectButtonID_More = 0;
 const s32 g_SelectButtonID_Less = 1;
 
 void editableObjectGUI_selectButtons_onClick(s32 id) {
+	if (g_app->m_selectedObjects.m_size != 1)
+		return;
+
+	auto object = g_app->m_selectedObjects.m_data[0];
+	if (object->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if(object->GetTypeForPlugin() != 0)
+		return;
+
+	miEditableObject* o = (miEditableObject*)object;
+
 	auto em = g_app->GetEditMode();
-	switch (em)
+	auto mc = o->GetMeshCount();
+	for (s32 i = 0; i < mc; ++i)
 	{
-	case miEditMode::Vertex:
-		if (id == g_SelectButtonID_More) printf("More Vertex\n");
-		else if (id == g_SelectButtonID_Less) printf("Less Vertex\n");
-		break;
-	case miEditMode::Edge:
-		if (id == g_SelectButtonID_More) printf("More Edge\n");
-		else if (id == g_SelectButtonID_Less) printf("Less Edge\n");
-		break;
-	case miEditMode::Polygon:
-		if (id == g_SelectButtonID_More) printf("More Polygon\n");
-		else if (id == g_SelectButtonID_Less) printf("Less Polygon\n");
-		break;
-	case miEditMode::Object:
-	default:
-		break;
+		auto m = o->GetMesh(i);
+
+		switch (em)
+		{
+		case miEditMode::Vertex:
+		{
+			yyArraySimple<miVertex*> va;
+			va.reserve(0xffff);
+
+			auto c = m->m_first_vertex;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_flags & c->flag_isSelected)
+				{
+					auto ce = c->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						if (id == g_SelectButtonID_More) {
+							if ((ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected) == 0)
+								va.push_back(ce->m_data->m_vertex1);
+						
+							if ((ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected) == 0)
+								va.push_back(ce->m_data->m_vertex2);
+						}
+						else if (id == g_SelectButtonID_Less) {
+							if ((ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected) == 0)
+								va.push_back(c);
+							if ((ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected) == 0)
+								va.push_back(c);
+						}
+
+						if (ce == le)
+							break;
+						ce = ce->m_right;
+					}
+
+				}
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+
+			for (u32 o = 0; o < va.m_size; ++o)
+			{
+				if (id == g_SelectButtonID_More) {
+					va.m_data[o]->m_flags |= miVertex::flag_isSelected;
+				}
+				else if (id == g_SelectButtonID_Less) {
+					if(va.m_data[o]->m_flags & miVertex::flag_isSelected)
+						va.m_data[o]->m_flags ^= miVertex::flag_isSelected;
+				}
+			}
+		}break;
+		case miEditMode::Edge: {
+			yyArraySimple<miEdge*> ea;
+			ea.reserve(0xffff);
+			auto c = m->m_first_edge;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_flags & miEdge::flag_isSelected)
+				{
+					auto v1 = c->m_vertex1;
+					auto v2 = c->m_vertex2;
+
+					{
+						auto ce = v1->m_edges.m_head;
+						auto le = ce->m_left;
+						while (true)
+						{
+							if (id == g_SelectButtonID_More) {
+								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
+									ea.push_back(ce->m_data);
+							}
+							else if (id == g_SelectButtonID_Less) {
+								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
+									ea.push_back(c);
+							}
+							if (ce == le)
+								break;
+							ce = ce->m_right;
+						}
+					}
+					{
+						auto ce = v2->m_edges.m_head;
+						auto le = ce->m_left;
+						while (true)
+						{
+							if (id == g_SelectButtonID_More) {
+								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
+									ea.push_back(ce->m_data);
+							}
+							else if (id == g_SelectButtonID_Less) {
+								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
+									ea.push_back(c);
+							}
+							if (ce == le)
+								break;
+							ce = ce->m_right;
+						}
+					}
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+			
+			for (u32 o = 0; o < ea.m_size; ++o)
+			{
+				if (id == g_SelectButtonID_More) {
+					ea.m_data[o]->m_flags |= miEdge::flag_isSelected;
+				}
+				else if (id == g_SelectButtonID_Less) {
+					if (ea.m_data[o]->m_flags & miEdge::flag_isSelected)
+						ea.m_data[o]->m_flags ^= miEdge::flag_isSelected;
+				}
+			}
+		}break;
+		case miEditMode::Polygon: {
+			yyArraySimple<miPolygon*> pa;
+			pa.reserve(0xffff);
+			auto c = m->m_first_polygon;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_flags & miPolygon::flag_isSelected)
+				{
+					auto cv = c->m_verts.m_head;
+					auto lv = cv->m_left;
+					while (true)
+					{
+						auto cp = cv->m_data->m_polygons.m_head;
+						auto lp = cp->m_left;
+						while (true)
+						{
+							if (id == g_SelectButtonID_More) {
+								if ((cp->m_data->m_flags & miPolygon::flag_isSelected) == 0)
+									pa.push_back(cp->m_data);
+							}
+							else if (id == g_SelectButtonID_Less) {
+								if ((cp->m_data->m_flags & miPolygon::flag_isSelected) == 0)
+									pa.push_back(c);
+							}
+							if (cp == lp)
+								break;
+							cp = cp->m_right;
+						}
+
+
+						if (cv == lv)
+							break;
+						cv = cv->m_right;
+					}
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+			
+			for (u32 o = 0; o < pa.m_size; ++o)
+			{
+				if (id == g_SelectButtonID_More) {
+					pa.m_data[o]->m_flags |= miPolygon::flag_isSelected;
+				}
+				else if (id == g_SelectButtonID_Less) {
+					if (pa.m_data[o]->m_flags & miPolygon::flag_isSelected)
+						pa.m_data[o]->m_flags ^= miPolygon::flag_isSelected;
+				}
+			}
+		}break;
+		case miEditMode::Object:
+		default:
+			break;
+		}
 	}
+	o->OnSelect(em);
+	g_app->OnSelect();
 }
 
 void miApplication::_initEditableObjectGUI() {
@@ -38,12 +216,12 @@ void miApplication::_initEditableObjectGUI() {
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
 		miPluginGUI::Flag_ForPolygonEditMode);
-	m_pluginGuiForEditableObject->AddButton(v4f(50.f, 0.f, 50.f, 20.f), L"More", g_SelectButtonID_More,
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, 0.f, 50.f, 15.f), L"More", g_SelectButtonID_More,
 		editableObjectGUI_selectButtons_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
 		miPluginGUI::Flag_ForPolygonEditMode);
-	m_pluginGuiForEditableObject->AddButton(v4f(105.f, 0.f, 50.f, 20.f), L"Less", g_SelectButtonID_Less,
+	m_pluginGuiForEditableObject->AddButton(v4f(105.f, 0.f, 50.f, 15.f), L"Less", g_SelectButtonID_Less,
 		editableObjectGUI_selectButtons_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
@@ -62,6 +240,8 @@ miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_allocatorVertex = new miDefaultAllocator<miVertex>(0);
 	m_mesh = miCreate<miMesh>();
 	m_gui = (miPluginGUI*)g_app->m_pluginGuiForEditableObject;
+	m_plugin = g_app->m_pluginForApp;
+	m_typeForPlugin = 0;
 }
 
 miEditableObject::~miEditableObject() {
@@ -163,7 +343,7 @@ void miEditableObject::OnCreationEnd() {
 
 
 miPlugin* miEditableObject::GetPlugin() { 
-	return 0; 
+	return m_plugin; 
 }
 
 int miEditableObject::GetVisualObjectCount() { 
@@ -622,7 +802,7 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 	// App will call miSceneObject::OnSelect
 }
 
-void miEditableObject::_selectPolygons_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
+void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
 	auto current_edge = m_mesh->m_first_edge;
 	if (!current_edge)
 		return;
@@ -676,10 +856,10 @@ void miEditableObject::_selectPolygons_rectangle(miKeyboardModifier km, miSelect
 		}
 	}
 	if(needUpdate)
-		m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+		OnSelect(em);
 }
 
-void miEditableObject::_selectEdges_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
+void miEditableObject::_selectEdges_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
 	auto current_edge = m_mesh->m_first_edge;
 	if (!current_edge)
 		return;
@@ -718,10 +898,10 @@ void miEditableObject::_selectEdges_rectangle(miKeyboardModifier km, miSelection
 				v->m_flags |= miEdge::flag_isSelected;
 		}
 
-		m_visualObject_edge->CreateNewGPUModels(m_mesh);
+		OnSelect(em);
 	}
 }
-void miEditableObject::_selectVerts_rectangle(miKeyboardModifier km, miSelectionFrust* sf) {
+void miEditableObject::_selectVerts_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
 	auto current_vertex = m_mesh->m_first_vertex;
 	if (!current_vertex)
 		return;
@@ -751,7 +931,7 @@ void miEditableObject::_selectVerts_rectangle(miKeyboardModifier km, miSelection
 	}
 
 	if(need_update)
-		m_visualObject_vertex->CreateNewGPUModels(m_mesh);
+		OnSelect(em);
 }
 
 void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
@@ -762,13 +942,13 @@ void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionF
 	case miEditMode::Object:
 		break;
 	case miEditMode::Vertex:
-		if(m_isSelected) _selectVerts_rectangle(km, sf);
+		if(m_isSelected) _selectVerts_rectangle(em, km, sf);
 		break;
 	case miEditMode::Edge:
-		if (m_isSelected) _selectEdges_rectangle(km, sf);
+		if (m_isSelected) _selectEdges_rectangle(em, km, sf);
 		break;
 	case miEditMode::Polygon:
-		if (m_isSelected) _selectPolygons_rectangle(km, sf);
+		if (m_isSelected) _selectPolygons_rectangle(em, km, sf);
 		break;
 	}
 	if (m_isSelected)
@@ -786,7 +966,6 @@ void miEditableObject::_selectAllPolygons() {
 			break;
 		current_polygon = current_polygon->m_right;
 	}
-	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_selectAllEdges() {
 	auto current_edge = m_mesh->m_first_edge;
@@ -799,7 +978,6 @@ void miEditableObject::_selectAllEdges() {
 			break;
 		current_edge = current_edge->m_right;
 	}
-	m_visualObject_edge->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_selectAllVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
@@ -812,7 +990,6 @@ void miEditableObject::_selectAllVerts() {
 			break;
 		current_vertex = current_vertex->m_right;
 	}
-	m_visualObject_vertex->CreateNewGPUModels(m_mesh);
 }
 
 void miEditableObject::SelectAll(miEditMode em) {
@@ -834,6 +1011,7 @@ void miEditableObject::SelectAll(miEditMode em) {
 	}
 	if (m_isSelected)
 		_updateVertsForTransformArray(em);
+	OnSelect(em);
 }
 
 void miEditableObject::_deselectAllPolygons() {
@@ -848,7 +1026,6 @@ void miEditableObject::_deselectAllPolygons() {
 			break;
 		current_polygon = current_polygon->m_right;
 	}
-	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_deselectAllEdges() {
 	auto current_edge = m_mesh->m_first_edge;
@@ -862,7 +1039,6 @@ void miEditableObject::_deselectAllEdges() {
 			break;
 		current_edge = current_edge->m_right;
 	}
-	m_visualObject_edge->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_deselectAllVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
@@ -876,7 +1052,6 @@ void miEditableObject::_deselectAllVerts() {
 			break;
 		current_vertex = current_vertex->m_right;
 	}
-	m_visualObject_vertex->CreateNewGPUModels(m_mesh);
 }
 
 void miEditableObject::DeselectAll(miEditMode em) {
@@ -899,6 +1074,7 @@ void miEditableObject::DeselectAll(miEditMode em) {
 	//_updateVertsForTransformArray(em);
 	if (m_isSelected)
 		m_vertsForTransform.clear();
+	OnSelect(em);
 }
 
 void miEditableObject::_selectInvertPolygons() {
@@ -915,7 +1091,6 @@ void miEditableObject::_selectInvertPolygons() {
 			break;
 		current_polygon = current_polygon->m_right;
 	}
-	m_visualObject_polygon->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_selectInvertEdges() {
 	auto current_edge = m_mesh->m_first_edge;
@@ -931,7 +1106,6 @@ void miEditableObject::_selectInvertEdges() {
 			break;
 		current_edge = current_edge->m_right;
 	}
-	m_visualObject_edge->CreateNewGPUModels(m_mesh);
 }
 void miEditableObject::_selectInvertVerts() {
 	auto current_vertex = m_mesh->m_first_vertex;
@@ -948,7 +1122,6 @@ void miEditableObject::_selectInvertVerts() {
 			break;
 		current_vertex = current_vertex->m_right;
 	}
-	m_visualObject_vertex->CreateNewGPUModels(m_mesh);
 }
 
 void miEditableObject::InvertSelection(miEditMode em) {
@@ -970,6 +1143,7 @@ void miEditableObject::InvertSelection(miEditMode em) {
 	}
 	if (m_isSelected)
 		_updateVertsForTransformArray(em);
+	OnSelect(em);
 }
 
 bool miEditableObject::IsVertexSelected() {
@@ -1147,6 +1321,26 @@ void miEditableObject::OnTransformPolygon(
 
 void miEditableObject::OnSelect(miEditMode em) {
 	_updateVertsForTransformArray(em);
+	RebuildVisualObjects();
+}
+
+void miEditableObject::RebuildVisualObjects() {
+	auto em = g_app->GetEditMode();
+	switch (em)
+	{
+	default:
+	case miEditMode::Object:
+		break;
+	case miEditMode::Vertex:
+		m_visualObject_vertex->CreateNewGPUModels(m_mesh);
+		break;
+	case miEditMode::Edge:
+		m_visualObject_edge->CreateNewGPUModels(m_mesh);
+		break;
+	case miEditMode::Polygon:
+		m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+		break;
+	}
 }
 
 void miEditableObject::OnSetEditMode(miEditMode em) {

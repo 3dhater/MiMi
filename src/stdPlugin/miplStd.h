@@ -18,23 +18,23 @@ public:
 	miplStd();
 	virtual ~miplStd();
 
-	virtual const wchar_t* GetName();
-	virtual const wchar_t* GetDescription();
-	virtual const wchar_t* GetAuthor();
+	virtual const wchar_t* GetName() override;
+	virtual const wchar_t* GetDescription() override;
+	virtual const wchar_t* GetAuthor() override;
 
-	virtual bool IsDebug();
+	virtual bool IsDebug() override;
 
-	virtual void Init(miSDK* sdk);
-	virtual int CheckVersion();
+	virtual void Init(miSDK* sdk) override;
+	virtual int CheckVersion() override;
 
-	virtual void OnCreateObject(unsigned int objectId);
-	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI);
-	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI);
-	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI);
-	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI);
-	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI);
+	virtual void OnCreateObject(unsigned int objectId) override;
+	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) override;
+	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI) override;
+	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI) override;
+	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) override;
+	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) override;
 
-	virtual void OnImport(const wchar_t* fileName, unsigned int id);
+	virtual void OnImport(const wchar_t* fileName, unsigned int id) override;
 
 	miSDK* m_sdk;
 

@@ -19,12 +19,18 @@ public:
 	miPlugin() {}
 	virtual ~miPlugin() {}
 
-	virtual const wchar_t* GetName() = 0;
-	virtual const wchar_t* GetDescription() = 0;
-	virtual const wchar_t* GetAuthor() = 0;
+	virtual const wchar_t* GetName() { return L"Plugin name"; }
+	virtual const wchar_t* GetDescription() { return L"Plugin description"; }
+	virtual const wchar_t* GetAuthor() { return L"Plugin author"; }
 
 	// debug plugins must works only in debug app
-	virtual bool IsDebug() = 0;
+	virtual bool IsDebug() {
+#ifdef MI_DEBUG
+		return true;
+#else
+		return false;
+#endif
+	}
 
 	// I want to have only 1 export function (miplCreatePlugin_t)
 	// other functions can get through plugin
@@ -32,16 +38,18 @@ public:
 
 	virtual void Init(miSDK* sdk) = 0;
 	// return MI_SDK_VERSION
-	virtual int CheckVersion() = 0;
+	virtual int CheckVersion() {
+		return MI_SDK_VERSION;
+	}
 	
-	virtual void OnCreateObject(unsigned int objectId) = 0;
-	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) = 0;
-	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI) = 0;
-	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI) = 0;
-	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) = 0;
-	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) = 0;
+	virtual void OnCreateObject(unsigned int objectId) {}
+	virtual void OnCursorMove(miSelectionFrust*, bool isCursorInGUI) {}
+	virtual void OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {}
+	virtual void OnLMBUp(miSelectionFrust*, bool isCursorInGUI) {}
+	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) {}
+	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) {}
 
-	virtual void OnImport(const wchar_t* fileName, unsigned int id) = 0;
+	virtual void OnImport(const wchar_t* fileName, unsigned int id) {}
 };
 
 #endif
