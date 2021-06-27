@@ -70,6 +70,18 @@ void gui_buttonObjectCommonParams_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonObjectObjectParams_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::ObjectParameters);
 }
+void gui_buttonMaterials_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetObjectParametersMode(miObjectParametersMode::Materials);
+}
+void gui_buttonMaterialsAdd_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->CreateMaterial();
+}
+void gui_buttonMaterialsDelete_onClick(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->DeleteSelectedMaterial();
+}
+void gui_buttonMaterialsAssign_onClick(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->AssignSelectedMaterial();
+}
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
 		return false;
@@ -268,6 +280,8 @@ miGUIManager::miGUIManager(){
 	m_gui_group_commonParams_range_PositionX = 0;
 	m_gui_group_commonParams_range_PositionY = 0;
 	m_gui_group_commonParams_range_PositionZ = 0;
+
+	m_button_materials = 0;
 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -616,6 +630,25 @@ miGUIManager::miGUIManager(){
 		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectObjectParams);
 		m_mainMenu_Y += h;
 	}
+	{
+		v4f uvregion1(48.f, 120.f, 71.f, 143.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_materials = yyGUICreateButton(v4f(
+			window->m_creationSize.x - miViewportRightIndent,
+			m_mainMenu_Y,
+			window->m_creationSize.x - miViewportRightIndent + w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_materials->m_align = yyGUIElement::AlignRightTop;
+		m_button_materials->m_onClick = gui_buttonMaterials_onClick;
+		m_button_materials->m_useBackground = true;
+		m_button_materials->m_isAnimated = true;
+		m_button_materials->m_useAsCheckbox = true;
+		m_button_materials->m_buttonGroup = m_buttonGroup_rightSide;
+		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectObjectParams);
+		m_mainMenu_Y += h;
+	}
 
 	// COMMON PARAMS
 	auto y = miViewportTopIndent;
@@ -683,6 +716,88 @@ miGUIManager::miGUIManager(){
 		m_gui_group_commonParams_range_PositionZ->m_onValueChanged = gui_group_commonParams_range_Position;
 		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_range_PositionZ);
 		y += 15.f;
+	}
+
+	// MATERIALS
+	{
+		v4f groupRect = v4f(
+			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize,
+			miViewportTopIndent,
+			window->m_creationSize.x,
+			window->m_creationSize.y);
+
+		m_gui_drawGroup_materials = yyGUICreateDrawGroup();
+		m_gui_drawGroup_materials->SetDraw(false);
+		m_gui_drawGroup_materials->SetInput(false);
+		m_gui_group_materials = yyGUICreateGroup(
+			groupRect,
+			-1, m_gui_drawGroup_materials);
+		m_gui_group_materials->m_align = m_gui_group_materials->AlignRightTop;
+		f32 y = 0.f;
+		f32 x = 0;
+		{
+			auto t = yyGUICreateText(v2f(x, y),
+				m_fontDefault, L"Materials:", m_gui_drawGroup_materials);
+			t->IgnoreInput(true);
+			m_gui_group_materials->AddElement(t);
+			y += m_fontDefault->m_maxHeight;
+		}
+
+
+		f32 matLbSz = 150.f;
+		m_gui_listbox_materials = yyGUICreateListBox(
+			v4f(
+				x,
+				y, 
+				x + miViewportRightIndent,
+				y + matLbSz),
+			m_fontDefault, m_gui_drawGroup_materials);
+		m_gui_group_materials->AddElement(m_gui_listbox_materials);
+		y += matLbSz;
+
+		f32 addButtonY = 15.f;
+		auto addButton = yyGUICreateButton(
+			v4f(x, y, x + 40.f, y + 15.f),
+			0,-1, m_gui_drawGroup_materials, 0);
+		addButton->SetText(L"Add", m_fontDefault, false);
+		addButton->m_onClick = gui_buttonMaterialsAdd_onClick;
+		addButton->m_bgColor.set(0.5f);
+		addButton->m_bgColorHover.set(0.65f);
+		addButton->m_bgColorPress.set(0.35f);
+		addButton->m_textColor.set(0.95f);
+		addButton->m_textColorHover.set(1.f);
+		addButton->m_textColorPress.set(0.6f);
+		m_gui_group_materials->AddElement(addButton);
+
+		x += groupRect.z - groupRect.x - 40.f;
+		auto deleteButton = yyGUICreateButton(
+			v4f(x, y, x + 40.f, y + 15.f),
+			0, -1, m_gui_drawGroup_materials, 0);
+		deleteButton->SetText(L"Delete", m_fontDefault, false);
+		deleteButton->m_onClick = gui_buttonMaterialsDelete_onClick;
+		deleteButton->m_bgColor = ColorDarkRed;
+		deleteButton->m_bgColorHover.set(0.65f);
+		deleteButton->m_bgColorPress.set(0.35f);
+		deleteButton->m_textColor.set(0.95f);
+		deleteButton->m_textColorHover.set(1.f);
+		deleteButton->m_textColorPress.set(0.6f);
+		m_gui_group_materials->AddElement(deleteButton);
+
+		x = 40.f;
+		auto assignButton = yyGUICreateButton(
+			v4f(x, y, groupRect.z - groupRect.x - 40.f, y + 15.f),
+			0, -1, m_gui_drawGroup_materials, 0);
+		assignButton->SetText(L"Assign", m_fontDefault, false);
+		assignButton->m_onClick = gui_buttonMaterialsAssign_onClick;
+		assignButton->m_bgColor.set(0.5f);
+		assignButton->m_bgColorHover.set(0.65f);
+		assignButton->m_bgColorPress.set(0.35f);
+		assignButton->m_textColor.set(0.95f);
+		assignButton->m_textColorHover.set(1.f);
+		assignButton->m_textColorPress.set(0.6f);
+		m_gui_group_materials->AddElement(assignButton);
+
+		y += addButtonY;
 	}
 }
 
@@ -914,5 +1029,68 @@ void miGUIManager::SetCommonParamsRangePosition() {
 		m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_commonParams_range_Position_many.x;
 		m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_commonParams_range_Position_many.y;
 		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_commonParams_range_Position_many.z;
+	}
+}
+
+void miGUIManager::OnNewMaterial(miMaterial* m) {
+	auto item = m_gui_listbox_materials->AddItem(m->m_name.data());
+	item->SetUserData(m);
+	m_gui_listbox_materials->SelectItem(item);
+}
+
+void miGUIManager::AssignSelectedMaterial() {
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
+			{
+				auto pair = &g_app->m_materials.m_data[o];
+				if (mat == pair->m_first)
+				{
+					for (u32 o2 = 0; o2 < g_app->m_selectedObjects.m_size; ++o2)
+					{
+						g_app->m_selectedObjects.m_data[o2]->m_material = pair;
+					}
+					return;
+				}
+			}
+			break;
+		}
+	}
+}
+
+void miGUIManager::DeleteSelectedMaterial() {
+	yyGUIListBoxItem* lastItem = 0;
+	yyGUIListBoxItem* nextItem = 0;
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		if( i + 1  < sz)
+			nextItem = m_gui_listbox_materials->GetItem(i + 1);
+
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
+			{
+				auto & pair = g_app->m_materials.m_data[o];
+				if (mat == pair.m_first)
+					pair.m_second = 0;
+			}
+
+			m_gui_listbox_materials->DeleteItem(item);
+
+			if (lastItem)
+				m_gui_listbox_materials->SelectItem(lastItem);
+			else if (nextItem)
+				m_gui_listbox_materials->SelectItem(nextItem);
+			m_gui_listbox_materials->Rebuild();
+			break;
+		}
+
+		lastItem = item;
 	}
 }

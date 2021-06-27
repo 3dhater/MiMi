@@ -238,6 +238,11 @@ miApplication::~miApplication() {
 		if (m_cursors[i])delete m_cursors[i];
 	}
 
+	for(u32 i = 0; i < m_materials.m_size; ++i){
+		auto & m = m_materials.m_data[i];
+		miDestroy(m.m_first);
+	}
+
 	if (m_rootObject)
 	{
 		DestroyAllSceneObjects(m_rootObject);
@@ -285,6 +290,32 @@ miApplication::~miApplication() {
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
 	if (m_inputContext) yyDestroy(m_inputContext);
+}
+
+miMaterial* miApplication::CreateMaterial() {
+	miMaterial* m = 0;
+
+	for (u32 i = 0; i < m_materials.m_size; ++i) {
+		auto & _m = m_materials.m_data[i];
+		if (_m.m_second == 0)
+		{
+			m = _m.m_first;
+			_m.m_second = 1;
+			break;
+		}
+	}
+
+	if (!m)
+	{
+		m = miCreate<miMaterial>();
+		m_materials.push_back(miPair<miMaterial*,u8>(m,1));
+	}
+
+	static u32 c = 0;
+	m->m_name = "Material";
+	m->m_name += c++;
+	m_GUIManager->OnNewMaterial(m);
+	return m;
 }
 
 void miApplication::_updateObjectsOnSceneArray(miSceneObject* o) {
@@ -1641,7 +1672,7 @@ void miApplication::SetEditMode(miEditMode m) {
 
 	if (m_currentPluginGUI && m_objectParametersMode == miObjectParametersMode::ObjectParameters)
 	{
-		if (m_selectedObjects.m_size == 1)
+		//if (m_selectedObjects.m_size == 1)
 			m_currentPluginGUI->Show(true);
 	}
 
@@ -1733,16 +1764,36 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 	case miObjectParametersMode::CommonParameters:
 		m_GUIManager->m_button_objectCommonParams->m_isChecked = true;
 		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
+		m_GUIManager->m_button_materials->m_isChecked = false;
 
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(true);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(true);
 		showPluginGui(false);
+
+		m_GUIManager->m_gui_drawGroup_materials->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_materials->SetInput(false);
 		break;
 	case miObjectParametersMode::ObjectParameters:
 		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
 		m_GUIManager->m_button_objectObjectParams->m_isChecked = true;
+		m_GUIManager->m_button_materials->m_isChecked = false;
 
+		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
 		showPluginGui(true);
+
+		m_GUIManager->m_gui_drawGroup_materials->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_materials->SetInput(false);
+		break;
+	case miObjectParametersMode::Materials:
+		m_GUIManager->m_button_materials->m_isChecked = true;
+		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
+		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
+
+		m_GUIManager->m_gui_drawGroup_materials->SetDraw(true);
+		m_GUIManager->m_gui_drawGroup_materials->SetInput(true);
+		showPluginGui(false);
+
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
 		break;

@@ -103,6 +103,7 @@ public:
 	yyGUIButtonGroup* m_buttonGroup_rightSide;
 	yyGUIButton*  m_button_objectCommonParams;
 	yyGUIButton*  m_button_objectObjectParams;
+	yyGUIButton*  m_button_materials;
 	
 	yyGUIGroup*   m_gui_group_commonParams;
 	yyGUIDrawGroup* m_gui_drawGroup_commonParams;
@@ -116,6 +117,12 @@ public:
 	v3f m_commonParams_range_Position_many;
 	v3f m_commonParams_range_Position_many_onClick;
 
+	yyGUIGroup*   m_gui_group_materials;
+	yyGUIDrawGroup* m_gui_drawGroup_materials;
+	yyGUIListBox* m_gui_listbox_materials;
+	void OnNewMaterial(miMaterial*);
+	void DeleteSelectedMaterial();
+	void AssignSelectedMaterial();
 };
 
 #endif

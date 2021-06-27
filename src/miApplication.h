@@ -67,7 +67,8 @@ public:
 enum class miObjectParametersMode
 {
 	CommonParameters,
-	ObjectParameters
+	ObjectParameters,
+	Materials
 };
 
 class miApplication
@@ -299,6 +300,9 @@ public:
 	yyArraySmall<miPlugin*> m_plugins;
 
 	void OnSelect();
+
+	yyArraySimple<miPair<miMaterial*, u8>> m_materials;
+	miMaterial* CreateMaterial();
 
 	friend class miEditableObject;
 	friend class miGizmo;

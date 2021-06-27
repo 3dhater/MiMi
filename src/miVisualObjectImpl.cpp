@@ -517,6 +517,8 @@ void miVisualObjectImpl::Draw() {
 	default_polygon_material.m_sunPos = camera->m_positionCamera + v4f(0.f, 0.f, 0.f, 0.f);
 	//default_polygon_material.m_sunPos = v4f(0.f, 1000.f, 0.f, 0.f);
 
+	yyMaterial* curPolygonMaterial = &default_polygon_material;
+
 	if (!m_texture) {
 		//m_texture = yyGetTextureFromCache("../res/exit.png");
 		m_texture = yyGetDefaultTexture();
@@ -574,6 +576,16 @@ void miVisualObjectImpl::Draw() {
 		}
 		break;
 	case miVisualObjectType::Polygon:
+		if (m_parentSceneObject->m_material && m_parentSceneObject->m_useMaterial)
+		{
+			if (m_parentSceneObject->m_material->m_second == 1)
+			{
+				curPolygonMaterial->m_baseColor.m_data[0] = m_parentSceneObject->m_material->m_first->m_baseColor.x;
+				curPolygonMaterial->m_baseColor.m_data[1] = m_parentSceneObject->m_material->m_first->m_baseColor.y;
+				curPolygonMaterial->m_baseColor.m_data[2] = m_parentSceneObject->m_material->m_first->m_baseColor.z;
+				curPolygonMaterial->m_baseColor.m_data[3] = m_parentSceneObject->m_material->m_first->m_baseColor.w;
+			}
+		}
 		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
 		{
 			auto node = m_nodes_GPU[i];

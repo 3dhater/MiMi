@@ -46,12 +46,17 @@ protected:
 	// plugin must know type of this object
 	u32 m_typeForPlugin;
 
+	// you can disable material for some objects who have polygonal visual objects
+	bool m_useMaterial;
+
 	friend class miApplication;
 	friend class miGizmo;
 	friend struct miViewport;
 	friend class miVisualObjectImpl;
 public:
 	miSceneObject(){
+		m_material = 0;
+		m_useMaterial = true;
 		m_typeForPlugin = 0;
 		m_flags = 0;
 		m_gui = 0;
@@ -61,6 +66,14 @@ public:
 		m_cursorIntersectionPointDistance = 0.f;
 	}
 	virtual ~miSceneObject() {}
+	
+	/* correct only when
+		if(m_material){
+			if(m_material->m_second == 1)
+				...
+		}
+	*/
+	miPair<miMaterial*, u8>* m_material;
 
 	virtual u32 GetTypeForPlugin() {
 		return m_typeForPlugin;

@@ -428,7 +428,7 @@ void miViewport::OnDraw() {
 
 	g_app->m_gpu->UseDepth(true);
 
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[0], g_app->m_selectionFrust->m_data.m_left[1], ColorWhite);
+	/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[0], g_app->m_selectionFrust->m_data.m_left[1], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[1], g_app->m_selectionFrust->m_data.m_left[2], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[2], g_app->m_selectionFrust->m_data.m_left[3], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[3], g_app->m_selectionFrust->m_data.m_left[0], ColorWhite);
@@ -444,7 +444,7 @@ void miViewport::OnDraw() {
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[1], g_app->m_selectionFrust->m_data.m_bottom[2], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[2], g_app->m_selectionFrust->m_data.m_bottom[3], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[3], g_app->m_selectionFrust->m_data.m_bottom[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_BackC, g_app->m_selectionFrust->m_data.m_FrontC, ColorWhite);
+	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_BackC, g_app->m_selectionFrust->m_data.m_FrontC, ColorWhite);*/
 
 	if (m_visibleObjects.m_size)
 	{
