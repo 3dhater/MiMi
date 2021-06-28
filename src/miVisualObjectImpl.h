@@ -27,7 +27,7 @@ class miVisualObjectImpl : public miVisualObject
 		yyArraySimple<miPair<void*,void*>> m_ptrs;
 	};
 	
-	yyResource* m_texture;
+	//yyResource* m_texture;
 
 	yyArray<model_node_GPU*> m_nodes_GPU;
 	yyArray<model_node_CPU*> m_nodes_CPU;

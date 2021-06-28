@@ -73,15 +73,25 @@ void gui_buttonObjectObjectParams_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonMaterials_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::Materials);
 }
-void gui_buttonMaterialsAdd_onClick(yyGUIElement* elem, s32 m_id) {
+void gui_buttonMaterialsAdd_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_app->CreateMaterial();
 }
-void gui_buttonMaterialsDelete_onClick(yyGUIElement* elem, s32 m_id) {
+void gui_buttonMaterialsDelete_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteSelectedMaterial();
 }
-void gui_buttonMaterialsAssign_onClick(yyGUIElement* elem, s32 m_id) {
+void gui_buttonMaterialsAssign_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->AssignSelectedMaterial();
 }
+void gui_buttonMaterialsLoadImage_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->LoadNewImageForMaterial();
+}
+void gui_lbMaterials_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
+	g_guiManager->UpdateMaterialMapPictureBox();
+}
+void gui_lbMaps_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
+	g_guiManager->UpdateMaterialMapPictureBox();
+}
+
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
 		return false;
@@ -254,6 +264,7 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 
 miGUIManager::miGUIManager(){
+	m_gui_pictureBox_map = 0;
 	m_default_value_float = 0.f;
 	m_buttonGroup_transformMode = new yyGUIButtonGroup;
 	m_buttonGroup_rightSide = new yyGUIButtonGroup;
@@ -752,52 +763,121 @@ miGUIManager::miGUIManager(){
 				x + miViewportRightIndent,
 				y + matLbSz),
 			m_fontDefault, m_gui_drawGroup_materials);
+		m_gui_listbox_materials->m_onSelect = gui_lbMaterials_onSelect;
 		m_gui_group_materials->AddElement(m_gui_listbox_materials);
 		y += matLbSz;
 
 		f32 addButtonY = 15.f;
-		auto addButton = yyGUICreateButton(
-			v4f(x, y, x + 40.f, y + 15.f),
-			0,-1, m_gui_drawGroup_materials, 0);
-		addButton->SetText(L"Add", m_fontDefault, false);
-		addButton->m_onClick = gui_buttonMaterialsAdd_onClick;
-		addButton->m_bgColor.set(0.5f);
-		addButton->m_bgColorHover.set(0.65f);
-		addButton->m_bgColorPress.set(0.35f);
-		addButton->m_textColor.set(0.95f);
-		addButton->m_textColorHover.set(1.f);
-		addButton->m_textColorPress.set(0.6f);
-		m_gui_group_materials->AddElement(addButton);
 
-		x += groupRect.z - groupRect.x - 40.f;
-		auto deleteButton = yyGUICreateButton(
-			v4f(x, y, x + 40.f, y + 15.f),
-			0, -1, m_gui_drawGroup_materials, 0);
-		deleteButton->SetText(L"Delete", m_fontDefault, false);
-		deleteButton->m_onClick = gui_buttonMaterialsDelete_onClick;
-		deleteButton->m_bgColor = ColorDarkRed;
-		deleteButton->m_bgColorHover.set(0.65f);
-		deleteButton->m_bgColorPress.set(0.35f);
-		deleteButton->m_textColor.set(0.95f);
-		deleteButton->m_textColorHover.set(1.f);
-		deleteButton->m_textColorPress.set(0.6f);
-		m_gui_group_materials->AddElement(deleteButton);
+		{
+			auto addButton = yyGUICreateButton(
+				v4f(x, y, x + 40.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			addButton->SetText(L"Add", m_fontDefault, false);
+			addButton->m_isAnimated = true;
+			addButton->m_onRelease = gui_buttonMaterialsAdd_onRelease;
+			addButton->m_bgColor.set(0.5f);
+			addButton->m_bgColorHover.set(0.65f);
+			addButton->m_bgColorPress.set(0.35f);
+			addButton->m_textColor.set(0.95f);
+			addButton->m_textColorHover.set(1.f);
+			addButton->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(addButton);
+		}
 
-		x = 40.f;
-		auto assignButton = yyGUICreateButton(
-			v4f(x, y, groupRect.z - groupRect.x - 40.f, y + 15.f),
-			0, -1, m_gui_drawGroup_materials, 0);
-		assignButton->SetText(L"Assign", m_fontDefault, false);
-		assignButton->m_onClick = gui_buttonMaterialsAssign_onClick;
-		assignButton->m_bgColor.set(0.5f);
-		assignButton->m_bgColorHover.set(0.65f);
-		assignButton->m_bgColorPress.set(0.35f);
-		assignButton->m_textColor.set(0.95f);
-		assignButton->m_textColorHover.set(1.f);
-		assignButton->m_textColorPress.set(0.6f);
-		m_gui_group_materials->AddElement(assignButton);
+		{
+			x += groupRect.z - groupRect.x - 40.f;
+			auto deleteButton = yyGUICreateButton(
+				v4f(x, y, x + 40.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			deleteButton->SetText(L"Delete", m_fontDefault, false);
+			deleteButton->m_isAnimated = true;
+			deleteButton->m_onRelease = gui_buttonMaterialsDelete_onRelease;
+			deleteButton->m_bgColor = ColorDarkRed;
+			deleteButton->m_bgColorHover.set(0.65f);
+			deleteButton->m_bgColorPress.set(0.35f);
+			deleteButton->m_textColor.set(0.95f);
+			deleteButton->m_textColorHover.set(1.f);
+			deleteButton->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(deleteButton);
+		}
 
-		y += addButtonY;
+		{
+			x = 40.f;
+			auto assignButton = yyGUICreateButton(
+				v4f(x, y, groupRect.z - groupRect.x - 40.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			assignButton->SetText(L"Assign", m_fontDefault, false);
+			assignButton->m_isAnimated = true;
+			assignButton->m_onRelease = gui_buttonMaterialsAssign_onRelease;
+			assignButton->m_bgColor.set(0.5f);
+			assignButton->m_bgColorHover.set(0.65f);
+			assignButton->m_bgColorPress.set(0.35f);
+			assignButton->m_textColor.set(0.95f);
+			assignButton->m_textColorHover.set(1.f);
+			assignButton->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(assignButton);
+
+			y += addButtonY;
+		}
+
+		x = 0.f;
+		y += 10.f;
+		{
+			auto t = yyGUICreateText(v2f(x, y),
+				m_fontDefault, L"Maps:", m_gui_drawGroup_materials);
+			t->IgnoreInput(true);
+			m_gui_group_materials->AddElement(t);
+			y += m_fontDefault->m_maxHeight;
+		}
+		f32 mapsLbSz = 50.f;
+		m_gui_listbox_maps = yyGUICreateListBox(
+			v4f(
+				x,
+				y,
+				x + miViewportRightIndent,
+				y + mapsLbSz),
+			m_fontDefault, m_gui_drawGroup_materials);
+		m_gui_listbox_maps->m_onSelect = gui_lbMaps_onSelect;
+		m_gui_listbox_maps->m_isEditable = false;
+		m_gui_group_materials->AddElement(m_gui_listbox_maps);
+		y += mapsLbSz;
+		miString s;
+		for (s32 i = 0; i < miMaterialMaxMaps; ++i)
+		{
+			s.clear();
+			s = L"Map";
+			s += i;
+			m_gui_listbox_maps->AddItem(s.data());
+		}
+		{
+			f32 pbSize = miViewportRightIndent;
+			m_gui_pictureBox_map = yyGUICreatePictureBox(
+				v4f(x, y, x + pbSize, y + pbSize),
+				g_app->m_blackTexture,
+				-1,
+				m_gui_drawGroup_materials,
+				0);
+			m_gui_group_materials->AddElement(m_gui_pictureBox_map);
+			m_gui_pictureBox_map->IgnoreInput(true);
+			y += pbSize;
+		}
+		{
+			auto loadImageButton = yyGUICreateButton(
+				v4f(x, y, x + 80.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			loadImageButton->SetText(L"Load Image", m_fontDefault, false);
+			loadImageButton->m_isAnimated = true;
+			loadImageButton->m_onRelease = gui_buttonMaterialsLoadImage_onRelease;
+			loadImageButton->m_bgColor.set(0.5f);
+			loadImageButton->m_bgColorHover.set(0.65f);
+			loadImageButton->m_bgColorPress.set(0.35f);
+			loadImageButton->m_textColor.set(0.95f);
+			loadImageButton->m_textColorHover.set(1.f);
+			loadImageButton->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(loadImageButton);
+		}
+
 	}
 }
 
@@ -1036,6 +1116,7 @@ void miGUIManager::OnNewMaterial(miMaterial* m) {
 	auto item = m_gui_listbox_materials->AddItem(m->m_name.data());
 	item->SetUserData(m);
 	m_gui_listbox_materials->SelectItem(item);
+	UpdateMaterialMapPictureBox();
 }
 
 void miGUIManager::AssignSelectedMaterial() {
@@ -1047,7 +1128,7 @@ void miGUIManager::AssignSelectedMaterial() {
 			miMaterial* mat = (miMaterial*)item->GetUserData();
 			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
 			{
-				auto pair = &g_app->m_materials.m_data[o];
+				auto pair = g_app->m_materials.m_data[o];
 				if (mat == pair->m_first)
 				{
 					for (u32 o2 = 0; o2 < g_app->m_selectedObjects.m_size; ++o2)
@@ -1076,9 +1157,9 @@ void miGUIManager::DeleteSelectedMaterial() {
 			miMaterial* mat = (miMaterial*)item->GetUserData();
 			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
 			{
-				auto & pair = g_app->m_materials.m_data[o];
-				if (mat == pair.m_first)
-					pair.m_second = 0;
+				auto pair = g_app->m_materials.m_data[o];
+				if (mat == pair->m_first)
+					pair->m_second = 0;
 			}
 
 			m_gui_listbox_materials->DeleteItem(item);
@@ -1092,5 +1173,63 @@ void miGUIManager::DeleteSelectedMaterial() {
 		}
 
 		lastItem = item;
+	}
+	UpdateMaterialMapPictureBox();
+}
+
+void miGUIManager::LoadNewImageForMaterial() {
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+
+			for (u32 o = 0; o < miMaterialMaxMaps; ++o)
+			{
+				if (m_gui_listbox_maps->GetItem(o)->IsSelected())
+				{
+					auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
+					if (path)
+					{
+						auto * map = &mat->m_maps[o];
+						map->m_texturePath = path->data();
+						{
+							yyStringA s;
+							s = map->m_texturePath.data();
+							map->m_GPUTexture = yyGetTextureFromCache(s.data());
+							m_gui_pictureBox_map->m_texture = (yyResource*)map->m_GPUTexture;
+							m_gui_pictureBox_map->m_texture->Load();
+						}
+						yyDestroy(path);
+					}
+					break;
+				}
+			}
+			break;
+		}
+	}
+}
+
+void miGUIManager::UpdateMaterialMapPictureBox() {
+	m_gui_pictureBox_map->m_texture = g_app->m_blackTexture;
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+
+			for (u32 o = 0; o < miMaterialMaxMaps; ++o)
+			{
+				if (m_gui_listbox_maps->GetItem(o)->IsSelected())
+				{
+					auto * map = &mat->m_maps[o];
+					if(map->m_GPUTexture)
+						m_gui_pictureBox_map->m_texture = (yyResource*)map->m_GPUTexture;
+					return;
+				}
+			}
+		}
 	}
 }

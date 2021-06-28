@@ -7,7 +7,7 @@
 extern miApplication * g_app;
 
 miVisualObjectImpl::miVisualObjectImpl() {
-	m_texture = 0;
+	//m_texture = 0;
 	m_mesh = 0;
 	m_type = miVisualObjectType::Polygon;
 }
@@ -519,12 +519,8 @@ void miVisualObjectImpl::Draw() {
 
 	yyMaterial* curPolygonMaterial = &default_polygon_material;
 
-	if (!m_texture) {
-		//m_texture = yyGetTextureFromCache("../res/exit.png");
-		m_texture = yyGetDefaultTexture();
-		if(!m_texture->IsLoaded())
-			m_texture->Load();
-	}
+	static yyResource * defTexture0 = yyGetDefaultTexture();
+	yyResource * texture_0 = defTexture0;
 
 	static yyMaterial wireframe_model_material;
 	static Mat4 Vi;
@@ -545,7 +541,7 @@ void miVisualObjectImpl::Draw() {
 			yySetMatrix(yyMatrixType::ViewInvert, &Vi);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, m_texture);
+			g_app->m_gpu->SetTexture(0, defTexture0);
 			g_app->m_gpu->Draw();
 		}
 		break;
@@ -571,7 +567,7 @@ void miVisualObjectImpl::Draw() {
 			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, m_texture);
+			g_app->m_gpu->SetTexture(0, defTexture0);
 			g_app->m_gpu->Draw();
 		}
 		break;
@@ -584,8 +580,13 @@ void miVisualObjectImpl::Draw() {
 				curPolygonMaterial->m_baseColor.m_data[1] = m_parentSceneObject->m_material->m_first->m_baseColor.y;
 				curPolygonMaterial->m_baseColor.m_data[2] = m_parentSceneObject->m_material->m_first->m_baseColor.z;
 				curPolygonMaterial->m_baseColor.m_data[3] = m_parentSceneObject->m_material->m_first->m_baseColor.w;
+
+				if(m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture)
+					texture_0 = (yyResource*)m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture;
 			}
 		}
+		g_app->m_gpu->SetTexture(0, texture_0);
+
 		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
 		{
 			auto node = m_nodes_GPU[i];
@@ -593,7 +594,6 @@ void miVisualObjectImpl::Draw() {
 			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
 			g_app->m_gpu->SetModel(node->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, m_texture);
 			
 			if (g_app->m_currentViewportDraw->m_drawMode == miViewportDrawMode::Wireframe)
 			{

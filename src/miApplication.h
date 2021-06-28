@@ -115,6 +115,7 @@ class miApplication
 	void _initGrid();
 
 	yyResource* m_transparentTexture;
+	yyResource* m_blackTexture;
 
 
 	yyColor m_color_windowClearColor;
@@ -301,7 +302,7 @@ public:
 
 	void OnSelect();
 
-	yyArraySimple<miPair<miMaterial*, u8>> m_materials;
+	yyArraySimple<miPair<miMaterial*, u8>*> m_materials;
 	miMaterial* CreateMaterial();
 
 	friend class miEditableObject;

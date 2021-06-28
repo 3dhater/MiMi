@@ -120,9 +120,13 @@ public:
 	yyGUIGroup*   m_gui_group_materials;
 	yyGUIDrawGroup* m_gui_drawGroup_materials;
 	yyGUIListBox* m_gui_listbox_materials;
+	yyGUIListBox* m_gui_listbox_maps;
+	yyGUIPictureBox* m_gui_pictureBox_map;
 	void OnNewMaterial(miMaterial*);
 	void DeleteSelectedMaterial();
 	void AssignSelectedMaterial();
+	void LoadNewImageForMaterial();
+	void UpdateMaterialMapPictureBox();
 };
 
 #endif

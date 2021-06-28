@@ -240,7 +240,23 @@ miApplication::~miApplication() {
 
 	for(u32 i = 0; i < m_materials.m_size; ++i){
 		auto & m = m_materials.m_data[i];
-		miDestroy(m.m_first);
+		for (u32 o = 0; o < miMaterialMaxMaps; ++o) {
+			if (m->m_first->m_maps[o].m_GPUTexture)
+			{
+				auto r = (yyResource*)m->m_first->m_maps[o].m_GPUTexture;
+				if (r->IsLoaded())
+				{
+					r->Unload();
+					if (!r->IsLoaded())
+					{
+						yyDeleteTexture(r, true);
+						m->m_first->m_maps[o].m_GPUTexture = 0;
+					}
+				}
+			}
+		}
+		miDestroy(m->m_first);
+		delete m;
 	}
 
 	if (m_rootObject)
@@ -296,11 +312,11 @@ miMaterial* miApplication::CreateMaterial() {
 	miMaterial* m = 0;
 
 	for (u32 i = 0; i < m_materials.m_size; ++i) {
-		auto & _m = m_materials.m_data[i];
-		if (_m.m_second == 0)
+		auto  _m = m_materials.m_data[i];
+		if (_m->m_second == 0)
 		{
-			m = _m.m_first;
-			_m.m_second = 1;
+			m = _m->m_first;
+			_m->m_second = 1;
 			break;
 		}
 	}
@@ -308,7 +324,8 @@ miMaterial* miApplication::CreateMaterial() {
 	if (!m)
 	{
 		m = miCreate<miMaterial>();
-		m_materials.push_back(miPair<miMaterial*,u8>(m,1));
+		auto p = new miPair<miMaterial*, u8>(m, 1);
+		m_materials.push_back(p);
 	}
 
 	static u32 c = 0;
@@ -643,6 +660,7 @@ vidOk:
 	m_gpu->UseVSync(true);
 	yySetDefaultTexture(yyGetTextureFromCache("../res/gui/white.dds"));
 
+	m_blackTexture = yyGetTextureFromCache("../res/gui/black.dds");
 	m_transparentTexture = yyGetTextureFromCache("../res/gui/tr.dds");
 
 	m_color_viewportBorder = ColorYellow;
