@@ -181,7 +181,7 @@ public:
 	// will call only for vertex/edge/polygon
 	virtual void DeleteSelectedObjects (miEditMode em) = 0;
 
-	virtual void RebuildVisualObjects() = 0;
+	virtual void RebuildVisualObjects(bool onlyEditMode) = 0;
 
 	virtual int GetVisualObjectCount() = 0;
 	virtual miVisualObject* GetVisualObject(int) = 0;

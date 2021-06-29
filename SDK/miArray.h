@@ -20,7 +20,7 @@ class miArray
 				new(&new_data[i]) type(m_data[i]);
 				(&m_data[i])->~type();
 			}
-			yyMemFree(m_data);
+			miFree(m_data);
 		}
 		m_data = new_data;
 		m_allocated = new_capacity;

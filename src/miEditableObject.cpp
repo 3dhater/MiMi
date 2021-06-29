@@ -10,6 +10,126 @@ extern miApplication * g_app;
 const s32 g_SelectButtonID_More = 0;
 const s32 g_SelectButtonID_Less = 1;
 
+void editableObjectGUI_connect_onClick(s32 id) {
+	if (g_app->m_selectedObjects.m_size != 1)
+		return;
+
+	auto object = g_app->m_selectedObjects.m_data[0];
+	if (object->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if (object->GetTypeForPlugin() != miEditableObject_pluginType)
+		return;
+
+	miEditableObject* editableObject = (miEditableObject*)object;
+	miArray<miListNode<miVertex*>*> vertsForNewpolygon;
+
+	for (s32 o = 0, osz = editableObject->GetMeshCount(); o < osz; ++o)
+	{
+		auto mesh = editableObject->GetMesh(o);
+		auto cp = mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto np = cp->m_right;
+			vertsForNewpolygon.clear();
+			u32 vertexCount = 0;
+			{// remove miVertex::flag_User1
+				auto currentVertex = cp->m_verts.m_head;
+				auto lastVertex = currentVertex->m_left;
+				while (true) {
+					if (currentVertex->m_data->m_flags & miVertex::flag_User1)
+						currentVertex->m_data->m_flags ^= miVertex::flag_User1;
+					++vertexCount;
+					if (currentVertex == lastVertex)
+						break;
+					currentVertex = currentVertex->m_right;
+				}
+			}
+
+			miPolygon* newPolygon = 0;
+			bool isStarted = false;
+			auto currentVertex = cp->m_verts.m_head;
+			auto lastVertex = currentVertex->m_left;
+			while (true) {
+				if (currentVertex->m_data->m_flags & miVertex::flag_isSelected)
+				{
+					if (!isStarted) {
+						isStarted = true;
+						lastVertex = currentVertex->m_left;
+					}
+				}
+
+				if (isStarted)
+				{
+					if ((currentVertex->m_data->m_flags & miVertex::flag_User1) == 0)
+						vertsForNewpolygon.push_back(currentVertex);
+				
+					if (currentVertex->m_data->m_flags & miVertex::flag_isSelected)
+					{
+						if (vertsForNewpolygon.m_size > 2)
+						{
+							newPolygon = editableObject->m_allocatorPolygon->Allocate();
+
+							for (u32 i = 0, l = vertsForNewpolygon.m_size - 1; i < vertsForNewpolygon.m_size; ++i)
+							{
+								auto v = vertsForNewpolygon.m_data[i];
+
+								if (i != 0 && i != l) {
+									v->m_data->m_flags |= miVertex::flag_User1;
+									--vertexCount;
+								}
+
+								newPolygon->m_verts.push_back(v->m_data);
+								v->m_data->m_polygons.push_back(newPolygon);
+
+								if (v == lastVertex)
+									lastVertex = vertsForNewpolygon.m_data[0];
+							}
+
+							cp->m_left->m_right = newPolygon;
+							newPolygon->m_left = cp->m_left;
+							cp->m_left = newPolygon;
+							newPolygon->m_right = cp;
+
+							vertsForNewpolygon.clear();
+
+							vertsForNewpolygon.push_back(currentVertex);
+					
+							if (vertexCount == 2)
+								break;
+						}
+					}
+				}
+
+				if (currentVertex->m_right == lastVertex)
+				{
+					if (!isStarted)
+						break;
+					else if (isStarted && !newPolygon)
+						break;
+				}
+
+				currentVertex = currentVertex->m_right;
+			}
+
+			if (newPolygon)
+			{
+				// need to delete old polygon
+				editableObject->DeletePolygon(cp);
+
+				mesh->_delete_edges(editableObject->m_allocatorEdge);
+				mesh->CreateEdges(editableObject->m_allocatorPolygon, editableObject->m_allocatorEdge, editableObject->m_allocatorVertex);
+			}
+
+			if (cp == lp)
+				break;
+			cp = np;
+		}
+	}
+		
+	editableObject->RebuildVisualObjects(false);
+}
 void editableObjectGUI_selectButtons_onClick(s32 id) {
 	if (g_app->m_selectedObjects.m_size != 1)
 		return;
@@ -18,7 +138,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 	if (object->GetPlugin() != g_app->m_pluginForApp)
 		return;
 
-	if(object->GetTypeForPlugin() != 0)
+	if(object->GetTypeForPlugin() != miEditableObject_pluginType)
 		return;
 
 	miEditableObject* o = (miEditableObject*)object;
@@ -216,16 +336,23 @@ void miApplication::_initEditableObjectGUI() {
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
 		miPluginGUI::Flag_ForPolygonEditMode);
-	m_pluginGuiForEditableObject->AddButton(v4f(50.f, 0.f, 50.f, 15.f), L"More", g_SelectButtonID_More,
+	f32 y = 0.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"More", g_SelectButtonID_More,
 		editableObjectGUI_selectButtons_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
 		miPluginGUI::Flag_ForPolygonEditMode);
-	m_pluginGuiForEditableObject->AddButton(v4f(105.f, 0.f, 50.f, 15.f), L"Less", g_SelectButtonID_Less,
+	m_pluginGuiForEditableObject->AddButton(v4f(105.f, y, 50.f, 15.f), L"Less", g_SelectButtonID_Less,
 		editableObjectGUI_selectButtons_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
 		miPluginGUI::Flag_ForPolygonEditMode);
+	y += 15.f + 3.f;
+
+	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Edit:", 0, 
+		miPluginGUI::Flag_ForVertexEditMode);
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Connect", -1,
+		editableObjectGUI_connect_onClick, miPluginGUI::Flag_ForVertexEditMode );
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
@@ -440,7 +567,7 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	yyLogWriteInfo("Delete [%u] polygons\n", polygonsForDelete.size());
 	for (u32 i = 0, sz = polygonsForDelete.size(); i < sz; ++i)
 	{
-		_deletePolygon(polygonsForDelete[i]);
+		DeletePolygon(polygonsForDelete[i]);
 	}
 	auto voc = GetVisualObjectCount();
 	for (int i = 0; i < voc; ++i)
@@ -449,7 +576,7 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	}
 }
 
-void miEditableObject::_deletePolygon(miPolygon* _polygon) {
+void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 	static yyArraySimple<miVertex*> vertsForDelete;
 	static yyArraySimple<miEdge*> edgesForDelete;
 	vertsForDelete.clear();
@@ -1321,25 +1448,37 @@ void miEditableObject::OnTransformPolygon(
 
 void miEditableObject::OnSelect(miEditMode em) {
 	_updateVertsForTransformArray(em);
-	RebuildVisualObjects();
+	RebuildVisualObjects(true);
 }
 
-void miEditableObject::RebuildVisualObjects() {
-	auto em = g_app->GetEditMode();
-	switch (em)
+void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
+	if (onlyEditMode)
 	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		m_visualObject_vertex->CreateNewGPUModels(m_mesh);
-		break;
-	case miEditMode::Edge:
-		m_visualObject_edge->CreateNewGPUModels(m_mesh);
-		break;
-	case miEditMode::Polygon:
-		m_visualObject_polygon->CreateNewGPUModels(m_mesh);
-		break;
+		auto em = g_app->GetEditMode();
+		switch (em)
+		{
+		default:
+		case miEditMode::Object:
+			break;
+		case miEditMode::Vertex:
+			m_visualObject_vertex->CreateNewGPUModels(m_mesh);
+			break;
+		case miEditMode::Edge:
+			m_visualObject_edge->CreateNewGPUModels(m_mesh);
+			break;
+		case miEditMode::Polygon:
+			m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+			break;
+		}
+	}
+	else
+	{
+		auto voc = GetVisualObjectCount();
+		for (int i = 0; i < voc; ++i)
+		{
+
+			GetVisualObject(i)->CreateNewGPUModels(m_mesh);
+		}
 	}
 }
 

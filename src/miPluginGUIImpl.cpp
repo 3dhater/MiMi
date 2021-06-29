@@ -324,7 +324,7 @@ void miPluginGUIImpl::AddButton(const v4f& positionSize, const wchar_t* text, s3
 
 	m_gui_elements.push_back(ei);
 
-	button->m_onClick = miPluginGUIImpl_button_onClick;
+	button->m_onRelease = miPluginGUIImpl_button_onClick;
 }
 
 void miPluginGUIImpl::OnSelectObject(miSceneObject* so) {

@@ -2,6 +2,7 @@
 #define _MI_EDITABLEOBJECT_H_
 
 
+const u32 miEditableObject_pluginType = 0;
 
 class miEditableObject : public miSceneObject
 {
@@ -14,9 +15,7 @@ class miEditableObject : public miSceneObject
 
 	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
 	miMesh* m_mesh;
-	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
-	miDefaultAllocator<miEdge>* m_allocatorEdge;
-	miDefaultAllocator<miVertex>* m_allocatorVertex;
+	
 	void _destroyMesh();
 
 	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
@@ -39,7 +38,6 @@ class miEditableObject : public miSceneObject
 	void _transformScale(Mat4* S, const v3f& C, bool isCancel);
 	void _transformRotate(Mat4* R, const v3f& C, bool isCancel);
 
-	void _deletePolygon(miPolygon*);
 
 	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);
@@ -69,7 +67,7 @@ public:
 
 	virtual miPlugin* GetPlugin() override;
 	virtual void DeleteSelectedObjects(miEditMode em) override;
-	virtual void RebuildVisualObjects() override;
+	virtual void RebuildVisualObjects(bool onlyEditMode) override;
 	virtual int GetVisualObjectCount() override;
 	virtual miVisualObject* GetVisualObject(int) override;
 	
@@ -90,6 +88,11 @@ public:
 	virtual void OnSelect(miEditMode) override;
 	virtual void OnSetEditMode(miEditMode) override;
 	virtual void OnEndTransform(miEditMode) override;
+
+	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
+	miDefaultAllocator<miEdge>* m_allocatorEdge;
+	miDefaultAllocator<miVertex>* m_allocatorVertex;
+	void DeletePolygon(miPolygon*);
 };
 
 #endif

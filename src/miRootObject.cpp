@@ -24,4 +24,4 @@ int miRootObject::GetMeshCount() {return 0;}
 miMesh* miRootObject::GetMesh(int) {return 0;}
 
 void miRootObject::DeleteSelectedObjects(miEditMode em) {}
-void miRootObject::RebuildVisualObjects() {}
+void miRootObject::RebuildVisualObjects(bool) {}
