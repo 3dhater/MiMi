@@ -93,6 +93,8 @@ public:
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
 	void DeletePolygon(miPolygon*);
+	void ConnectVerts1();
+	void BreakVerts();
 };
 
 #endif

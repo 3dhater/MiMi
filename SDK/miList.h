@@ -156,6 +156,26 @@ public:
 		return false;
 	}
 
+	void replace(const _type& oldObject, const _type& newObject) {
+		if (!m_head)
+			return;
+
+		auto node = m_head;
+		auto last = m_head->m_left;
+		while (true)
+		{
+			auto next = node->m_right;
+			if (node->m_data == oldObject)
+			{
+				node->m_data = newObject;
+				return;
+			}
+			if (node == last)
+				break;
+			node = next;
+		}
+	}
+
 	miListNode<_type>* m_head;
 	
 	//miListNode<_type>*(*m_onAllocate)();

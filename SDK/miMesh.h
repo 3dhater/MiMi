@@ -501,6 +501,22 @@ struct miMesh
 			m_first_edge->m_left = newEdge;
 		}
 	}
+	void _add_vertex_to_list(miVertex* newVertex) {
+		if (!m_first_vertex)
+		{
+			m_first_vertex = newVertex;
+			m_first_vertex->m_right = m_first_vertex;
+			m_first_vertex->m_left = m_first_vertex;
+		}
+		else
+		{
+			auto last = m_first_vertex->m_left;
+			last->m_right = newVertex;
+			newVertex->m_left = last;
+			newVertex->m_right = m_first_vertex;
+			m_first_vertex->m_left = newVertex;
+		}
+	}
 };
 
 template<typename _polygon_allocator_type, typename _edge_allocator_type, typename _vertex_allocator_type>
@@ -620,7 +636,7 @@ struct miMeshBuilder
 					newVertex->m_normal[2] = normals[i].z;
 
 					m_weldMap[m_vertsMapHash] = newVertex;
-					_add_vertex_to_list(newVertex);
+					m_mesh._add_vertex_to_list(newVertex);
 				}
 				else
 				{
@@ -638,7 +654,7 @@ struct miMeshBuilder
 				newVertex->m_normal[1] = normals[i].y;
 				newVertex->m_normal[2] = normals[i].z;
 
-				_add_vertex_to_list(newVertex);
+				m_mesh._add_vertex_to_list(newVertex);
 			}
 
 			newVertex->m_polygons.push_back(newPolygon);
@@ -696,23 +712,6 @@ private:
 		bytes[12] = 0;
 		m_vertsMapHash = bytes;
 	}
-	void _add_vertex_to_list(miVertex* newVertex) {
-		if (!m_mesh.m_first_vertex)
-		{
-			m_mesh.m_first_vertex = newVertex;
-			m_mesh.m_first_vertex->m_right = m_mesh.m_first_vertex;
-			m_mesh.m_first_vertex->m_left = m_mesh.m_first_vertex;
-		}
-		else
-		{
-			auto last = m_mesh.m_first_vertex->m_left;
-			last->m_right = newVertex;
-			newVertex->m_left = last;
-			newVertex->m_right = m_mesh.m_first_vertex;
-			m_mesh.m_first_vertex->m_left = newVertex;
-		}
-	}
-	
 };
 
 #endif
