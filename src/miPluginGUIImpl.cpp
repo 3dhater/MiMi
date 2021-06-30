@@ -38,6 +38,18 @@ miPluginGUIImpl::miPluginGUIImpl()
 }
 
 miPluginGUIImpl::~miPluginGUIImpl(){
+	miArray<yyGUIButtonGroup*> btngroups;
+	btngroups.reserve(0xf);
+	m_buttonGroup.Get(&btngroups);
+	for (u32 i = 0; i < btngroups.m_size; ++i)
+	{
+		miDestroy(btngroups.m_data[i]);
+	}
+
+	for (u32 i = 0; i < m_gui_elements.m_size; ++i)
+	{
+		delete m_gui_elements.m_data[i];
+	}
 	if (m_gui_drawGroup)
 		yyGUIDeleteDrawGroup(m_gui_drawGroup);
 }
@@ -71,7 +83,7 @@ void miPluginGUIImpl::Show(bool show) {
 	{
 		for (u32 i = 0; i < m_gui_elements.m_size; ++i)
 		{
-			auto & e = m_gui_elements.m_data[i];
+			auto e = m_gui_elements.m_data[i];
 		
 			bool v = false;
 
@@ -79,25 +91,25 @@ void miPluginGUIImpl::Show(bool show) {
 			{
 			default:
 			case miEditMode::Object:
-				if (e.m_flags & miPluginGUI::Flag_ForVertexEditMode
-					|| e.m_flags & miPluginGUI::Flag_ForEdgeEditMode
-					|| e.m_flags & miPluginGUI::Flag_ForPolygonEditMode)
+				if (e->m_flags & miPluginGUI::Flag_ForVertexEditMode
+					|| e->m_flags & miPluginGUI::Flag_ForEdgeEditMode
+					|| e->m_flags & miPluginGUI::Flag_ForPolygonEditMode)
 					v = false;
 				else
 					v =	true;
 				break;
 			case miEditMode::Vertex:
-				v = e.m_flags & miPluginGUI::Flag_ForVertexEditMode ? true : false;
+				v = e->m_flags & miPluginGUI::Flag_ForVertexEditMode ? true : false;
 				break;
 			case miEditMode::Edge:
-				v = e.m_flags & miPluginGUI::Flag_ForEdgeEditMode ? true : false;
+				v = e->m_flags & miPluginGUI::Flag_ForEdgeEditMode ? true : false;
 				break;
 			case miEditMode::Polygon:
-				v = e.m_flags & miPluginGUI::Flag_ForPolygonEditMode ? true : false;
+				v = e->m_flags & miPluginGUI::Flag_ForPolygonEditMode ? true : false;
 				break;
 			}
 
-			e.m_element->SetVisible(v);
+			e->m_element->SetVisible(v);
 		}
 	}
 
@@ -116,10 +128,10 @@ void miPluginGUIImpl::AddText(
 	gui_text->IgnoreInput(true);
 	m_gui_group->AddElement(gui_text);
 
-	element_info ei;
-	ei.m_element = gui_text;
-	ei.m_textInput_onSelectObject_text = onSelectObject;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = gui_text;
+	ei->m_textInput_onSelectObject_text = onSelectObject;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 }
@@ -128,19 +140,19 @@ void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider) {
 	miPluginGUIImpl* gui = (miPluginGUIImpl*)slider->m_userData;
 	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
 	{
-		auto & ge = gui->m_gui_elements.m_data[i];
-		if (ge.m_element == slider)
+		auto ge = gui->m_gui_elements.m_data[i];
+		if (ge->m_element == slider)
 		{
 			switch (slider->m_sliderType)
 			{
 			case yyGUIRangeSliderType::Float:
 			case yyGUIRangeSliderType::FloatLimits: {
-				ge.m_slider_onValueChanged_slider_f(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_f);
+				ge->m_slider_onValueChanged_slider_f(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_f);
 			}break;
 			default:
 			case yyGUIRangeSliderType::Int:
 			case yyGUIRangeSliderType::IntLimits:{
-				ge.m_slider_onValueChanged_slider_i(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_i);
+				ge->m_slider_onValueChanged_slider_i(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_i);
 			}break;
 			}
 		}
@@ -164,11 +176,11 @@ void miPluginGUIImpl::AddRangeSliderInt(
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
 	m_gui_group->AddElement(gui_slider);
 
-	element_info ei;
-	ei.m_element = gui_slider;
-	ei.m_slider_onSelectObject_slider_i = onSelectObject;
-	ei.m_slider_onValueChanged_slider_i = onValueChanged;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = gui_slider;
+	ei->m_slider_onSelectObject_slider_i = onSelectObject;
+	ei->m_slider_onValueChanged_slider_i = onValueChanged;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 }
@@ -189,11 +201,11 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
 	m_gui_group->AddElement(gui_slider);
 
-	element_info ei;
-	ei.m_element = gui_slider;
-	ei.m_slider_onSelectObject_slider_f = onSelectObject;
-	ei.m_slider_onValueChanged_slider_f = onValueChanged;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = gui_slider;
+	ei->m_slider_onSelectObject_slider_f = onSelectObject;
+	ei->m_slider_onValueChanged_slider_f = onValueChanged;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 }
@@ -214,11 +226,11 @@ void miPluginGUIImpl::AddRangeSliderIntNoLimit(
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
 	m_gui_group->AddElement(gui_slider);
 
-	element_info ei;
-	ei.m_element = gui_slider;
-	ei.m_slider_onSelectObject_slider_i = onSelectObject;
-	ei.m_slider_onValueChanged_slider_i = onValueChanged;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = gui_slider;
+	ei->m_slider_onSelectObject_slider_i = onSelectObject;
+	ei->m_slider_onValueChanged_slider_i = onValueChanged;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 }
@@ -239,11 +251,11 @@ void miPluginGUIImpl::AddRangeSliderFloatNoLimit(
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
 	m_gui_group->AddElement(gui_slider);
 
-	element_info ei;
-	ei.m_element = gui_slider;
-	ei.m_slider_onSelectObject_slider_f = onSelectObject;
-	ei.m_slider_onValueChanged_slider_f = onValueChanged;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = gui_slider;
+	ei->m_slider_onSelectObject_slider_f = onSelectObject;
+	ei->m_slider_onValueChanged_slider_f = onValueChanged;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 }
@@ -253,10 +265,10 @@ void miPluginGUIImpl_checkBox_onClick(yyGUIElement* elem, s32 m_id) {
 	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
 	{
 		auto & ge = gui->m_gui_elements.m_data[i];
-		if (ge.m_element == elem)
+		if (ge->m_element == elem)
 		{
 			yyGUICheckBox* checkBox = (yyGUICheckBox*)elem;
-			ge.m_checkbox_onClick(checkBox->m_isChecked);
+			ge->m_checkbox_onClick(checkBox->m_isChecked);
 			return;
 		}
 	}
@@ -278,10 +290,10 @@ void miPluginGUIImpl::AddCheckBox(
 	checkBox->m_isChecked = isChecked;
 	checkBox->m_userData = this;
 
-	element_info ei;
-	ei.m_element = checkBox;
-	ei.m_checkbox_onClick = onClick;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = checkBox;
+	ei->m_checkbox_onClick = onClick;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 
@@ -293,10 +305,10 @@ void miPluginGUIImpl_button_onClick(yyGUIElement* elem, s32 m_id) {
 	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
 	{
 		auto & ge = gui->m_gui_elements.m_data[i];
-		if (ge.m_element == elem)
+		if (ge->m_element == elem)
 		{
 			yyGUIButton* button = (yyGUIButton*)elem;
-			ge.m_button_onClick(button->m_id);
+			ge->m_button_onClick(button->m_id);
 			return;
 		}
 	}
@@ -317,47 +329,138 @@ void miPluginGUIImpl::AddButton(const v4f& positionSize, const wchar_t* text, s3
 	button->m_textColorHover.set(1.f);
 	button->m_textColorPress.set(0.6f);
 
-	element_info ei;
-	ei.m_element = button;
-	ei.m_button_onClick = onClick;
-	ei.m_flags = flags;
+	element_info* ei = new element_info;
+	ei->m_element = button;
+	ei->m_button_onClick = onClick;
+	ei->m_flags = flags;
 
 	m_gui_elements.push_back(ei);
 
 	button->m_onRelease = miPluginGUIImpl_button_onClick;
 }
 
+void miPluginGUIImpl_buttonAsCheckbox_onClick(yyGUIElement* elem, s32 m_id) {
+	miPluginGUIImpl* gui = (miPluginGUIImpl*)elem->m_userData;
+	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
+	{
+		auto & ge = gui->m_gui_elements.m_data[i];
+		if (ge->m_element == elem)
+		{
+			yyGUIButton* button = (yyGUIButton*)elem;
+			ge->m_buttonAsCheckBox_onClick(button->m_id, button->m_isChecked);
+			return;
+		}
+	}
+}
+void miPluginGUIImpl_buttonAsCheckbox_onCheck(yyGUIElement* elem, s32 m_id) {
+	miPluginGUIImpl* gui = (miPluginGUIImpl*)elem->m_userData;
+	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
+	{
+		auto & ge = gui->m_gui_elements.m_data[i];
+		if (ge->m_element == elem)
+		{
+			yyGUIButton* button = (yyGUIButton*)elem;
+			ge->m_onCheck(button->m_id);
+			return;
+		}
+	}
+}
+void miPluginGUIImpl_buttonAsCheckbox_onUncheck(yyGUIElement* elem, s32 m_id) {
+	miPluginGUIImpl* gui = (miPluginGUIImpl*)elem->m_userData;
+	for (u32 i = 0; i < gui->m_gui_elements.m_size; ++i)
+	{
+		auto & ge = gui->m_gui_elements.m_data[i];
+		if (ge->m_element == elem)
+		{
+			yyGUIButton* button = (yyGUIButton*)elem;
+			ge->m_onUncheck(button->m_id);
+			return;
+		}
+	}
+}
+void miPluginGUIImpl::AddButtonAsCheckbox(
+	const v4f& positionSize, 
+	const wchar_t* text, 
+	s32 id, 
+	void(*onClick)(s32, bool), 
+	void(*onCheck)(s32), 
+	void(*onUncheck)(s32), 
+	s32 buttonGroupIndex,
+	u32 flags) 
+{
+	yyGUIButton* button = yyGUICreateButton(
+		v4f(positionSize.x, positionSize.y, positionSize.x + positionSize.z, positionSize.y + positionSize.w),
+		0, id, m_gui_drawGroup, 0);
+	m_gui_group->AddElement(button);
+	m_gui_group->m_userData = this;
+
+	button->m_userData = this;
+	button->SetText(text, g_app->m_GUIManager->GetFont(miGUIManager::Font::Default), true);
+	button->m_bgColor.set(0.5f);
+	button->m_bgColorHover.set(0.65f);
+	button->m_bgColorPress = ColorYellow;
+	button->m_textColor.set(0.95f);
+	button->m_textColorHover.set(1.f);
+	button->m_textColorPress.set(0.6f);
+	button->m_useAsCheckbox = true;
+
+	element_info* ei = new element_info;
+	ei->m_element = button;
+	ei->m_buttonAsCheckBox_onClick = onClick;
+	ei->m_onCheck = onCheck;
+	ei->m_onUncheck = onUncheck;
+	ei->m_flags = flags;
+
+	if (buttonGroupIndex != -1)
+	{
+		yyGUIButtonGroup* newBtnGroup = 0;//miCreate<yyGUIButtonGroup>();
+		if (!m_buttonGroup.Get(buttonGroupIndex, newBtnGroup))
+		{
+			newBtnGroup = miCreate<yyGUIButtonGroup>();
+			m_buttonGroup.Add(buttonGroupIndex, newBtnGroup);
+		}
+		newBtnGroup->m_buttons.push_back(button);
+		button->m_buttonGroup = newBtnGroup;
+	}
+
+	m_gui_elements.push_back(ei);
+
+	button->m_onClick = miPluginGUIImpl_buttonAsCheckbox_onClick;
+	button->m_onCheck = miPluginGUIImpl_buttonAsCheckbox_onCheck;
+	button->m_onUncheck = miPluginGUIImpl_buttonAsCheckbox_onUncheck;
+}
+
 void miPluginGUIImpl::OnSelectObject(miSceneObject* so) {
 	for (u32 i = 0; i < m_gui_elements.m_size; ++i)
 	{
-		auto & e = m_gui_elements.m_data[i];
-		switch (e.m_element->m_type)
+		auto e = m_gui_elements.m_data[i];
+		switch (e->m_element->m_type)
 		{
 		case yyGUIElementType::Text: {
-			yyGUIText* gui_text = (yyGUIText*)e.m_element;
-			if (e.m_textInput_onSelectObject_text)
+			yyGUIText* gui_text = (yyGUIText*)e->m_element;
+			if (e->m_textInput_onSelectObject_text)
 			{
-				auto new_ptr = e.m_textInput_onSelectObject_text(so);
+				auto new_ptr = e->m_textInput_onSelectObject_text(so);
 				if (new_ptr)
 					gui_text->SetText(new_ptr);
 			}
 		}break;
 		case yyGUIElementType::CheckBox: {
-			yyGUICheckBox* gui_checkbox = (yyGUICheckBox*)e.m_element;
-			if (e.m_checkbox_onClick)
+			yyGUICheckBox* gui_checkbox = (yyGUICheckBox*)e->m_element;
+			if (e->m_checkbox_onClick)
 			{
-				e.m_checkbox_onClick(gui_checkbox->m_isChecked);
+				e->m_checkbox_onClick(gui_checkbox->m_isChecked);
 			}
 		}break;
 		case yyGUIElementType::RangeSlider: {
-			yyGUIRangeSlider* gui_slider = (yyGUIRangeSlider*)e.m_element;
+			yyGUIRangeSlider* gui_slider = (yyGUIRangeSlider*)e->m_element;
 			switch (gui_slider->m_sliderType)
 			{
 			case yyGUIRangeSliderType::Float:
 			case yyGUIRangeSliderType::FloatLimits: {
-				if (e.m_slider_onSelectObject_slider_f)
+				if (e->m_slider_onSelectObject_slider_f)
 				{
-					auto new_ptr = e.m_slider_onSelectObject_slider_f(so);
+					auto new_ptr = e->m_slider_onSelectObject_slider_f(so);
 					if (new_ptr)
 					{
 						gui_slider->m_ptr_f = new_ptr;
@@ -368,9 +471,9 @@ void miPluginGUIImpl::OnSelectObject(miSceneObject* so) {
 			default:
 			case yyGUIRangeSliderType::Int:
 			case yyGUIRangeSliderType::IntLimits:
-				if (e.m_slider_onSelectObject_slider_i)
+				if (e->m_slider_onSelectObject_slider_i)
 				{
-					auto new_ptr = e.m_slider_onSelectObject_slider_i(so);
+					auto new_ptr = e->m_slider_onSelectObject_slider_i(so);
 					if (new_ptr)
 					{
 						gui_slider->m_ptr_i  = new_ptr;

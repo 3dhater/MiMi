@@ -6,7 +6,9 @@ class miPluginGUIImpl : public miPluginGUI
 	miPluginGUIType m_type;
 	yyGUIDrawGroup* m_gui_drawGroup;
 	yyGUIGroup* m_gui_group;
-	
+
+	miBinarySearchTree<yyGUIButtonGroup*> m_buttonGroup;
+
 	struct element_info
 	{
 		element_info() {
@@ -17,7 +19,12 @@ class miPluginGUIImpl : public miPluginGUI
 			m_slider_onValueChanged_slider_f = 0;
 			m_checkbox_onClick = 0;
 			m_button_onClick = 0;
+			m_buttonAsCheckBox_onClick = 0;
+			m_onCheck = 0;
+			m_onUncheck = 0;
 			m_flags = 0;
+		}
+		~element_info() {
 		}
 
 		yyGUIElement* m_element;
@@ -29,14 +36,20 @@ class miPluginGUIImpl : public miPluginGUI
 
 		void(*m_checkbox_onClick)(bool isChecked);
 		void(*m_button_onClick)(s32 id);
+		void(*m_buttonAsCheckBox_onClick)(s32 id, bool isChecked);
+		void(*m_onCheck)(s32);
+		void(*m_onUncheck)(s32);
 
 		u32 m_flags;
 	};
 
-	yyArraySimple<element_info> m_gui_elements;
+	yyArraySimple<element_info*> m_gui_elements;
 
 	void _init(miPluginGUIType);
 
+	friend void miPluginGUIImpl_buttonAsCheckbox_onCheck(yyGUIElement* elem, s32 m_id);
+	friend void miPluginGUIImpl_buttonAsCheckbox_onUncheck(yyGUIElement* elem, s32 m_id);
+	friend void miPluginGUIImpl_buttonAsCheckbox_onClick(yyGUIElement* elem, s32 m_id);
 	friend void miPluginGUIImpl_button_onClick(yyGUIElement* elem, s32 m_id);
 	friend void miPluginGUIImpl_checkBox_onClick(yyGUIElement* elem, s32 m_id);
 	friend void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider);
@@ -53,6 +66,8 @@ public:
 	virtual void AddRangeSliderFloatNoLimit(const v4f& positionSize, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) override;
 	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked, u32 flags) override;
 	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) override;
+	virtual void AddButtonAsCheckbox(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32, bool), 
+		void(*onCheck)(s32), void(*onUncheck)(s32), s32 buttonGroupIndex, u32 flags) override;
 
 	virtual void Show(bool);
 

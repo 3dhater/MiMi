@@ -199,7 +199,9 @@ public:
 	
 	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked, u32 flags) = 0;
 	
-	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void (*onClick)(s32), u32 flags) = 0;
+	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) = 0;
+	virtual void AddButtonAsCheckbox(const v4f& positionSize, const wchar_t* text, s32 id, void (*onClick)(s32,bool), 
+		void(*onCheck)(s32), void(*onUncheck)(s32), s32 buttonGroupIndex, u32 flags) = 0;
 };
 
 class miSDKImporterHelper

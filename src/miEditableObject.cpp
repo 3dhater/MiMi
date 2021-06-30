@@ -12,6 +12,15 @@ const s32 g_SelectButtonID_Less = 1;
 const s32 g_SelectButtonID_ConnectVerts1 = 2;
 const s32 g_SelectButtonID_BreakVerts = 3;
 
+void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
+}
+void editableObjectGUI_attachButton_onCheck(s32 id) {
+	//printf("on check\n");
+}
+void editableObjectGUI_attachButton_onUncheck(s32 id) {
+	//printf("on uncheck\n");
+}
+
 void editableObjectGUI_editButton_onClick(s32 id) {
 	if (g_app->m_selectedObjects.m_size != 1)
 		return;
@@ -238,6 +247,26 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 
 void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject = (miPluginGUIImpl*)m_sdk->CreatePluginGUI(miPluginGUIType::ObjectParams);
+
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(
+		v4f(0.f, 0.f, 50.f, 15.f), 
+		L"Attach", 
+		-1, 
+		editableObjectGUI_attachButton_onClick, 
+		editableObjectGUI_attachButton_onCheck,
+		editableObjectGUI_attachButton_onUncheck,
+		1,
+		0);
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(
+		v4f(55.f, 0.f, 50.f, 15.f),
+		L"Attach 2",
+		-1,
+		editableObjectGUI_attachButton_onClick,
+		editableObjectGUI_attachButton_onCheck,
+		editableObjectGUI_attachButton_onUncheck,
+		1,
+		0);
+
 	m_pluginGuiForEditableObject->AddText(v2f(0.f, 0.f), L"Select:", 0,
 		miPluginGUI::Flag_ForEdgeEditMode |
 		miPluginGUI::Flag_ForVertexEditMode |
