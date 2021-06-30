@@ -483,6 +483,7 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		GetVisualObject(i)->CreateNewGPUModels(m_mesh);
 	}
+
 }
 
 void miEditableObject::DeletePolygon(miPolygon* _polygon) {
@@ -1622,11 +1623,7 @@ void miEditableObject::BreakVerts() {
 		auto fp = cp;
 		while (true)
 		{
-			if (cp == fp)
-			{
-
-			}
-			else
+			if (cp != fp)
 			{
 				miVertex* newVertex = m_allocatorVertex->Allocate();
 				newVertex->CopyData(v);

@@ -1847,8 +1847,10 @@ void miApplication::DeleteSelected() {
 		break;
 	}
 	this->_updateObjectsOnSceneArray();
+	_transformObjectsApply();
 	this->UpdateSceneAabb();
 	this->UpdateSelectionAabb();
+	this->_updateIsVertexEdgePolygonSelected();
 	m_GUIManager->SetCommonParamsRangePosition();
 }
 
