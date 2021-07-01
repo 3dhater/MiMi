@@ -189,7 +189,7 @@ public:
 	virtual int GetMeshCount() = 0;
 	virtual miMesh* GetMesh(int) = 0;
 
-	virtual bool IsVertexMouseHover(miSelectionFrust*) { return false; }
+	virtual miVertex* IsVertexMouseHover(miSelectionFrust*) { return nullptr; }
 	virtual bool IsEdgeMouseHover(miSelectionFrust*) { return false; }
 
 	virtual void UpdateAabb() {

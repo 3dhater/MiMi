@@ -306,7 +306,7 @@ public:
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) = 0;
 
 	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) = 0;
-	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miVertex*), void(*onSelectFirst)(miVertex*), void(*onSelectSecond)(miVertex*, miVertex*), void(*onCancel)()) = 0;
+	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*), void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*), void(*onCancel)()) = 0;
 };
 
 #endif

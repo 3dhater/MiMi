@@ -178,6 +178,9 @@ miApplication::miApplication() {
 	m_isClickAndDrag = false;
 	m_selectionFrust = new miSelectionFrustImpl;
 	
+	m_mouseHoverVertex = 0;
+	m_mouseHoverVertexObject = 0;
+
 	m_rootObject = (miRootObject*)miMalloc(sizeof(miRootObject));
 	new(m_rootObject)miRootObject(0, 0);
 
@@ -215,7 +218,6 @@ miApplication::miApplication() {
 	m_gridModel_left2_10 = 0;
 	m_gridModel_left1_100 = 0;
 	m_gridModel_left2_100 = 0;
-	m_isVertexMouseHover = false;
 
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
@@ -618,6 +620,7 @@ bool miApplication::Init(const char* videoDriver) {
 		case miCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case miCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case miCursorType::SelectObject: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SelectVertex: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		default:break;
 		}
 
@@ -815,6 +818,49 @@ void miApplication::MainLoop() {
 					m_cursors[(u32)miCursorType::Arrow]->Activate();
 				}
 			}
+
+			if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex
+				&& m_selectedObjects.m_size)
+			{
+				bool setCursor = false;
+				if (m_mouseHoverVertex)
+				{
+					static miVertex* pickedVertex1 = 0;
+
+					if (m_sdk->m_selectVertex_onIsGoodVertex)
+					{
+						if (m_sdk->m_selectVertex_onIsGoodVertex(m_mouseHoverVertexObject, m_mouseHoverVertex))
+						{
+							if (m_inputContext->m_isLMBDown) 
+							{
+								pickedVertex1 = m_mouseHoverVertex;
+								if (m_sdk->m_selectVertex_onSelectFirst)
+									m_sdk->m_selectVertex_onSelectFirst(m_mouseHoverVertexObject, m_mouseHoverVertex);
+							}
+							if (pickedVertex1 && m_inputContext->m_isLMBUp)
+							{
+								if (m_sdk->m_selectVertex_onSelectSecond)
+									m_sdk->m_selectVertex_onSelectSecond(m_mouseHoverVertexObject, pickedVertex1, m_mouseHoverVertex);
+								pickedVertex1 = 0;
+							}
+
+							setCursor = true;
+						}
+					}
+				}
+				if (setCursor)
+				{
+					yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::SelectVertex]);
+					m_cursors[(u32)miCursorType::SelectVertex]->Activate();
+				}
+				else
+				{
+					yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+					m_cursors[(u32)miCursorType::Arrow]->Activate();
+				}
+			}
+
+			
 		}
 
 		while (yyPollEvent(currentEvent))
@@ -1027,17 +1073,16 @@ bool miApplication::_isVertexMouseHover() {
 		auto o = m_objectsOnScene.m_data[i];
 		if (o->IsSelected())
 		{
-			if (o->IsVertexMouseHover(m_selectionFrust))
-			{
-				m_isVertexMouseHover = true;
+			m_mouseHoverVertexObject = o;
+			m_mouseHoverVertex = o->IsVertexMouseHover(m_selectionFrust);
+			if (m_mouseHoverVertex)
 				return true;
-			}
 		}
 	}
 	return false;
 }
 void miApplication::_isObjectMouseHover() {
-	m_isVertexMouseHover = false;
+	m_mouseHoverVertex = 0;
 	m_isEdgeMouseHover = false;
 	switch (m_editMode)
 	{
@@ -1080,15 +1125,18 @@ void miApplication::UpdateViewports() {
 				if (m_editMode == miEditMode::Vertex)
 				{
 					_isObjectMouseHover();
-					if (m_isVertexMouseHover )
+					if (m_cursorBehaviorMode != miCursorBehaviorMode::SelectVertex)
 					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
-						m_cursors[(u32)miCursorType::Cross]->Activate();
-					}
-					else
-					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
-						m_cursors[(u32)miCursorType::Arrow]->Activate();
+						if (m_mouseHoverVertex)
+						{
+							yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+							m_cursors[(u32)miCursorType::Cross]->Activate();
+						}
+						else
+						{
+							yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+							m_cursors[(u32)miCursorType::Arrow]->Activate();
+						}
 					}
 				}
 				else if (m_editMode == miEditMode::Edge)
@@ -1149,7 +1197,8 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
-	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject)
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
+		|| m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex)
 	{
 		if (m_inputContext->IsKeyHit(yyKey::K_ESCAPE) || m_inputContext->m_isRMBUp)
 		{
@@ -1306,13 +1355,12 @@ void miApplication::UpdateViewports() {
 			if (m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode && m_inputContext->m_isLMBHold)
 				m_isSelectByRectangle = true;
 
-			if (m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
+			if (
+				(m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
+				|| (m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex && m_inputContext->m_isLMBHold))
 			{
 				if (!m_isClickAndDrag)
-				{
-					//printf("%f %f %f\n", m_cursorLMBClickPosition3D.x, m_cursorLMBClickPosition3D.y, m_cursorLMBClickPosition3D.z);
 					m_isClickAndDrag = true;
-				}
 			}
 		}
 

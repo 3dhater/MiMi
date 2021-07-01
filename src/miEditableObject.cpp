@@ -12,14 +12,23 @@ const s32 g_SelectButtonID_Less = 1;
 const s32 g_SelectButtonID_ConnectVerts1 = 2;
 const s32 g_SelectButtonID_BreakVerts = 3;
 
-bool editableObjectGUI_tgweldButton_onIsGoodVertex(miVertex* v) {
-	printf("a");
-	return true;
+bool editableObjectGUI_tgweldButton_onIsGoodVertex(miSceneObject* o, miVertex* v) {
+	return o == (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 }
-void editableObjectGUI_tgweldButton_onSelectFirst(miVertex*) {}
-void editableObjectGUI_tgweldButton_onSelectSecond(miVertex*, miVertex*) {}
-void editableObjectGUI_tgweldButton_onCancel(){}
-void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked) {}
+void editableObjectGUI_tgweldButton_onSelectFirst(miSceneObject* o, miVertex* v) {}
+void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2) {
+	printf("%u %u\n", v1, v2);
+}
+void editableObjectGUI_tgweldButton_onCancel(){
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto gui = selObject->GetGui();
+	gui->UncheckButtonGroup(1);
+	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+}
+void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked) {
+	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
+}
 void editableObjectGUI_tgweldButton_onCheck(s32 id) {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
 	g_app->m_sdk->SetSelectVertexCallbacks(
@@ -732,10 +741,10 @@ bool miEditableObject::IsEdgeMouseHover(miSelectionFrust* sf) {
 	return false;
 }
 
-bool miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
+miVertex* miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
 	auto current_vertex = m_mesh->m_first_vertex;
 	if (!current_vertex)
-		return false;
+		return 0;
 
 	Mat4 M = this->GetWorldMatrix()->getBasis();
 	auto position = this->GetGlobalPosition();
@@ -744,13 +753,13 @@ bool miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
 
 	while (true) {
 		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-			return true;
+			return current_vertex;
 
 		if (current_vertex == last_vertex)
 			break;
 		current_vertex = current_vertex->m_right;
 	}
-	return false;
+	return 0;
 }
 
 void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {

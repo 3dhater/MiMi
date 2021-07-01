@@ -31,7 +31,8 @@ void miApplication::_callVisualObjectOnSelect() {
 }
 
 bool miApplication::_isDoNotSelect() {
-	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject)
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
+		|| m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex)
 		return true;
 	return false;
 }

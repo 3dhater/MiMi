@@ -78,9 +78,9 @@ void miSDKImpl::SetSelectObjectCallbacks(
 }
 
 void miSDKImpl::SetSelectVertexCallbacks(
-	bool(*onIsGoodVertex)(miVertex*), 
-	void(*onSelectFirst)(miVertex*),
-	void(*onSelectSecond)(miVertex*, miVertex*), 
+	bool(*onIsGoodVertex)(miSceneObject* o, miVertex*),
+	void(*onSelectFirst)(miSceneObject* o, miVertex*),
+	void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*),
 	void(*onCancel)()) 
 {
 	m_selectVertex_onIsGoodVertex = onIsGoodVertex;

@@ -92,6 +92,7 @@ enum class miCursorType : u32
 	Wait,
 
 	SelectObject,
+	SelectVertex,
 	_count
 };
 
@@ -154,7 +155,6 @@ class miApplication
 	bool _isVertexMouseHover();
 	bool _isEdgeMouseHover();
 	void _isObjectMouseHover();
-	bool m_isVertexMouseHover;
 	bool m_isEdgeMouseHover;
 
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
@@ -304,6 +304,9 @@ public:
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
 	
+	miVertex * m_mouseHoverVertex;
+	miSceneObject* m_mouseHoverVertexObject;
+
 	void ConvertSelectedObjectsToEditableObjects();
 	miEditableObject* ConvertObjectToEditableObject(miSceneObject*);
 	void DeleteObject(miSceneObject*);

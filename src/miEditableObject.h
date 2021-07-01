@@ -71,7 +71,7 @@ public:
 	virtual int GetMeshCount();
 	virtual miMesh* GetMesh(int);
 
-	virtual bool IsVertexMouseHover(miSelectionFrust* sf) override;
+	virtual miVertex* IsVertexMouseHover(miSelectionFrust* sf) override;
 	virtual bool IsEdgeMouseHover(miSelectionFrust*) override;
 
 	virtual bool IsVertexSelected()override;
