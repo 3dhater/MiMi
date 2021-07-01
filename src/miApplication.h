@@ -71,15 +71,35 @@ enum class miObjectParametersMode
 	Materials
 };
 
+
+enum class miCursorType : u32
+{
+	Arrow,
+	Cross,
+	Hand,
+	Help,
+	IBeam,
+	No,
+	Size,
+	SizeNESW,
+	SizeNS,
+	SizeNWSE,
+	SizeWE,
+	UpArrow,
+	Wait,
+
+	SelectObject,
+	_count
+};
+
 class miApplication
 {
 	yyInputContext * m_inputContext;
 	yyEngineContext* m_engineContext;
 	yyWindow*        m_window;
 	yyVideoDriverAPI* m_gpu;
-	miSDKImpl* m_sdk;
 
-	yyCursor* m_cursors[(u32)yyCursorType::_count];
+	yyCursor* m_cursors[(u32)miCursorType::_count];
 
 	// draw selection rectangle and other things
 	miGraphics2D* m_2d;
@@ -211,6 +231,8 @@ class miApplication
 	void _rebuildEdgeModels();
 	void _rebuildPolygonModels();
 
+	bool _isDoNotSelect();
+
 public:
 	miApplication();
 	~miApplication();
@@ -304,6 +326,8 @@ public:
 
 	yyArraySimple<miPair<miMaterial*, u8>*> m_materials;
 	miMaterial* CreateMaterial();
+
+	miSDKImpl* m_sdk;
 
 	friend class miEditableObject;
 	friend class miGizmo;

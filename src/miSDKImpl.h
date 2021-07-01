@@ -68,6 +68,10 @@ class miSDKImpl : public miSDK
 	yyArraySimple<miPair<miVertex*, miSceneObject*>> m_vertsForSelect;
 	yyArraySimple<miPair<miEdge*, miSceneObject*>> m_edgesForSelect;
 	yyArraySimple<miPair<miPair<miPolygon*, f32>, miSceneObject*>> m_polygonsForSelect;
+
+	bool(*m_selectObject_onIsGoodObject)(miSceneObject*);
+	void(*m_selectObject_onSelect)(miSceneObject*);
+	void(*m_selectObject_onCancel)();
 public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
@@ -78,8 +82,8 @@ public:
 	virtual miViewportCameraType GetActiveViewportCameraType();
 
 	virtual miKeyboardModifier GetKeyboardModifier();
-	virtual miCursorBehaviorMode GetCursorBehaviorModer();
-	virtual void SetCursorBehaviorModer(miCursorBehaviorMode);
+	virtual miCursorBehaviorMode GetCursorBehaviorMode() override;
+	virtual void SetCursorBehaviorMode(miCursorBehaviorMode) override;
 	virtual v2f GetCursorPosition2D();
 	virtual v3f GetCursorPosition3D();
 	virtual v3f GetCursorPosition3DFirstClick();
@@ -102,9 +106,11 @@ public:
 	virtual size_t FileSize(const char* fileName);
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other);
 
-	virtual void AddVertexToSelection(miVertex*, miSceneObject*);
-	virtual void AddEdgeToSelection(miEdge*, miSceneObject*);
-	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*);
+	virtual void AddVertexToSelection(miVertex*, miSceneObject*) override;
+	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) override;
+	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) override;
+
+	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) override;
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

@@ -135,6 +135,10 @@ enum class miCursorBehaviorMode : u32 {
 	CommonMode, // select by rect
 	ClickAndDrag, // like target weld or creation new object like plane
 	HideCursor, // hide cursor, save coords, and setCursorPo( this coords )
+
+				//  Change cursor. Will be disabled on escape/RMB/miSceneObject selection
+				// set callbacks sdk->SetSelectObjectCallbacks(...); before using
+	SelectObject, 
 };
 
 enum class miKeyboardModifier : u32 {
@@ -202,6 +206,7 @@ public:
 	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) = 0;
 	virtual void AddButtonAsCheckbox(const v4f& positionSize, const wchar_t* text, s32 id, void (*onClick)(s32,bool), 
 		void(*onCheck)(s32), void(*onUncheck)(s32), s32 buttonGroupIndex, u32 flags) = 0;
+	virtual void UncheckButtonGroup(s32 buttonGroupIndex) = 0;
 };
 
 class miSDKImporterHelper
@@ -258,8 +263,8 @@ public:
 	virtual miViewportCameraType GetActiveViewportCameraType() = 0;
 
 	virtual miKeyboardModifier GetKeyboardModifier() = 0;
-	virtual miCursorBehaviorMode GetCursorBehaviorModer() = 0;
-	virtual void SetCursorBehaviorModer(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
+	virtual miCursorBehaviorMode GetCursorBehaviorMode() = 0;
+	virtual void SetCursorBehaviorMode(miCursorBehaviorMode) = 0; // auto CommonMode when Escape
 	virtual v2f GetCursorPosition2D() = 0;
 	virtual v3f GetCursorPosition3D() = 0;
 	virtual v3f GetCursorPosition3DFirstClick() = 0;
@@ -296,6 +301,8 @@ public:
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) = 0;
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) = 0;
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) = 0;
+
+	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) = 0;
 };
 
 #endif

@@ -30,7 +30,14 @@ void miApplication::_callVisualObjectOnSelect() {
 	}
 }
 
+bool miApplication::_isDoNotSelect() {
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject)
+		return true;
+	return false;
+}
+
 void miApplication::DeselectAll() {
+	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
 		auto o = m_objectsOnScene.m_data[i];
@@ -42,6 +49,7 @@ void miApplication::DeselectAll() {
 }
 
 void miApplication::SelectAll() {
+	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
 		auto o = m_objectsOnScene.m_data[i];
@@ -54,6 +62,7 @@ void miApplication::SelectAll() {
 }
 
 void miApplication::InvertSelection() {
+	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
 		auto o = m_objectsOnScene.m_data[i];
@@ -66,6 +75,7 @@ void miApplication::InvertSelection() {
 }
 
 void miApplication::_select_multiple() {
+	if (_isDoNotSelect()) return;
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
 
@@ -77,6 +87,7 @@ void miApplication::_select_multiple() {
 }
 
 void miApplication::_select_single() {
+	if (_isDoNotSelect()) return;
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
 
@@ -119,6 +130,7 @@ void miApplication::_update_selected_objects_array(miSceneObject* o) {
 	}
 }
 void miApplication::UpdateSelectedObjectsArray() {
+	if (_isDoNotSelect()) return;
 	m_selectedObjects.clear();
 	_update_selected_objects_array(m_rootObject);
 	//printf("selected objects: %u\n", m_selectedObjects.m_size);

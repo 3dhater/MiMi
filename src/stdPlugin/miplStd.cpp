@@ -100,7 +100,7 @@ void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
 	{
 		m_isLMBDown = true;
 
-		if (m_sdk->GetCursorBehaviorModer() == miCursorBehaviorMode::ClickAndDrag) {
+		if (m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::ClickAndDrag) {
 			if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBDown();
 		}
 	}
@@ -109,7 +109,7 @@ void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
 void miplStd::OnLMBUp(miSelectionFrust* sf, bool isCursorInGUI) {
 	if (m_isLMBDown)
 	{
-		if (m_sdk->GetCursorBehaviorModer() == miCursorBehaviorMode::ClickAndDrag) {
+		if (m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::ClickAndDrag) {
 			if (m_isLMBDown)
 			{
 				if (m_newObjectPtr) m_newObjectPtr->OnCreationLMBUp();
@@ -128,7 +128,7 @@ void miplStd::OnCancel(miSelectionFrust*, bool isCursorInGUI) {
 		m_sdk->RemoveObjectFromScene(m_newObjectPtr);
 		_destroyNewObject();
 	}
-	m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::CommonMode);
+	m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
 	m_sdk->SetActivePlugin(nullptr);
 }
 
@@ -142,7 +142,7 @@ void miplStd::OnCreateObject(unsigned int objectId){
 
 	if (objectId == g_ObjectID_Plane)
 	{
-		m_sdk->SetCursorBehaviorModer(miCursorBehaviorMode::ClickAndDrag);
+		m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::ClickAndDrag);
 		m_sdk->SetActivePlugin(this);
 
 		if (m_newObjectPtr) miDestroy(m_newObjectPtr);

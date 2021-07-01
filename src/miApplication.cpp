@@ -225,7 +225,7 @@ miApplication::miApplication() {
 	m_2d = 0;
 	m_sdk = new miSDKImpl;
 
-	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	for (u32 i = 0; i < (u32)miCursorType::_count; ++i)
 	{
 		m_cursors[i] = 0;
 	}
@@ -233,7 +233,7 @@ miApplication::miApplication() {
 
 miApplication::~miApplication() {
 	if (m_gizmo) delete m_gizmo;
-	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	for (u32 i = 0; i < (u32)miCursorType::_count; ++i)
 	{
 		if (m_cursors[i])delete m_cursors[i];
 	}
@@ -369,15 +369,15 @@ void miApplication::SetCursorBehaviorMode(miCursorBehaviorMode bm) {
 		yySetCursorClip(0, 0, 0);
 		yySetCursorDisableAutoChange(false);
 		yyShowCursor(true);
-		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-		m_cursors[(u32)yyCursorType::Arrow]->Activate();
+		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+		m_cursors[(u32)miCursorType::Arrow]->Activate();
 		break;
 	case miCursorBehaviorMode::ClickAndDrag:
 		yySetCursorClip(0, 0, 0);
 		yySetCursorDisableAutoChange(false);
 		yyShowCursor(true);
-		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
-		m_cursors[(u32)yyCursorType::Cross]->Activate();
+		yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+		m_cursors[(u32)miCursorType::Cross]->Activate();
 		break;
 	case miCursorBehaviorMode::HideCursor:
 		yySetCursorDisableAutoChange(true);
@@ -588,28 +588,34 @@ bool miApplication::Init(const char* videoDriver) {
 	yyLogSetInfoOutput(log_onInfo);
 	yyLogSetWarningOutput(log_onWarning);
 
-	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	for (u32 i = 0; i < (u32)miCursorType::_count; ++i)
 	{
-		m_cursors[i] = new yyCursor((yyCursorType)i);
+		if (i < (u32)yyCursorType::Custom)
+			m_cursors[i] = new yyCursor((yyCursorType)i);
+		else 
+			m_cursors[i] = new yyCursor(yyCursorType::Arrow);
 
-		switch ((yyCursorType)i)
+		switch ((miCursorType)i)
 		{
-		default:
-		case yyCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SelectObject: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		default:break;
 		}
-		yySetCursor((yyCursorType)i, m_cursors[i]);
+
+		if(i < (u32)yyCursorType::Custom)
+			yySetCursor((yyCursorType)i, m_cursors[i]);
 	}
 
 	m_window = yyCreate<yyWindow>();
@@ -951,6 +957,37 @@ void miApplication::_get_objects_under_cursor() {
 		}
 	};
 	m_objectsUnderCursor.sort_insertion(_pred());
+
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
+		&& m_selectedObjects.m_size)
+	{
+		bool setCursor = false;
+		if (m_objectsUnderCursor.m_size)
+		{
+			auto selectedObject = m_selectedObjects.m_data[0];
+			if (m_objectsUnderCursor.m_data[0] != selectedObject)
+			{
+				if (m_sdk->m_selectObject_onIsGoodObject)
+				{
+					if (m_sdk->m_selectObject_onIsGoodObject(m_objectsUnderCursor.m_data[0]))
+					{
+
+						setCursor = true;
+					}
+				}
+			}
+		}
+		if (setCursor)
+		{
+			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::SelectObject]);
+			m_cursors[(u32)miCursorType::SelectObject]->Activate();
+		}
+		else
+		{
+			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+			m_cursors[(u32)miCursorType::Arrow]->Activate();
+		}
+	}
 }
 
 bool miApplication::_isEdgeMouseHover() {
@@ -1029,13 +1066,13 @@ void miApplication::UpdateViewports() {
 					_isObjectMouseHover();
 					if (m_isVertexMouseHover )
 					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
-						m_cursors[(u32)yyCursorType::Cross]->Activate();
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+						m_cursors[(u32)miCursorType::Cross]->Activate();
 					}
 					else
 					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-						m_cursors[(u32)yyCursorType::Arrow]->Activate();
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+						m_cursors[(u32)miCursorType::Arrow]->Activate();
 					}
 				}
 				else if (m_editMode == miEditMode::Edge)
@@ -1043,23 +1080,23 @@ void miApplication::UpdateViewports() {
 					_isObjectMouseHover();
 					if (m_isEdgeMouseHover)
 					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Cross]);
-						m_cursors[(u32)yyCursorType::Cross]->Activate();
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+						m_cursors[(u32)miCursorType::Cross]->Activate();
 					}
 					else
 					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-						m_cursors[(u32)yyCursorType::Arrow]->Activate();
+						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+						m_cursors[(u32)miCursorType::Arrow]->Activate();
 					}
 				}
 			}
 		}
 	}
 
-	if (m_isViewportInFocus)
+	if (m_isViewportInFocus && (_isDoNotSelect() == false))
 	{
 		if (m_inputContext->m_isLMBUp)
-		{
+		{			
 			if (m_gizmoMode == miGizmoMode::NoTransform)
 			{
 				_onSelect();
@@ -1095,6 +1132,17 @@ void miApplication::UpdateViewports() {
 			DeselectAll();
 		}
 	}
+
+	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject)
+	{
+		if (m_inputContext->IsKeyHit(yyKey::K_ESCAPE) || m_inputContext->m_isRMBUp)
+		{
+			SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+			if (m_sdk->m_selectObject_onCancel)
+				m_sdk->m_selectObject_onCancel();
+		}
+	}
+
 
 	if (m_isSelectByRectangle)
 	{
@@ -1203,8 +1251,8 @@ void miApplication::UpdateViewports() {
 		{
 		default:
 			is_pan_move = true;
-			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Size]);
-			m_cursors[(u32)yyCursorType::Size]->Activate();
+			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Size]);
+			m_cursors[(u32)miCursorType::Size]->Activate();
 			break;
 		case miKeyboardModifier::Alt:
 			break;
@@ -1219,8 +1267,8 @@ void miApplication::UpdateViewports() {
 		if (is_pan_move)
 		{
 			is_pan_move = false;
-			//yySetCursor(yyCursorType::Arrow, m_cursors[(u32)yyCursorType::Arrow]);
-			//m_cursors[(u32)yyCursorType::Arrow]->Activate();
+			//yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+			//m_cursors[(u32)miCursorType::Arrow]->Activate();
 			SetCursorBehaviorMode(m_cursorBehaviorMode);
 		}
 	}
@@ -1859,7 +1907,8 @@ miPopup* miApplication::_getPopupInViewport() {
 	miPopup* p = new miPopup;
 	if (m_selectedObjects.m_size)
 	{
-		p->AddItem(L"Delete", miCommandID_DeleteSelectedObjects, 0);
+		if(m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode)
+			p->AddItem(L"Delete", miCommandID_DeleteSelectedObjects, 0);
 
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{

@@ -430,6 +430,17 @@ void miPluginGUIImpl::AddButtonAsCheckbox(
 	button->m_onUncheck = miPluginGUIImpl_buttonAsCheckbox_onUncheck;
 }
 
+void miPluginGUIImpl::UncheckButtonGroup(s32 buttonGroupIndex) {
+	yyGUIButtonGroup* btngrp = 0;
+	if (m_buttonGroup.Get(buttonGroupIndex, btngrp))
+	{
+		for (u32 i = 0, sz = btngrp->m_buttons.size(); i < sz; ++i)
+		{
+			btngrp->m_buttons[i]->m_isChecked = false;
+		}
+	}
+}
+
 void miPluginGUIImpl::OnSelectObject(miSceneObject* so) {
 	for (u32 i = 0; i < m_gui_elements.m_size; ++i)
 	{

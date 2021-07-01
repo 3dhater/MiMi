@@ -10,6 +10,9 @@ extern miApplication * g_app;
 
 
 miSDKImpl::miSDKImpl() {
+	m_selectObject_onIsGoodObject = 0;
+	m_selectObject_onSelect = 0;
+	m_selectObject_onCancel = 0;
 }
 
 miSDKImpl::~miSDKImpl() {
@@ -51,13 +54,20 @@ v3f miSDKImpl::GetCursorPosition3D() {
 v3f miSDKImpl::GetCursorPosition3DFirstClick() {
 	return v3f(g_app->m_cursorLMBClickPosition3D.x, g_app->m_cursorLMBClickPosition3D.y, g_app->m_cursorLMBClickPosition3D.z);
 }
-void miSDKImpl::SetCursorBehaviorModer(miCursorBehaviorMode m) {
+
+void miSDKImpl::SetCursorBehaviorMode(miCursorBehaviorMode m) {
 	g_app->SetCursorBehaviorMode(m);
 	g_app->UpdateSceneAabb();
 }
-miCursorBehaviorMode miSDKImpl::GetCursorBehaviorModer() {
+miCursorBehaviorMode miSDKImpl::GetCursorBehaviorMode() {
 	return g_app->m_cursorBehaviorMode;
 }
+void miSDKImpl::SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) {
+	m_selectObject_onIsGoodObject = onIsGoodObject;
+	m_selectObject_onSelect = onSelect;
+	m_selectObject_onCancel = onCancel;
+}
+
 miKeyboardModifier miSDKImpl::GetKeyboardModifier() {
 	return g_app->m_keyboardModifier;
 }

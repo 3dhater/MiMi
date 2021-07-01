@@ -68,6 +68,7 @@ public:
 	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) override;
 	virtual void AddButtonAsCheckbox(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32, bool), 
 		void(*onCheck)(s32), void(*onUncheck)(s32), s32 buttonGroupIndex, u32 flags) override;
+	virtual void UncheckButtonGroup(s32 buttonGroupIndex) override;
 
 	virtual void Show(bool);
 

@@ -14,11 +14,56 @@ const s32 g_SelectButtonID_BreakVerts = 3;
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 }
+bool editableObjectGUI_attachButton_onIsGoodObject(miSceneObject* o) {
+	// selected object must be only 1 object, miEditableObject
+	auto o2 = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+
+	if (o->GetPlugin() == o2->GetPlugin())
+	{
+		return true;
+	}
+	else
+	{
+		auto flags = o->GetFlags();
+		if (flags & miSceneObjectFlag::miSceneObjectFlag_CanConvertToEditableObject)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+void editableObjectGUI_attachButton_onSelect(miSceneObject*) {
+	//printf("editableObjectGUI_attachButton_onSelect\n");
+}
+void editableObjectGUI_attachButton_onCancel() {
+	//printf("editableObjectGUI_attachButton_onCancel\n");
+
+	// it must be only 1 object
+	auto o = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto gui = o->GetGui();
+	gui->UncheckButtonGroup(1);
+}
 void editableObjectGUI_attachButton_onCheck(s32 id) {
-	//printf("on check\n");
+	//printf("on check %i\n", id);
+	if (id == 1)
+	{
+		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectObject);
+		g_app->m_sdk->SetSelectObjectCallbacks(
+			editableObjectGUI_attachButton_onIsGoodObject,
+			editableObjectGUI_attachButton_onSelect,
+			editableObjectGUI_attachButton_onCancel);
+	}
 }
 void editableObjectGUI_attachButton_onUncheck(s32 id) {
-	//printf("on uncheck\n");
+	if (id == 1)
+	{
+		if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectObject)
+		{
+			g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+			g_app->m_sdk->SetSelectObjectCallbacks(0, 0, 0);
+		}
+	}
+	//printf("on uncheck %i\n", id);
 }
 
 void editableObjectGUI_editButton_onClick(s32 id) {
@@ -251,7 +296,7 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(
 		v4f(0.f, 0.f, 50.f, 15.f), 
 		L"Attach", 
-		-1, 
+		1, 
 		editableObjectGUI_attachButton_onClick, 
 		editableObjectGUI_attachButton_onCheck,
 		editableObjectGUI_attachButton_onUncheck,
@@ -260,7 +305,7 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(
 		v4f(55.f, 0.f, 50.f, 15.f),
 		L"Attach 2",
-		-1,
+		2,
 		editableObjectGUI_attachButton_onClick,
 		editableObjectGUI_attachButton_onCheck,
 		editableObjectGUI_attachButton_onUncheck,
