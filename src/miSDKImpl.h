@@ -72,6 +72,9 @@ class miSDKImpl : public miSDK
 	bool(*m_selectObject_onIsGoodObject)(miSceneObject*);
 	void(*m_selectObject_onSelect)(miSceneObject*);
 	void(*m_selectObject_onCancel)();
+	bool(*m_selectVertex_onIsGoodVertex)(miVertex*);
+	void(*m_selectVertex_onSelectFirst)(miVertex*);
+	void(*m_selectVertex_onSelectSecond)(miVertex*, miVertex*);
 public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
@@ -88,7 +91,8 @@ public:
 	virtual v3f GetCursorPosition3D();
 	virtual v3f GetCursorPosition3DFirstClick();
 	virtual miEditMode GetEditMode();
-	virtual void SetEditMode(miEditMode);
+	virtual void SetEditMode(miEditMode) override;
+	virtual void SetTransformMode(miTransformMode) override;
 
 	virtual void UpdateSceneAabb();
 
@@ -110,7 +114,10 @@ public:
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) override;
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) override;
 
-	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) override;
+	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), 
+		void(*onCancel)()) override;
+	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miVertex*), void(*onSelectFirst)(miVertex*), 
+		void(*onSelectSecond)(miVertex*, miVertex*), void(*onCancel)()) override;
 
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);

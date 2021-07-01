@@ -1,9 +1,6 @@
 ﻿#ifndef _MI_EDITABLEOBJECT_H_
 #define _MI_EDITABLEOBJECT_H_
 
-
-const u32 miEditableObject_pluginType = 0;
-
 class miEditableObject : public miSceneObject
 {
 	miSDK* m_sdk;

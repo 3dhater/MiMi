@@ -12,7 +12,7 @@ extern Mat4 g_emptyMatrix;
 
 miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	m_creationRect = rect1_0;
-	m_isDrawAabbs = true;
+	m_isDrawAabbs = false;
 	m_isOnLeftBorder = false;
 	m_isOnRightBorder = false;
 	m_isOnTopBorder = false;
@@ -455,6 +455,9 @@ void miViewport::OnDraw() {
 	}
 }
 
+void miViewport::ToggleDrawAABB() {
+	m_isDrawAabbs = m_isDrawAabbs ? false : true;
+}
 
 void miViewport::_drawScene() {
 	static f32 a = 0.f;

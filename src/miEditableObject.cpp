@@ -12,7 +12,33 @@ const s32 g_SelectButtonID_Less = 1;
 const s32 g_SelectButtonID_ConnectVerts1 = 2;
 const s32 g_SelectButtonID_BreakVerts = 3;
 
+bool editableObjectGUI_tgweldButton_onIsGoodVertex(miVertex* v) {
+	printf("a");
+	return true;
+}
+void editableObjectGUI_tgweldButton_onSelectFirst(miVertex*) {}
+void editableObjectGUI_tgweldButton_onSelectSecond(miVertex*, miVertex*) {}
+void editableObjectGUI_tgweldButton_onCancel(){}
+void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked) {}
+void editableObjectGUI_tgweldButton_onCheck(s32 id) {
+	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
+	g_app->m_sdk->SetSelectVertexCallbacks(
+		editableObjectGUI_tgweldButton_onIsGoodVertex,
+		editableObjectGUI_tgweldButton_onSelectFirst,
+		editableObjectGUI_tgweldButton_onSelectSecond,
+		editableObjectGUI_tgweldButton_onCancel);
+}
+void editableObjectGUI_tgweldButton_onUncheck(s32 id) {
+	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectVertex)
+	{
+		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+	}
+}
+
+
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
+	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
 bool editableObjectGUI_attachButton_onIsGoodObject(miSceneObject* inObject) {
 	// selected object must be only 1 object, miEditableObject
@@ -50,7 +76,6 @@ void editableObjectGUI_attachButton_onCancel() {
 	gui->UncheckButtonGroup(1);
 }
 void editableObjectGUI_attachButton_onCheck(s32 id) {
-	//printf("on check %i\n", id);
 	if (id == 1)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectObject);
@@ -80,7 +105,7 @@ void editableObjectGUI_editButton_onClick(s32 id) {
 	if (object->GetPlugin() != g_app->m_pluginForApp)
 		return;
 
-	if (object->GetTypeForPlugin() != miEditableObject_pluginType)
+	if (object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
 
 	miEditableObject* editableObject = (miEditableObject*)object;
@@ -104,7 +129,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 	if (object->GetPlugin() != g_app->m_pluginForApp)
 		return;
 
-	if(object->GetTypeForPlugin() != miEditableObject_pluginType)
+	if(object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
 
 	miEditableObject* o = (miEditableObject*)object;
@@ -308,7 +333,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_attachButton_onUncheck,
 		1,
 		0);
-	m_pluginGuiForEditableObject->AddButtonAsCheckbox(
+	/*m_pluginGuiForEditableObject->AddButtonAsCheckbox(
 		v4f(55.f, 0.f, 50.f, 15.f),
 		L"Attach 2",
 		2,
@@ -316,7 +341,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_attachButton_onCheck,
 		editableObjectGUI_attachButton_onUncheck,
 		1,
-		0);
+		0);*/
 
 	m_pluginGuiForEditableObject->AddText(v2f(0.f, 0.f), L"Select:", 0,
 		miPluginGUI::Flag_ForEdgeEditMode |
@@ -342,6 +367,17 @@ void miApplication::_initEditableObjectGUI() {
 	y += 15.f;
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Break", g_SelectButtonID_BreakVerts,
 		editableObjectGUI_editButton_onClick, miPluginGUI::Flag_ForVertexEditMode);
+
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Weld:", 0,
+		miPluginGUI::Flag_ForVertexEditMode);
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 70.f, 15.f), L"Target weld",
+		-1,
+		editableObjectGUI_tgweldButton_onClick,
+		editableObjectGUI_tgweldButton_onCheck,
+		editableObjectGUI_tgweldButton_onUncheck,
+		1, 
+		miPluginGUI::Flag_ForVertexEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {

@@ -81,6 +81,7 @@ void window_callbackOnCommand(s32 commandID) {
 	
 	case miCommandID_ViewportToggleDrawMaterial: g_app->CommandViewportToggleDrawMaterial(g_app->m_popupViewport); break;
 	case miCommandID_ViewportToggleDrawWireframe: g_app->CommandViewportToggleDrawWireframe(g_app->m_popupViewport); break;
+	case miCommandID_ViewportToggleDrawAABB: g_app->CommandViewportToggleAABB(g_app->m_popupViewport); break;
 	
 	case miCommandID_ConvertToEditableObject: 
 		g_app->ConvertSelectedObjectsToEditableObjects(); 
@@ -385,6 +386,8 @@ void miApplication::SetCursorBehaviorMode(miCursorBehaviorMode bm) {
 		yySetCursorDisableAutoChange(true);
 		yyShowCursor(false);
 		break;
+	case miCursorBehaviorMode::SelectObject:
+		break;
 	}
 	//printf("SetCursorBehaviorMode %i\n", (s32)bm);
 }
@@ -476,6 +479,8 @@ void miApplication::_initPopups() {
 	m_popup_ViewportParameters.AddItem(L"Wireframe", miCommandID_ViewportDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_dmWireframe));
 	m_popup_ViewportParameters.AddItem(L"Toggle draw material", miCommandID_ViewportToggleDrawMaterial, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMMaterial));
 	m_popup_ViewportParameters.AddItem(L"Toggle draw wireframe", miCommandID_ViewportToggleDrawWireframe, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDMWireframe));
+	m_popup_ViewportParameters.AddSeparator();
+	m_popup_ViewportParameters.AddItem(L"Toggle draw AABB", miCommandID_ViewportToggleDrawAABB, m_shortcutManager->GetText(miShortcutCommandType::viewport_toggleDrawAABB));
 	
 	//m_popup_NewObject
 	for (u16 i = 0, sz = m_sdk->m_objectCategories.size(); i < sz; ++i)
@@ -942,6 +947,11 @@ void miApplication::_updateKeyboardModifier() {
 	}
 }
 
+void miApplication::CallPluginGUIOnCancel() {
+	if (m_sdk->m_selectObject_onCancel)
+		m_sdk->m_selectObject_onCancel();
+}
+
 void miApplication::ProcessShortcuts() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraReset)) this->CommandCameraReset(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraMoveToSelection)) this->CommandCameraMoveToSelection(m_activeViewportLayout->m_activeViewport);
@@ -1144,8 +1154,7 @@ void miApplication::UpdateViewports() {
 		if (m_inputContext->IsKeyHit(yyKey::K_ESCAPE) || m_inputContext->m_isRMBUp)
 		{
 			SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-			if (m_sdk->m_selectObject_onCancel)
-				m_sdk->m_selectObject_onCancel();
+			CallPluginGUIOnCancel();
 		}
 	}
 
@@ -1471,7 +1480,12 @@ void miApplication::CommandViewportToggleDrawMaterial(miViewport* vp) {
 void miApplication::CommandViewportToggleDrawWireframe(miViewport* vp) {
 	vp->ToggleDrawModeWireframe();
 }
+void miApplication::CommandViewportToggleAABB(miViewport* vp) {
+	vp->ToggleDrawAABB();
+}
+
 void miApplication::CommandTransformModeSet(miTransformMode m) {
+	CallPluginGUIOnCancel();
 	this->SetTransformMode(m, false);
 	m_GUIManager->UpdateTransformModeButtons();
 }
@@ -1737,6 +1751,7 @@ void miApplication::_rebuildPolygonModels() {
 }
 
 void miApplication::ToggleEditMode(miEditMode m) {
+	CallPluginGUIOnCancel();
 	miEditMode mode = miEditMode::Object;
 	if (m_editMode != m)
 	{

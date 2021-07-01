@@ -51,6 +51,7 @@ struct miImporter;
 #define miCommandID_ViewportToggleDrawWireframe 16
 #define miCommandID_ConvertToEditableObject 17
 #define miCommandID_DeleteSelectedObjects 18
+#define miCommandID_ViewportToggleDrawAABB 19
 #define miCommandID_for_plugins 100
 
 #define miEventId_ShowMainMenu 1
@@ -299,6 +300,7 @@ public:
 	void CommandViewportToggleGrid(miViewport* vp);
 	void CommandViewportToggleDrawMaterial(miViewport* vp);
 	void CommandViewportToggleDrawWireframe(miViewport* vp);
+	void CommandViewportToggleAABB(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
 	
@@ -332,6 +334,7 @@ public:
 	miMaterial* CreateMaterial();
 
 	miSDKImpl* m_sdk;
+	void CallPluginGUIOnCancel();
 
 	friend class miEditableObject;
 	friend class miGizmo;

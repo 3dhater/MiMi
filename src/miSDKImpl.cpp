@@ -13,6 +13,9 @@ miSDKImpl::miSDKImpl() {
 	m_selectObject_onIsGoodObject = 0;
 	m_selectObject_onSelect = 0;
 	m_selectObject_onCancel = 0;
+	m_selectVertex_onIsGoodVertex = 0;
+	m_selectVertex_onSelectFirst = 0;
+	m_selectVertex_onSelectSecond = 0;
 }
 
 miSDKImpl::~miSDKImpl() {
@@ -43,7 +46,8 @@ miVisualObject* miSDKImpl::CreateVisualObject(miSceneObject* parent, miVisualObj
 miViewportCameraType miSDKImpl::GetActiveViewportCameraType() { return g_app->m_activeViewportLayout->m_activeViewport->m_cameraType; }
 
 miEditMode miSDKImpl::GetEditMode() {return g_app->m_editMode;}
-void miSDKImpl::SetEditMode(miEditMode em) {g_app->m_editMode = em;}
+void miSDKImpl::SetEditMode(miEditMode em) {g_app->SetEditMode(em);}
+void miSDKImpl::SetTransformMode(miTransformMode tm) { g_app->SetTransformMode(tm, false); }
 
 v2f miSDKImpl::GetCursorPosition2D() {
 	return g_app->m_inputContext->m_cursorCoords;
@@ -62,9 +66,26 @@ void miSDKImpl::SetCursorBehaviorMode(miCursorBehaviorMode m) {
 miCursorBehaviorMode miSDKImpl::GetCursorBehaviorMode() {
 	return g_app->m_cursorBehaviorMode;
 }
-void miSDKImpl::SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) {
+
+void miSDKImpl::SetSelectObjectCallbacks(
+	bool(*onIsGoodObject)(miSceneObject*), 
+	void(*onSelect)(miSceneObject*), 
+	void(*onCancel)()) 
+{
 	m_selectObject_onIsGoodObject = onIsGoodObject;
 	m_selectObject_onSelect = onSelect;
+	m_selectObject_onCancel = onCancel;
+}
+
+void miSDKImpl::SetSelectVertexCallbacks(
+	bool(*onIsGoodVertex)(miVertex*), 
+	void(*onSelectFirst)(miVertex*),
+	void(*onSelectSecond)(miVertex*, miVertex*), 
+	void(*onCancel)()) 
+{
+	m_selectVertex_onIsGoodVertex = onIsGoodVertex;
+	m_selectVertex_onSelectFirst = onSelectFirst;
+	m_selectVertex_onSelectSecond = onSelectSecond;
 	m_selectObject_onCancel = onCancel;
 }
 

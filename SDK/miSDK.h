@@ -139,6 +139,8 @@ enum class miCursorBehaviorMode : u32 {
 				//  Change cursor. Will be disabled on escape/RMB/miSceneObject selection
 				// set callbacks sdk->SetSelectObjectCallbacks(...); before using
 	SelectObject, 
+				// set callbacks sdk->SetSelectVertexCallbacks(...); before using
+	SelectVertex, 
 };
 
 enum class miKeyboardModifier : u32 {
@@ -271,6 +273,7 @@ public:
 
 	virtual miEditMode GetEditMode() = 0;
 	virtual void SetEditMode(miEditMode) = 0;
+	virtual void SetTransformMode(miTransformMode) = 0;
 	
 	virtual void UpdateSceneAabb() = 0;
 
@@ -303,6 +306,7 @@ public:
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) = 0;
 
 	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) = 0;
+	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miVertex*), void(*onSelectFirst)(miVertex*), void(*onSelectSecond)(miVertex*, miVertex*), void(*onCancel)()) = 0;
 };
 
 #endif

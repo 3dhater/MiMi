@@ -20,6 +20,7 @@ miShortcutManager::miShortcutManager() {
 	SetCommand(miShortcutCommandType::viewport_dmWireframe, L"viewport_dmWireframe", miKeyboardModifier::None, yyKey::END);
 	SetCommand(miShortcutCommandType::viewport_toggleDMMaterial, L"viewport_toggleDMMaterial", miKeyboardModifier::None, yyKey::K_F1);
 	SetCommand(miShortcutCommandType::viewport_toggleDMWireframe, L"viewport_toggleDMWireframe", miKeyboardModifier::None, yyKey::K_F2);
+	SetCommand(miShortcutCommandType::viewport_toggleDrawAABB, L"viewport_toggleDrawAABB", miKeyboardModifier::None, yyKey::END);
 	SetCommand(miShortcutCommandType::transfromMode_NoTransform, L"transfromMode_NoTransform", miKeyboardModifier::None, yyKey::K_Q);
 	SetCommand(miShortcutCommandType::transfromMode_Move, L"transfromMode_Move", miKeyboardModifier::None, yyKey::K_W);
 	SetCommand(miShortcutCommandType::transfromMode_Scale, L"transfromMode_Scale", miKeyboardModifier::None, yyKey::K_E);

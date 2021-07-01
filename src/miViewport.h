@@ -74,6 +74,7 @@ struct miViewport
 
 	void ToggleDrawModeMaterial();
 	void ToggleDrawModeWireframe();
+	void ToggleDrawAABB();
 
 	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
 };
