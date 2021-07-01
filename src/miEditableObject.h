@@ -95,6 +95,8 @@ public:
 	void DeletePolygon(miPolygon*);
 	void ConnectVerts1();
 	void BreakVerts();
+
+	void AttachObject(miEditableObject*);
 };
 
 #endif

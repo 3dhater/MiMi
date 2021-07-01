@@ -61,6 +61,8 @@ public:
 	miApplicationPlugin();
 	virtual ~miApplicationPlugin();
 	virtual void Init(miSDK* sdk) override;
+
+	static u32 m_objectType_editableObject;
 };
 
 // right side of GUI
@@ -301,6 +303,8 @@ public:
 	void CommandTransformModeSet(miTransformMode m);
 	
 	void ConvertSelectedObjectsToEditableObjects();
+	miEditableObject* ConvertObjectToEditableObject(miSceneObject*);
+	void DeleteObject(miSceneObject*);
 
 	void UpdateSceneAabb();
 	void UpdateSelectionAabb();

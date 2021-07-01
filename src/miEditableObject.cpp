@@ -14,33 +14,39 @@ const s32 g_SelectButtonID_BreakVerts = 3;
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 }
-bool editableObjectGUI_attachButton_onIsGoodObject(miSceneObject* o) {
+bool editableObjectGUI_attachButton_onIsGoodObject(miSceneObject* inObject) {
 	// selected object must be only 1 object, miEditableObject
-	auto o2 = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 
-	if (o->GetPlugin() == o2->GetPlugin())
+	if (inObject->GetPlugin() == selObject->GetPlugin())
 	{
-		return true;
+		if(inObject->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+			return true;
 	}
 	else
 	{
-		auto flags = o->GetFlags();
+		auto flags = inObject->GetFlags();
 		if (flags & miSceneObjectFlag::miSceneObjectFlag_CanConvertToEditableObject)
-		{
 			return true;
-		}
 	}
 	return false;
 }
-void editableObjectGUI_attachButton_onSelect(miSceneObject*) {
+void editableObjectGUI_attachButton_onSelect(miSceneObject* inObject) {
 	//printf("editableObjectGUI_attachButton_onSelect\n");
+	auto newObject = g_app->ConvertObjectToEditableObject(inObject);
+	if (newObject)
+	{
+		auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+		selObject->AttachObject(newObject);
+		g_app->DeleteObject(newObject);
+	}
 }
 void editableObjectGUI_attachButton_onCancel() {
 	//printf("editableObjectGUI_attachButton_onCancel\n");
 
 	// it must be only 1 object
-	auto o = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	auto gui = o->GetGui();
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto gui = selObject->GetGui();
 	gui->UncheckButtonGroup(1);
 }
 void editableObjectGUI_attachButton_onCheck(s32 id) {
@@ -351,7 +357,7 @@ miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_mesh = miCreate<miMesh>();
 	m_gui = (miPluginGUI*)g_app->m_pluginGuiForEditableObject;
 	m_plugin = g_app->m_pluginForApp;
-	m_typeForPlugin = 0;
+	m_typeForPlugin = miApplicationPlugin::m_objectType_editableObject;
 }
 
 miEditableObject::~miEditableObject() {
@@ -557,7 +563,6 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		GetVisualObject(i)->CreateNewGPUModels(m_mesh);
 	}
-
 }
 
 void miEditableObject::DeletePolygon(miPolygon* _polygon) {
@@ -1726,4 +1731,104 @@ void miEditableObject::BreakVerts() {
 	m_mesh->_delete_edges(m_allocatorEdge);
 	m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	RebuildVisualObjects(false);
+}
+
+void miEditableObject::AttachObject(miEditableObject* otherObject) {
+	{
+		auto h = m_mesh->m_first_polygon;
+		auto t = m_mesh->m_first_polygon->m_left;
+
+		auto c = otherObject->m_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto n = c->m_right;
+			c->m_left = t;
+			c->m_right = h;
+			t->m_right = c;
+			h->m_left = c;
+			t = c;
+
+			if (c == l)
+				break;
+			c = n;
+		}
+	}
+	{
+		auto h = m_mesh->m_first_edge;
+		auto t = m_mesh->m_first_edge->m_left;
+
+		auto c = otherObject->m_mesh->m_first_edge;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto n = c->m_right;
+			c->m_left = t;
+			c->m_right = h;
+			t->m_right = c;
+			h->m_left = c;
+			t = c;
+
+			if (c == l)
+				break;
+			c = n;
+		}
+	}
+	{
+		auto h = m_mesh->m_first_vertex;
+		auto t = m_mesh->m_first_vertex->m_left;
+
+		auto TIM = otherObject->m_rotationScaleMatrix;
+		TIM.invert();
+		TIM.transpose();
+
+		auto IM = m_rotationScaleMatrix;
+		IM.invert();
+
+		auto c = otherObject->m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto n = c->m_right;
+			c->m_left = t;
+			c->m_right = h;
+			t->m_right = c;
+			h->m_left = c;
+			t = c;
+
+			v3f norm(c->m_normal[0], c->m_normal[1], c->m_normal[2]);
+			norm = math::mul(norm, TIM);
+			c->m_normal[0] = norm.x;
+			c->m_normal[1] = norm.y;
+			c->m_normal[2] = norm.z;
+
+			c->m_position = math::mulBasis(c->m_position, otherObject->m_rotationScaleMatrix)
+				+ otherObject->m_globalPosition - m_globalPosition;
+
+			c->m_position = math::mul(c->m_position, IM);
+
+			if (c == l)
+				break;
+			c = n;
+		}
+	}
+
+	otherObject->m_mesh->m_first_polygon = 0;
+	otherObject->m_mesh->m_first_edge = 0;
+	otherObject->m_mesh->m_first_vertex = 0;
+	
+	auto voc = GetVisualObjectCount();
+	for (int i = 0; i < voc; ++i)
+	{
+		auto vo = GetVisualObject(i);
+		vo->UpdateAabb();
+	}
+	RebuildVisualObjects(false);
+	UpdateAabb();
+
+	g_app->_updateObjectsOnSceneArray();
+	g_app->_transformObjectsApply();
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+	g_app->_updateIsVertexEdgePolygonSelected();
 }

@@ -20,7 +20,9 @@
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
 
-miApplicationPlugin::miApplicationPlugin() {}
+u32 miApplicationPlugin::m_objectType_editableObject = 1;
+miApplicationPlugin::miApplicationPlugin() {
+}
 miApplicationPlugin::~miApplicationPlugin() {}
 void miApplicationPlugin::Init(miSDK* sdk) {
 }
@@ -773,6 +775,41 @@ void miApplication::MainLoop() {
 			{
 				_get_objects_under_cursor();
 			}
+
+			if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
+				&& m_selectedObjects.m_size)
+			{
+				bool setCursor = false;
+				if (m_objectsUnderCursor.m_size)
+				{
+					auto selectedObject = m_selectedObjects.m_data[0];
+					if (m_objectsUnderCursor.m_data[0] != selectedObject)
+					{
+						if (m_sdk->m_selectObject_onIsGoodObject)
+						{
+							if (m_sdk->m_selectObject_onIsGoodObject(m_objectsUnderCursor.m_data[0]))
+							{
+								if (m_sdk->m_selectObject_onSelect && m_inputContext->m_isLMBDown)
+								{
+									m_sdk->m_selectObject_onSelect(m_objectsUnderCursor.m_data[0]);
+									m_objectsUnderCursor.clear();
+								}
+								setCursor = true;
+							}
+						}
+					}
+				}
+				if (setCursor)
+				{
+					yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::SelectObject]);
+					m_cursors[(u32)miCursorType::SelectObject]->Activate();
+				}
+				else
+				{
+					yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+					m_cursors[(u32)miCursorType::Arrow]->Activate();
+				}
+			}
 		}
 
 		while (yyPollEvent(currentEvent))
@@ -957,37 +994,6 @@ void miApplication::_get_objects_under_cursor() {
 		}
 	};
 	m_objectsUnderCursor.sort_insertion(_pred());
-
-	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
-		&& m_selectedObjects.m_size)
-	{
-		bool setCursor = false;
-		if (m_objectsUnderCursor.m_size)
-		{
-			auto selectedObject = m_selectedObjects.m_data[0];
-			if (m_objectsUnderCursor.m_data[0] != selectedObject)
-			{
-				if (m_sdk->m_selectObject_onIsGoodObject)
-				{
-					if (m_sdk->m_selectObject_onIsGoodObject(m_objectsUnderCursor.m_data[0]))
-					{
-
-						setCursor = true;
-					}
-				}
-			}
-		}
-		if (setCursor)
-		{
-			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::SelectObject]);
-			m_cursors[(u32)miCursorType::SelectObject]->Activate();
-		}
-		else
-		{
-			yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
-			m_cursors[(u32)miCursorType::Arrow]->Activate();
-		}
-	}
 }
 
 bool miApplication::_isEdgeMouseHover() {
@@ -1469,59 +1475,78 @@ void miApplication::CommandTransformModeSet(miTransformMode m) {
 	this->SetTransformMode(m, false);
 	m_GUIManager->UpdateTransformModeButtons();
 }
+void miApplication::DeleteObject(miSceneObject* obj) {
+	RemoveObjectFromScene(obj);
+	obj->~miSceneObject();
+	miFree(obj);
+}
+miEditableObject* miApplication::ConvertObjectToEditableObject(miSceneObject* obj) {
+	miEditableObject* newEditableObject = 0;
+
+	if (obj->GetPlugin() == m_pluginForApp)
+	{
+		auto p = (miApplicationPlugin*)m_pluginForApp;
+		if (obj->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+		{
+			newEditableObject = (miEditableObject*)obj;
+			return newEditableObject;
+		}
+	}
+
+	auto flags = obj->GetFlags();
+	auto meshCount = obj->GetMeshCount();
+	if (flags & miSceneObjectFlag_CanConvertToEditableObject && meshCount)
+	{
+		newEditableObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
+		new(newEditableObject)miEditableObject(m_sdk, 0);
+		newEditableObject->CopyBase(obj);
+		newEditableObject->m_typeForPlugin = miApplicationPlugin::m_objectType_editableObject;
+
+		if (newEditableObject->m_flags & miSceneObjectFlag_CanConvertToEditableObject)
+			newEditableObject->m_flags ^= miSceneObjectFlag_CanConvertToEditableObject;
+
+		newEditableObject->m_gui = m_pluginGuiForEditableObject;
+
+		// must real parent or m_rootObject
+		newEditableObject->SetParent(obj->m_parent);
+		obj->SetParent(0);
+		for (int o = 0; o < meshCount; ++o)
+		{
+			auto mesh = obj->GetMesh(o);
+
+			m_sdk->AppendMesh(newEditableObject->m_mesh, mesh);
+		}
+		newEditableObject->m_visualObject_polygon->CreateNewGPUModels(newEditableObject->m_mesh);
+		newEditableObject->m_visualObject_vertex->CreateNewGPUModels(newEditableObject->m_mesh);
+		newEditableObject->m_visualObject_edge->CreateNewGPUModels(newEditableObject->m_mesh);
+		newEditableObject->UpdateTransform();
+		newEditableObject->UpdateAabb();
+
+		if (obj->m_children.m_head)
+		{
+			auto curr_child = obj->m_children.m_head;
+			auto last_child = obj->m_children.m_head->m_left;
+			while (true)
+			{
+				curr_child->m_data->SetParent(newEditableObject);
+
+				if (curr_child == last_child)
+					break;
+				curr_child = curr_child->m_right;
+			}
+			obj->m_children.clear();
+		}
+
+		DeleteObject(obj);
+	}
+	return newEditableObject;
+}
 void miApplication::ConvertSelectedObjectsToEditableObjects() {
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
-		auto obj = m_selectedObjects.m_data[i];
-		auto flags = obj->GetFlags();
-		auto meshCount = obj->GetMeshCount();
-		if (flags & miSceneObjectFlag_CanConvertToEditableObject && meshCount)
-		{
-			miEditableObject* newEditableObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
-			new(newEditableObject)miEditableObject(m_sdk, 0);
-			newEditableObject->CopyBase(obj);
-
-			if (newEditableObject->m_flags & miSceneObjectFlag_CanConvertToEditableObject)
-				newEditableObject->m_flags ^= miSceneObjectFlag_CanConvertToEditableObject;
-
-			newEditableObject->m_gui = m_pluginGuiForEditableObject;
-
-			// must real parent or m_rootObject
-			newEditableObject->SetParent(obj->m_parent);
-			obj->SetParent(0);
-
+		auto newEditableObject = ConvertObjectToEditableObject(m_selectedObjects.m_data[i]);
+		if (newEditableObject)
 			m_selectedObjects.m_data[i] = newEditableObject;
-
-			for (int o = 0; o < meshCount; ++o)
-			{
-				auto mesh = obj->GetMesh(o);
-				
-				m_sdk->AppendMesh(newEditableObject->m_mesh, mesh);
-			}
-			newEditableObject->m_visualObject_polygon->CreateNewGPUModels(newEditableObject->m_mesh);
-			newEditableObject->m_visualObject_vertex->CreateNewGPUModels(newEditableObject->m_mesh);
-			newEditableObject->m_visualObject_edge->CreateNewGPUModels(newEditableObject->m_mesh);
-			newEditableObject->UpdateTransform();
-			newEditableObject->UpdateAabb();
-			
-
-			if (obj->m_children.m_head)
-			{
-				auto curr_child = obj->m_children.m_head;
-				auto last_child = obj->m_children.m_head->m_left;
-				while (true)
-				{
-					curr_child->m_data->SetParent(newEditableObject);
-
-					if (curr_child == last_child)
-						break;
-					curr_child = curr_child->m_right;
-				}
-				obj->m_children.clear();
-			}
-
-			this->RemoveObjectFromScene(obj);
-		}
 	}
 	UpdateSelectedObjectsArray();
 }
@@ -1884,10 +1909,7 @@ void miApplication::DeleteSelected() {
 	case miEditMode::Object:
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
-			m_selectedObjects.m_data[i]->SetParent(0);
-			// need to move children somewhere !!!!
-			m_selectedObjects.m_data[i]->~miSceneObject();
-			miFree(m_selectedObjects.m_data[i]);
+			DeleteObject(m_selectedObjects.m_data[i]);
 		}
 		m_selectedObjects.clear();
 		this->_updateObjectsOnSceneArray();
@@ -1895,7 +1917,7 @@ void miApplication::DeleteSelected() {
 		break;
 	}
 	this->_updateObjectsOnSceneArray();
-	_transformObjectsApply();
+	this->_transformObjectsApply();
 	this->UpdateSceneAabb();
 	this->UpdateSelectionAabb();
 	this->_updateIsVertexEdgePolygonSelected();

@@ -44,6 +44,7 @@ protected:
 	u32 m_flags;
 
 	// plugin must know type of this object
+	//  is plane or box, or light or wathever
 	u32 m_typeForPlugin;
 
 	// you can disable material for some objects who have polygonal visual objects
