@@ -17,7 +17,15 @@ bool editableObjectGUI_tgweldButton_onIsGoodVertex(miSceneObject* o, miVertex* v
 }
 void editableObjectGUI_tgweldButton_onSelectFirst(miSceneObject* o, miVertex* v) {}
 void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2) {
-	printf("%u %u\n", v1, v2);
+	//printf("%u %u\n", v1, v2);
+	if (o != g_app->m_selectedObjects.m_data[0])
+		return;
+
+	if (v1 == v2)
+		return;
+
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->VertexTargetWeld(v1, v2);
 }
 void editableObjectGUI_tgweldButton_onCancel(){
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
@@ -123,10 +131,10 @@ void editableObjectGUI_editButton_onClick(s32 id) {
 	default:
 		break;
 	case g_SelectButtonID_ConnectVerts1:
-		editableObject->ConnectVerts1();
+		editableObject->VertexConnect();
 		break;
 	case g_SelectButtonID_BreakVerts:
-		editableObject->BreakVerts();
+		editableObject->VertexBreak();
 		break;
 	}
 }
@@ -1602,7 +1610,184 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 	printf("VERTS FOR TRANSFORM: %u\n", m_vertsForTransform.m_size);
 }
 
-void miEditableObject::ConnectVerts1() {
+void miEditableObject::VertexTargetWeld(miVertex* v1, miVertex* v2) {
+	bool isOnSameEdge = false;
+	{
+		auto e1_c = v1->m_edges.m_head;
+		auto e1_l = e1_c->m_left;
+		while (true) 
+		{
+			auto e2_c = v2->m_edges.m_head;
+			auto e2_l = e2_c->m_left;
+			while (true)
+			{
+				if (e1_c->m_data == e2_c->m_data)
+				{
+					isOnSameEdge = true;
+					goto end;
+				}
+
+				if (e2_c == e2_l)
+					break;
+				e2_c = e2_c->m_right;
+			}
+
+			if (e1_c == e1_l)
+				break;
+			e1_c = e1_c->m_right;
+		}
+	}
+
+end:;
+
+	bool success = false;
+	if (isOnSameEdge)
+	{
+		miArray<miPolygon*> polygonsForDelete;
+		polygonsForDelete.reserve(10); // Better 2 ?
+
+		auto cp = v1->m_polygons.m_head;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			// if polygon contain v2 then remove v1 from this polygon
+			// else replace v1 to v2 and add this polygon to v2
+			bool isContainV2 = false;
+			{
+				auto cv = cp->m_data->m_verts.m_head;
+				auto lv = cv->m_left;
+				while (true)
+				{
+					if (cv->m_data == v2)
+					{
+						isContainV2 = true;
+						break;
+					}
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+			if (isContainV2)
+			{
+				cp->m_data->m_verts.erase_first(v1);
+				// проверка если осталось 2 вершины
+				auto cv = cp->m_data->m_verts.m_head;
+				auto lv = cv->m_left;
+				u32 c = 0;
+				while (true)
+				{
+					c++;
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+				if (c < 3)
+					polygonsForDelete.push_back(cp->m_data);
+			}
+			else
+			{
+				cp->m_data->m_verts.replace(v1, v2);
+				v2->m_polygons.push_back(cp->m_data);
+			}
+
+
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+		
+		for (u32 i = 0, sz = polygonsForDelete.m_size; i < sz; ++i)
+		{
+			DeletePolygon(polygonsForDelete.m_data[i]);
+		}
+
+		success = true;
+	}
+	else // they on different edges, and each edge have only 1 polygon
+	{
+		bool v1OnEdge = false;
+		bool v2OnEdge = false;
+
+		{
+			auto c = v1->m_edges.m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if(!c->m_data->m_polygon1)
+					v1OnEdge = true;
+
+				if (!c->m_data->m_polygon2)
+					v1OnEdge = true;
+
+				if (v1OnEdge)
+					break;
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+		{
+			auto c = v2->m_edges.m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (!c->m_data->m_polygon1)
+					v2OnEdge = true;
+
+				if (!c->m_data->m_polygon2)
+					v2OnEdge = true;
+
+				if (v2OnEdge)
+					break;
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+
+		if (v2OnEdge && v2OnEdge)
+		{
+			// replave v1->v2
+			auto cp = v1->m_polygons.m_head;
+			auto lp = cp->m_left;
+			while (true)
+			{
+				cp->m_data->m_verts.replace(v1, v2);
+				v2->m_polygons.push_back(cp->m_data);
+
+				if (cp == lp)
+					break;
+				cp = cp->m_right;
+			}
+			success = true;
+		}
+	}
+
+
+	if (success)
+	{
+		auto l = v1->m_left;
+		auto r = v1->m_right;
+		l->m_right = r;
+		r->m_left = l;
+		m_allocatorVertex->Deallocate(v1);
+		if (v1 == m_mesh->m_first_vertex)
+			m_mesh->m_first_vertex = r;
+		if (v1 == m_mesh->m_first_vertex)
+			m_mesh->m_first_vertex = 0;
+
+		m_mesh->_delete_edges(m_allocatorEdge);
+		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+
+		RebuildVisualObjects(false);
+		UpdateCounts();
+	}
+}
+
+void miEditableObject::VertexConnect() {
 	miArray<miListNode<miVertex*>*> vertsForNewpolygon;
 
 	/*for (s32 o = 0, osz = GetMeshCount(); o < osz; ++o)
@@ -1700,8 +1885,8 @@ void miEditableObject::ConnectVerts1() {
 				// need to delete old polygon
 				DeletePolygon(cp);
 
-				mesh->_delete_edges(m_allocatorEdge);
-				mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+				/*mesh->_delete_edges(m_allocatorEdge);
+				mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);*/
 			}
 
 			if (cp == lp)
@@ -1710,10 +1895,14 @@ void miEditableObject::ConnectVerts1() {
 		}
 	//}
 
+	mesh->_delete_edges(m_allocatorEdge);
+	mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+
 	RebuildVisualObjects(false);
+	UpdateCounts();
 }
 
-void miEditableObject::BreakVerts() {
+void miEditableObject::VertexBreak() {
 	miArray<miVertex*> verts;
 	verts.reserve(0x1000);
 	{
@@ -1776,6 +1965,7 @@ void miEditableObject::BreakVerts() {
 	m_mesh->_delete_edges(m_allocatorEdge);
 	m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	RebuildVisualObjects(false);
+	UpdateCounts();
 }
 
 void miEditableObject::AttachObject(miEditableObject* otherObject) {
@@ -1876,4 +2066,67 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 	g_app->UpdateSceneAabb();
 	g_app->UpdateSelectionAabb();
 	g_app->_updateIsVertexEdgePolygonSelected();
+
+	UpdateCounts();
+}
+
+void miEditableObject::UpdateCounts() {
+	m_vertexCount = 0;
+	m_edgeCount = 0;
+	m_polygonCount = 0;
+	{
+		auto c = m_mesh->m_first_vertex;
+		if (c)
+		{
+			auto l = c->m_left;
+			while (true)
+			{
+				++m_vertexCount;
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+	{
+		auto c = m_mesh->m_first_edge;
+		if (c)
+		{
+			auto l = c->m_left;
+			while (true)
+			{
+				++m_edgeCount;
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+	{
+		auto c = m_mesh->m_first_polygon;
+		if (c)
+		{
+			auto l = c->m_left;
+			while (true)
+			{
+				++m_polygonCount;
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+	printf("V: %u E: %u P: %u\n", m_vertexCount, m_edgeCount, m_polygonCount);
+}
+
+u32 miEditableObject::GetVertexCount() {
+	return m_vertexCount;
+}
+
+u32 miEditableObject::GetEdgeCount() {
+	return m_edgeCount;
+}
+
+u32 miEditableObject::GetPolygonCount() {
+	return m_polygonCount;
 }

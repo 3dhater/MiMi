@@ -41,6 +41,10 @@ class miEditableObject : public miSceneObject
 
 	void _callVisualObjectOnTransform();
 
+	u32 m_vertexCount;
+	u32 m_edgeCount;
+	u32 m_polygonCount;
+
 	friend class miApplication;
 	friend class miSDKImpl;
 public:
@@ -90,10 +94,16 @@ public:
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
 	void DeletePolygon(miPolygon*);
-	void ConnectVerts1();
-	void BreakVerts();
+	void VertexConnect();
+	void VertexBreak();
+	void VertexTargetWeld(miVertex* v1, miVertex* v2);
 
 	void AttachObject(miEditableObject*);
+
+	void UpdateCounts();
+	u32 GetVertexCount();
+	u32 GetEdgeCount();
+	u32 GetPolygonCount();
 };
 
 #endif
