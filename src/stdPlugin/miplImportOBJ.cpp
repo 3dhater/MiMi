@@ -238,7 +238,8 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 
 					auto u = uv[uv_index];
 				//	geometry_creator->AddUV(u.x, u.y);
-					pcUV = u;
+					pcUV.x = u.x;
+					pcUV.y = 1.f - u.y;
 				}
 
 				if (f.ft == OBJFaceType::pn || f.ft == OBJFaceType::pun)

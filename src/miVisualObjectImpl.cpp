@@ -300,24 +300,24 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data, vertexAnimatedModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data1, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
-				vertexAnimatedModel_ptr->Position = vertex_1->m_data->m_position;
-				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
-				vertexAnimatedModel_ptr->Normal.x = vertex_1->m_data->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_1->m_data->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_1->m_data->m_normal[2];
+				vertexAnimatedModel_ptr->Position = vertex_1->m_data1->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data2;
+				vertexAnimatedModel_ptr->Normal.x = vertex_1->m_data1->m_normal[0];
+				vertexAnimatedModel_ptr->Normal.y = vertex_1->m_data1->m_normal[1];
+				vertexAnimatedModel_ptr->Normal.z = vertex_1->m_data1->m_normal[2];
 				++vertexAnimatedModel_ptr;
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data, vertexModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data1, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
-				vertexModel_ptr->Position = vertex_1->m_data->m_position;
-				vertexModel_ptr->TCoords = vertex_1->m_data->m_tCoords;
-				vertexModel_ptr->Normal.x = vertex_1->m_data->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_1->m_data->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_1->m_data->m_normal[2];
+				vertexModel_ptr->Position = vertex_1->m_data1->m_position;
+				vertexModel_ptr->TCoords = vertex_1->m_data2;
+				vertexModel_ptr->Normal.x = vertex_1->m_data1->m_normal[0];
+				vertexModel_ptr->Normal.y = vertex_1->m_data1->m_normal[1];
+				vertexModel_ptr->Normal.z = vertex_1->m_data1->m_normal[2];
 				++vertexModel_ptr;
 			}
 
@@ -329,24 +329,24 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data, vertexAnimatedModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data1, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
-				vertexAnimatedModel_ptr->Position = vertex_2->m_data->m_position;
-				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
-				vertexAnimatedModel_ptr->Normal.x = vertex_2->m_data->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_2->m_data->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_2->m_data->m_normal[2];
+				vertexAnimatedModel_ptr->Position = vertex_2->m_data1->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data2;
+				vertexAnimatedModel_ptr->Normal.x = vertex_2->m_data1->m_normal[0];
+				vertexAnimatedModel_ptr->Normal.y = vertex_2->m_data1->m_normal[1];
+				vertexAnimatedModel_ptr->Normal.z = vertex_2->m_data1->m_normal[2];
 				++vertexAnimatedModel_ptr;
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data, vertexModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data1, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
-				vertexModel_ptr->Position = vertex_2->m_data->m_position;
-				vertexModel_ptr->TCoords = vertex_2->m_data->m_tCoords;
-				vertexModel_ptr->Normal.x = vertex_2->m_data->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_2->m_data->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_2->m_data->m_normal[2];
+				vertexModel_ptr->Position = vertex_2->m_data1->m_position;
+				vertexModel_ptr->TCoords = vertex_2->m_data2;
+				vertexModel_ptr->Normal.x = vertex_2->m_data1->m_normal[0];
+				vertexModel_ptr->Normal.y = vertex_2->m_data1->m_normal[1];
+				vertexModel_ptr->Normal.z = vertex_2->m_data1->m_normal[2];
 				++vertexModel_ptr;
 			}
 
@@ -356,24 +356,24 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data, vertexAnimatedModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data1, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
-				vertexAnimatedModel_ptr->Position = vertex_3->m_data->m_position;
-				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
-				vertexAnimatedModel_ptr->Normal.x = vertex_3->m_data->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_3->m_data->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_3->m_data->m_normal[2];
+				vertexAnimatedModel_ptr->Position = vertex_3->m_data1->m_position;
+				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data2;
+				vertexAnimatedModel_ptr->Normal.x = vertex_3->m_data1->m_normal[0];
+				vertexAnimatedModel_ptr->Normal.y = vertex_3->m_data1->m_normal[1];
+				vertexAnimatedModel_ptr->Normal.z = vertex_3->m_data1->m_normal[2];
 				++vertexAnimatedModel_ptr;
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data, vertexModel_ptr));
+				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data1, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
-				vertexModel_ptr->Position = vertex_3->m_data->m_position;
-				vertexModel_ptr->TCoords = vertex_3->m_data->m_tCoords;
-				vertexModel_ptr->Normal.x = vertex_3->m_data->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_3->m_data->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_3->m_data->m_normal[2];
+				vertexModel_ptr->Position = vertex_3->m_data1->m_position;
+				vertexModel_ptr->TCoords = vertex_3->m_data2;
+				vertexModel_ptr->Normal.x = vertex_3->m_data1->m_normal[0];
+				vertexModel_ptr->Normal.y = vertex_3->m_data1->m_normal[1];
+				vertexModel_ptr->Normal.z = vertex_3->m_data1->m_normal[2];
 				++vertexModel_ptr;
 			}
 
@@ -679,9 +679,9 @@ bool miVisualObjectImpl::IsRayIntersect(yyRay* r, v4f* ip, float* d) {
 		auto vertex_2 = vertex_1->m_right;
 		auto vertex_3 = vertex_2->m_right;
 		while (true) {
-			auto p1 = math::mul( vertex_1->m_data->m_position, M);
-			auto p2 = math::mul(vertex_2->m_data->m_position, M);
-			auto p3 = math::mul(vertex_3->m_data->m_position, M);
+			auto p1 = math::mul(vertex_1->m_data1->m_position, M);
+			auto p2 = math::mul(vertex_2->m_data1->m_position, M);
+			auto p3 = math::mul(vertex_3->m_data1->m_position, M);
 
 			p1.add(*position);
 			p2.add(*position);

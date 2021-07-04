@@ -289,7 +289,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 					auto lv = cv->m_left;
 					while (true)
 					{
-						auto cp = cv->m_data->m_polygons.m_head;
+						auto cp = cv->m_data1->m_polygons.m_head;
 						auto lp = cp->m_left;
 						while (true)
 						{
@@ -631,10 +631,10 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 		while (true)
 		{
 			// remove polygon from list
-			c->m_data->m_polygons.erase_first(_polygon);
+			c->m_data1->m_polygons.erase_first(_polygon);
 			// if there was last polygon, then add this vertex in to array
-			if (!c->m_data->m_polygons.m_head)
-				vertsForDelete.push_back(c->m_data);
+			if (!c->m_data1->m_polygons.m_head)
+				vertsForDelete.push_back(c->m_data1);
 
 			if (c == l)
 				break;
@@ -906,11 +906,11 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 			auto next_vertex = current_vertex->m_right;
 
 			miTriangle tri;
-			tri.v1 = math::mul(first_vertex->m_data->m_position, M)
+			tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
 				+ *this->GetGlobalPosition();
-			tri.v2 = math::mul(next_vertex->m_data->m_position, M)
+			tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
 				+ *this->GetGlobalPosition();
-			tri.v3 = math::mul(next_vertex->m_right->m_data->m_position, M)
+			tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
 				+ *this->GetGlobalPosition();
 			tri.update();
 			
@@ -1589,7 +1589,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 				auto lv = cv->m_left;
 				while (true)
 				{
-					bst.Add((uint64_t)cv->m_data, miPair<miVertex*, v3f>(cv->m_data, cv->m_data->m_position));
+					bst.Add((uint64_t)cv->m_data1, miPair<miVertex*, v3f>(cv->m_data1, cv->m_data1->m_position));
 
 					if (cv == lv)
 						break;
@@ -1650,6 +1650,8 @@ end:;
 		auto lp = cp->m_left;
 		while (true)
 		{
+			miListNode2<miVertex*, v2f>* UV_v1 = 0;
+
 			// if polygon contain v2 then remove v1 from this polygon
 			// else replace v1 to v2 and add this polygon to v2
 			bool isContainV2 = false;
@@ -1658,20 +1660,26 @@ end:;
 				auto lv = cv->m_left;
 				while (true)
 				{
-					if (cv->m_data == v2)
+					if (cv->m_data1 == v1)
+						UV_v1 = cv;
+
+					if (cv->m_data1 == v2)
 					{
+						//UV_v2 = cuv;
 						isContainV2 = true;
-						break;
 					}
+
 					if (cv == lv)
 						break;
+
 					cv = cv->m_right;
 				}
 			}
 			if (isContainV2)
 			{
 				cp->m_data->m_verts.erase_first(v1);
-				// проверка если осталось 2 вершины
+
+				// check if there are 2 vertices left
 				auto cv = cp->m_data->m_verts.m_head;
 				auto lv = cv->m_left;
 				u32 c = 0;
@@ -1687,7 +1695,21 @@ end:;
 			}
 			else
 			{
-				cp->m_data->m_verts.replace(v1, v2);
+				// I need to find v2 in polygon that contain v2
+				/*auto curP = v2->m_polygons.m_head;
+				auto curV = curP->m_data->m_verts.m_head;
+				auto lastV = curV->m_left;
+				while (true)
+				{
+					if (curV->m_data1 == v2)
+						break;
+					if (curV == lastV)
+						break;
+					curV = curV->m_right;
+				}*/
+				auto vNode = v2->m_polygons.m_head->m_data->FindVertex(v2);
+
+				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
 				v2->m_polygons.push_back(cp->m_data);
 			}
 
@@ -1750,12 +1772,13 @@ end:;
 
 		if (v2OnEdge && v2OnEdge)
 		{
-			// replave v1->v2
+			// replase v1->v2
 			auto cp = v1->m_polygons.m_head;
 			auto lp = cp->m_left;
 			while (true)
 			{
-				cp->m_data->m_verts.replace(v1, v2);
+				auto vNode = v1->m_polygons.m_head->m_data->FindVertex(v1);
+				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
 				v2->m_polygons.push_back(cp->m_data);
 
 				if (cp == lp)
@@ -1788,7 +1811,7 @@ end:;
 }
 
 void miEditableObject::VertexConnect() {
-	miArray<miListNode<miVertex*>*> vertsForNewpolygon;
+	miArray<miListNode2<miVertex*, v2f>*> vertsForNewpolygon;
 
 	/*for (s32 o = 0, osz = GetMeshCount(); o < osz; ++o)
 	{
@@ -1800,13 +1823,14 @@ void miEditableObject::VertexConnect() {
 		{
 			auto np = cp->m_right;
 			vertsForNewpolygon.clear();
+
 			u32 vertexCount = 0;
 			{// remove miVertex::flag_User1
 				auto currentVertex = cp->m_verts.m_head;
 				auto lastVertex = currentVertex->m_left;
 				while (true) {
-					if (currentVertex->m_data->m_flags & miVertex::flag_User1)
-						currentVertex->m_data->m_flags ^= miVertex::flag_User1;
+					if (currentVertex->m_data1->m_flags & miVertex::flag_User1)
+						currentVertex->m_data1->m_flags ^= miVertex::flag_User1;
 					++vertexCount;
 					if (currentVertex == lastVertex)
 						break;
@@ -1819,7 +1843,7 @@ void miEditableObject::VertexConnect() {
 			auto currentVertex = cp->m_verts.m_head;
 			auto lastVertex = currentVertex->m_left;
 			while (true) {
-				if (currentVertex->m_data->m_flags & miVertex::flag_isSelected)
+				if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
 				{
 					if (!isStarted) {
 						isStarted = true;
@@ -1829,10 +1853,12 @@ void miEditableObject::VertexConnect() {
 
 				if (isStarted)
 				{
-					if ((currentVertex->m_data->m_flags & miVertex::flag_User1) == 0)
+					if ((currentVertex->m_data1->m_flags & miVertex::flag_User1) == 0)
+					{
 						vertsForNewpolygon.push_back(currentVertex);
+					}
 
-					if (currentVertex->m_data->m_flags & miVertex::flag_isSelected)
+					if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
 					{
 						if (vertsForNewpolygon.m_size > 2)
 						{
@@ -1843,12 +1869,12 @@ void miEditableObject::VertexConnect() {
 								auto v = vertsForNewpolygon.m_data[i];
 
 								if (i != 0 && i != l) {
-									v->m_data->m_flags |= miVertex::flag_User1;
+									v->m_data1->m_flags |= miVertex::flag_User1;
 									--vertexCount;
 								}
-
-								newPolygon->m_verts.push_back(v->m_data);
-								v->m_data->m_polygons.push_back(newPolygon);
+								
+								newPolygon->m_verts.push_back(v->m_data1, v->m_data2);
+								v->m_data1->m_polygons.push_back(newPolygon);
 
 								if (v == lastVertex)
 									lastVertex = vertsForNewpolygon.m_data[0];
@@ -1860,7 +1886,6 @@ void miEditableObject::VertexConnect() {
 							newPolygon->m_right = cp;
 
 							vertsForNewpolygon.clear();
-
 							vertsForNewpolygon.push_back(currentVertex);
 
 							if (vertexCount == 2)
@@ -1945,7 +1970,9 @@ void miEditableObject::VertexBreak() {
 				v->m_right->m_left = newVertex;
 				v->m_right = newVertex;
 
-				cp->m_data->m_verts.replace(v, newVertex);
+				auto vNode = v->m_polygons.m_head->m_data->FindVertex(v);
+
+				cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2);
 				newVertex->m_polygons.push_back(cp->m_data);
 
 				removeThisPolygons.push_back(cp->m_data);

@@ -226,7 +226,7 @@ void miApplication::UpdateSelectionAabb() {
 							auto last_vertex = current_vertex->m_left;
 							while (true)
 							{
-								m_selectionAabb.add(math::mul(current_vertex->m_data->m_position, M)
+								m_selectionAabb.add(math::mul(current_vertex->m_data1->m_position, M)
 									+ *obj->GetGlobalPosition());
 
 								if (current_vertex == last_vertex)

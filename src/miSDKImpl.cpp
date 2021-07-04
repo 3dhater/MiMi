@@ -375,8 +375,10 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 				while (true) {
 
 					uint64_t new_v_address = 0;
-					if (vmap.Get((uint64_t)current_vertex->m_data, new_v_address))
-						new_P->m_verts.push_back((miVertex*)new_v_address);
+					if (vmap.Get((uint64_t)current_vertex->m_data1, new_v_address))
+					{
+						new_P->m_verts.push_back((miVertex*)new_v_address, current_vertex->m_data2);
+					}
 
 					if (current_vertex == last_vertex)
 						break;

@@ -21,8 +21,9 @@ struct miVertex
 	miVertex* m_right;
 
 	v3f m_position;
-	v2f m_tCoords;
+//	v2f m_tCoords;
 	half m_normal[3];
+
 	unsigned char m_flags;
 	enum { 
 		flag_isSelected = BIT(0),
@@ -31,7 +32,7 @@ struct miVertex
 	void CopyData(miVertex* other)
 	{
 		m_position = other->m_position;
-		m_tCoords = other->m_tCoords;
+	//	m_tCoords = other->m_tCoords;
 		m_normal[0] = other->m_normal[0];
 		m_normal[1] = other->m_normal[1];
 		m_normal[2] = other->m_normal[2];
@@ -86,8 +87,9 @@ struct miPolygon
 		m_right = 0;
 		m_flags = 0;
 	}
-	~miPolygon() {}
-	
+	~miPolygon() {
+	}
+
 	unsigned char m_flags;
 	enum { flag_isSelected = 1, };
 
@@ -98,8 +100,22 @@ struct miPolygon
 	miPolygon* m_left;
 	miPolygon* m_right;
 	
-	miList<miVertex*> m_verts;
+	miList2<miVertex*, v2f> m_verts;
 	miList<miEdge*> m_edges;
+
+	miListNode2<miVertex*, v2f>* FindVertex(miVertex* v) {
+		auto curV = m_verts.m_head;
+		auto lastV = curV->m_left;
+		while (true)
+		{
+			if (curV->m_data1 == v)
+				break;
+			if (curV == lastV)
+				break;
+			curV = curV->m_right;
+		}
+		return curV;
+	}
 };
 #include "miPackOff.h"
 
@@ -345,6 +361,8 @@ struct miSkeleton {
 
 };
 
+
+
 // m_mesh = miCreate<miMesh>();
 // miDestroy(m_mesh);
 struct miMesh
@@ -359,6 +377,10 @@ struct miMesh
 	miEdge* m_first_edge;
 	miVertex* m_first_vertex;
 	miSkeleton* m_skeleton;
+
+	// must be for each polygon.
+	// array contain first miUVChannel* for each channel
+	//miArray<miUVChannelNode*> m_UVChannels;
 
 	template<typename _polygon_allocator_type, typename _edge_allocator_type, typename _vertex_allocator_type>
 	void CreateEdges(_polygon_allocator_type* pa, _edge_allocator_type* ea, _vertex_allocator_type* va) {
@@ -377,15 +399,15 @@ struct miMesh
 			auto next_vertex = current_vertex->m_right;
 			auto last_vertex = current_vertex->m_left;
 			while (true) {
-				miVertex* v1 = current_vertex->m_data;
-				miVertex* v2 = next_vertex->m_data;
+				miVertex* v1 = current_vertex->m_data1;
+				miVertex* v2 = next_vertex->m_data1;
 
 				// пусть вершина с адресом значение которого меньше
 				//  будет на первом месте.
 				if (v2 < v1)
 				{
-					v1 = next_vertex->m_data;
-					v2 = current_vertex->m_data;
+					v1 = next_vertex->m_data1;
+					v2 = current_vertex->m_data1;
 				}
 
 				miEdge* newEdge = nullptr;
@@ -604,10 +626,24 @@ struct miMeshBuilder
 		if (polygonVertexCount < 3)
 			return;
 
-
 		miPolygon* newPolygon = m_allocatorPolygon->Allocate();
 		new(newPolygon)miPolygon();
+		
 
+		if (!m_mesh.m_first_polygon)
+		{
+			m_mesh.m_first_polygon = newPolygon;
+			m_mesh.m_first_polygon->m_right = m_mesh.m_first_polygon;
+			m_mesh.m_first_polygon->m_left = m_mesh.m_first_polygon;
+		}
+		else
+		{
+			auto last = m_mesh.m_first_polygon->m_left;
+			last->m_right = newPolygon;
+			newPolygon->m_left = last;
+			newPolygon->m_right = m_mesh.m_first_polygon;
+			m_mesh.m_first_polygon->m_left = newPolygon;
+		}
 
 		auto positions = pc->GetPositions();
 		auto normals = pc->GetNormals();
@@ -616,7 +652,6 @@ struct miMeshBuilder
 		for (int i = 0; i < polygonVertexCount; ++i)
 		{
 			miVertex* newVertex = 0;
-			
 			m_aabb.add(positions[i]);
 
 			if (weld)
@@ -629,7 +664,7 @@ struct miMeshBuilder
 					newVertex = m_allocatorVertex->Allocate();
 					new(newVertex)miVertex();
 					newVertex->m_position = positions[i];
-					newVertex->m_tCoords = tCoords[i];
+					//newVertex->m_tCoords = tCoords[i];
 					
 					newVertex->m_normal[0] = normals[i].x;
 					newVertex->m_normal[1] = normals[i].y;
@@ -648,7 +683,7 @@ struct miMeshBuilder
 				newVertex = m_allocatorVertex->Allocate();
 				new(newVertex)miVertex();
 				newVertex->m_position = positions[i];
-				newVertex->m_tCoords = tCoords[i];
+				//newVertex->m_tCoords = tCoords[i];
 
 				newVertex->m_normal[0] = normals[i].x;
 				newVertex->m_normal[1] = normals[i].y;
@@ -659,22 +694,7 @@ struct miMeshBuilder
 
 			newVertex->m_polygons.push_back(newPolygon);
 
-			newPolygon->m_verts.push_back(newVertex);
-		}
-
-		if (!m_mesh.m_first_polygon)
-		{
-			m_mesh.m_first_polygon = newPolygon;
-			m_mesh.m_first_polygon->m_right = m_mesh.m_first_polygon;
-			m_mesh.m_first_polygon->m_left = m_mesh.m_first_polygon;
-		}
-		else
-		{
-			auto last = m_mesh.m_first_polygon->m_left;
-			last->m_right = newPolygon;
-			newPolygon->m_left = last;
-			newPolygon->m_right = m_mesh.m_first_polygon;
-			m_mesh.m_first_polygon->m_left = newPolygon;
+			newPolygon->m_verts.push_back(newVertex, tCoords[i]);
 		}
 	}
 	void CreateEdges() {

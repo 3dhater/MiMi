@@ -106,6 +106,27 @@ class miBinarySearchTree
 		return false;
 	}
 
+	_type* _get_ptr(_node * node, uint64_t value) {
+		if (node->m_value == value)
+			return &node->m_data;
+
+		if (value > node->m_value)
+		{
+			if (node->m_right)
+				return _get_ptr(node->m_right, value);
+			else
+				return 0;
+		}
+		else
+		{
+			if (node->m_left)
+				return _get_ptr(node->m_left, value);
+			else
+				return 0;
+		}
+		return 0;
+	}
+
 	uint64_t MurmurHash64A(const void * key, int len, unsigned int seed)
 	{
 		const uint64_t m = 0xc6a4a7935bd1e995;
@@ -173,6 +194,13 @@ public:
 		if(m_root)
 			return _get(m_root, value, data);
 		return false;
+	}
+	_type* GetPtr(uint64_t value) {
+		value = MurmurHash64A(&value, sizeof(uint64_t), 1);
+
+		if (m_root)
+			return _get_ptr(m_root, value);
+		return 0;
 	}
 
 	template<typename _array>

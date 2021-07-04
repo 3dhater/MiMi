@@ -106,6 +106,18 @@ public:
 		}
 	}
 
+	void erase(u32 index)
+	{
+		for (u32 i = index; i < m_size; ++i)
+		{
+			if(i + 1 < m_size)
+				m_data[i] = m_data[i + 1];
+			else
+				m_data[i] = 0;
+		}
+		if (m_size)
+			--m_size;
+	}
 
 	pointer m_data;
 	u32     m_size;
