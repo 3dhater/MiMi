@@ -1777,7 +1777,7 @@ end:;
 			auto lp = cp->m_left;
 			while (true)
 			{
-				auto vNode = v1->m_polygons.m_head->m_data->FindVertex(v1);
+				auto vNode = cp->m_data->FindVertex(v1);
 				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
 				v2->m_polygons.push_back(cp->m_data);
 
@@ -1970,7 +1970,8 @@ void miEditableObject::VertexBreak() {
 				v->m_right->m_left = newVertex;
 				v->m_right = newVertex;
 
-				auto vNode = v->m_polygons.m_head->m_data->FindVertex(v);
+				//auto vNode = v->m_polygons.m_head->m_data->FindVertex(v);
+				auto vNode = cp->m_data->FindVertex(v);
 
 				cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2);
 				newVertex->m_polygons.push_back(cp->m_data);
