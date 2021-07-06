@@ -390,6 +390,10 @@ void miApplication::SetCursorBehaviorMode(miCursorBehaviorMode bm) {
 		break;
 	case miCursorBehaviorMode::SelectObject:
 		break;
+	case miCursorBehaviorMode::SelectVertex:
+		break;
+	case miCursorBehaviorMode::Other:
+		break;
 	}
 	//printf("SetCursorBehaviorMode %i\n", (s32)bm);
 }
@@ -1198,7 +1202,8 @@ void miApplication::UpdateViewports() {
 	}
 
 	if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
-		|| m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex)
+		|| m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex
+		|| m_cursorBehaviorMode == miCursorBehaviorMode::Other)
 	{
 		if (m_inputContext->IsKeyHit(yyKey::K_ESCAPE) || m_inputContext->m_isRMBUp)
 		{
@@ -1352,9 +1357,13 @@ void miApplication::UpdateViewports() {
 		
 		if(m_gizmoMode == miGizmoMode::NoTransform)
 		{
-			if (m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode && m_inputContext->m_isLMBHold)
-				m_isSelectByRectangle = true;
-
+			if ((m_cursorBehaviorMode == miCursorBehaviorMode::CommonMode) ||
+				(m_cursorBehaviorMode == miCursorBehaviorMode::Other))
+			{
+				if(m_inputContext->m_isLMBHold)
+					m_isSelectByRectangle = true;
+			}
+			
 			if (
 				(m_cursorBehaviorMode == miCursorBehaviorMode::ClickAndDrag && m_inputContext->m_isLMBHold)
 				|| (m_cursorBehaviorMode == miCursorBehaviorMode::SelectVertex && m_inputContext->m_isLMBHold))

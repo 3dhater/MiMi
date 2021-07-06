@@ -26,6 +26,9 @@
     <ClCompile Include="..\src\miGizmo.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miApplication_selection.cpp" />
+    <ClCompile Include="..\src\miEditableObject_selection.cpp" />
+    <ClCompile Include="..\src\miEditableObject_VertexTargetWeld.cpp" />
+    <ClCompile Include="..\src\miEditableObject_VertexWeld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

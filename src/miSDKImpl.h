@@ -108,7 +108,11 @@ public:
 	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name);
 
 	virtual size_t FileSize(const char* fileName);
-	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other);
+	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) override;
+	virtual void AppendMesh(miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* mesh_with_miPoolAllocator, miMesh* other)override;
+
+	template<typename AllocVertex, typename AllocEdge, typename AllocPolygon>
+	void _appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa);
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) override;
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) override;

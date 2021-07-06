@@ -7,52 +7,22 @@
 
 extern miApplication * g_app;
 
-const s32 g_SelectButtonID_More = 0;
-const s32 g_SelectButtonID_Less = 1;
+s32 g_SelectButtonID_More = 0;
+s32 g_SelectButtonID_Less = 1;
 const s32 g_SelectButtonID_ConnectVerts1 = 2;
 const s32 g_SelectButtonID_BreakVerts = 3;
 
-bool editableObjectGUI_tgweldButton_onIsGoodVertex(miSceneObject* o, miVertex* v) {
-	return o == (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-}
-void editableObjectGUI_tgweldButton_onSelectFirst(miSceneObject* o, miVertex* v) {}
-void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2) {
-	//printf("%u %u\n", v1, v2);
-	if (o != g_app->m_selectedObjects.m_data[0])
-		return;
+void editableObjectGUI_selectButtons_onClick(s32 id);
 
-	if (v1 == v2)
-		return;
+void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_tgweldButton_onCheck(s32 id);
+void editableObjectGUI_tgweldButton_onUncheck(s32 id);
 
-	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	selObject->VertexTargetWeld(v1, v2);
-}
-void editableObjectGUI_tgweldButton_onCancel(){
-	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	auto gui = selObject->GetGui();
-	gui->UncheckButtonGroup(1);
-	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
-}
-void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked) {
-	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
-}
-void editableObjectGUI_tgweldButton_onCheck(s32 id) {
-	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
-	g_app->m_sdk->SetSelectVertexCallbacks(
-		editableObjectGUI_tgweldButton_onIsGoodVertex,
-		editableObjectGUI_tgweldButton_onSelectFirst,
-		editableObjectGUI_tgweldButton_onSelectSecond,
-		editableObjectGUI_tgweldButton_onCancel);
-}
-void editableObjectGUI_tgweldButton_onUncheck(s32 id) {
-	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectVertex)
-	{
-		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
-	}
-}
-
+void editableObjectGUI_weldButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_weldButton_onCheck(s32 id);
+void editableObjectGUI_weldButton_onUncheck(s32 id);
+float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj);
+void editableObjectGUI_weldRange_onValueChanged(miSceneObject*, float);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -84,24 +54,6 @@ void editableObjectGUI_attachButton_onSelect(miSceneObject* inObject) {
 		g_app->DeleteObject(newObject);
 	}
 }
-void editableObjectGUI_attachButton_onCancel() {
-	//printf("editableObjectGUI_attachButton_onCancel\n");
-
-	// it must be only 1 object
-	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	auto gui = selObject->GetGui();
-	gui->UncheckButtonGroup(1);
-}
-void editableObjectGUI_attachButton_onCheck(s32 id) {
-	if (id == 1)
-	{
-		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectObject);
-		g_app->m_sdk->SetSelectObjectCallbacks(
-			editableObjectGUI_attachButton_onIsGoodObject,
-			editableObjectGUI_attachButton_onSelect,
-			editableObjectGUI_attachButton_onCancel);
-	}
-}
 void editableObjectGUI_attachButton_onUncheck(s32 id) {
 	if (id == 1)
 	{
@@ -113,6 +65,26 @@ void editableObjectGUI_attachButton_onUncheck(s32 id) {
 	}
 	//printf("on uncheck %i\n", id);
 }
+void editableObjectGUI_attachButton_onCancel() {
+//	printf("editableObjectGUI_attachButton_onCancel\n");
+
+	// it must be only 1 object
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto gui = selObject->GetGui();
+	gui->UncheckButtonGroup(1);
+	editableObjectGUI_attachButton_onUncheck(1);
+}
+void editableObjectGUI_attachButton_onCheck(s32 id) {
+	if (id == 1)
+	{
+		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectObject);
+		g_app->m_sdk->SetSelectObjectCallbacks(
+			editableObjectGUI_attachButton_onIsGoodObject,
+			editableObjectGUI_attachButton_onSelect,
+			editableObjectGUI_attachButton_onCancel);
+	}
+}
+
 
 void editableObjectGUI_editButton_onClick(s32 id) {
 	if (g_app->m_selectedObjects.m_size != 1)
@@ -137,205 +109,6 @@ void editableObjectGUI_editButton_onClick(s32 id) {
 		editableObject->VertexBreak();
 		break;
 	}
-}
-void editableObjectGUI_selectButtons_onClick(s32 id) {
-	if (g_app->m_selectedObjects.m_size != 1)
-		return;
-
-	auto object = g_app->m_selectedObjects.m_data[0];
-	if (object->GetPlugin() != g_app->m_pluginForApp)
-		return;
-
-	if(object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
-		return;
-
-	miEditableObject* o = (miEditableObject*)object;
-
-	auto em = g_app->GetEditMode();
-	auto mc = o->GetMeshCount();
-	for (s32 i = 0; i < mc; ++i)
-	{
-		auto m = o->GetMesh(i);
-
-		switch (em)
-		{
-		case miEditMode::Vertex:
-		{
-			yyArraySimple<miVertex*> va;
-			va.reserve(0xffff);
-
-			auto c = m->m_first_vertex;
-			auto l = c->m_left;
-			while (true)
-			{
-				if (c->m_flags & c->flag_isSelected)
-				{
-					auto ce = c->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
-					{
-						if (id == g_SelectButtonID_More) {
-							if ((ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected) == 0)
-								va.push_back(ce->m_data->m_vertex1);
-						
-							if ((ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected) == 0)
-								va.push_back(ce->m_data->m_vertex2);
-						}
-						else if (id == g_SelectButtonID_Less) {
-							if ((ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected) == 0)
-								va.push_back(c);
-							if ((ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected) == 0)
-								va.push_back(c);
-						}
-
-						if (ce == le)
-							break;
-						ce = ce->m_right;
-					}
-
-				}
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-
-			for (u32 o = 0; o < va.m_size; ++o)
-			{
-				if (id == g_SelectButtonID_More) {
-					va.m_data[o]->m_flags |= miVertex::flag_isSelected;
-				}
-				else if (id == g_SelectButtonID_Less) {
-					if(va.m_data[o]->m_flags & miVertex::flag_isSelected)
-						va.m_data[o]->m_flags ^= miVertex::flag_isSelected;
-				}
-			}
-		}break;
-		case miEditMode::Edge: {
-			yyArraySimple<miEdge*> ea;
-			ea.reserve(0xffff);
-			auto c = m->m_first_edge;
-			auto l = c->m_left;
-			while (true)
-			{
-				if (c->m_flags & miEdge::flag_isSelected)
-				{
-					auto v1 = c->m_vertex1;
-					auto v2 = c->m_vertex2;
-
-					{
-						auto ce = v1->m_edges.m_head;
-						auto le = ce->m_left;
-						while (true)
-						{
-							if (id == g_SelectButtonID_More) {
-								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
-									ea.push_back(ce->m_data);
-							}
-							else if (id == g_SelectButtonID_Less) {
-								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
-									ea.push_back(c);
-							}
-							if (ce == le)
-								break;
-							ce = ce->m_right;
-						}
-					}
-					{
-						auto ce = v2->m_edges.m_head;
-						auto le = ce->m_left;
-						while (true)
-						{
-							if (id == g_SelectButtonID_More) {
-								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
-									ea.push_back(ce->m_data);
-							}
-							else if (id == g_SelectButtonID_Less) {
-								if ((ce->m_data->m_flags & miEdge::flag_isSelected) == 0)
-									ea.push_back(c);
-							}
-							if (ce == le)
-								break;
-							ce = ce->m_right;
-						}
-					}
-				}
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-			
-			for (u32 o = 0; o < ea.m_size; ++o)
-			{
-				if (id == g_SelectButtonID_More) {
-					ea.m_data[o]->m_flags |= miEdge::flag_isSelected;
-				}
-				else if (id == g_SelectButtonID_Less) {
-					if (ea.m_data[o]->m_flags & miEdge::flag_isSelected)
-						ea.m_data[o]->m_flags ^= miEdge::flag_isSelected;
-				}
-			}
-		}break;
-		case miEditMode::Polygon: {
-			yyArraySimple<miPolygon*> pa;
-			pa.reserve(0xffff);
-			auto c = m->m_first_polygon;
-			auto l = c->m_left;
-			while (true)
-			{
-				if (c->m_flags & miPolygon::flag_isSelected)
-				{
-					auto cv = c->m_verts.m_head;
-					auto lv = cv->m_left;
-					while (true)
-					{
-						auto cp = cv->m_data1->m_polygons.m_head;
-						auto lp = cp->m_left;
-						while (true)
-						{
-							if (id == g_SelectButtonID_More) {
-								if ((cp->m_data->m_flags & miPolygon::flag_isSelected) == 0)
-									pa.push_back(cp->m_data);
-							}
-							else if (id == g_SelectButtonID_Less) {
-								if ((cp->m_data->m_flags & miPolygon::flag_isSelected) == 0)
-									pa.push_back(c);
-							}
-							if (cp == lp)
-								break;
-							cp = cp->m_right;
-						}
-
-
-						if (cv == lv)
-							break;
-						cv = cv->m_right;
-					}
-				}
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-			
-			for (u32 o = 0; o < pa.m_size; ++o)
-			{
-				if (id == g_SelectButtonID_More) {
-					pa.m_data[o]->m_flags |= miPolygon::flag_isSelected;
-				}
-				else if (id == g_SelectButtonID_Less) {
-					if (pa.m_data[o]->m_flags & miPolygon::flag_isSelected)
-						pa.m_data[o]->m_flags ^= miPolygon::flag_isSelected;
-				}
-			}
-		}break;
-		case miEditMode::Object:
-		default:
-			break;
-		}
-	}
-	o->OnSelect(em);
-	g_app->OnSelect();
 }
 
 void miApplication::_initEditableObjectGUI() {
@@ -386,8 +159,6 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_editButton_onClick, miPluginGUI::Flag_ForVertexEditMode);
 
 	y += 18.f;
-	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Weld:", 0,
-		miPluginGUI::Flag_ForVertexEditMode);
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 70.f, 15.f), L"Target weld",
 		-1,
 		editableObjectGUI_tgweldButton_onClick,
@@ -395,18 +166,41 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_tgweldButton_onUncheck,
 		1, 
 		miPluginGUI::Flag_ForVertexEditMode);
+
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 40.f, 15.f), L"Weld",
+		-1,
+		editableObjectGUI_weldButton_onClick,
+		editableObjectGUI_weldButton_onCheck,
+		editableObjectGUI_weldButton_onUncheck,
+		1,
+		miPluginGUI::Flag_ForVertexEditMode);
+	m_pluginGuiForEditableObject->AddRangeSliderFloatNoLimit(v4f(90.f, y, 70.f, 15.f),
+		editableObjectGUI_weldRange_onSelectObject,
+		editableObjectGUI_weldRange_onValueChanged,
+		miPluginGUI::Flag_ForVertexEditMode);
+	
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
+	m_weldValue = 0.1f;
 	m_sdk = sdk;
 	m_visualObject_polygon = m_sdk->CreateVisualObject(this, miVisualObjectType::Polygon);
 	m_visualObject_vertex = m_sdk->CreateVisualObject(this, miVisualObjectType::Vertex);
 	m_visualObject_edge = m_sdk->CreateVisualObject(this, miVisualObjectType::Edge);
 	m_flags = 0;
 	//m_meshBuilder = 0;
+
+	m_meshBuilderTmpModelPool = 0;
+	/*m_meshTmp = 0;
+	m_allocatorPoolPolygon = 0;
+	m_allocatorPoolEdge = 0;
+	m_allocatorPoolVertex = 0;*/
+
 	m_allocatorPolygon = new miDefaultAllocator<miPolygon>(0);
 	m_allocatorEdge = new miDefaultAllocator<miEdge>(0);
 	m_allocatorVertex = new miDefaultAllocator<miVertex>(0);
+
 	m_mesh = miCreate<miMesh>();
 	m_gui = (miPluginGUI*)g_app->m_pluginGuiForEditableObject;
 	m_plugin = g_app->m_pluginForApp;
@@ -414,10 +208,41 @@ miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 }
 
 miEditableObject::~miEditableObject() {
+	if (m_allocatorPolygon)delete m_allocatorPolygon;
+	if (m_allocatorEdge)delete m_allocatorEdge;
+	if (m_allocatorVertex)delete m_allocatorVertex;
+	
+	/*if (m_allocatorPoolPolygon)delete m_allocatorPoolPolygon;
+	if (m_allocatorPoolEdge)delete m_allocatorPoolEdge;
+	if (m_allocatorPoolVertex)delete m_allocatorPoolVertex;*/
+	DestroyTMPModelWithPoolAllocator();
+
 	if (m_visualObject_polygon) miDestroy(m_visualObject_polygon);
 	if (m_visualObject_vertex) miDestroy(m_visualObject_vertex);
 	if (m_visualObject_edge) miDestroy(m_visualObject_edge);
 	_destroyMesh();
+}
+
+void miEditableObject::CreateTMPModelWithPoolAllocator() {
+	if (m_meshBuilderTmpModelPool)
+		DestroyTMPModelWithPoolAllocator();
+
+	UpdateCounts();
+
+	m_meshBuilderTmpModelPool = new
+		miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>
+		(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
+	
+	g_app->m_sdk->AppendMesh(m_meshBuilderTmpModelPool, m_mesh);
+
+	RebuildVisualObjects(false);
+}
+void miEditableObject::DestroyTMPModelWithPoolAllocator() {
+	if (!m_meshBuilderTmpModelPool)
+		return;
+	delete m_meshBuilderTmpModelPool;
+	m_meshBuilderTmpModelPool = 0;
+	RebuildVisualObjects(false);
 }
 
 void miEditableObject::_destroyMesh() {
@@ -770,599 +595,6 @@ miVertex* miEditableObject::IsVertexMouseHover(miSelectionFrust* sf) {
 	return 0;
 }
 
-void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_vertex = m_mesh->m_first_vertex;
-	if (!current_vertex)
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_vertex = current_vertex->m_left;
-
-	static yyArraySimple<miVertex*> verts_in_frust;
-	verts_in_frust.clear();
-
-	while (true) {
-		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-			verts_in_frust.push_back(current_vertex);
-
-		if (current_vertex == last_vertex)
-			break;
-		current_vertex = current_vertex->m_right;
-	}
-
-	//printf("Select verts %u\n", verts_in_frust.m_size);
-	if (verts_in_frust.m_size)
-	{
-		static miEditableObject* o;
-		o = this;
-		struct _pred {
-			bool operator() (miVertex* a, miVertex* b) const {
-				auto camera = g_app->GetActiveCamera();
-				return (a->m_position + *o->GetGlobalPosition()).distance(camera->m_positionCamera) > (b->m_position + *o->GetGlobalPosition()).distance(camera->m_positionCamera);
-			}
-		};
-		verts_in_frust.sort_insertion(_pred());
-
-		// Due to the fact that the user can select multiple objects
-		//  and then try to select vertex, this simple solution will select
-		//   one vertex in each model
-		//  But we need to select only 1 vertex. So we need other solution.
-		//if (km == miKeyboardModifier::Alt)
-		//{
-		//	if (verts_in_frust.m_data[0]->m_flags & miVertex::flag_isSelected)
-		//		verts_in_frust.m_data[0]->m_flags ^= miVertex::flag_isSelected;
-		//}
-		//else
-		//{
-		//	//printf("Select\n");
-		//	verts_in_frust.m_data[0]->m_flags |= miVertex::flag_isSelected;
-		//}
-		//m_visualObject_vertex->CreateNewGPUModels(m_mesh);
-
-		/* Solution can be like this:
-			Application must collect each vertex, and then decide who will be selected
-			m_sdk->AddVertexToSelection(miVertex*);
-		*/
-		m_sdk->AddVertexToSelection(verts_in_frust.m_data[0], this);
-	}
-}
-
-void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_edge = current_edge->m_left;
-
-	static yyArraySimple<miEdge*> edges_in_frust;
-	edges_in_frust.clear();
-
-	while (true) {
-		if (sf->LineInFrust(
-			math::mul(current_edge->m_vertex1->m_position, M) + *position,
-			math::mul(current_edge->m_vertex2->m_position, M) + *position))
-		{
-			edges_in_frust.push_back(current_edge);
-		}
-
-		if (current_edge == last_edge)
-			break;
-		current_edge = current_edge->m_right;
-	}
-	if (edges_in_frust.m_size)
-	{
-		static miEditableObject* o;
-		o = this;
-		struct _pred {
-			bool operator() (miEdge* a, miEdge* b) const {
-				auto camera = g_app->GetActiveCamera();
-				
-				auto center = a->m_vertex1->m_position + b->m_vertex1->m_position;
-				center *= 0.5f;
-				center += *o->GetGlobalPosition();
-
-				return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
-			}
-		};
-		edges_in_frust.sort_insertion(_pred());
-		m_sdk->AddEdgeToSelection(edges_in_frust.m_data[0], this);
-	}
-}
-
-void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_polygon = m_mesh->m_first_polygon;
-	if (!current_polygon)
-		return;
-
-	yyRay r;
-	r.m_origin = sf->m_data.m_BackC;
-	r.m_end = sf->m_data.m_FrontC;
-	r.update();
-	
-	if (!m_aabbTransformed.rayTest(r))
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_polygon = current_polygon->m_left;
-
-	// m_second - distance T
-	static yyArraySimple<miPair<miPolygon*,f32>> polygons_in_frust;
-	polygons_in_frust.clear();
-
-	while (true) {
-
-		auto current_vertex = current_polygon->m_verts.m_head;
-		auto last_vertex = current_vertex->m_left;
-		auto first_vertex = current_vertex;
-		while (true)
-		{
-			auto next_vertex = current_vertex->m_right;
-
-			miTriangle tri;
-			tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
-				+ *this->GetGlobalPosition();
-			tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
-				+ *this->GetGlobalPosition();
-			tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
-				+ *this->GetGlobalPosition();
-			tri.update();
-			
-			f32 T, U, V, W;
-			T = U = V = W = 0.f;
-			if (tri.rayTest_MT(r, true, T, U, V, W))
-			{
-				polygons_in_frust.push_back(miPair<miPolygon*, f32>(current_polygon,T));
-				break;
-			}
-
-			if (current_vertex == last_vertex)
-				break;
-			current_vertex = current_vertex->m_right;
-		}
-
-		if (current_polygon == last_polygon)
-			break;
-		current_polygon = current_polygon->m_right;
-	}
-	if (polygons_in_frust.m_size)
-	{
-		static miEditableObject* o;
-		o = this;
-		struct _pred {
-			bool operator() (
-				const miPair<miPolygon*, f32>& a, 
-				const miPair<miPolygon*, f32>& b) const 
-			{
-				return a.m_second < b.m_second;
-			}
-		};
-		polygons_in_frust.sort_insertion(_pred());
-		m_sdk->AddPolygonToSelection(polygons_in_frust.m_data[0], this);
-	}
-}
-
-void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	miSceneObject::SelectSingle(em, km, sf);
-	switch (em)
-	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		if (m_isSelected) _selectVertex(km, sf);
-		break;
-	case miEditMode::Edge:
-		if (m_isSelected) _selectEdge(km, sf);
-		break;
-	case miEditMode::Polygon:
-		if (m_isSelected) _selectPolygon(km, sf);
-		break;
-	}
-
-	//if (m_isSelected)
-	//	_updateVertsForTransformArray(em);
-	// App will call miSceneObject::OnSelect
-}
-
-void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_edge = current_edge->m_left;
-
-	bool needUpdate = false;
-	if (km == miKeyboardModifier::Alt)
-	{
-		while (true) {
-			if (sf->LineInFrust(
-				math::mul(current_edge->m_vertex1->m_position, M) + *position,
-				math::mul(current_edge->m_vertex2->m_position, M) + *position))
-			{
-				needUpdate = true;
-				if (current_edge->m_polygon1)
-				{
-					if (current_edge->m_polygon1->m_flags & miPolygon::flag_isSelected)
-						current_edge->m_polygon1->m_flags ^= miPolygon::flag_isSelected;
-				}
-				if (current_edge->m_polygon2)
-				{
-					if (current_edge->m_polygon2->m_flags & miPolygon::flag_isSelected)
-						current_edge->m_polygon2->m_flags ^= miPolygon::flag_isSelected;
-				}
-			}
-			if (current_edge == last_edge)
-				break;
-			current_edge = current_edge->m_right;
-		}
-	}
-	else
-	{
-		while (true) {
-			if (sf->LineInFrust(
-				math::mul(current_edge->m_vertex1->m_position, M) + *position,
-				math::mul(current_edge->m_vertex2->m_position, M) + *position))
-			{
-				needUpdate = true;
-				if (current_edge->m_polygon1)
-					current_edge->m_polygon1->m_flags |= miPolygon::flag_isSelected;
-				if (current_edge->m_polygon2)
-					current_edge->m_polygon2->m_flags |= miPolygon::flag_isSelected;
-			}
-			if (current_edge == last_edge)
-				break;
-			current_edge = current_edge->m_right;
-		}
-	}
-	if(needUpdate)
-		OnSelect(em);
-}
-
-void miEditableObject::_selectEdges_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_edge = current_edge->m_left;
-
-	static yyArraySimple<miEdge*> edges_in_frust;
-	edges_in_frust.clear();
-
-	while (true) {
-		if (sf->LineInFrust(
-			math::mul(current_edge->m_vertex1->m_position, M) + *position,
-			math::mul(current_edge->m_vertex2->m_position, M) + *position))
-			edges_in_frust.push_back(current_edge);
-
-		if (current_edge == last_edge)
-			break;
-		current_edge = current_edge->m_right;
-	}
-
-	//printf("Select verts %u\n", verts_in_frust.m_size);
-	if (edges_in_frust.m_size)
-	{
-		for (u32 i = 0; i < edges_in_frust.m_size; ++i)
-		{
-			auto v = edges_in_frust.m_data[i];
-			if (km == miKeyboardModifier::Alt)
-			{
-				if (v->m_flags & miEdge::flag_isSelected)
-					v->m_flags ^= miEdge::flag_isSelected;
-			}
-			else
-				v->m_flags |= miEdge::flag_isSelected;
-		}
-
-		OnSelect(em);
-	}
-}
-void miEditableObject::_selectVerts_rectangle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	auto current_vertex = m_mesh->m_first_vertex;
-	if (!current_vertex)
-		return;
-
-	Mat4 M = this->GetWorldMatrix()->getBasis();
-	auto position = this->GetGlobalPosition();
-
-	auto last_vertex = current_vertex->m_left;
-
-	bool need_update = false;
-	while (true) {
-		if (sf->PointInFrust(math::mul(current_vertex->m_position, M) + *position))
-		{
-			need_update = true;
-			if (km == miKeyboardModifier::Alt)
-			{
-				if (current_vertex->m_flags & miVertex::flag_isSelected)
-					current_vertex->m_flags ^= miVertex::flag_isSelected;
-			}
-			else
-				current_vertex->m_flags |= miVertex::flag_isSelected;
-		}
-
-		if (current_vertex == last_vertex)
-			break;
-		current_vertex = current_vertex->m_right;
-	}
-
-	if(need_update)
-		OnSelect(em);
-}
-
-void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
-	miSceneObject::Select(em, km, sf);
-	switch (em)
-	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		if(m_isSelected) _selectVerts_rectangle(em, km, sf);
-		break;
-	case miEditMode::Edge:
-		if (m_isSelected) _selectEdges_rectangle(em, km, sf);
-		break;
-	case miEditMode::Polygon:
-		if (m_isSelected) _selectPolygons_rectangle(em, km, sf);
-		break;
-	}
-	if (m_isSelected)
-		_updateVertsForTransformArray(em);
-}
-
-void miEditableObject::_selectAllPolygons() {
-	auto current_polygon = m_mesh->m_first_polygon;
-	if (!current_polygon)
-		return;
-	auto last_polygon = current_polygon->m_left;
-	while (true) {
-		current_polygon->m_flags |= current_polygon->flag_isSelected;
-		if (current_polygon == last_polygon)
-			break;
-		current_polygon = current_polygon->m_right;
-	}
-}
-void miEditableObject::_selectAllEdges() {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-	auto last_edge = current_edge->m_left;
-	while (true) {
-		current_edge->m_flags |= current_edge->flag_isSelected;
-		if (current_edge == last_edge)
-			break;
-		current_edge = current_edge->m_right;
-	}
-}
-void miEditableObject::_selectAllVerts() {
-	auto current_vertex = m_mesh->m_first_vertex;
-	if (!current_vertex)
-		return;
-	auto last_vertex = current_vertex->m_left;
-	while (true) {
-		current_vertex->m_flags |= current_vertex->flag_isSelected;
-		if (current_vertex == last_vertex)
-			break;
-		current_vertex = current_vertex->m_right;
-	}
-}
-
-void miEditableObject::SelectAll(miEditMode em) {
-	miSceneObject::SelectAll(em);
-	switch (em)
-	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		if (m_isSelected) _selectAllVerts();
-		break;
-	case miEditMode::Edge:
-		if (m_isSelected) _selectAllEdges();
-		break;
-	case miEditMode::Polygon:
-		if (m_isSelected) _selectAllPolygons();
-		break;
-	}
-	if (m_isSelected)
-		_updateVertsForTransformArray(em);
-	OnSelect(em);
-}
-
-void miEditableObject::_deselectAllPolygons() {
-	auto current_polygon = m_mesh->m_first_polygon;
-	if (!current_polygon)
-		return;
-	auto last_polygon = current_polygon->m_left;
-	while (true) {
-		if (current_polygon->m_flags & current_polygon->flag_isSelected)
-			current_polygon->m_flags ^= current_polygon->flag_isSelected;
-		if (current_polygon == last_polygon)
-			break;
-		current_polygon = current_polygon->m_right;
-	}
-}
-void miEditableObject::_deselectAllEdges() {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-	auto last_edge = current_edge->m_left;
-	while (true) {
-		if(current_edge->m_flags & current_edge->flag_isSelected)
-			current_edge->m_flags ^= current_edge->flag_isSelected;
-		if (current_edge == last_edge)
-			break;
-		current_edge = current_edge->m_right;
-	}
-}
-void miEditableObject::_deselectAllVerts() {
-	auto current_vertex = m_mesh->m_first_vertex;
-	if (!current_vertex)
-		return;
-	auto last_vertex = current_vertex->m_left;
-	while (true) {
-		if(current_vertex->m_flags & current_vertex->flag_isSelected)
-			current_vertex->m_flags ^= current_vertex->flag_isSelected;
-		if (current_vertex == last_vertex)
-			break;
-		current_vertex = current_vertex->m_right;
-	}
-}
-
-void miEditableObject::DeselectAll(miEditMode em) {
-	miSceneObject::DeselectAll(em);
-	switch (em)
-	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		if (m_isSelected) _deselectAllVerts();
-		break;
-	case miEditMode::Edge:
-		if (m_isSelected) _deselectAllEdges();
-		break;
-	case miEditMode::Polygon:
-		if (m_isSelected) _deselectAllPolygons();
-		break;
-	}
-	//_updateVertsForTransformArray(em);
-	if (m_isSelected)
-		m_vertsForTransform.clear();
-	OnSelect(em);
-}
-
-void miEditableObject::_selectInvertPolygons() {
-	auto current_polygon = m_mesh->m_first_polygon;
-	if (!current_polygon)
-		return;
-	auto last_polygon = current_polygon->m_left;
-	while (true) {
-		if (current_polygon->m_flags & current_polygon->flag_isSelected)
-			current_polygon->m_flags ^= current_polygon->flag_isSelected;
-		else
-			current_polygon->m_flags |= current_polygon->flag_isSelected;
-		if (current_polygon == last_polygon)
-			break;
-		current_polygon = current_polygon->m_right;
-	}
-}
-void miEditableObject::_selectInvertEdges() {
-	auto current_edge = m_mesh->m_first_edge;
-	if (!current_edge)
-		return;
-	auto last_edge = current_edge->m_left;
-	while (true) {
-		if (current_edge->m_flags & current_edge->flag_isSelected)
-			current_edge->m_flags ^= current_edge->flag_isSelected;
-		else
-			current_edge->m_flags |= current_edge->flag_isSelected;
-		if (current_edge == last_edge)
-			break;
-		current_edge = current_edge->m_right;
-	}
-}
-void miEditableObject::_selectInvertVerts() {
-	auto current_vertex = m_mesh->m_first_vertex;
-	if (!current_vertex)
-		return;
-	auto last_vertex = current_vertex->m_left;
-	while (true) {
-		if (current_vertex->m_flags & current_vertex->flag_isSelected)
-			current_vertex->m_flags ^= current_vertex->flag_isSelected;
-		else
-			current_vertex->m_flags |= current_vertex->flag_isSelected;
-
-		if (current_vertex == last_vertex)
-			break;
-		current_vertex = current_vertex->m_right;
-	}
-}
-
-void miEditableObject::InvertSelection(miEditMode em) {
-	miSceneObject::InvertSelection(em);
-	switch (em)
-	{
-	default:
-	case miEditMode::Object:
-		break;
-	case miEditMode::Vertex:
-		if (m_isSelected) _selectInvertVerts();
-		break;
-	case miEditMode::Edge:
-		if (m_isSelected) _selectInvertEdges();
-		break;
-	case miEditMode::Polygon:
-		if (m_isSelected) _selectInvertPolygons();
-		break;
-	}
-	if (m_isSelected)
-		_updateVertsForTransformArray(em);
-	OnSelect(em);
-}
-
-bool miEditableObject::IsVertexSelected() {
-	auto c = m_mesh->m_first_vertex;
-	if (!c)
-		return false;
-	auto l = c->m_left;
-	while (true) {
-		if (c->m_flags & c->flag_isSelected)
-			return true;
-
-		if (c== l)
-			break;
-		c = c->m_right;
-	}
-	return false;
-}
-
-bool miEditableObject::IsEdgeSelected() {
-	auto c = m_mesh->m_first_edge;
-	if (!c)
-		return false;
-	auto l = c->m_left;
-	while (true) {
-		if (c->m_flags & c->flag_isSelected)
-			return true;
-
-		if (c == l)
-			break;
-		c = c->m_right;
-	}
-	return false;
-}
-
-bool miEditableObject::IsPolygonSelected() {
-	auto c = m_mesh->m_first_polygon;
-	if (!c)
-		return false;
-	auto l = c->m_left;
-	while (true) {
-		if (c->m_flags & c->flag_isSelected)
-			return true;
-
-		if (c == l)
-			break;
-		c = c->m_right;
-	}
-	return false;
-}
-
 void miEditableObject::_transformMove(const v3f& move_delta, bool isCancel) {
 	for (u32 i = 0; i < m_vertsForTransform.m_size; ++i)
 	{
@@ -1488,12 +720,8 @@ void miEditableObject::OnTransformPolygon(
 	_callVisualObjectOnTransform();
 }
 
-void miEditableObject::OnSelect(miEditMode em) {
-	_updateVertsForTransformArray(em);
-	RebuildVisualObjects(true);
-}
-
 void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
+	auto mesh = m_meshBuilderTmpModelPool ? &m_meshBuilderTmpModelPool->m_mesh : m_mesh;
 	if (onlyEditMode)
 	{
 		auto em = g_app->GetEditMode();
@@ -1503,13 +731,13 @@ void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
 		case miEditMode::Object:
 			break;
 		case miEditMode::Vertex:
-			m_visualObject_vertex->CreateNewGPUModels(m_mesh);
+			m_visualObject_vertex->CreateNewGPUModels(mesh);
 			break;
 		case miEditMode::Edge:
-			m_visualObject_edge->CreateNewGPUModels(m_mesh);
+			m_visualObject_edge->CreateNewGPUModels(mesh);
 			break;
 		case miEditMode::Polygon:
-			m_visualObject_polygon->CreateNewGPUModels(m_mesh);
+			m_visualObject_polygon->CreateNewGPUModels(mesh);
 			break;
 		}
 	}
@@ -1518,8 +746,7 @@ void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
 		auto voc = GetVisualObjectCount();
 		for (int i = 0; i < voc; ++i)
 		{
-
-			GetVisualObject(i)->CreateNewGPUModels(m_mesh);
+			GetVisualObject(i)->CreateNewGPUModels(mesh);
 		}
 	}
 }
@@ -1608,206 +835,6 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 		break;
 	}
 	printf("VERTS FOR TRANSFORM: %u\n", m_vertsForTransform.m_size);
-}
-
-void miEditableObject::VertexTargetWeld(miVertex* v1, miVertex* v2) {
-	bool isOnSameEdge = false;
-	{
-		auto e1_c = v1->m_edges.m_head;
-		auto e1_l = e1_c->m_left;
-		while (true) 
-		{
-			auto e2_c = v2->m_edges.m_head;
-			auto e2_l = e2_c->m_left;
-			while (true)
-			{
-				if (e1_c->m_data == e2_c->m_data)
-				{
-					isOnSameEdge = true;
-					goto end;
-				}
-
-				if (e2_c == e2_l)
-					break;
-				e2_c = e2_c->m_right;
-			}
-
-			if (e1_c == e1_l)
-				break;
-			e1_c = e1_c->m_right;
-		}
-	}
-
-end:;
-
-	bool success = false;
-	if (isOnSameEdge)
-	{
-		miArray<miPolygon*> polygonsForDelete;
-		polygonsForDelete.reserve(10); // Better 2 ?
-
-		auto cp = v1->m_polygons.m_head;
-		auto lp = cp->m_left;
-		while (true)
-		{
-			miListNode2<miVertex*, v2f>* UV_v1 = 0;
-
-			// if polygon contain v2 then remove v1 from this polygon
-			// else replace v1 to v2 and add this polygon to v2
-			bool isContainV2 = false;
-			{
-				auto cv = cp->m_data->m_verts.m_head;
-				auto lv = cv->m_left;
-				while (true)
-				{
-					if (cv->m_data1 == v1)
-						UV_v1 = cv;
-
-					if (cv->m_data1 == v2)
-					{
-						//UV_v2 = cuv;
-						isContainV2 = true;
-					}
-
-					if (cv == lv)
-						break;
-
-					cv = cv->m_right;
-				}
-			}
-			if (isContainV2)
-			{
-				cp->m_data->m_verts.erase_first(v1);
-
-				// check if there are 2 vertices left
-				auto cv = cp->m_data->m_verts.m_head;
-				auto lv = cv->m_left;
-				u32 c = 0;
-				while (true)
-				{
-					c++;
-					if (cv == lv)
-						break;
-					cv = cv->m_right;
-				}
-				if (c < 3)
-					polygonsForDelete.push_back(cp->m_data);
-			}
-			else
-			{
-				// I need to find v2 in polygon that contain v2
-				/*auto curP = v2->m_polygons.m_head;
-				auto curV = curP->m_data->m_verts.m_head;
-				auto lastV = curV->m_left;
-				while (true)
-				{
-					if (curV->m_data1 == v2)
-						break;
-					if (curV == lastV)
-						break;
-					curV = curV->m_right;
-				}*/
-				auto vNode = v2->m_polygons.m_head->m_data->FindVertex(v2);
-
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
-				v2->m_polygons.push_back(cp->m_data);
-			}
-
-
-			if (cp == lp)
-				break;
-			cp = cp->m_right;
-		}
-		
-		for (u32 i = 0, sz = polygonsForDelete.m_size; i < sz; ++i)
-		{
-			DeletePolygon(polygonsForDelete.m_data[i]);
-		}
-
-		success = true;
-	}
-	else // they on different edges, and each edge have only 1 polygon
-	{
-		bool v1OnEdge = false;
-		bool v2OnEdge = false;
-
-		{
-			auto c = v1->m_edges.m_head;
-			auto l = c->m_left;
-			while (true)
-			{
-				if(!c->m_data->m_polygon1)
-					v1OnEdge = true;
-
-				if (!c->m_data->m_polygon2)
-					v1OnEdge = true;
-
-				if (v1OnEdge)
-					break;
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-		{
-			auto c = v2->m_edges.m_head;
-			auto l = c->m_left;
-			while (true)
-			{
-				if (!c->m_data->m_polygon1)
-					v2OnEdge = true;
-
-				if (!c->m_data->m_polygon2)
-					v2OnEdge = true;
-
-				if (v2OnEdge)
-					break;
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-
-		if (v2OnEdge && v2OnEdge)
-		{
-			// replase v1->v2
-			auto cp = v1->m_polygons.m_head;
-			auto lp = cp->m_left;
-			while (true)
-			{
-				auto vNode = cp->m_data->FindVertex(v1);
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
-				v2->m_polygons.push_back(cp->m_data);
-
-				if (cp == lp)
-					break;
-				cp = cp->m_right;
-			}
-			success = true;
-		}
-	}
-
-
-	if (success)
-	{
-		auto l = v1->m_left;
-		auto r = v1->m_right;
-		l->m_right = r;
-		r->m_left = l;
-		m_allocatorVertex->Deallocate(v1);
-		if (v1 == m_mesh->m_first_vertex)
-			m_mesh->m_first_vertex = r;
-		if (v1 == m_mesh->m_first_vertex)
-			m_mesh->m_first_vertex = 0;
-
-		m_mesh->_delete_edges(m_allocatorEdge);
-		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
-
-		RebuildVisualObjects(false);
-		UpdateCounts();
-	}
 }
 
 void miEditableObject::VertexConnect() {

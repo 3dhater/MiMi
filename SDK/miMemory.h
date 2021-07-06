@@ -62,6 +62,7 @@ public:
 		_type* object = (_type*)m_firstFree;
 		m_firstFree = *(void**)m_firstFree;
 		--m_freeCount;
+		new(object)_type();
 		return object;
 	}
 

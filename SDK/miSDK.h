@@ -3,6 +3,7 @@
 
 #include <cassert>
 
+// in future this software must be created for other platforms/OS
 #if defined _WIN32 || defined __CYGWIN__
 #define MI_PLATFORM_WINDOWS
 #else
@@ -36,6 +37,7 @@
 #include "umHalf.h"
 #include "yumi.h"
 
+// help structure
 template<typename T1, typename T2>
 struct miPair
 {
@@ -45,12 +47,21 @@ struct miPair
 	T2 m_second;
 };
 
+// Viewport can draw triangles or lines or all together
 enum class miViewportDrawMode : u32 {
+	// draw filled triangles with material
 	Material,
+
+	// draw only line-model
 	Wireframe,
+
+	// draw all
 	MaterialWireframe
 };
 
+// When Transform Mode != NoTransform app will draw gizmo
+// When user will move cursor on gizmo and will press LMB
+//  application will remember what part of the gizme he pressed
 enum class miGizmoMode : u32 {
 	NoTransform,
 	MoveX,
@@ -73,6 +84,8 @@ enum class miGizmoMode : u32 {
 	RotateScreen,
 };
 
+// Each viewport have something like camera + when you create object like a plane
+//  you need to get point in 3D space in right plane (XY, XZ, ZY)
 enum class miViewportCameraType : u32 {
 	Perspective,
 	Left,
@@ -83,6 +96,7 @@ enum class miViewportCameraType : u32 {
 	Back
 };
 
+// Help structure
 enum class miDirection : u32 {
 	North,
 	NorthEast,
@@ -93,6 +107,7 @@ enum class miDirection : u32 {
 	West,
 	NorthWest
 };
+
 inline
 const char* miGetDirectionName(miDirection d) {
 	switch (d)
@@ -132,15 +147,27 @@ enum class miTransformMode : u32 {
 };
 
 enum class miCursorBehaviorMode : u32 {
-	CommonMode, // select by rect
-	ClickAndDrag, // like target weld or creation new object like plane
-	HideCursor, // hide cursor, save coords, and setCursorPo( this coords )
+	// select by rect
+	// just default mode
+	CommonMode,
 
-				//  Change cursor. Will be disabled on escape/RMB/miSceneObject selection
-				// set callbacks sdk->SetSelectObjectCallbacks(...); before using
+	// like target weld or creation new object like plane
+	ClickAndDrag, 
+
+	// It will hide cursor, save coords, and setCursorPo( this coords )
+	HideCursor,
+
+	// It will change cursor. Will be disabled on escape/RMB/miSceneObject selection
+	// set callbacks sdk->SetSelectObjectCallbacks(...); before using
 	SelectObject, 
-				// set callbacks sdk->SetSelectVertexCallbacks(...); before using
+
+	// set callbacks sdk->SetSelectVertexCallbacks(...); before using
 	SelectVertex, 
+
+	// for some actions.
+	// For example some actions like Weld: you can select vertices at any time when Weld is active
+	// must be disabled on escape/RMB/toggle edit mode/toggle transform mode
+	Other
 };
 
 enum class miKeyboardModifier : u32 {
@@ -300,6 +327,9 @@ public:
 	// only for miDefaultAllocator for this mesh
 	// obviously
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) = 0;
+	// for version with pool allocator
+	// just for creating a copy of some other model
+	virtual void AppendMesh(miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* mesh_with_miPoolAllocator, miMesh* other) = 0;
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) = 0;
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) = 0;

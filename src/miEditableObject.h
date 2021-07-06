@@ -104,6 +104,16 @@ public:
 	u32 GetVertexCount();
 	u32 GetEdgeCount();
 	u32 GetPolygonCount();
+
+	f32 m_weldValue;
+	
+	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilderTmpModelPool;
+	void CreateTMPModelWithPoolAllocator();
+	void DestroyTMPModelWithPoolAllocator();
+	/*miMesh * m_meshTmp;
+	miPoolAllocator<miPolygon>* m_allocatorPoolPolygon;
+	miPoolAllocator<miEdge>* m_allocatorPoolEdge;
+	miPoolAllocator<miVertex>* m_allocatorPoolVertex;*/
 };
 
 #endif

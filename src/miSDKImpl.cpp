@@ -234,11 +234,8 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	AddObjectToScene(newObject, name);
 }
 
-void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) {
-	miDefaultAllocator<miPolygon> pa(0);
-	miDefaultAllocator<miEdge> ea(0);
-	miDefaultAllocator<miVertex> va(0);
-
+template<typename AllocVertex, typename AllocEdge, typename AllocPolygon>
+void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa){
 	// 1. Create maps-dictionaries
 	// 2. Create verts/polys/edges and put addresses in maps
 	// 3. Change addresses using maps
@@ -255,11 +252,12 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	miPolygon * P = 0;
 	miEdge * E = 0;
 	miVertex * V = 0;
+
 	{
-		auto current_polygon = other->m_first_polygon;
+		auto current_polygon = mesh2->m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
 		while (true) {
-			miPolygon* new_P = pa.Allocate();
+			miPolygon* new_P = pa->Allocate();
 			if (!P)
 			{
 				P = new_P;
@@ -286,11 +284,11 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	}
 
 	{
-		auto current_vertex = other->m_first_vertex;
+		auto current_vertex = mesh2->m_first_vertex;
 		auto last_vertex = current_vertex->m_left;
 		while (true) {
 
-			miVertex* new_V = va.Allocate();
+			miVertex* new_V = va->Allocate();
 			if (!V)
 			{
 				V = new_V;
@@ -317,11 +315,11 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	}
 
 	{
-		auto current_edge = other->m_first_edge;
+		auto current_edge = mesh2->m_first_edge;
 		auto last_edge = current_edge->m_left;
 		while (true) {
 
-			miEdge* new_E = ea.Allocate();
+			miEdge* new_E = ea->Allocate();
 			if (!E)
 			{
 				E = new_E;
@@ -349,7 +347,7 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 
 	// step 3
 	{
-		auto current_polygon = other->m_first_polygon;
+		auto current_polygon = mesh2->m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
 		while (true) {
 			uint64_t new_p_address = 0;
@@ -364,12 +362,12 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 					uint64_t new_e_address = 0;
 					if (emap.Get((uint64_t)current_edge->m_data, new_e_address))
 						new_P->m_edges.push_back((miEdge*)new_e_address);
-					
+
 					if (current_edge == last_edge)
 						break;
 					current_edge = current_edge->m_right;
 				}
-				
+
 				auto current_vertex = current_polygon->m_verts.m_head;
 				auto last_vertex = current_vertex->m_left;
 				while (true) {
@@ -393,7 +391,7 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	}
 
 	{
-		auto current_vertex = other->m_first_vertex;
+		auto current_vertex = mesh2->m_first_vertex;
 		auto last_vertex = current_vertex->m_left;
 		while (true) {
 			uint64_t new_v_address = 0;
@@ -427,14 +425,14 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	}
 
 	{
-		auto current_edge = other->m_first_edge;
+		auto current_edge = mesh2->m_first_edge;
 		auto last_edge = current_edge->m_left;
 		while (true) {
 			uint64_t new_e_address = 0;
 			if (emap.Get((uint64_t)current_edge, new_e_address))
 			{
 				miEdge* new_E = (miEdge*)new_e_address;
-				
+
 				uint64_t new_v1_address = 0;
 				uint64_t new_v2_address = 0;
 				if (vmap.Get((uint64_t)current_edge->m_vertex1, new_v1_address))
@@ -466,43 +464,63 @@ void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) 
 	}
 
 	// step 4
-	if (!mesh_with_miDefaultAllocator->m_first_polygon)
+	if (!mesh1->m_first_polygon)
 	{
-		mesh_with_miDefaultAllocator->m_first_polygon = P;
+		mesh1->m_first_polygon = P;
 	}
 	else
 	{
 		// old-end connect to new-begin
-		mesh_with_miDefaultAllocator->m_first_polygon->m_left->m_right = P;
-		P->m_left = mesh_with_miDefaultAllocator->m_first_polygon->m_left;
+		mesh1->m_first_polygon->m_left->m_right = P;
+		P->m_left = mesh1->m_first_polygon->m_left;
 		// new-end connect to old-begin
-		P->m_left->m_right = mesh_with_miDefaultAllocator->m_first_polygon;
-		mesh_with_miDefaultAllocator->m_first_polygon->m_left = P;
+		P->m_left->m_right = mesh1->m_first_polygon;
+		mesh1->m_first_polygon->m_left = P;
 	}
 
-	if (!mesh_with_miDefaultAllocator->m_first_vertex)
+	if (!mesh1->m_first_vertex)
 	{
-		mesh_with_miDefaultAllocator->m_first_vertex = V;
+		mesh1->m_first_vertex = V;
 	}
 	else
 	{
-		mesh_with_miDefaultAllocator->m_first_vertex->m_left->m_right = V;
-		V->m_left = mesh_with_miDefaultAllocator->m_first_vertex->m_left;
-		V->m_left->m_right = mesh_with_miDefaultAllocator->m_first_vertex;
-		mesh_with_miDefaultAllocator->m_first_vertex->m_left = V;
+		mesh1->m_first_vertex->m_left->m_right = V;
+		V->m_left = mesh1->m_first_vertex->m_left;
+		V->m_left->m_right = mesh1->m_first_vertex;
+		mesh1->m_first_vertex->m_left = V;
 	}
 
-	if (!mesh_with_miDefaultAllocator->m_first_edge)
+	if (!mesh1->m_first_edge)
 	{
-		mesh_with_miDefaultAllocator->m_first_edge = E;
+		mesh1->m_first_edge = E;
 	}
 	else
 	{
-		mesh_with_miDefaultAllocator->m_first_edge->m_left->m_right = E;
-		E->m_left = mesh_with_miDefaultAllocator->m_first_edge->m_left;
-		E->m_left->m_right = mesh_with_miDefaultAllocator->m_first_edge;
-		mesh_with_miDefaultAllocator->m_first_edge->m_left = E;
+		mesh1->m_first_edge->m_left->m_right = E;
+		E->m_left = mesh1->m_first_edge->m_left;
+		E->m_left->m_right = mesh1->m_first_edge;
+		mesh1->m_first_edge->m_left = E;
 	}
+}
+
+void miSDKImpl::AppendMesh(
+	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* 
+	mesh_with_miPoolAllocator, 
+	miMesh* other)
+{
+	_appendMesh(
+		&mesh_with_miPoolAllocator->m_mesh, 
+		other, 
+		mesh_with_miPoolAllocator->m_allocatorVertex, 
+		mesh_with_miPoolAllocator->m_allocatorEdge, 
+		mesh_with_miPoolAllocator->m_allocatorPolygon);
+}
+
+void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) {
+	miDefaultAllocator<miPolygon> pa(0);
+	miDefaultAllocator<miEdge> ea(0);
+	miDefaultAllocator<miVertex> va(0);
+	_appendMesh(mesh_with_miDefaultAllocator, other, &va, &ea, &pa);
 }
 
 void miSDKImpl::AddVertexToSelection(miVertex* vertex, miSceneObject* o) {
