@@ -61,9 +61,9 @@ public:
 
 	virtual void AddText(const v2f& position, const wchar_t* text, const wchar_t* (*onSelectObject)(miSceneObject*), u32 flags) override;
 	virtual void AddRangeSliderInt(const v4f& positionSize, int minimum, int maximum, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int), u32 flags) override;
-	virtual void AddRangeSliderFloat(const v4f& positionSize, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) override;
+	virtual void AddRangeSliderFloat(const v4f& positionSize, float minimum, float maximum, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags, f32 speed = 1.f) override;
 	virtual void AddRangeSliderIntNoLimit(const v4f& positionSize, int* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, int), u32 flags) override;
-	virtual void AddRangeSliderFloatNoLimit(const v4f& positionSize, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags) override;
+	virtual void AddRangeSliderFloatNoLimit(const v4f& positionSize, float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), u32 flags, f32 speed = 1.f) override;
 	virtual void AddCheckBox(const v2f& position, const wchar_t* text, void(*onClick)(bool isChecked), bool isChecked, u32 flags) override;
 	virtual void AddButton(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32), u32 flags) override;
 	virtual void AddButtonAsCheckbox(const v4f& positionSize, const wchar_t* text, s32 id, void(*onClick)(s32, bool), 

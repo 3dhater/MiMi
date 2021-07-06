@@ -101,6 +101,7 @@ public:
 	void VertexConnect();
 	void VertexBreak();
 	bool VertexTargetWeld(miVertex* v1, miVertex* v2, miPolygon** polygonForDelete1, miPolygon** polygonForDelete2);
+	void VertexMoveTo(miVertex* v1, miVertex* v2);
 
 	void AttachObject(miEditableObject*);
 

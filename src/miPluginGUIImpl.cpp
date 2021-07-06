@@ -190,7 +190,8 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 	float minimum, 
 	float maximum, 
 	float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), 
-	u32 flags)
+	u32 flags,
+	f32 speed)
 {
 	static f32 default_float = 0;
 
@@ -199,6 +200,7 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
+	gui_slider->m_valueMultiplerNormal = speed;
 	m_gui_group->AddElement(gui_slider);
 
 	element_info* ei = new element_info;
@@ -239,7 +241,8 @@ void miPluginGUIImpl::AddRangeSliderFloatNoLimit(
 	const v4f& positionSize,
 	float* (*onSelectObject)(miSceneObject*), 
 	void(*onValueChanged)(miSceneObject*, float), 
-	u32 flags)
+	u32 flags,
+	f32 speed)
 {
 	static f32 default_float = 0;
 
@@ -249,6 +252,7 @@ void miPluginGUIImpl::AddRangeSliderFloatNoLimit(
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
+	gui_slider->m_valueMultiplerNormal = speed;
 	m_gui_group->AddElement(gui_slider);
 
 	element_info* ei = new element_info;

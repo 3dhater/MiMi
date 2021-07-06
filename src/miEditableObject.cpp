@@ -188,7 +188,8 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddRangeSliderFloatNoLimit(v4f(90.f, y, 70.f, 15.f),
 		editableObjectGUI_weldRange_onSelectObject,
 		editableObjectGUI_weldRange_onValueChanged,
-		miPluginGUI::Flag_ForVertexEditMode);
+		miPluginGUI::Flag_ForVertexEditMode,
+		0.01);
 	
 }
 

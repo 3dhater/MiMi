@@ -28,6 +28,7 @@ struct miVertex
 	enum { 
 		flag_isSelected = BIT(0),
 		flag_User1 = BIT(1),
+		flag_User2 = BIT(2),
 	};
 	void CopyData(miVertex* other)
 	{

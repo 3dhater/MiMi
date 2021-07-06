@@ -264,6 +264,10 @@ end:;
 	return success;
 }
 
+void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
+	v1->m_position = v2->m_position;
+}
+
 void miEditableObject::_updateModel() {
 	if (m_meshBuilderTmpModelPool)
 	{
@@ -292,8 +296,8 @@ void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v
 	if (v1 == v2)
 		return;
 
-	v1->m_position = v2->m_position;
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->VertexMoveTo(v1,v2);
 	selObject->_updateModel();
 }
 void editableObjectGUI_movetoButton_onCancel() {
