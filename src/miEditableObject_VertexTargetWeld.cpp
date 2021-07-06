@@ -19,8 +19,16 @@ void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v
 	if (v1 == v2)
 		return;
 
+	miPolygon* p1 = 0;
+	miPolygon* p2 = 0;
+
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	selObject->VertexTargetWeld(v1, v2);
+	if (selObject->VertexTargetWeld(v1, v2, &p1, &p2))
+	{
+		if (p1) selObject->DeletePolygon(p1);
+		if (p2) selObject->DeletePolygon(p2);
+		selObject->_updateModel();
+	}
 }
 void editableObjectGUI_tgweldButton_onCancel(){
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
@@ -48,7 +56,7 @@ void editableObjectGUI_tgweldButton_onUncheck(s32 id) {
 	}
 }
 
-void miEditableObject::VertexTargetWeld(miVertex* v1, miVertex* v2) {
+bool miEditableObject::VertexTargetWeld(miVertex* v1, miVertex* v2, miPolygon** polygonForDelete1, miPolygon** polygonForDelete2) {
 	bool isOnSameEdge = false;
 	{
 		auto e1_c = v1->m_edges.m_head;
@@ -81,8 +89,8 @@ end:;
 	bool success = false;
 	if (isOnSameEdge)
 	{
-		miArray<miPolygon*> polygonsForDelete;
-		polygonsForDelete.reserve(10); // Better 2 ?
+		//miArray<miPolygon*> polygonsForDelete;
+		//polygonsForDelete.reserve(10); // Better 2 ?
 
 		auto cp = v1->m_polygons.m_head;
 		auto lp = cp->m_left;
@@ -129,7 +137,13 @@ end:;
 					cv = cv->m_right;
 				}
 				if (c < 3)
-					polygonsForDelete.push_back(cp->m_data);
+				{
+					//printf("DELETE P\n");
+					if (!*polygonForDelete1) *polygonForDelete1 = cp->m_data;
+					else *polygonForDelete2 = cp->m_data;
+
+					//polygonsForDelete.push_back(cp->m_data);
+				}
 			}
 			else
 			{
@@ -157,10 +171,11 @@ end:;
 			cp = cp->m_right;
 		}
 		
-		for (u32 i = 0, sz = polygonsForDelete.m_size; i < sz; ++i)
+
+		/*for (u32 i = 0, sz = polygonsForDelete.m_size; i < sz; ++i)
 		{
 			DeletePolygon(polygonsForDelete.m_data[i]);
-		}
+		}*/
 
 		success = true;
 	}
@@ -234,17 +249,75 @@ end:;
 		auto r = v1->m_right;
 		l->m_right = r;
 		r->m_left = l;
-		m_allocatorVertex->Deallocate(v1);
+
+		if(m_meshBuilderTmpModelPool)
+			m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(v1);
+		else
+			m_allocatorVertex->Deallocate(v1);
+
 		if (v1 == m_mesh->m_first_vertex)
 			m_mesh->m_first_vertex = r;
 		if (v1 == m_mesh->m_first_vertex)
 			m_mesh->m_first_vertex = 0;
-
-		m_mesh->_delete_edges(m_allocatorEdge);
-		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
-
-		RebuildVisualObjects(false);
-		UpdateCounts();
 	}
+
+	return success;
 }
 
+void miEditableObject::_updateModel() {
+	if (m_meshBuilderTmpModelPool)
+	{
+		m_meshBuilderTmpModelPool->m_mesh._delete_edges(m_meshBuilderTmpModelPool->m_allocatorEdge);
+		m_meshBuilderTmpModelPool->m_mesh.CreateEdges(m_meshBuilderTmpModelPool->m_allocatorPolygon, m_meshBuilderTmpModelPool->m_allocatorEdge, m_meshBuilderTmpModelPool->m_allocatorVertex);
+	}
+	else
+	{
+		m_mesh->_delete_edges(m_allocatorEdge);
+		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+	}
+
+	RebuildVisualObjects(false);
+	UpdateCounts();
+}
+
+bool editableObjectGUI_movetoButton_onIsGoodVertex(miSceneObject* o, miVertex* v) {
+	return o == (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+}
+void editableObjectGUI_movetoButton_onSelectFirst(miSceneObject* o, miVertex* v) {}
+void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2) {
+	//printf("%u %u\n", v1, v2);
+	if (o != g_app->m_selectedObjects.m_data[0])
+		return;
+
+	if (v1 == v2)
+		return;
+
+	v1->m_position = v2->m_position;
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->_updateModel();
+}
+void editableObjectGUI_movetoButton_onCancel() {
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	auto gui = selObject->GetGui();
+	gui->UncheckButtonGroup(1);
+	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+}
+void editableObjectGUI_movetoButton_onClick(s32 id, bool isChecked) {
+	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
+}
+void editableObjectGUI_movetoButton_onCheck(s32 id) {
+	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
+	g_app->m_sdk->SetSelectVertexCallbacks(
+		editableObjectGUI_movetoButton_onIsGoodVertex,
+		editableObjectGUI_movetoButton_onSelectFirst,
+		editableObjectGUI_movetoButton_onSelectSecond,
+		editableObjectGUI_movetoButton_onCancel);
+}
+void editableObjectGUI_movetoButton_onUncheck(s32 id) {
+	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectVertex)
+	{
+		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
+		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+	}
+}

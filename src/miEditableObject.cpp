@@ -17,6 +17,9 @@ void editableObjectGUI_selectButtons_onClick(s32 id);
 void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_tgweldButton_onCheck(s32 id);
 void editableObjectGUI_tgweldButton_onUncheck(s32 id);
+void editableObjectGUI_movetoButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_movetoButton_onCheck(s32 id);
+void editableObjectGUI_movetoButton_onUncheck(s32 id);
 
 void editableObjectGUI_weldButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_weldButton_onCheck(s32 id);
@@ -165,6 +168,13 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_tgweldButton_onCheck,
 		editableObjectGUI_tgweldButton_onUncheck,
 		1, 
+		miPluginGUI::Flag_ForVertexEditMode);
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(120.f, y, 50.f, 15.f), L"Move To",
+		-1,
+		editableObjectGUI_movetoButton_onClick,
+		editableObjectGUI_movetoButton_onCheck,
+		editableObjectGUI_movetoButton_onUncheck,
+		1,
 		miPluginGUI::Flag_ForVertexEditMode);
 
 	y += 18.f;
@@ -448,6 +458,8 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 	static yyArraySimple<miEdge*> edgesForDelete;
 	vertsForDelete.clear();
 	edgesForDelete.clear();
+	
+	auto mesh = m_meshBuilderTmpModelPool ? &m_meshBuilderTmpModelPool->m_mesh : m_mesh;
 
 	// check all verts of this polygons
 	{
@@ -498,10 +510,10 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 		l->m_right = r;
 		r->m_left = l;
 
-		if (m_mesh->m_first_polygon == _polygon)
-			m_mesh->m_first_polygon = r;
-		if (m_mesh->m_first_polygon == _polygon)
-			m_mesh->m_first_polygon = 0;
+		if (mesh->m_first_polygon == _polygon)
+			mesh->m_first_polygon = r;
+		if (mesh->m_first_polygon == _polygon)
+			mesh->m_first_polygon = 0;
 	}
 
 	//printf("Verts for delete %u\n", vertsForDelete.m_size);
@@ -516,13 +528,17 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 		l->m_right = r;
 		r->m_left = l;
 
-		if (m_mesh->m_first_vertex == c)
-			m_mesh->m_first_vertex = r;
-		if (m_mesh->m_first_vertex == c)
-			m_mesh->m_first_vertex = 0;
+		if (mesh->m_first_vertex == c)
+			mesh->m_first_vertex = r;
+		if (mesh->m_first_vertex == c)
+			mesh->m_first_vertex = 0;
 
 		c->~miVertex();
-		m_allocatorVertex->Deallocate(c);
+
+		if (m_meshBuilderTmpModelPool)
+			m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(c);
+		else
+			m_allocatorVertex->Deallocate(c);
 	}
 
 	for (u32 i = 0; i < edgesForDelete.m_size; ++i)
@@ -534,17 +550,25 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 		l->m_right = r;
 		r->m_left = l;
 
-		if (m_mesh->m_first_edge == c)
-			m_mesh->m_first_edge = r;
-		if (m_mesh->m_first_edge == c)
-			m_mesh->m_first_edge = 0;
+		if (mesh->m_first_edge == c)
+			mesh->m_first_edge = r;
+		if (mesh->m_first_edge == c)
+			mesh->m_first_edge = 0;
 
 		c->~miEdge();
-		m_allocatorEdge->Deallocate(c);
+
+		if (m_meshBuilderTmpModelPool)
+			m_meshBuilderTmpModelPool->m_allocatorEdge->Deallocate(c);
+		else
+			m_allocatorEdge->Deallocate(c);
 	}
 
 	_polygon->~miPolygon();
-	m_allocatorPolygon->Deallocate(_polygon);
+
+	if (m_meshBuilderTmpModelPool)
+		m_meshBuilderTmpModelPool->m_allocatorPolygon->Deallocate(_polygon);
+	else
+		m_allocatorPolygon->Deallocate(_polygon);
 }
 
 void miEditableObject::OnConvertToEditableObject() {

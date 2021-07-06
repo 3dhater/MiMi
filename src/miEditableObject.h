@@ -45,8 +45,12 @@ class miEditableObject : public miSceneObject
 	u32 m_edgeCount;
 	u32 m_polygonCount;
 
+	void _updateModel();
+
 	friend class miApplication;
 	friend class miSDKImpl;
+	friend void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
+	friend void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
@@ -96,7 +100,7 @@ public:
 	void DeletePolygon(miPolygon*);
 	void VertexConnect();
 	void VertexBreak();
-	void VertexTargetWeld(miVertex* v1, miVertex* v2);
+	bool VertexTargetWeld(miVertex* v1, miVertex* v2, miPolygon** polygonForDelete1, miPolygon** polygonForDelete2);
 
 	void AttachObject(miEditableObject*);
 
@@ -110,6 +114,7 @@ public:
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilderTmpModelPool;
 	void CreateTMPModelWithPoolAllocator();
 	void DestroyTMPModelWithPoolAllocator();
+	void OnWeld();
 	/*miMesh * m_meshTmp;
 	miPoolAllocator<miPolygon>* m_allocatorPoolPolygon;
 	miPoolAllocator<miEdge>* m_allocatorPoolEdge;
