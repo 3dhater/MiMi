@@ -43,6 +43,8 @@ struct miVertex
 
 	miList<miPolygon*> m_polygons;
 	miList<miEdge*> m_edges;
+
+	bool IsOnEdge();
 };
 #include "miPackOff.h"
 
@@ -79,6 +81,26 @@ struct miEdge
 	miPolygon * m_polygon2;
 };
 #include "miPackOff.h"
+
+inline
+bool miVertex::IsOnEdge()
+{
+	auto c = m_edges.m_head;
+	auto l = c->m_left;
+	while (true)
+	{
+		if (!c->m_data->m_polygon1)
+			return true;
+
+		if (!c->m_data->m_polygon2)
+			return true;
+
+		if (c == l)
+			break;
+		c = c->m_right;
+	}
+	return false;
+}
 
 #include "miPackOn.h"
 struct miPolygon

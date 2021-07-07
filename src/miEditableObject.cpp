@@ -189,7 +189,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_weldRange_onSelectObject,
 		editableObjectGUI_weldRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
-		0.01);
+		0.1);
 	
 }
 

@@ -108,94 +108,29 @@ void miEditableObject::OnWeld() {
 	miList<helpVertex*> vertices;
 	helpVertex* newHelpVertex = 0;
 	{
-
-		/*
-			Вначале надо обработать случай когда выделенные вершины находятся на краю.
-		*/
-
 		auto c = mesh->m_first_vertex;
 		auto base_c = m_mesh->m_first_vertex;
 		auto l = c->m_left;
 		while (true)
 		{
-			if ((c->m_flags & miVertex::flag_User1) == 0 && base_c->m_flags & miVertex::flag_isSelected)
+			if ((c->m_flags & miVertex::flag_User1) == 0 && c->m_flags & miVertex::flag_isSelected)
 			{
 				base_c->m_flags |= miVertex::flag_User1;
 				c->m_flags |= miVertex::flag_User1;
+				
+				newHelpVertex = 0;
 
-
-				static miArray<miVertex*> verticesForCheck;
-				verticesForCheck.clear();
-
-				verticesForCheck.push_back(c);
-
-				for (u32 i = 0; i < verticesForCheck.m_size; ++i)
-				{
-					auto currentVertex = verticesForCheck.m_data[i];
-
-					auto ce = currentVertex->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
-					{
-						if ((ce->m_data->m_vertex1->m_flags & miVertex::flag_User1) == 0 && ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected)
-						{
-							ce->m_data->m_vertex1->m_flags |= miVertex::flag_User1;
-							verticesForCheck.push_back(ce->m_data->m_vertex1);
-						}
-						if ((ce->m_data->m_vertex2->m_flags & miVertex::flag_User1) == 0 && ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected)
-						{
-							ce->m_data->m_vertex2->m_flags |= miVertex::flag_User1;
-							verticesForCheck.push_back(ce->m_data->m_vertex2);
-						}
-						if (ce == le)
-							break;
-						ce = ce->m_right;
-					}
-				}
-
-				//printf("SIZE: %u\n", verticesForCheck.m_size);
-				for (u32 i = 0; i < verticesForCheck.m_size; ++i)
-				{
-					newHelpVertex = 0;
-
-					auto v1 = verticesForCheck.m_data[i];
-					if ((v1->m_flags & miVertex::flag_User2) != 0)
-						continue;
-					v1->m_flags |= miVertex::flag_User2;
-
-					for (u32 i2 = i + 1; i2 < verticesForCheck.m_size; ++i2)
-					{
-						auto v2 = verticesForCheck.m_data[i2];
-						if ((v2->m_flags & miVertex::flag_User2) != 0)
-							continue;
-						
-						f32 d = v1->m_position.distance(v2->m_position);
-						if (d <= m_weldValue)
-						{
-							v2->m_flags |= miVertex::flag_User2;
-							if (!newHelpVertex) {
-								newHelpVertex = new helpVertex;
-								newHelpVertex->m_num = 1;
-								vertices.push_back(newHelpVertex);
-							}
-							++newHelpVertex->m_num;
-
-							newHelpVertex->m_pairs.push_back(helpPair(v1, v2));
-						}
-
-					}
-				}
-
-				/*auto c2 = c->m_right;
+				auto c2 = c->m_right;
 				auto base_c2 = base_c->m_right;
 				while (true)
 				{
-					if ((base_c2->m_flags & miVertex::flag_User1) == 0 && base_c2->m_flags & miVertex::flag_isSelected)
+					if ((c2->m_flags & miVertex::flag_User1) == 0 && c2->m_flags & miVertex::flag_isSelected)
 					{
 						f32 d = base_c->m_position.distance(base_c2->m_position);
 						if (d <= m_weldValue)
 						{
 							base_c2->m_flags |= miVertex::flag_User1;
+							c2->m_flags |= miVertex::flag_User1;
 
 							if (!newHelpVertex) {
 								newHelpVertex = new helpVertex;
@@ -204,14 +139,14 @@ void miEditableObject::OnWeld() {
 							}
 							++newHelpVertex->m_num;
 
-							newHelpVertex->m_pairs.push_back(helpPair(c,c2, base_c, base_c2));
+							newHelpVertex->m_pairs.push_back(helpPair(c,c2));
 						}
 					}
 					if (c2 == l)
 						break;
 					c2 = c2->m_right;
 					base_c2 = base_c2->m_right;
-				}*/
+				}
 
 			}
 			if (c == l)

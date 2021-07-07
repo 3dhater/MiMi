@@ -181,10 +181,10 @@ end:;
 	}
 	else // they on different edges, and each edge have only 1 polygon
 	{
-		bool v1OnEdge = false;
-		bool v2OnEdge = false;
+		bool v1OnEdge = v1->IsOnEdge();
+		bool v2OnEdge = v2->IsOnEdge();
 
-		{
+		/*{
 			auto c = v1->m_edges.m_head;
 			auto l = c->m_left;
 			while (true)
@@ -221,7 +221,7 @@ end:;
 					break;
 				c = c->m_right;
 			}
-		}
+		}*/
 
 		if (v2OnEdge && v2OnEdge)
 		{
