@@ -22,6 +22,7 @@ void editableObjectGUI_movetoButton_onCheck(s32 id);
 void editableObjectGUI_movetoButton_onUncheck(s32 id);
 
 void editableObjectGUI_weldButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_weldButtonOK_onClick(s32 id);
 void editableObjectGUI_weldButton_onCheck(s32 id);
 void editableObjectGUI_weldButton_onUncheck(s32 id);
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj);
@@ -190,6 +191,10 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_weldRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
 		0.1);
+	m_pluginGuiForEditableObject->AddButton(v4f(160.f, y, 40.f, 15.f), L"OK",
+		-1,
+		editableObjectGUI_weldButtonOK_onClick,
+		miPluginGUI::Flag_ForVertexEditMode);
 	
 }
 
@@ -231,7 +236,12 @@ miEditableObject::~miEditableObject() {
 	if (m_visualObject_polygon) miDestroy(m_visualObject_polygon);
 	if (m_visualObject_vertex) miDestroy(m_visualObject_vertex);
 	if (m_visualObject_edge) miDestroy(m_visualObject_edge);
+}
+
+void miEditableObject::_createMeshFromTMPMesh() {
 	_destroyMesh();
+	m_mesh = miCreate<miMesh>();
+	g_app->m_sdk->AppendMesh(m_mesh, m_meshBuilderTmpModelPool->m_mesh);
 }
 
 void miEditableObject::CreateTMPModelWithPoolAllocator() {
@@ -460,7 +470,7 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 	vertsForDelete.clear();
 	edgesForDelete.clear();
 	
-	auto mesh = m_meshBuilderTmpModelPool ? &m_meshBuilderTmpModelPool->m_mesh : m_mesh;
+	auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
 
 	// check all verts of this polygons
 	{
@@ -746,7 +756,7 @@ void miEditableObject::OnTransformPolygon(
 }
 
 void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
-	auto mesh = m_meshBuilderTmpModelPool ? &m_meshBuilderTmpModelPool->m_mesh : m_mesh;
+	auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
 	if (onlyEditMode)
 	{
 		auto em = g_app->GetEditMode();
@@ -1209,4 +1219,34 @@ u32 miEditableObject::GetEdgeCount() {
 
 u32 miEditableObject::GetPolygonCount() {
 	return m_polygonCount;
+}
+
+void miEditableObject::DeleteInvisiblePolygons(bool weldVertices) {
+	static miArray<miPolygon*> polygons;
+	
+	auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
+	{
+		auto c = mesh->m_first_polygon;
+		if (c)
+		{
+			auto l = c->m_left;
+			while (true)
+			{
+				if (!c->IsVisible())
+					polygons.push_back(c);
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+	
+	//printf("DELETE %u POLYGONS\n", polygons.m_size);
+	for (u32 i = 0; i < polygons.m_size; ++i)
+	{
+		this->DeletePolygon(polygons.m_data[i]);
+	}
+
+	polygons.clear();
 }

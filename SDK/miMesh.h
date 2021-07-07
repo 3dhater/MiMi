@@ -139,6 +139,33 @@ struct miPolygon
 		}
 		return curV;
 	}
+
+	bool IsVisible() {
+		
+		auto vertex_1 = m_verts.m_head;
+		auto vertex_3 = vertex_1->m_right;
+		auto vertex_2 = vertex_3->m_right;
+		while (true)
+		{
+			auto a = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
+			auto b = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
+			
+			v3f n;
+			a.cross2(b, n);
+			
+			f32 area = 0.5f * sqrt(n.dot());
+			
+			if (area > 0.001)
+				return true;
+
+			
+			vertex_2 = vertex_2->m_right;
+			vertex_3 = vertex_3->m_right;
+			if (vertex_3 == vertex_1)
+				break;
+		}
+		return false;
+	}
 };
 #include "miPackOff.h"
 
@@ -326,12 +353,12 @@ class miPolygonCreator
 {
 	int m_size;
 	int m_allocated;
-	v3f* m_positions;
+	miPair<v3f,bool>* m_positions;
 	v3f* m_normals;
 	v2f* m_tcoords;
 
 	void _reallocate(int size) {
-		v3f* newPositions = new v3f[size];
+		miPair<v3f, bool>* newPositions = new miPair<v3f, bool>[size];
 		v3f* newNormals = new v3f[size];
 		v2f* newtCoords = new v2f[size];
 
@@ -364,18 +391,18 @@ public:
 	void Clear() { m_size = 0; }
 	int Size() { return m_size; }
 
-	void Add(const v3f& position, const v3f& normal, const v2f& tCoords) {
+	void Add(const v3f& position, bool weld, const v3f& normal, const v2f& tCoords) {
 		if (m_size == m_allocated)
 		{
 			_reallocate(m_allocated + (int)std::ceil(((2.f + (float)m_allocated) * 0.5f)));
 		}
-		m_positions[m_size] = position;
+		m_positions[m_size] = miPair<v3f, bool>(position,weld);
 		m_normals[m_size] = normal;
 		m_tcoords[m_size] = tCoords;
 		++m_size;
 	}
 
-	v3f* GetPositions() { return m_positions; }
+	miPair<v3f, bool>* GetPositions() { return m_positions; }
 	v3f* GetNormals() { return m_normals; }
 	v2f* GetTCoords() { return m_tcoords; }
 };
@@ -576,6 +603,7 @@ struct miMeshBuilder
 		new(m_allocatorEdge)_edge_allocator_type(edgeCount);
 		new(m_allocatorVertex)_vertex_allocator_type(vertexCount);
 		m_isBegin = false;
+		m_mesh = miCreate<miMesh>();
 	}
 
 	~miMeshBuilder() {
@@ -590,10 +618,12 @@ struct miMeshBuilder
 	}
 
 	void DeleteMesh() {
-		m_mesh._delete_edges(m_allocatorEdge);
-		if (m_mesh.m_first_polygon)
+		if (!m_mesh)
+			return;
+		m_mesh->_delete_edges(m_allocatorEdge);
+		if (m_mesh->m_first_polygon)
 		{
-			auto p = m_mesh.m_first_polygon;
+			auto p = m_mesh->m_first_polygon;
 			auto last = p->m_left;
 			while (true) {
 				auto next = p->m_right;
@@ -606,9 +636,9 @@ struct miMeshBuilder
 		}
 
 
-		if (m_mesh.m_first_vertex)
+		if (m_mesh->m_first_vertex)
 		{
-			auto v = m_mesh.m_first_vertex;
+			auto v = m_mesh->m_first_vertex;
 			auto last = v->m_left;
 			while (true) {
 				auto next = v->m_right;
@@ -619,10 +649,12 @@ struct miMeshBuilder
 				v = next;
 			}
 		}
-		new(&m_mesh)miMesh();
+		//new(m_mesh)miMesh();
+		miDestroy(m_mesh);
+		m_mesh = 0;
 	}
 
-	miMesh m_mesh;
+	miMesh* m_mesh;
 
 	_polygon_allocator_type* m_allocatorPolygon;
 	_edge_allocator_type* m_allocatorEdge;
@@ -644,28 +676,31 @@ struct miMeshBuilder
 		m_isBegin = false;
 		CreateEdges();
 	}
-	void AddPolygon(miPolygonCreator* pc, bool weld, bool triangulate, bool genNormals) {
+	void AddPolygon(miPolygonCreator* pc,/* bool weld,*/ bool triangulate, bool genNormals) {
 		auto polygonVertexCount = pc->Size();
 		if (polygonVertexCount < 3)
 			return;
+
+		if(!m_mesh)
+			m_mesh = miCreate<miMesh>();
 
 		miPolygon* newPolygon = m_allocatorPolygon->Allocate();
 		new(newPolygon)miPolygon();
 		
 
-		if (!m_mesh.m_first_polygon)
+		if (!m_mesh->m_first_polygon)
 		{
-			m_mesh.m_first_polygon = newPolygon;
-			m_mesh.m_first_polygon->m_right = m_mesh.m_first_polygon;
-			m_mesh.m_first_polygon->m_left = m_mesh.m_first_polygon;
+			m_mesh->m_first_polygon = newPolygon;
+			m_mesh->m_first_polygon->m_right = m_mesh->m_first_polygon;
+			m_mesh->m_first_polygon->m_left = m_mesh->m_first_polygon;
 		}
 		else
 		{
-			auto last = m_mesh.m_first_polygon->m_left;
+			auto last = m_mesh->m_first_polygon->m_left;
 			last->m_right = newPolygon;
 			newPolygon->m_left = last;
-			newPolygon->m_right = m_mesh.m_first_polygon;
-			m_mesh.m_first_polygon->m_left = newPolygon;
+			newPolygon->m_right = m_mesh->m_first_polygon;
+			m_mesh->m_first_polygon->m_left = newPolygon;
 		}
 
 		auto positions = pc->GetPositions();
@@ -675,18 +710,18 @@ struct miMeshBuilder
 		for (int i = 0; i < polygonVertexCount; ++i)
 		{
 			miVertex* newVertex = 0;
-			m_aabb.add(positions[i]);
+			m_aabb.add(positions[i].m_first);
 
-			if (weld)
+			if (positions[i].m_second)
 			{
-				_set_hash(&positions[i]);
+				_set_hash(&positions[i].m_first);
 
 				auto find_result = m_weldMap.find(m_vertsMapHash);
 				if (find_result == m_weldMap.end())
 				{
 					newVertex = m_allocatorVertex->Allocate();
 					new(newVertex)miVertex();
-					newVertex->m_position = positions[i];
+					newVertex->m_position = positions[i].m_first;
 					//newVertex->m_tCoords = tCoords[i];
 					
 					newVertex->m_normal[0] = normals[i].x;
@@ -694,7 +729,7 @@ struct miMeshBuilder
 					newVertex->m_normal[2] = normals[i].z;
 
 					m_weldMap[m_vertsMapHash] = newVertex;
-					m_mesh._add_vertex_to_list(newVertex);
+					m_mesh->_add_vertex_to_list(newVertex);
 				}
 				else
 				{
@@ -705,14 +740,14 @@ struct miMeshBuilder
 			{
 				newVertex = m_allocatorVertex->Allocate();
 				new(newVertex)miVertex();
-				newVertex->m_position = positions[i];
+				newVertex->m_position = positions[i].m_first;
 				//newVertex->m_tCoords = tCoords[i];
 
 				newVertex->m_normal[0] = normals[i].x;
 				newVertex->m_normal[1] = normals[i].y;
 				newVertex->m_normal[2] = normals[i].z;
 
-				m_mesh._add_vertex_to_list(newVertex);
+				m_mesh->_add_vertex_to_list(newVertex);
 			}
 
 			newVertex->m_polygons.push_back(newPolygon);
@@ -721,7 +756,7 @@ struct miMeshBuilder
 		}
 	}
 	void CreateEdges() {
-		m_mesh.CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	}
 private:
 	void _set_hash(v3f* position) {

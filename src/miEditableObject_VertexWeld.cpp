@@ -7,6 +7,8 @@
 
 extern miApplication * g_app;
 
+void editableObjectGUI_weldButton_onCancel();
+
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
 		return 0;
@@ -27,6 +29,11 @@ void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float) {
 	object->OnWeld();
 }
 
+void editableObjectGUI_weldButtonOK_onClick(s32 id) {
+	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->OnWeldApply();
+	editableObjectGUI_weldButton_onCancel();
+}
 void editableObjectGUI_weldButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
@@ -64,7 +71,7 @@ void miEditableObject::OnWeld() {
 	DestroyTMPModelWithPoolAllocator();
 	CreateTMPModelWithPoolAllocator();
 
-	auto mesh = &m_meshBuilderTmpModelPool->m_mesh;
+	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 	{
 		auto c = mesh->m_first_vertex;
 		auto c_base = m_mesh->m_first_vertex;
@@ -157,8 +164,6 @@ void miEditableObject::OnWeld() {
 	}
 
 	{
-		miBinarySearchTree<miPolygon*> bst;
-
 		auto c = vertices.m_head;
 		if (c)
 		{
@@ -179,18 +184,6 @@ void miEditableObject::OnWeld() {
 						position += c2->m_data.m_position2;
 
 						auto n2 = c2->m_right;
-						/*miPolygon* p1 = 0;
-						miPolygon* p2 = 0;
-
-						c2->m_data.m_vertex1->m_position =
-							c2->m_data.m_vertex1->m_position +
-							c2->m_data.m_vertex2->m_position;
-						c2->m_data.m_vertex1->m_position *= 0.5f;*/
-
-						///this->VertexMoveTo(c2->m_data.m_vertex2, c2->m_data.m_vertex1);
-						//this->VertexTargetWeld(c2->m_data.m_vertex2, c2->m_data.m_vertex1, &p1, &p2);
-						//if (p1) bst.Add((uint64_t)p1, p1);
-						//if (p2) bst.Add((uint64_t)p2, p2);
 
 						if (c2 == l2)
 							break;
@@ -221,14 +214,61 @@ void miEditableObject::OnWeld() {
 			}
 		}
 
-		static miArray<miPolygon*> polygonsForDelete;
-		polygonsForDelete.clear();
-		bst.Get(&polygonsForDelete);
-		for (u32 i = 0; i < polygonsForDelete.m_size; ++i)
-		{
-			DeletePolygon(polygonsForDelete.m_data[i]);
-		}
 	}
 
 	_updateModel();
+}
+
+void miEditableObject::OnWeldApply() {
+	this->DeleteInvisiblePolygons(true);
+	
+	//_createMeshFromTMPMesh_meshBuilder();
+	_destroyMesh();
+
+	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>*
+	//	m_meshBuilder = new miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>(0, 0, 0);
+	miSDKImporterHelper importeHelper;
+
+	importeHelper.m_meshBuilder->Begin();
+
+	auto pool_mesh = m_meshBuilderTmpModelPool->m_mesh;
+	{
+		auto c = pool_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			importeHelper.m_polygonCreator.Clear();
+
+			auto cv = c->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				importeHelper.m_polygonCreator.Add(
+					cv->m_data1->m_position, 
+					true,
+					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
+					cv->m_data2);
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+
+			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, false, false);
+
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+
+		importeHelper.m_meshBuilder->End();
+	}
+
+
+	m_mesh = importeHelper.m_meshBuilder->m_mesh;
+	importeHelper.m_meshBuilder->m_mesh = 0;
+
+	this->DestroyTMPModelWithPoolAllocator();
+	_updateModel();
+	DeselectAll(g_app->m_editMode);
 }

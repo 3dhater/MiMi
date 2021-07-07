@@ -223,7 +223,7 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
 
-	this->AppendMesh(newObject->m_mesh, &ih->m_meshBuilder->m_mesh);
+	this->AppendMesh(newObject->m_mesh, ih->m_meshBuilder->m_mesh);
 
 	//newObject->m_meshBuilder = ih->m_meshBuilder;
 	newObject->m_visualObject_polygon->CreateNewGPUModels(newObject->m_mesh);
@@ -509,7 +509,7 @@ void miSDKImpl::AppendMesh(
 	miMesh* other)
 {
 	_appendMesh(
-		&mesh_with_miPoolAllocator->m_mesh, 
+		mesh_with_miPoolAllocator->m_mesh, 
 		other, 
 		mesh_with_miPoolAllocator->m_allocatorVertex, 
 		mesh_with_miPoolAllocator->m_allocatorEdge, 

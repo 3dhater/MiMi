@@ -116,10 +116,9 @@ public:
 	void CreateTMPModelWithPoolAllocator();
 	void DestroyTMPModelWithPoolAllocator();
 	void OnWeld();
-	/*miMesh * m_meshTmp;
-	miPoolAllocator<miPolygon>* m_allocatorPoolPolygon;
-	miPoolAllocator<miEdge>* m_allocatorPoolEdge;
-	miPoolAllocator<miVertex>* m_allocatorPoolVertex;*/
+	void OnWeldApply();
+	void DeleteInvisiblePolygons(bool weldVertices);
+	void _createMeshFromTMPMesh();
 };
 
 #endif

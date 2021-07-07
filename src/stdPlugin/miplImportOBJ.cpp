@@ -256,10 +256,10 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 					pcNorm = n;
 					genNormals = false;
 				}
-				importeHelper.m_polygonCreator.Add(pcPos, pcNorm, pcUV);
+				importeHelper.m_polygonCreator.Add(pcPos, weld, pcNorm, pcUV);
 			}
 
-			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, weld, g_ImportOBJ_triangulate, genNormals);
+			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, g_ImportOBJ_triangulate, genNormals);
 		}break;
 		case 'o':
 		case 'g':

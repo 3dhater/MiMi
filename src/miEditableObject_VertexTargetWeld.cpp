@@ -126,21 +126,27 @@ end:;
 				cp->m_data->m_verts.erase_first(v1);
 
 				// check if there are 2 vertices left
-				auto cv = cp->m_data->m_verts.m_head;
-				auto lv = cv->m_left;
 				u32 c = 0;
-				while (true)
+				auto cv = cp->m_data->m_verts.m_head;
+				if (cv)
 				{
-					c++;
-					if (cv == lv)
-						break;
-					cv = cv->m_right;
+					auto lv = cv->m_left;
+					while (true)
+					{
+						c++;
+						if (cv == lv)
+							break;
+						cv = cv->m_right;
+					}
 				}
 				if (c < 3)
 				{
 					//printf("DELETE P\n");
-					if (!*polygonForDelete1) *polygonForDelete1 = cp->m_data;
-					else *polygonForDelete2 = cp->m_data;
+					if (polygonForDelete1)
+					{
+						if (!*polygonForDelete1) *polygonForDelete1 = cp->m_data;
+						else *polygonForDelete2 = cp->m_data;
+					}
 
 					//polygonsForDelete.push_back(cp->m_data);
 				}
@@ -184,45 +190,6 @@ end:;
 		bool v1OnEdge = v1->IsOnEdge();
 		bool v2OnEdge = v2->IsOnEdge();
 
-		/*{
-			auto c = v1->m_edges.m_head;
-			auto l = c->m_left;
-			while (true)
-			{
-				if(!c->m_data->m_polygon1)
-					v1OnEdge = true;
-
-				if (!c->m_data->m_polygon2)
-					v1OnEdge = true;
-
-				if (v1OnEdge)
-					break;
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-		{
-			auto c = v2->m_edges.m_head;
-			auto l = c->m_left;
-			while (true)
-			{
-				if (!c->m_data->m_polygon1)
-					v2OnEdge = true;
-
-				if (!c->m_data->m_polygon2)
-					v2OnEdge = true;
-
-				if (v2OnEdge)
-					break;
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}*/
-
 		if (v2OnEdge && v2OnEdge)
 		{
 			// replase v1->v2
@@ -240,11 +207,14 @@ end:;
 			}
 			success = true;
 		}
+
 	}
 
 
 	if (success)
 	{
+		auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
+
 		auto l = v1->m_left;
 		auto r = v1->m_right;
 		l->m_right = r;
@@ -255,10 +225,10 @@ end:;
 		else
 			m_allocatorVertex->Deallocate(v1);
 
-		if (v1 == m_mesh->m_first_vertex)
-			m_mesh->m_first_vertex = r;
-		if (v1 == m_mesh->m_first_vertex)
-			m_mesh->m_first_vertex = 0;
+		if (v1 == mesh->m_first_vertex)
+			mesh->m_first_vertex = r;
+		if (v1 == mesh->m_first_vertex)
+			mesh->m_first_vertex = 0;
 	}
 
 	return success;
@@ -271,8 +241,8 @@ void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 void miEditableObject::_updateModel() {
 	if (m_meshBuilderTmpModelPool)
 	{
-		m_meshBuilderTmpModelPool->m_mesh._delete_edges(m_meshBuilderTmpModelPool->m_allocatorEdge);
-		m_meshBuilderTmpModelPool->m_mesh.CreateEdges(m_meshBuilderTmpModelPool->m_allocatorPolygon, m_meshBuilderTmpModelPool->m_allocatorEdge, m_meshBuilderTmpModelPool->m_allocatorVertex);
+		m_meshBuilderTmpModelPool->m_mesh->_delete_edges(m_meshBuilderTmpModelPool->m_allocatorEdge);
+		m_meshBuilderTmpModelPool->m_mesh->CreateEdges(m_meshBuilderTmpModelPool->m_allocatorPolygon, m_meshBuilderTmpModelPool->m_allocatorEdge, m_meshBuilderTmpModelPool->m_allocatorVertex);
 	}
 	else
 	{

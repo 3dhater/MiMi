@@ -226,7 +226,6 @@ miApplication::miApplication() {
 
 	m_shortcutManager = new miShortcutManager;
 
-	
 	m_2d = 0;
 	m_sdk = new miSDKImpl;
 
