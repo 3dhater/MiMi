@@ -43,15 +43,33 @@ void editableObjectGUI_weldButton_onCancel() {
 	auto gui = object->GetGui();
 	gui->UncheckButtonGroup(1);
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+	g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
+	g_app->m_sdk->SetSelectObjectCallbacks(0);
 	object->DestroyTMPModelWithPoolAllocator();
+	object->m_isWeld = false;
 }
 
+void editableObjectGUI_weldButton_onCheck(s32 id);
+void editableObjectGUI_weldButton_onSelect(miEditMode em)
+{
+	switch (em)
+	{
+	case miEditMode::Vertex: {
+		editableObjectGUI_weldButton_onCheck(-1);
+	}break;
+	case miEditMode::Edge:
+	case miEditMode::Polygon:
+	case miEditMode::Object:
+	default:
+		break;
+	}
+}
 void editableObjectGUI_weldButton_onCheck(s32 id) {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::Other);
-	g_app->m_sdk->SetSelectVertexCallbacks(
+	g_app->m_sdk->SetPickVertexCallbacks(
 		0,0,0,
 		editableObjectGUI_weldButton_onCancel);
+	g_app->m_sdk->SetSelectObjectCallbacks(editableObjectGUI_weldButton_onSelect);
 
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->OnWeld();
@@ -61,13 +79,15 @@ void editableObjectGUI_weldButton_onUncheck(s32 id) {
 	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::Other)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+		g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
+		g_app->m_sdk->SetSelectObjectCallbacks(0);
 	}
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->DestroyTMPModelWithPoolAllocator();
 }
 
 void miEditableObject::OnWeld() {
+	m_isWeld = true;
 	DestroyTMPModelWithPoolAllocator();
 	CreateTMPModelWithPoolAllocator();
 
@@ -220,6 +240,9 @@ void miEditableObject::OnWeld() {
 }
 
 void miEditableObject::OnWeldApply() {
+	if (!m_isWeld)
+		return;
+	m_isWeld = false;
 	this->DeleteInvisiblePolygons(true);
 	
 	//_createMeshFromTMPMesh_meshBuilder();

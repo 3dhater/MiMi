@@ -10,12 +10,13 @@ extern miApplication * g_app;
 
 
 miSDKImpl::miSDKImpl() {
-	m_selectObject_onIsGoodObject = 0;
 	m_selectObject_onSelect = 0;
-	m_selectObject_onCancel = 0;
-	m_selectVertex_onIsGoodVertex = 0;
-	m_selectVertex_onSelectFirst = 0;
-	m_selectVertex_onSelectSecond = 0;
+	m_pickObject_onIsGoodObject = 0;
+	m_pickObject_onSelect = 0;
+	m_pickObject_onCancel = 0;
+	m_pickVertex_onIsGoodVertex = 0;
+	m_pickVertex_onSelectFirst = 0;
+	m_pickVertex_onSelectSecond = 0;
 }
 
 miSDKImpl::~miSDKImpl() {
@@ -67,26 +68,30 @@ miCursorBehaviorMode miSDKImpl::GetCursorBehaviorMode() {
 	return g_app->m_cursorBehaviorMode;
 }
 
-void miSDKImpl::SetSelectObjectCallbacks(
+void miSDKImpl::SetSelectObjectCallbacks(void(*onSelect)(miEditMode)) {
+	m_selectObject_onSelect = onSelect;
+}
+
+void miSDKImpl::SetPickObjectCallbacks(
 	bool(*onIsGoodObject)(miSceneObject*), 
 	void(*onSelect)(miSceneObject*), 
 	void(*onCancel)()) 
 {
-	m_selectObject_onIsGoodObject = onIsGoodObject;
-	m_selectObject_onSelect = onSelect;
-	m_selectObject_onCancel = onCancel;
+	m_pickObject_onIsGoodObject = onIsGoodObject;
+	m_pickObject_onSelect = onSelect;
+	m_pickObject_onCancel = onCancel;
 }
 
-void miSDKImpl::SetSelectVertexCallbacks(
+void miSDKImpl::SetPickVertexCallbacks(
 	bool(*onIsGoodVertex)(miSceneObject* o, miVertex*),
 	void(*onSelectFirst)(miSceneObject* o, miVertex*),
 	void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*),
 	void(*onCancel)()) 
 {
-	m_selectVertex_onIsGoodVertex = onIsGoodVertex;
-	m_selectVertex_onSelectFirst = onSelectFirst;
-	m_selectVertex_onSelectSecond = onSelectSecond;
-	m_selectObject_onCancel = onCancel;
+	m_pickVertex_onIsGoodVertex = onIsGoodVertex;
+	m_pickVertex_onSelectFirst = onSelectFirst;
+	m_pickVertex_onSelectSecond = onSelectSecond;
+	m_pickObject_onCancel = onCancel;
 }
 
 miKeyboardModifier miSDKImpl::GetKeyboardModifier() {

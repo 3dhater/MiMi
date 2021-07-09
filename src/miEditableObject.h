@@ -5,6 +5,7 @@ class miEditableObject : public miSceneObject
 {
 	miSDK* m_sdk;
 	miPlugin* m_plugin;
+	bool m_isWeld;
 
 	miVisualObject* m_visualObject_polygon;
 	miVisualObject* m_visualObject_vertex;
@@ -51,6 +52,7 @@ class miEditableObject : public miSceneObject
 	friend class miSDKImpl;
 	friend void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
+	friend void editableObjectGUI_weldButton_onCancel();
 public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();

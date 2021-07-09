@@ -35,14 +35,14 @@ void editableObjectGUI_tgweldButton_onCancel(){
 	auto gui = selObject->GetGui();
 	gui->UncheckButtonGroup(1);
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+	g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 }
 void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
 void editableObjectGUI_tgweldButton_onCheck(s32 id) {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
-	g_app->m_sdk->SetSelectVertexCallbacks(
+	g_app->m_sdk->SetPickVertexCallbacks(
 		editableObjectGUI_tgweldButton_onIsGoodVertex,
 		editableObjectGUI_tgweldButton_onSelectFirst,
 		editableObjectGUI_tgweldButton_onSelectSecond,
@@ -52,7 +52,7 @@ void editableObjectGUI_tgweldButton_onUncheck(s32 id) {
 	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectVertex)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+		g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 	}
 }
 
@@ -275,14 +275,14 @@ void editableObjectGUI_movetoButton_onCancel() {
 	auto gui = selObject->GetGui();
 	gui->UncheckButtonGroup(1);
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-	g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+	g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 }
 void editableObjectGUI_movetoButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
 void editableObjectGUI_movetoButton_onCheck(s32 id) {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectVertex);
-	g_app->m_sdk->SetSelectVertexCallbacks(
+	g_app->m_sdk->SetPickVertexCallbacks(
 		editableObjectGUI_movetoButton_onIsGoodVertex,
 		editableObjectGUI_movetoButton_onSelectFirst,
 		editableObjectGUI_movetoButton_onSelectSecond,
@@ -292,6 +292,6 @@ void editableObjectGUI_movetoButton_onUncheck(s32 id) {
 	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectVertex)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-		g_app->m_sdk->SetSelectVertexCallbacks(0, 0, 0, 0);
+		g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 	}
 }

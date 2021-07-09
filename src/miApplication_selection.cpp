@@ -44,9 +44,7 @@ void miApplication::DeselectAll() {
 		auto o = m_objectsOnScene.m_data[i];
 		o->DeselectAll(m_editMode);
 	}
-	UpdateSelectedObjectsArray();
-	UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();
+	OnSelect();
 }
 
 void miApplication::SelectAll() {
@@ -56,10 +54,7 @@ void miApplication::SelectAll() {
 		auto o = m_objectsOnScene.m_data[i];
 		o->SelectAll(m_editMode);
 	}
-	UpdateSelectedObjectsArray();
-	UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();
-	_callVisualObjectOnSelect();
+	OnSelect();
 }
 
 void miApplication::InvertSelection() {
@@ -69,10 +64,7 @@ void miApplication::InvertSelection() {
 		auto o = m_objectsOnScene.m_data[i];
 		o->InvertSelection(m_editMode);
 	}
-	UpdateSelectedObjectsArray();
-	UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();
-	_callVisualObjectOnSelect();
+	OnSelect();
 }
 
 void miApplication::_select_multiple() {
@@ -504,6 +496,10 @@ void miApplication::_onSelect() {
 }
 
 void miApplication::OnSelect() {
+	if (m_sdk->m_selectObject_onSelect)
+		m_sdk->m_selectObject_onSelect(m_editMode);
+
+	UpdateSelectedObjectsArray();
 	_updateIsVertexEdgePolygonSelected();
 	_callVisualObjectOnSelect();
 	

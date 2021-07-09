@@ -335,8 +335,11 @@ public:
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) = 0;
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) = 0;
 
-	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) = 0;
-	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*), void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*), void(*onCancel)()) = 0;
+	// onSelect - will call right after selection
+	virtual void SetSelectObjectCallbacks(void (*onSelect)(miEditMode)) = 0;
+
+	virtual void SetPickObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), void(*onCancel)()) = 0;
+	virtual void SetPickVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*), void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*), void(*onCancel)()) = 0;
 };
 
 #endif

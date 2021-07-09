@@ -796,13 +796,13 @@ void miApplication::MainLoop() {
 					auto selectedObject = m_selectedObjects.m_data[0];
 					if (m_objectsUnderCursor.m_data[0] != selectedObject)
 					{
-						if (m_sdk->m_selectObject_onIsGoodObject)
+						if (m_sdk->m_pickObject_onIsGoodObject)
 						{
-							if (m_sdk->m_selectObject_onIsGoodObject(m_objectsUnderCursor.m_data[0]))
+							if (m_sdk->m_pickObject_onIsGoodObject(m_objectsUnderCursor.m_data[0]))
 							{
-								if (m_sdk->m_selectObject_onSelect && m_inputContext->m_isLMBDown)
+								if (m_sdk->m_pickObject_onSelect && m_inputContext->m_isLMBDown)
 								{
-									m_sdk->m_selectObject_onSelect(m_objectsUnderCursor.m_data[0]);
+									m_sdk->m_pickObject_onSelect(m_objectsUnderCursor.m_data[0]);
 									m_objectsUnderCursor.clear();
 								}
 								setCursor = true;
@@ -830,20 +830,20 @@ void miApplication::MainLoop() {
 				{
 					static miVertex* pickedVertex1 = 0;
 
-					if (m_sdk->m_selectVertex_onIsGoodVertex)
+					if (m_sdk->m_pickVertex_onIsGoodVertex)
 					{
-						if (m_sdk->m_selectVertex_onIsGoodVertex(m_mouseHoverVertexObject, m_mouseHoverVertex))
+						if (m_sdk->m_pickVertex_onIsGoodVertex(m_mouseHoverVertexObject, m_mouseHoverVertex))
 						{
 							if (m_inputContext->m_isLMBDown) 
 							{
 								pickedVertex1 = m_mouseHoverVertex;
-								if (m_sdk->m_selectVertex_onSelectFirst)
-									m_sdk->m_selectVertex_onSelectFirst(m_mouseHoverVertexObject, m_mouseHoverVertex);
+								if (m_sdk->m_pickVertex_onSelectFirst)
+									m_sdk->m_pickVertex_onSelectFirst(m_mouseHoverVertexObject, m_mouseHoverVertex);
 							}
 							if (pickedVertex1 && m_inputContext->m_isLMBUp)
 							{
-								if (m_sdk->m_selectVertex_onSelectSecond)
-									m_sdk->m_selectVertex_onSelectSecond(m_mouseHoverVertexObject, pickedVertex1, m_mouseHoverVertex);
+								if (m_sdk->m_pickVertex_onSelectSecond)
+									m_sdk->m_pickVertex_onSelectSecond(m_mouseHoverVertexObject, pickedVertex1, m_mouseHoverVertex);
 								pickedVertex1 = 0;
 							}
 
@@ -997,8 +997,8 @@ void miApplication::_updateKeyboardModifier() {
 }
 
 void miApplication::CallPluginGUIOnCancel() {
-	if (m_sdk->m_selectObject_onCancel)
-		m_sdk->m_selectObject_onCancel();
+	if (m_sdk->m_pickObject_onCancel)
+		m_sdk->m_pickObject_onCancel();
 }
 
 void miApplication::ProcessShortcuts() {

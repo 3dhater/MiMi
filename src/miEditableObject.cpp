@@ -64,7 +64,7 @@ void editableObjectGUI_attachButton_onUncheck(s32 id) {
 		if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::SelectObject)
 		{
 			g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
-			g_app->m_sdk->SetSelectObjectCallbacks(0, 0, 0);
+			g_app->m_sdk->SetPickObjectCallbacks(0, 0, 0);
 		}
 	}
 	//printf("on uncheck %i\n", id);
@@ -82,7 +82,7 @@ void editableObjectGUI_attachButton_onCheck(s32 id) {
 	if (id == 1)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::SelectObject);
-		g_app->m_sdk->SetSelectObjectCallbacks(
+		g_app->m_sdk->SetPickObjectCallbacks(
 			editableObjectGUI_attachButton_onIsGoodObject,
 			editableObjectGUI_attachButton_onSelect,
 			editableObjectGUI_attachButton_onCancel);
@@ -196,9 +196,18 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_weldButtonOK_onClick,
 		miPluginGUI::Flag_ForVertexEditMode);
 	
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 40.f, 15.f), L"Chamfer",
+		-1,
+		editableObjectGUI_weldButton_onClick,
+		editableObjectGUI_weldButton_onCheck,
+		editableObjectGUI_weldButton_onUncheck,
+		1,
+		miPluginGUI::Flag_ForVertexEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
+	m_isWeld = false;
 	m_weldValue = 0.1f;
 	m_sdk = sdk;
 	m_visualObject_polygon = m_sdk->CreateVisualObject(this, miVisualObjectType::Polygon);

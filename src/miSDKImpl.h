@@ -69,12 +69,13 @@ class miSDKImpl : public miSDK
 	yyArraySimple<miPair<miEdge*, miSceneObject*>> m_edgesForSelect;
 	yyArraySimple<miPair<miPair<miPolygon*, f32>, miSceneObject*>> m_polygonsForSelect;
 
-	bool(*m_selectObject_onIsGoodObject)(miSceneObject*);
-	void(*m_selectObject_onSelect)(miSceneObject*);
-	void(*m_selectObject_onCancel)();
-	bool(*m_selectVertex_onIsGoodVertex)(miSceneObject*, miVertex*);
-	void(*m_selectVertex_onSelectFirst)(miSceneObject* o, miVertex*);
-	void(*m_selectVertex_onSelectSecond)(miSceneObject* o, miVertex*, miVertex*);
+	bool(*m_pickObject_onIsGoodObject)(miSceneObject*);
+	void(*m_pickObject_onSelect)(miSceneObject*);
+	void(*m_pickObject_onCancel)();
+	bool(*m_pickVertex_onIsGoodVertex)(miSceneObject*, miVertex*);
+	void(*m_pickVertex_onSelectFirst)(miSceneObject* o, miVertex*);
+	void(*m_pickVertex_onSelectSecond)(miSceneObject* o, miVertex*, miVertex*);
+	void(*m_selectObject_onSelect)(miEditMode);
 public:
 	miSDKImpl();
 	virtual ~miSDKImpl();
@@ -118,9 +119,11 @@ public:
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) override;
 	virtual void AddPolygonToSelection(const miPair<miPolygon*, f32>&, miSceneObject*) override;
 
-	virtual void SetSelectObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*), 
+
+	virtual void SetSelectObjectCallbacks(void(*onSelect)(miEditMode)) override;
+	virtual void SetPickObjectCallbacks(bool(*onIsGoodObject)(miSceneObject*), void(*onSelect)(miSceneObject*),
 		void(*onCancel)()) override;
-	virtual void SetSelectVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*),
+	virtual void SetPickVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*),
 		void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*), void(*onCancel)()) override;
 
 	friend class miApplication;
