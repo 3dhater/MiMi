@@ -257,7 +257,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 		if (g_app->m_editMode == miEditMode::Polygon && m_parentSceneObject->m_isSelected)
 		{
 			if (current_polygon->m_flags & miPolygon::flag_isSelected)
-				color.set(1.0f, 0.f, 0.f, 1.f);
+				color.set(1.0f, 0.f, 0.f, 0.48f);
 		}
 
 		auto vertex_1 = current_polygon->m_verts.m_head;

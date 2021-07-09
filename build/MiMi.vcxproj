@@ -34,6 +34,7 @@
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miEditableObject_selection.cpp" />
+    <ClCompile Include="..\src\miEditableObject_VertexChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexTargetWeld.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexWeld.cpp" />
     <ClCompile Include="..\src\miGizmo.cpp" />

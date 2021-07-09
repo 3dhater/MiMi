@@ -6,6 +6,7 @@ class miEditableObject : public miSceneObject
 	miSDK* m_sdk;
 	miPlugin* m_plugin;
 	bool m_isWeld;
+	bool m_isChamfer;
 
 	miVisualObject* m_visualObject_polygon;
 	miVisualObject* m_visualObject_vertex;
@@ -48,11 +49,14 @@ class miEditableObject : public miSceneObject
 
 	void _updateModel();
 
+	void _createMeshFromTMPMesh_meshBuilder();
+
 	friend class miApplication;
 	friend class miSDKImpl;
 	friend void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_weldButton_onCancel();
+	friend void editableObjectGUI_chamferButton_onCancel();
 public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
@@ -121,6 +125,9 @@ public:
 	void OnWeldApply();
 	void DeleteInvisiblePolygons(bool weldVertices);
 	void _createMeshFromTMPMesh();
+
+	void OnChamfer();
+	void OnChamferApply();
 };
 
 #endif

@@ -72,6 +72,7 @@ void editableObjectGUI_weldButton_onCheck(s32 id) {
 	g_app->m_sdk->SetSelectObjectCallbacks(editableObjectGUI_weldButton_onSelect);
 
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->UpdateCounts();
 	object->OnWeld();
 }
 
@@ -245,51 +246,7 @@ void miEditableObject::OnWeldApply() {
 	m_isWeld = false;
 	this->DeleteInvisiblePolygons(true);
 	
-	//_createMeshFromTMPMesh_meshBuilder();
-	_destroyMesh();
-
-	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>*
-	//	m_meshBuilder = new miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>(0, 0, 0);
-	miSDKImporterHelper importeHelper;
-
-	importeHelper.m_meshBuilder->Begin();
-
-	auto pool_mesh = m_meshBuilderTmpModelPool->m_mesh;
-	{
-		auto c = pool_mesh->m_first_polygon;
-		auto l = c->m_left;
-		while (true)
-		{
-			importeHelper.m_polygonCreator.Clear();
-
-			auto cv = c->m_verts.m_head;
-			auto lv = cv->m_left;
-			while (true)
-			{
-				importeHelper.m_polygonCreator.Add(
-					cv->m_data1->m_position, 
-					true,
-					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
-					cv->m_data2);
-
-				if (cv == lv)
-					break;
-				cv = cv->m_right;
-			}
-
-			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, false, false);
-
-			if (c == l)
-				break;
-			c = c->m_right;
-		}
-
-		importeHelper.m_meshBuilder->End();
-	}
-
-
-	m_mesh = importeHelper.m_meshBuilder->m_mesh;
-	importeHelper.m_meshBuilder->m_mesh = 0;
+	_createMeshFromTMPMesh_meshBuilder();
 
 	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel();

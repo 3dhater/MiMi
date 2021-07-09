@@ -236,6 +236,42 @@ end:;
 
 void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 	v1->m_position = v2->m_position;
+
+	if (v2->m_polygons.m_head)
+	{
+		v2f UV;
+		{
+			auto c = v2->m_polygons.m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				auto vnode = c->m_data->FindVertex(v2);
+				if (vnode) 
+				{
+					UV = vnode->m_data2;
+					break;
+				}
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+		if (v1->m_polygons.m_head)
+		{
+			auto c = v1->m_polygons.m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				auto vnode = c->m_data->FindVertex(v1);
+				if (vnode)
+					vnode->m_data2 = UV;
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+
 }
 
 void miEditableObject::_updateModel() {

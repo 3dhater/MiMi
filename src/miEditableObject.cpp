@@ -28,6 +28,10 @@ void editableObjectGUI_weldButton_onUncheck(s32 id);
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj);
 void editableObjectGUI_weldRange_onValueChanged(miSceneObject*, float);
 
+void editableObjectGUI_chamferButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_chamferButton_onCheck(s32 id);
+void editableObjectGUI_chamferButton_onUncheck(s32 id);
+
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
@@ -199,15 +203,16 @@ void miApplication::_initEditableObjectGUI() {
 	y += 18.f;
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 40.f, 15.f), L"Chamfer",
 		-1,
-		editableObjectGUI_weldButton_onClick,
-		editableObjectGUI_weldButton_onCheck,
-		editableObjectGUI_weldButton_onUncheck,
+		editableObjectGUI_chamferButton_onClick,
+		editableObjectGUI_chamferButton_onCheck,
+		editableObjectGUI_chamferButton_onUncheck,
 		1,
 		miPluginGUI::Flag_ForVertexEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_isWeld = false;
+	m_isChamfer = false;
 	m_weldValue = 0.1f;
 	m_sdk = sdk;
 	m_visualObject_polygon = m_sdk->CreateVisualObject(this, miVisualObjectType::Polygon);
@@ -257,7 +262,6 @@ void miEditableObject::CreateTMPModelWithPoolAllocator() {
 	if (m_meshBuilderTmpModelPool)
 		DestroyTMPModelWithPoolAllocator();
 
-	UpdateCounts();
 
 	m_meshBuilderTmpModelPool = new
 		miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>
@@ -466,6 +470,8 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		DeletePolygon(polygonsForDelete[i]);
 	}
+	UpdateCounts();
+
 	auto voc = GetVisualObjectCount();
 	for (int i = 0; i < voc; ++i)
 	{
@@ -1258,4 +1264,49 @@ void miEditableObject::DeleteInvisiblePolygons(bool weldVertices) {
 	}
 
 	polygons.clear();
+}
+
+void miEditableObject::_createMeshFromTMPMesh_meshBuilder() {
+	_destroyMesh();
+
+	miSDKImporterHelper importeHelper;
+
+	importeHelper.m_meshBuilder->Begin();
+
+	auto pool_mesh = m_meshBuilderTmpModelPool->m_mesh;
+	{
+		auto c = pool_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			importeHelper.m_polygonCreator.Clear();
+
+			auto cv = c->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				importeHelper.m_polygonCreator.Add(
+					cv->m_data1->m_position,
+					true,
+					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
+					cv->m_data2);
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+
+			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, false, false);
+
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+
+		importeHelper.m_meshBuilder->End();
+	}
+
+
+	m_mesh = importeHelper.m_meshBuilder->m_mesh;
+	importeHelper.m_meshBuilder->m_mesh = 0;
 }
