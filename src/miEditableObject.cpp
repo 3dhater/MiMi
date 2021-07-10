@@ -26,11 +26,13 @@ void editableObjectGUI_weldButtonOK_onClick(s32 id);
 void editableObjectGUI_weldButton_onCheck(s32 id);
 void editableObjectGUI_weldButton_onUncheck(s32 id);
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj);
-void editableObjectGUI_weldRange_onValueChanged(miSceneObject*, float);
+void editableObjectGUI_weldRange_onValueChanged(miSceneObject*, float*);
 
 void editableObjectGUI_chamferButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_chamferButton_onCheck(s32 id);
 void editableObjectGUI_chamferButton_onUncheck(s32 id);
+void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float*);
+float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -208,9 +210,15 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_chamferButton_onUncheck,
 		1,
 		miPluginGUI::Flag_ForVertexEditMode);
+	m_pluginGuiForEditableObject->AddRangeSliderFloatNoLimit(v4f(90.f, y, 70.f, 15.f),
+		editableObjectGUI_chamferRange_onSelectObject,
+		editableObjectGUI_chamferRange_onValueChanged,
+		miPluginGUI::Flag_ForVertexEditMode,
+		0.1);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
+	m_chamferValue = 0.1f;
 	m_isWeld = false;
 	m_isChamfer = false;
 	m_weldValue = 0.1f;
@@ -258,14 +266,14 @@ void miEditableObject::_createMeshFromTMPMesh() {
 	g_app->m_sdk->AppendMesh(m_mesh, m_meshBuilderTmpModelPool->m_mesh);
 }
 
-void miEditableObject::CreateTMPModelWithPoolAllocator() {
+void miEditableObject::CreateTMPModelWithPoolAllocator(s32 pc, s32 ec, s32 vc) {
 	if (m_meshBuilderTmpModelPool)
 		DestroyTMPModelWithPoolAllocator();
 
 
 	m_meshBuilderTmpModelPool = new
 		miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>
-		(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
+		(pc, ec, vc);
 	
 	g_app->m_sdk->AppendMesh(m_meshBuilderTmpModelPool, m_mesh);
 

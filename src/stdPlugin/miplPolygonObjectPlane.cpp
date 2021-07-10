@@ -16,14 +16,14 @@ int* miplStd_plane_sliderYSegments_onSelectObject(miSceneObject* object) {
 	return &o->m_y_segments;
 }
 
-void miplStd_plane_sliderXSegments_onValueChanged(miSceneObject* object, int x) {
+void miplStd_plane_sliderXSegments_onValueChanged(miSceneObject* object, int* x) {
 	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
-	o->m_x_segments = x;
+	o->m_x_segments = *x;
 	o->_generate();
 }
-void miplStd_plane_sliderYSegments_onValueChanged(miSceneObject* object, int y) {
+void miplStd_plane_sliderYSegments_onValueChanged(miSceneObject* object, int* y) {
 	miplPolygonObjectPlane* o = (miplPolygonObjectPlane*)object;
-	o->m_y_segments = y;
+	o->m_y_segments = *y;
 	o->_generate();
 }
 

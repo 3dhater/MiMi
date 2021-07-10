@@ -224,6 +224,96 @@ public:
 		m_head = nullptr;
 	}
 
+	void insert_after(const _type1& after_this, const _type1& data1, const _type2& data2) {
+		miListNode2<_type1, _type2>* node = (miListNode2<_type1, _type2>*)miMalloc(sizeof(miListNode2<_type1, _type2>));
+		new(node)miListNode2<_type1, _type2>();
+
+		node->m_data1 = data1;
+		node->m_data2 = data2;
+
+		if (!m_head)
+		{
+			m_head = node;
+			m_head->m_right = m_head;
+			m_head->m_left = m_head;
+		}
+		else
+		{
+			auto c = m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_data1 == after_this)
+				{
+					auto r = c->m_right;
+
+					node->m_left = c;
+					node->m_right = r;
+
+					c->m_right = node;
+					r->m_left = node;
+
+					return;
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+
+			auto last = m_head->m_left;
+			last->m_right = node;
+			node->m_left = last;
+			node->m_right = m_head;
+			m_head->m_left = node;
+		}
+	}
+
+	void insert_before(const _type1& after_this, const _type1& data1, const _type2& data2) {
+		miListNode2<_type1, _type2>* node = (miListNode2<_type1, _type2>*)miMalloc(sizeof(miListNode2<_type1, _type2>));
+		new(node)miListNode2<_type1, _type2>();
+
+		node->m_data1 = data1;
+		node->m_data2 = data2;
+
+		if (!m_head)
+		{
+			m_head = node;
+			m_head->m_right = m_head;
+			m_head->m_left = m_head;
+		}
+		else
+		{
+			auto c = m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_data1 == after_this)
+				{
+					auto l = c->m_left;
+
+					node->m_left = l;
+					node->m_right = c;
+
+					c->m_left = node;
+					l->m_right = node;
+
+					return;
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+
+			auto last = m_head->m_left;
+			last->m_right = node;
+			node->m_left = last;
+			node->m_right = m_head;
+			m_head->m_left = node;
+		}
+	}
+
 	void push_back(const _type1& data1, const _type2& data2){
 		miListNode2<_type1, _type2>* node = (miListNode2<_type1, _type2>*)miMalloc(sizeof(miListNode2<_type1, _type2>));
 		new(node)miListNode2<_type1, _type2>();

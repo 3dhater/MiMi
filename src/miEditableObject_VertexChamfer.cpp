@@ -9,6 +9,28 @@ extern miApplication * g_app;
 
 void editableObjectGUI_chamferButton_onCheck(s32 id);
 
+float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj) {
+	if (obj->GetPlugin() != g_app->m_pluginForApp)
+		return 0;
+
+	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
+		return 0;
+
+	return &((miEditableObject*)obj)->m_chamferValue;
+}
+
+void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float* fptr) {
+	if (obj->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
+		return;
+	auto object = (miEditableObject*)obj;
+	if (*fptr < 0.f)
+		*fptr = 0.f;
+	object->OnChamfer();
+}
+
 void editableObjectGUI_chamferButton_onSelect(miEditMode em)
 {
 	switch (em)
@@ -62,10 +84,216 @@ void editableObjectGUI_chamferButton_onUncheck(s32 id) {
 }
 
 void miEditableObject::OnChamfer() {
+	static s32 pc = 0;
+	static s32 ec = 0;
+	static s32 vc = 0;
+
+
+	// I need to know maximum numbers of vertices/edges/polygons
+	// for poolAllocator
+	if (!m_isChamfer)
+	{
+		this->UpdateCounts();
+
+		pc = 0;
+		ec = 0;
+		vc = 0;
+
+		if (m_mesh->m_first_vertex)
+		{
+			auto c = m_mesh->m_first_vertex;
+			auto l = c->m_left;
+			while (true)
+			{
+				//later need to try to use only selected vertices
+
+				s32 polygonCount = 0;
+				if (c->m_polygons.m_head)
+				{
+					auto cp = c->m_polygons.m_head;
+					auto lp = cp->m_left;
+					while (true)
+					{
+						++polygonCount;
+						if (cp == lp)
+							break;
+						cp = cp->m_right;
+					}
+					if (polygonCount)
+					{
+						if (polygonCount == 1)
+						{
+							++vc;
+							++ec;
+						}
+						else
+						{
+							vc += polygonCount * 2 + 2;
+							ec += polygonCount * 2 + 2;
+							pc += 1;
+						}
+					}
+				}
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
 	m_isChamfer = true;
+
 	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator();
-	printf("C");
+	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() + pc, this->GetEdgeCount() + ec, this->GetVertexCount() + vc);
+	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
+	
+
+	if (m_mesh->m_first_vertex)
+	{
+		auto c = m_mesh->m_first_vertex;
+		auto c_new = mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			if (c->m_flags & miVertex::flag_isSelected)
+			{
+				auto ce = c->m_edges.m_head;
+				auto le = ce->m_left;
+				while (true)
+				{
+					v3f dir;
+					if (ce->m_data->m_vertex1 == c)
+						dir = ce->m_data->m_vertex2->m_position - ce->m_data->m_vertex1->m_position;
+					else
+						dir = ce->m_data->m_vertex1->m_position - ce->m_data->m_vertex2->m_position;
+					dir.normalize2();
+
+					auto chamferValue = m_chamferValue;
+
+					f32 edgeLen = ce->m_data->m_vertex1->m_position.distance(ce->m_data->m_vertex2->m_position);
+					f32 edgeLenHalf = edgeLen* 0.5f;
+
+					if (chamferValue > edgeLen) chamferValue = edgeLen;
+
+					if (ce->m_data->m_vertex1->m_flags & miVertex::flag_isSelected
+						&& ce->m_data->m_vertex2->m_flags & miVertex::flag_isSelected)
+					{
+						if (chamferValue > edgeLenHalf) chamferValue = edgeLenHalf;
+					}
+
+					miVertex* vertex = 0;
+
+					// first edge for this vertex
+					if (ce == c->m_edges.m_head)
+					{
+						vertex = c_new;
+					}
+					//else
+					//{
+					//	// create new vertex
+					//	vertex = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+					//	vertex->m_flags |= miVertex::flag_isSelected;
+					//	vertex->m_normal[0] = c->m_normal[0];
+					//	vertex->m_normal[1] = c->m_normal[1];
+					//	vertex->m_normal[2] = c->m_normal[2];
+					//	
+					//	vertex->m_right = c;
+					//	vertex->m_left = c->m_left;
+					//	c->m_left->m_right = vertex;
+					//	c->m_left = vertex;
+
+					//	if (ce->m_data->m_polygon1)
+					//	{
+					//		vertex->m_polygons.push_back(ce->m_data->m_polygon1);
+					//		
+					//		auto pvc_original = ce_original->m_data->m_polygon1->m_verts.m_head;
+					//		auto pvc = ce->m_data->m_polygon1->m_verts.m_head;
+					//		auto pvl = pvc->m_left;
+					//		while (true)
+					//		{
+					//			// I need to find current vertex (c), in polygons vertices
+					//			if (pvc_original->m_data1 == c_original)
+					//			{
+
+					//				// next to find second vertex of this edge
+					//				miVertex* c2 = ce_original->m_data->m_vertex1;
+					//				if (c_original == ce_original->m_data->m_vertex1)
+					//					c2 = ce_original->m_data->m_vertex2;
+
+
+
+					//				if (pvc_original->m_right->m_data1 == c2)
+					//				{
+					//					ce->m_data->m_polygon1->m_verts.insert_after(c, vertex, pvc->m_data2);
+					//				}
+					//				else
+					//				{
+					//					ce->m_data->m_polygon1->m_verts.insert_before(c, vertex, pvc->m_data2);
+					//				}
+					//				break;
+					//			}
+
+					//			if (pvc == pvl)
+					//				break;
+					//			pvc = pvc->m_right;
+					//			pvc_original = pvc_original->m_right;
+					//		}
+					//	}
+
+					//	if (ce->m_data->m_polygon2)
+					//	{
+					//		vertex->m_polygons.push_back(ce->m_data->m_polygon2);
+
+					//		auto pvc_original = ce_original->m_data->m_polygon2->m_verts.m_head;
+					//		auto pvc = ce->m_data->m_polygon2->m_verts.m_head;
+					//		auto pvl = pvc->m_left;
+					//		while (true)
+					//		{
+					//			// I need to find current vertex (c), in polygons vertices
+					//			if (pvc_original->m_data1 == c_original)
+					//			{
+
+					//				// next to find second vertex of this edge
+					//				miVertex* c2 = ce_original->m_data->m_vertex1;
+					//				if (c_original == ce_original->m_data->m_vertex1)
+					//					c2 = ce_original->m_data->m_vertex2;
+
+
+
+					//				if (pvc_original->m_right->m_data1 == c2)
+					//				{
+					//					ce->m_data->m_polygon2->m_verts.insert_after(c, vertex, pvc->m_data2);
+					//				}
+					//				else
+					//				{
+					//					ce->m_data->m_polygon2->m_verts.insert_before(c, vertex, pvc->m_data2);
+					//				}
+					//				break;
+					//			}
+
+					//			if (pvc == pvl)
+					//				break;
+					//			pvc = pvc->m_right;
+					//			pvc_original = pvc_original->m_right;
+					//		}
+					//	}
+					//}
+					if(vertex)
+						vertex->m_position = c->m_position + chamferValue * dir;
+
+					if (ce == le)
+						break;
+					ce = ce->m_right;
+				}
+			}
+
+			if (c == l)
+				break;
+			c = c->m_right;
+			c_new = c_new->m_right;
+		}
+	}
+
+	_updateModel();
 }
 
 void miEditableObject::OnChamferApply() {

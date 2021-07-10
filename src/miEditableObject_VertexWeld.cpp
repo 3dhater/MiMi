@@ -19,13 +19,15 @@ float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj) {
 	return &((miEditableObject*)obj)->m_weldValue;
 }
 
-void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float) {
+void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
 		return;
 
 	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
 	auto object = (miEditableObject*)obj;
+	if (*fptr < 0.f)
+		*fptr = 0.f;
 	object->OnWeld();
 }
 
@@ -90,7 +92,7 @@ void editableObjectGUI_weldButton_onUncheck(s32 id) {
 void miEditableObject::OnWeld() {
 	m_isWeld = true;
 	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator();
+	CreateTMPModelWithPoolAllocator(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
 
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 	{

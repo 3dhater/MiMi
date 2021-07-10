@@ -119,13 +119,14 @@ public:
 	f32 m_weldValue;
 	
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilderTmpModelPool;
-	void CreateTMPModelWithPoolAllocator();
+	void CreateTMPModelWithPoolAllocator(s32 polygonNum, s32 edgeNum, s32 vertexNum);
 	void DestroyTMPModelWithPoolAllocator();
 	void OnWeld();
 	void OnWeldApply();
 	void DeleteInvisiblePolygons(bool weldVertices);
 	void _createMeshFromTMPMesh();
 
+	f32 m_chamferValue;
 	void OnChamfer();
 	void OnChamferApply();
 };

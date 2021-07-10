@@ -490,6 +490,10 @@ struct miMesh
 					new(newEdge)miEdge();
 					newEdge->m_vertex1 = v1;
 					newEdge->m_vertex2 = v2;
+
+					v1->m_edges.push_back(newEdge);
+					v2->m_edges.push_back(newEdge);
+
 					_add_edge_to_list(newEdge);
 				}
 
@@ -499,8 +503,7 @@ struct miMesh
 					newEdge->m_polygon2 = current_polygon;
 
 				current_polygon->m_edges.push_back(newEdge);
-				v1->m_edges.push_back(newEdge);
-				v2->m_edges.push_back(newEdge);
+				
 
 				if (current_vertex == last_vertex)
 					break;

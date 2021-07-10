@@ -147,12 +147,12 @@ void miPluginGUIImpl_slider_onValueChanged(yyGUIRangeSlider* slider) {
 			{
 			case yyGUIRangeSliderType::Float:
 			case yyGUIRangeSliderType::FloatLimits: {
-				ge->m_slider_onValueChanged_slider_f(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_f);
+				ge->m_slider_onValueChanged_slider_f(g_app->m_selectedObjects.m_data[0], slider->m_ptr_f);
 			}break;
 			default:
 			case yyGUIRangeSliderType::Int:
 			case yyGUIRangeSliderType::IntLimits:{
-				ge->m_slider_onValueChanged_slider_i(g_app->m_selectedObjects.m_data[0], *slider->m_ptr_i);
+				ge->m_slider_onValueChanged_slider_i(g_app->m_selectedObjects.m_data[0], slider->m_ptr_i);
 			}break;
 			}
 		}
@@ -163,7 +163,7 @@ void miPluginGUIImpl::AddRangeSliderInt(
 	int minimum, 
 	int maximum, 
 	int* (*onSelectObject)(miSceneObject*), 
-	void(*onValueChanged)(miSceneObject*, int), 
+	void(*onValueChanged)(miSceneObject*, int*), 
 	u32 flags)
 {
 	static int default_int = 0;
@@ -189,7 +189,7 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 	const v4f& positionSize,
 	float minimum, 
 	float maximum, 
-	float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float), 
+	float* (*onSelectObject)(miSceneObject*), void(*onValueChanged)(miSceneObject*, float*), 
 	u32 flags,
 	f32 speed)
 {
@@ -215,7 +215,7 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 void miPluginGUIImpl::AddRangeSliderIntNoLimit(
 	const v4f& positionSize,
 	int* (*onSelectObject)(miSceneObject*), 
-	void(*onValueChanged)(miSceneObject*, int), 
+	void(*onValueChanged)(miSceneObject*, int*), 
 	u32 flags)
 {
 	static int default_int = 0;
@@ -240,7 +240,7 @@ void miPluginGUIImpl::AddRangeSliderIntNoLimit(
 void miPluginGUIImpl::AddRangeSliderFloatNoLimit(
 	const v4f& positionSize,
 	float* (*onSelectObject)(miSceneObject*), 
-	void(*onValueChanged)(miSceneObject*, float), 
+	void(*onValueChanged)(miSceneObject*, float*), 
 	u32 flags,
 	f32 speed)
 {
