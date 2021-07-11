@@ -373,12 +373,13 @@ public:
 				{
 					node->m_left->m_right = node->m_right;
 					node->m_right->m_left = node->m_left;
+
 					node->~miListNode2();
 					miFree(node);
 
-					// ???
-					if (node == m_head)
-						m_head = 0;
+					//// ???
+					//if (node == m_head)
+					//	m_head = 0;
 				}
 				return true;
 			}

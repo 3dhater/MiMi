@@ -353,12 +353,12 @@ class miPolygonCreator
 {
 	int m_size;
 	int m_allocated;
-	miPair<v3f,bool>* m_positions;
+	miPair<v3f,u8>* m_positions;
 	v3f* m_normals;
 	v2f* m_tcoords;
 
 	void _reallocate(int size) {
-		miPair<v3f, bool>* newPositions = new miPair<v3f, bool>[size];
+		miPair<v3f, u8>* newPositions = new miPair<v3f, u8>[size];
 		v3f* newNormals = new v3f[size];
 		v2f* newtCoords = new v2f[size];
 
@@ -391,18 +391,30 @@ public:
 	void Clear() { m_size = 0; }
 	int Size() { return m_size; }
 
-	void Add(const v3f& position, bool weld, const v3f& normal, const v2f& tCoords) {
+	enum
+	{
+		flag_weld = BIT(0),
+		flag_selected = BIT(1)
+	};
+
+	void Add(const v3f& position, bool weld, bool selected, const v3f& normal, const v2f& tCoords) {
 		if (m_size == m_allocated)
 		{
 			_reallocate(m_allocated + (int)std::ceil(((2.f + (float)m_allocated) * 0.5f)));
 		}
-		m_positions[m_size] = miPair<v3f, bool>(position,weld);
+		u8 flags = 0;
+		if (weld)
+			flags |= flag_weld;
+		if(selected)
+			flags |= flag_selected;
+
+		m_positions[m_size] = miPair<v3f, u8>(position, flags);
 		m_normals[m_size] = normal;
 		m_tcoords[m_size] = tCoords;
 		++m_size;
 	}
 
-	miPair<v3f, bool>* GetPositions() { return m_positions; }
+	miPair<v3f, u8>* GetPositions() { return m_positions; }
 	v3f* GetNormals() { return m_normals; }
 	v2f* GetTCoords() { return m_tcoords; }
 };
@@ -715,7 +727,7 @@ struct miMeshBuilder
 			miVertex* newVertex = 0;
 			m_aabb.add(positions[i].m_first);
 
-			if (positions[i].m_second)
+			if (positions[i].m_second & miPolygonCreator::flag_weld)
 			{
 				_set_hash(&positions[i].m_first);
 
@@ -752,6 +764,9 @@ struct miMeshBuilder
 
 				m_mesh->_add_vertex_to_list(newVertex);
 			}
+
+			if (positions[i].m_second & miPolygonCreator::flag_selected)
+				newVertex->m_flags |= miVertex::flag_isSelected;
 
 			newVertex->m_polygons.push_back(newPolygon);
 

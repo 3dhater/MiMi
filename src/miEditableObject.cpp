@@ -33,6 +33,7 @@ void editableObjectGUI_chamferButton_onCheck(s32 id);
 void editableObjectGUI_chamferButton_onUncheck(s32 id);
 void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float*);
 float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj);
+void editableObjectGUI_chamferButtonOK_onClick(s32 id);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -168,7 +169,7 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Break", g_SelectButtonID_BreakVerts,
 		editableObjectGUI_editButton_onClick, miPluginGUI::Flag_ForVertexEditMode);
 
-	y += 18.f;
+	y += 20.f;
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 70.f, 15.f), L"Target weld",
 		-1,
 		editableObjectGUI_tgweldButton_onClick,
@@ -202,7 +203,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_weldButtonOK_onClick,
 		miPluginGUI::Flag_ForVertexEditMode);
 	
-	y += 18.f;
+	y += 20.f;
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 40.f, 15.f), L"Chamfer",
 		-1,
 		editableObjectGUI_chamferButton_onClick,
@@ -215,6 +216,10 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_chamferRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
 		0.1);
+	m_pluginGuiForEditableObject->AddButton(v4f(160.f, y, 40.f, 15.f), L"OK",
+		-1,
+		editableObjectGUI_chamferButtonOK_onClick,
+		miPluginGUI::Flag_ForVertexEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
@@ -1274,7 +1279,7 @@ void miEditableObject::DeleteInvisiblePolygons(bool weldVertices) {
 	polygons.clear();
 }
 
-void miEditableObject::_createMeshFromTMPMesh_meshBuilder() {
+void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection) {
 	_destroyMesh();
 
 	miSDKImporterHelper importeHelper;
@@ -1293,9 +1298,18 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder() {
 			auto lv = cv->m_left;
 			while (true)
 			{
+				bool select = false;
+
+				if (saveSelection)
+				{
+					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+						select = true;
+				}
+
 				importeHelper.m_polygonCreator.Add(
 					cv->m_data1->m_position,
 					true,
+					select,
 					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
 					cv->m_data2);
 

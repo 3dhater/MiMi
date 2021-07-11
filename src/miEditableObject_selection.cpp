@@ -207,7 +207,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 		}
 	}
 	o->OnSelect(em);
-	g_app->OnSelect();
+// error drawGroup...	g_app->OnSelect();
 }
 
 void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {

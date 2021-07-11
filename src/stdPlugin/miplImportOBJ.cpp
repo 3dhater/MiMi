@@ -256,7 +256,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 					pcNorm = n;
 					genNormals = false;
 				}
-				importeHelper.m_polygonCreator.Add(pcPos, weld, pcNorm, pcUV);
+				importeHelper.m_polygonCreator.Add(pcPos, weld, false, pcNorm, pcUV);
 			}
 
 			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, g_ImportOBJ_triangulate, genNormals);

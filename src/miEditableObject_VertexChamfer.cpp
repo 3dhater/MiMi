@@ -8,6 +8,13 @@
 extern miApplication * g_app;
 
 void editableObjectGUI_chamferButton_onCheck(s32 id);
+void editableObjectGUI_chamferButton_onCancel();
+
+void editableObjectGUI_chamferButtonOK_onClick(s32 id) {
+	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->OnChamferApply();
+	editableObjectGUI_chamferButton_onCancel();
+}
 
 float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
@@ -146,6 +153,14 @@ void miEditableObject::OnChamfer() {
 	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() + pc, this->GetEdgeCount() + ec, this->GetVertexCount() + vc);
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 	
+	struct helpStruct
+	{
+		helpStruct(miPolygon* p, miVertex* v):m_p(p),m_v(v) {}
+		miPolygon* m_p;
+		miVertex*  m_v;
+	};
+	static miArray<helpStruct> removeVertFromPolygon;
+	removeVertFromPolygon.clear();
 
 	if (m_mesh->m_first_vertex)
 	{
@@ -157,6 +172,11 @@ void miEditableObject::OnChamfer() {
 			if (c->m_flags & miVertex::flag_isSelected)
 			{
 				auto ce = c->m_edges.m_head;
+				auto ce_new = c_new->m_edges.m_head;
+
+				miPolygon* firstEdgePolygon1 = ce_new->m_data->m_polygon1;
+				miPolygon* firstEdgePolygon2 = ce_new->m_data->m_polygon2;
+
 				auto le = ce->m_left;
 				while (true)
 				{
@@ -187,102 +207,112 @@ void miEditableObject::OnChamfer() {
 					{
 						vertex = c_new;
 					}
-					//else
-					//{
-					//	// create new vertex
-					//	vertex = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
-					//	vertex->m_flags |= miVertex::flag_isSelected;
-					//	vertex->m_normal[0] = c->m_normal[0];
-					//	vertex->m_normal[1] = c->m_normal[1];
-					//	vertex->m_normal[2] = c->m_normal[2];
-					//	
-					//	vertex->m_right = c;
-					//	vertex->m_left = c->m_left;
-					//	c->m_left->m_right = vertex;
-					//	c->m_left = vertex;
+					else
+					{
+						// create new vertex
+						vertex = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+						vertex->m_flags |= miVertex::flag_isSelected;
+						vertex->m_normal[0] = c->m_normal[0];
+						vertex->m_normal[1] = c->m_normal[1];
+						vertex->m_normal[2] = c->m_normal[2];
+						
+						vertex->m_right = c_new;
+						vertex->m_left = c_new->m_left;
+						c_new->m_left->m_right = vertex;
+						c_new->m_left = vertex;
 
-					//	if (ce->m_data->m_polygon1)
-					//	{
-					//		vertex->m_polygons.push_back(ce->m_data->m_polygon1);
-					//		
-					//		auto pvc_original = ce_original->m_data->m_polygon1->m_verts.m_head;
-					//		auto pvc = ce->m_data->m_polygon1->m_verts.m_head;
-					//		auto pvl = pvc->m_left;
-					//		while (true)
-					//		{
-					//			// I need to find current vertex (c), in polygons vertices
-					//			if (pvc_original->m_data1 == c_original)
-					//			{
+						// put vertex into polygon
+						if (ce->m_data->m_polygon1)
+						{
+							vertex->m_polygons.push_back(ce_new->m_data->m_polygon1);
+							
+							auto pvc = ce->m_data->m_polygon1->m_verts.m_head;
+							auto pvl = pvc->m_left;
+							while (true)
+							{
+								// I need to find current vertex (c), in polygons vertices
+								if (pvc->m_data1 == c)
+								{
+									// next to find second vertex of this edge
+									miVertex* c2 = ce->m_data->m_vertex1;
+									if (c == c2)
+										c2 = ce->m_data->m_vertex2;
 
-					//				// next to find second vertex of this edge
-					//				miVertex* c2 = ce_original->m_data->m_vertex1;
-					//				if (c_original == ce_original->m_data->m_vertex1)
-					//					c2 = ce_original->m_data->m_vertex2;
+									if (pvc->m_right->m_data1 == c2)
+									{
+										ce_new->m_data->m_polygon1->m_verts.insert_after(c_new, vertex, pvc->m_data2);
+									}
+									else
+									{
+										ce_new->m_data->m_polygon1->m_verts.insert_before(c_new, vertex, pvc->m_data2);
+									}
+									break;
+								}
 
+								if (pvc == pvl)
+									break;
+								pvc = pvc->m_right;
+							}
 
+							if (ce_new->m_data->m_polygon1 != firstEdgePolygon1
+								&& ce_new->m_data->m_polygon1 != firstEdgePolygon2)
+							{
+						//		ce_new->m_data->m_polygon1->m_verts.erase_first(c_new);
+								removeVertFromPolygon.push_back(helpStruct(ce_new->m_data->m_polygon1, c_new));
+							}
+						}
 
-					//				if (pvc_original->m_right->m_data1 == c2)
-					//				{
-					//					ce->m_data->m_polygon1->m_verts.insert_after(c, vertex, pvc->m_data2);
-					//				}
-					//				else
-					//				{
-					//					ce->m_data->m_polygon1->m_verts.insert_before(c, vertex, pvc->m_data2);
-					//				}
-					//				break;
-					//			}
+						if (ce->m_data->m_polygon2)
+						{
+							vertex->m_polygons.push_back(ce_new->m_data->m_polygon2);
 
-					//			if (pvc == pvl)
-					//				break;
-					//			pvc = pvc->m_right;
-					//			pvc_original = pvc_original->m_right;
-					//		}
-					//	}
+							auto pvc_new = ce_new->m_data->m_polygon2->m_verts.m_head;
+							auto pvc = ce->m_data->m_polygon2->m_verts.m_head;
+							auto pvl = pvc->m_left;
+							while (true)
+							{
+								// I need to find current vertex (c), in polygons vertices
+								if (pvc->m_data1 == c)
+								{
+									// next to find second vertex of this edge
+									miVertex* c2 = ce->m_data->m_vertex1;
+									if (c == ce->m_data->m_vertex1)
+										c2 = ce->m_data->m_vertex2;
 
-					//	if (ce->m_data->m_polygon2)
-					//	{
-					//		vertex->m_polygons.push_back(ce->m_data->m_polygon2);
+									if (pvc->m_right->m_data1 == c2)
+									{
+										ce_new->m_data->m_polygon2->m_verts.insert_after(c_new, vertex, pvc->m_data2);
+									}
+									else
+									{
+										ce_new->m_data->m_polygon2->m_verts.insert_before(c_new, vertex, pvc->m_data2);
+									}
+									break;
+								}
 
-					//		auto pvc_original = ce_original->m_data->m_polygon2->m_verts.m_head;
-					//		auto pvc = ce->m_data->m_polygon2->m_verts.m_head;
-					//		auto pvl = pvc->m_left;
-					//		while (true)
-					//		{
-					//			// I need to find current vertex (c), in polygons vertices
-					//			if (pvc_original->m_data1 == c_original)
-					//			{
+								if (pvc == pvl)
+									break;
+								pvc = pvc->m_right;
+								pvc_new = pvc_new->m_right;
+							}
 
-					//				// next to find second vertex of this edge
-					//				miVertex* c2 = ce_original->m_data->m_vertex1;
-					//				if (c_original == ce_original->m_data->m_vertex1)
-					//					c2 = ce_original->m_data->m_vertex2;
+							if (ce_new->m_data->m_polygon2 != firstEdgePolygon1
+								&& ce_new->m_data->m_polygon2 != firstEdgePolygon2)
+							{
+						//		ce_new->m_data->m_polygon2->m_verts.erase_first(c_new);
+								removeVertFromPolygon.push_back(helpStruct(ce_new->m_data->m_polygon2, c_new));
+							}
+						}
 
-
-
-					//				if (pvc_original->m_right->m_data1 == c2)
-					//				{
-					//					ce->m_data->m_polygon2->m_verts.insert_after(c, vertex, pvc->m_data2);
-					//				}
-					//				else
-					//				{
-					//					ce->m_data->m_polygon2->m_verts.insert_before(c, vertex, pvc->m_data2);
-					//				}
-					//				break;
-					//			}
-
-					//			if (pvc == pvl)
-					//				break;
-					//			pvc = pvc->m_right;
-					//			pvc_original = pvc_original->m_right;
-					//		}
-					//	}
-					//}
+					}
 					if(vertex)
 						vertex->m_position = c->m_position + chamferValue * dir;
+					
 
 					if (ce == le)
 						break;
 					ce = ce->m_right;
+					ce_new = ce_new->m_right;
 				}
 			}
 
@@ -293,6 +323,11 @@ void miEditableObject::OnChamfer() {
 		}
 	}
 
+	for (u32 i = 0; i < removeVertFromPolygon.m_size; ++i)
+	{
+		removeVertFromPolygon.m_data[i].m_p->m_verts.erase_first(removeVertFromPolygon.m_data[i].m_v);
+	}
+
 	_updateModel();
 }
 
@@ -301,7 +336,24 @@ void miEditableObject::OnChamferApply() {
 		return;
 	m_isChamfer = false;
 
-	_createMeshFromTMPMesh_meshBuilder();
+	_createMeshFromTMPMesh_meshBuilder(true);
+
+	/*{
+		auto mesh = m_meshBuilderTmpModelPool->m_mesh;
+		auto cv = mesh->m_first_vertex;
+		auto cv_new = m_mesh->m_first_vertex;
+		auto lv = cv->m_left;
+		while (true)
+		{
+			if (cv->m_flags & miVertex::flag_isSelected)
+				cv_new->m_flags |= miVertex::flag_isSelected;
+
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+			cv_new = cv_new->m_right;
+		}
+	}*/
 
 	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel();

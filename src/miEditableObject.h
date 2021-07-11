@@ -49,7 +49,7 @@ class miEditableObject : public miSceneObject
 
 	void _updateModel();
 
-	void _createMeshFromTMPMesh_meshBuilder();
+	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection);
 
 	friend class miApplication;
 	friend class miSDKImpl;

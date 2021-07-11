@@ -25,6 +25,7 @@ void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr)
 
 	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
+
 	auto object = (miEditableObject*)obj;
 	if (*fptr < 0.f)
 		*fptr = 0.f;
@@ -248,7 +249,7 @@ void miEditableObject::OnWeldApply() {
 	m_isWeld = false;
 	this->DeleteInvisiblePolygons(true);
 	
-	_createMeshFromTMPMesh_meshBuilder();
+	_createMeshFromTMPMesh_meshBuilder(false);
 
 	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel();
