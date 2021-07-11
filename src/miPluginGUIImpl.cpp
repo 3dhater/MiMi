@@ -200,6 +200,7 @@ void miPluginGUIImpl::AddRangeSliderFloat(
 	gui_slider->UseText(g_app->m_GUIManager->GetFont(miGUIManager::Font::Default));
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
+	gui_slider->m_valueMultiplerAlt = 0.001f;
 	gui_slider->m_valueMultiplerNormal = speed;
 	m_gui_group->AddElement(gui_slider);
 
@@ -253,6 +254,7 @@ void miPluginGUIImpl::AddRangeSliderFloatNoLimit(
 	gui_slider->m_userData = this;
 	gui_slider->m_onValueChanged = miPluginGUIImpl_slider_onValueChanged;
 	gui_slider->m_valueMultiplerNormal = speed;
+	gui_slider->m_valueMultiplerAlt = 0.001f;
 	m_gui_group->AddElement(gui_slider);
 
 	element_info* ei = new element_info;

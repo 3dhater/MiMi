@@ -34,6 +34,7 @@ void editableObjectGUI_chamferButton_onUncheck(s32 id);
 void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float*);
 float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj);
 void editableObjectGUI_chamferButtonOK_onClick(s32 id);
+void editableObjectGUI_chamferCheckBox_onClick(bool);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -215,14 +216,20 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_chamferRange_onSelectObject,
 		editableObjectGUI_chamferRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
-		0.1);
+		0.01);
 	m_pluginGuiForEditableObject->AddButton(v4f(160.f, y, 40.f, 15.f), L"OK",
 		-1,
 		editableObjectGUI_chamferButtonOK_onClick,
 		miPluginGUI::Flag_ForVertexEditMode);
+	y += 17.f;
+	m_pluginGuiForEditableObject->AddCheckBox(v2f(50.f, y), L"Add polygons when chamfer",
+		editableObjectGUI_chamferCheckBox_onClick,
+		true,
+		miPluginGUI::Flag_ForVertexEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
+	m_addPolygonsWhenChamfer = true;
 	m_chamferValue = 0.1f;
 	m_isWeld = false;
 	m_isChamfer = false;
@@ -271,7 +278,7 @@ void miEditableObject::_createMeshFromTMPMesh() {
 	g_app->m_sdk->AppendMesh(m_mesh, m_meshBuilderTmpModelPool->m_mesh);
 }
 
-void miEditableObject::CreateTMPModelWithPoolAllocator(s32 pc, s32 ec, s32 vc) {
+void miEditableObject::CreateTMPModelWithPoolAllocator( s32 pc, s32 ec, s32 vc) {
 	if (m_meshBuilderTmpModelPool)
 		DestroyTMPModelWithPoolAllocator();
 
@@ -280,7 +287,7 @@ void miEditableObject::CreateTMPModelWithPoolAllocator(s32 pc, s32 ec, s32 vc) {
 		miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>
 		(pc, ec, vc);
 	
-	g_app->m_sdk->AppendMesh(m_meshBuilderTmpModelPool, m_mesh);
+		g_app->m_sdk->AppendMesh(m_meshBuilderTmpModelPool, m_mesh);
 
 	RebuildVisualObjects(false);
 }
@@ -1234,7 +1241,7 @@ void miEditableObject::UpdateCounts() {
 			}
 		}
 	}
-	printf("V: %u E: %u P: %u\n", m_vertexCount, m_edgeCount, m_polygonCount);
+	//printf("V: %u E: %u P: %u\n", m_vertexCount, m_edgeCount, m_polygonCount);
 }
 
 u32 miEditableObject::GetVertexCount() {
@@ -1273,13 +1280,49 @@ void miEditableObject::DeleteInvisiblePolygons(bool weldVertices) {
 	//printf("DELETE %u POLYGONS\n", polygons.m_size);
 	for (u32 i = 0; i < polygons.m_size; ++i)
 	{
-		this->DeletePolygon(polygons.m_data[i]);
+		auto currPolygon = polygons.m_data[i];
+
+		static miArray<miVertex*> vertsForTargetWeld;
+		//if (weldVertices)
+		//{
+		//	vertsForTargetWeld.clear();
+
+		//	// I need to find vertices that have more than 1 polygon
+		//	auto currVertex = currPolygon->m_verts.m_head;
+		//	auto lastVertex = currVertex->m_left;
+		//	while (true)
+		//	{
+		//		u32 polyCount = 0;
+		//		if (currVertex->m_data1->m_polygons.m_head)
+		//		{
+		//			auto cp = currVertex->m_data1->m_polygons.m_head;
+		//			auto lp = cp->m_left;
+		//			while (true)
+		//			{
+		//				++polyCount;
+		//				if (cp == lp)
+		//					break;
+		//				cp = cp->m_right;
+		//			}
+		//		}
+		//		if (polyCount > 1)
+		//		{
+		//			vertsForTargetWeld.push_back(currVertex->m_data1);
+		//		}
+
+		//		if (currVertex == lastVertex)
+		//			break;
+		//		currVertex = currVertex->m_right;
+		//	}
+		//}
+
+		this->DeletePolygon(currPolygon);
 	}
 
 	polygons.clear();
 }
 
-void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection) {
+void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected) {
 	_destroyMesh();
 
 	miSDKImporterHelper importeHelper;
@@ -1299,16 +1342,23 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection) {
 			while (true)
 			{
 				bool select = false;
-
 				if (saveSelection)
 				{
 					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
 						select = true;
 				}
 
+				bool weld = true;
+				if (weldSelected)
+				{
+					weld = false;
+					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+						weld = true;
+				}
+
 				importeHelper.m_polygonCreator.Add(
 					cv->m_data1->m_position,
-					true,
+					weld,
 					select,
 					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
 					cv->m_data2);
@@ -1327,8 +1377,6 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection) {
 
 		importeHelper.m_meshBuilder->End();
 	}
-
-
 	m_mesh = importeHelper.m_meshBuilder->m_mesh;
 	importeHelper.m_meshBuilder->m_mesh = 0;
 }

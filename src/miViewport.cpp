@@ -25,7 +25,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 
 	m_gpu = yyGetVideoDriverAPI();
 	m_gui_group = 0;
-	m_drawMode = miViewportDrawMode::Material;
+	m_drawMode = miViewportDrawMode::MaterialWireframe;
 	m_drawGrid = true;
 	m_index = 0;
 	m_isCursorInRect = false;

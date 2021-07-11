@@ -385,6 +385,18 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 		};
 		polygons_in_frust.sort_insertion(_pred());
 		m_sdk->AddPolygonToSelection(polygons_in_frust.m_data[0], this);
+
+		auto cv = polygons_in_frust.m_data[0].m_first->m_verts.m_head;
+		auto lv = cv->m_left;
+		u32 vcount = 0;
+		while (true)
+		{
+			++vcount;
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+		}
+		printf("%u vertices in polygon\n", vcount);
 	}
 }
 

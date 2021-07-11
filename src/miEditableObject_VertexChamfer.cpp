@@ -10,6 +10,10 @@ extern miApplication * g_app;
 void editableObjectGUI_chamferButton_onCheck(s32 id);
 void editableObjectGUI_chamferButton_onCancel();
 
+void editableObjectGUI_chamferCheckBox_onClick(bool isChecked) {
+
+}
+
 void editableObjectGUI_chamferButtonOK_onClick(s32 id) {
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->OnChamferApply();
@@ -177,6 +181,9 @@ void miEditableObject::OnChamfer() {
 				miPolygon* firstEdgePolygon1 = ce_new->m_data->m_polygon1;
 				miPolygon* firstEdgePolygon2 = ce_new->m_data->m_polygon2;
 
+				static miArray<miVertex*> vericesForNewpolygon;
+				vericesForNewpolygon.clear();
+
 				auto le = ce->m_left;
 				while (true)
 				{
@@ -206,6 +213,11 @@ void miEditableObject::OnChamfer() {
 					if (ce == c->m_edges.m_head)
 					{
 						vertex = c_new;
+						vertex->m_polygons.clear();
+						if(ce->m_data->m_polygon1)
+							vertex->m_polygons.push_back(ce->m_data->m_polygon1);
+						if (ce->m_data->m_polygon2)
+							vertex->m_polygons.push_back(ce->m_data->m_polygon2);
 					}
 					else
 					{
@@ -305,14 +317,34 @@ void miEditableObject::OnChamfer() {
 						}
 
 					}
-					if(vertex)
+					if (vertex) 
+					{
 						vertex->m_position = c->m_position + chamferValue * dir;
+						vericesForNewpolygon.push_back(vertex);
+					}
 					
+
 
 					if (ce == le)
 						break;
 					ce = ce->m_right;
 					ce_new = ce_new->m_right;
+				}
+
+				if (vericesForNewpolygon.m_size > 2)
+				{
+					/*auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
+					for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
+					{
+						auto v = vericesForNewpolygon.m_data[i];
+						newPolygon->m_verts.push_back(v, v2f());
+						v->m_polygons.push_back(newPolygon);
+					}
+					newPolygon->m_left = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left;
+					newPolygon->m_right = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon;
+
+					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left->m_right = newPolygon;
+					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;*/
 				}
 			}
 
@@ -336,7 +368,7 @@ void miEditableObject::OnChamferApply() {
 		return;
 	m_isChamfer = false;
 
-	_createMeshFromTMPMesh_meshBuilder(true);
+	_createMeshFromTMPMesh_meshBuilder(true, false);
 
 	/*{
 		auto mesh = m_meshBuilderTmpModelPool->m_mesh;

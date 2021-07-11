@@ -768,9 +768,13 @@ struct miMeshBuilder
 			if (positions[i].m_second & miPolygonCreator::flag_selected)
 				newVertex->m_flags |= miVertex::flag_isSelected;
 
-			newVertex->m_polygons.push_back(newPolygon);
-
-			newPolygon->m_verts.push_back(newVertex, tCoords[i]);
+			// add newPolygon to vertex and newVertex to polygon
+			// only once
+			if (newVertex->m_polygons.find(newPolygon) == 0)
+			{
+				newVertex->m_polygons.push_back(newPolygon);
+				newPolygon->m_verts.push_back(newVertex, tCoords[i]);
+			}
 		}
 	}
 	void CreateEdges() {

@@ -49,7 +49,7 @@ class miEditableObject : public miSceneObject
 
 	void _updateModel();
 
-	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection);
+	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected);
 
 	friend class miApplication;
 	friend class miSDKImpl;
@@ -127,6 +127,7 @@ public:
 	void _createMeshFromTMPMesh();
 
 	f32 m_chamferValue;
+	bool m_addPolygonsWhenChamfer;
 	void OnChamfer();
 	void OnChamferApply();
 };

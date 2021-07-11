@@ -22,6 +22,25 @@ public:
 		clear();
 	}
 
+	miListNode<_type>* find(const _type& data)
+	{
+		if (!m_head)
+			return 0;
+
+		auto node = m_head;
+		auto last = m_head->m_left;
+		while (true)
+		{
+			if (node->m_data == data)
+				return node;
+
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+		return 0;
+	}
+
 	void clear()
 	{
 		if (!m_head)
