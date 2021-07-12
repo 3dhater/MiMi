@@ -227,6 +227,26 @@ class miList2
 public:
 	miList2() :m_head(0) {}
 	~miList2() {clear();}
+	
+	miListNode2<_type1, _type2>* find(const _type1& data)
+	{
+		if (!m_head)
+			return 0;
+
+		auto node = m_head;
+		auto last = m_head->m_left;
+		while (true)
+		{
+			if (node->m_data1 == data)
+				return node;
+
+			if (node == last)
+				break;
+			node = node->m_right;
+		}
+		return 0;
+	}
+
 	void clear(){
 		if (!m_head)
 			return;

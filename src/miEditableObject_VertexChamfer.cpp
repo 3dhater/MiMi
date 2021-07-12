@@ -333,18 +333,20 @@ void miEditableObject::OnChamfer() {
 
 				if (vericesForNewpolygon.m_size > 2)
 				{
-					/*auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
+					auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
+					
 					for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
 					{
 						auto v = vericesForNewpolygon.m_data[i];
 						newPolygon->m_verts.push_back(v, v2f());
 						v->m_polygons.push_back(newPolygon);
 					}
+
 					newPolygon->m_left = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left;
 					newPolygon->m_right = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon;
 
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left->m_right = newPolygon;
-					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;*/
+					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;
 				}
 			}
 

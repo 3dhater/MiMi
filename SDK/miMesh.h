@@ -529,6 +529,68 @@ struct miMesh
 				break;
 			current_polygon = next_polygon;
 		}
+
+		// Try to sort edges in vertices
+		{
+			auto current_vertex = m_first_vertex;
+			auto last_vertex = current_vertex->m_left;
+			while (true)
+			{
+				//static miArray<miEdge*> sortedEdges;
+				static std::vector<miEdge*> sortedEdges;
+				sortedEdges.clear();
+
+				//auto current_edge = current_vertex->m_edges.m_head;
+				//auto last_edge = current_edge->m_left;
+				//while (true)
+				//{
+				//	sortedEdges.push_back(current_edge->m_data);
+				//	if (current_edge == last_edge)
+				//		break;
+				//	current_edge = current_edge->m_right;
+				//}
+
+				//current_edge = current_vertex->m_edges.m_head;
+				//current_edge = current_edge->m_right;
+				//for (u32 i = 0, sz = sortedEdges.size() - 1; i < sz; ++i)
+				//{
+				//begin:;
+				//	auto e1 = sortedEdges[i];
+				//	auto e2 = sortedEdges[i+1];
+
+				//	// if e1 have same polygon with e2 then add e2 to array
+				//	if (e1->m_polygon1  == e2->m_polygon1
+				//		|| e1->m_polygon2 == e2->m_polygon2
+				//		|| e1->m_polygon1 == e2->m_polygon2
+				//		|| e1->m_polygon2 == e2->m_polygon1)
+				//	{
+				//	//	current_edge->m_data = e2;
+				//	//	current_edge = current_edge->m_right;
+				//	}
+				//	else
+				//	{
+				//		// put e2 to the end of the array
+				//		for (u32 i2 = i+1; i2 < sortedEdges.size()-1; ++i2)
+				//		{
+				//			sortedEdges[i2] = sortedEdges[i2 + 1];
+				//		}
+				//		sortedEdges[sortedEdges.size() - 1] = e2;
+				//		goto begin;
+				//	}
+				//}
+
+				//current_edge = current_vertex->m_edges.m_head;
+				//for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
+				//{
+				//	current_edge->m_data = sortedEdges[i];
+				//	current_edge = current_edge->m_right;
+				//}
+
+				if (current_vertex == last_vertex)
+					break;
+				current_vertex = current_vertex->m_right;
+			}
+		}
 	}
 
 	template<typename _edge_allocator_type>
