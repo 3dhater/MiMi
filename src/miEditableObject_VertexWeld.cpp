@@ -210,8 +210,119 @@ void miEditableObject::OnWeldApply() {
 			currentPolygon = nextPolygon;
 		}
 	}
-	this->VertexBreak();
 	
+	_destroyMesh();
+	m_mesh = miCreate<miMesh>();
+	g_app->m_sdk->AppendMesh(m_mesh, mesh);
+	this->DestroyTMPModelWithPoolAllocator();
+
+	this->VertexBreak();
+
+	// Delete vertices(from polygon) with same position
+	auto currentPolygon = m_mesh->m_first_polygon;
+	auto lastPolygon = currentPolygon->m_left;
+	while (true)
+	{
+		auto nextPolygon = currentPolygon->m_right;
+
+	begin:;
+		auto currVertex = currentPolygon->m_verts.m_head;
+		auto lastVertex = currVertex->m_left;
+		while (true)
+		{
+			if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
+			{
+				if (currVertex->m_data1->m_flags & miVertex::flag_User1)
+					currVertex->m_data1->m_flags ^= miVertex::flag_User1;
+
+				auto currVertex2 = currVertex->m_right;
+				auto lastVertex2 = currVertex2->m_left;
+				while (true)
+				{
+					if (currVertex2->m_data1->m_flags & miVertex::flag_isSelected)
+					{
+						if (currVertex2->m_data1->m_flags & miVertex::flag_User1)
+							currVertex2->m_data1->m_flags ^= miVertex::flag_User1;
+
+						if (currVertex->m_data1 != currVertex2->m_data1)
+						{
+							if (currVertex->m_data1->m_position == currVertex2->m_data1->m_position)
+							{
+								currentPolygon->m_verts.erase_first(currVertex2->m_data1);
+								currVertex2->m_data1->m_polygons.erase_first(currentPolygon);
+								if (!currVertex2->m_data1->m_polygons.m_head)
+								{
+									m_mesh->_remove_vertex_from_list(currVertex2->m_data1);
+									currVertex2->m_data1->~miVertex();
+									m_allocatorVertex->Deallocate(currVertex2->m_data1);
+									goto begin;
+								}
+							}
+						}
+					}
+
+					if (currVertex2 == lastVertex2)
+						break;
+					currVertex2 = currVertex2->m_right;
+				}
+			}
+
+			if (currVertex == lastVertex)
+				break;
+			currVertex = currVertex->m_right;
+		}
+
+		if (currentPolygon == lastPolygon)
+			break;
+		currentPolygon = nextPolygon;
+	}
+
+	// just target weld
+	{
+	begin2:;
+		auto currVertex = m_mesh->m_first_vertex;
+		auto lastVertex = currVertex->m_left;
+		while (true)
+		{
+			if ((currVertex->m_flags & miVertex::flag_User1) == 0
+				&& (currVertex->m_flags & miVertex::flag_isSelected))
+			{
+
+				auto currVertex2 = currVertex->m_right;
+				auto lastVertex2 = currVertex2->m_left;
+				while (true)
+				{
+					if (currVertex2->m_flags & miVertex::flag_isSelected)
+					{
+						if (currVertex != currVertex2)
+						{
+							if (currVertex->m_position == currVertex2->m_position)
+							{
+								miPolygon* p1 = 0;
+								miPolygon* p2 = 0;
+								this->VertexTargetWeld(currVertex2, currVertex, &p1, &p2);
+								_updateModel(true);
+								if (p1) printf("!!! p1\n");
+								if (p2) printf("!!! p2\n");
+								goto begin2;
+							}
+						}
+					}
+
+					if (currVertex2 == lastVertex2)
+						break;
+					currVertex2 = currVertex2->m_right;
+				}
+			}
+
+			currVertex->m_flags |= miVertex::flag_User1;
+
+			if (currVertex == lastVertex)
+				break;
+			currVertex = currVertex->m_right;
+		}
+	}
+
 	//// 2.
 	//{
 	//	struct _node
@@ -404,11 +515,11 @@ void miEditableObject::OnWeldApply() {
 	//}
 	
 
-	_destroyMesh();
+	/*_destroyMesh();
 	m_mesh = miCreate<miMesh>();
 	g_app->m_sdk->AppendMesh(m_mesh, mesh);
+	this->DestroyTMPModelWithPoolAllocator();*/
 
-	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel(false);
 	DeselectAll(g_app->m_editMode);
 }

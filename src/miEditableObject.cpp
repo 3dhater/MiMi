@@ -1115,19 +1115,12 @@ void miEditableObject::VertexBreak() {
 
 void miEditableObject::AttachObject(miEditableObject* otherObject) {
 	{
-		auto h = m_mesh->m_first_polygon;
-		auto t = m_mesh->m_first_polygon->m_left;
-
 		auto c = otherObject->m_mesh->m_first_polygon;
 		auto l = c->m_left;
 		while (true)
 		{
 			auto n = c->m_right;
-			c->m_left = t;
-			c->m_right = h;
-			t->m_right = c;
-			h->m_left = c;
-			t = c;
+			m_mesh->_add_polygon_to_list(c);
 
 			if (c == l)
 				break;
@@ -1135,19 +1128,12 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 		}
 	}
 	{
-		auto h = m_mesh->m_first_edge;
-		auto t = m_mesh->m_first_edge->m_left;
-
 		auto c = otherObject->m_mesh->m_first_edge;
 		auto l = c->m_left;
 		while (true)
 		{
 			auto n = c->m_right;
-			c->m_left = t;
-			c->m_right = h;
-			t->m_right = c;
-			h->m_left = c;
-			t = c;
+			m_mesh->_add_edge_to_list(c);
 
 			if (c == l)
 				break;
@@ -1155,9 +1141,6 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 		}
 	}
 	{
-		auto h = m_mesh->m_first_vertex;
-		auto t = m_mesh->m_first_vertex->m_left;
-
 		auto TIM = otherObject->m_rotationScaleMatrix;
 		TIM.invert();
 		TIM.transpose();
@@ -1170,11 +1153,7 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 		while (true)
 		{
 			auto n = c->m_right;
-			c->m_left = t;
-			c->m_right = h;
-			t->m_right = c;
-			h->m_left = c;
-			t = c;
+			m_mesh->_add_vertex_to_list(c);
 
 			v3f norm(c->m_normal[0], c->m_normal[1], c->m_normal[2]);
 			norm = math::mul(norm, TIM);
