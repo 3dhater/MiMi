@@ -16,12 +16,7 @@ void miApplication::_callVisualObjectOnSelect() {
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
 			auto obj = m_selectedObjects.m_data[i];
-
-			auto voc = obj->GetVisualObjectCount();
-			for (int o = 0; o < voc; ++o)
-			{
-				obj->GetVisualObject(o)->OnSelect(m_editMode);
-			}
+			obj->CallVisualObjectOnSelect(m_editMode);
 		}
 		break;
 	case miEditMode::Object:

@@ -95,6 +95,8 @@ void editableObjectGUI_chamferButton_onUncheck(s32 id) {
 }
 
 void miEditableObject::OnChamfer() {
+	return;
+
 	static s32 pc = 0;
 	static s32 ec = 0;
 	static s32 vc = 0;
@@ -370,26 +372,9 @@ void miEditableObject::OnChamferApply() {
 		return;
 	m_isChamfer = false;
 
-	_createMeshFromTMPMesh_meshBuilder(true, false);
-
-	/*{
-		auto mesh = m_meshBuilderTmpModelPool->m_mesh;
-		auto cv = mesh->m_first_vertex;
-		auto cv_new = m_mesh->m_first_vertex;
-		auto lv = cv->m_left;
-		while (true)
-		{
-			if (cv->m_flags & miVertex::flag_isSelected)
-				cv_new->m_flags |= miVertex::flag_isSelected;
-
-			if (cv == lv)
-				break;
-			cv = cv->m_right;
-			cv_new = cv_new->m_right;
-		}
-	}*/
-
+	/*_createMeshFromTMPMesh_meshBuilder(true, false);
+	
 	this->DestroyTMPModelWithPoolAllocator();
-	_updateModel();
+	_updateModel();*/
 }
 

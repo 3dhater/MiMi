@@ -21,7 +21,6 @@ struct miVertex
 	miVertex* m_right;
 
 	v3f m_position;
-//	v2f m_tCoords;
 	half m_normal[3];
 
 	unsigned char m_flags;
@@ -33,7 +32,6 @@ struct miVertex
 	void CopyData(miVertex* other)
 	{
 		m_position = other->m_position;
-	//	m_tCoords = other->m_tCoords;
 		m_normal[0] = other->m_normal[0];
 		m_normal[1] = other->m_normal[1];
 		m_normal[2] = other->m_normal[2];
@@ -538,17 +536,20 @@ struct miMesh
 			{
 				//static miArray<miEdge*> sortedEdges;
 				static std::vector<miEdge*> sortedEdges;
+				static std::vector<miEdge*> sortedEdges2;
 				sortedEdges.clear();
+				sortedEdges2.clear();
 
-				//auto current_edge = current_vertex->m_edges.m_head;
-				//auto last_edge = current_edge->m_left;
-				//while (true)
-				//{
-				//	sortedEdges.push_back(current_edge->m_data);
-				//	if (current_edge == last_edge)
-				//		break;
-				//	current_edge = current_edge->m_right;
-				//}
+				auto current_edge = current_vertex->m_edges.m_head;
+				auto last_edge = current_edge->m_left;
+				while (true)
+				{
+					sortedEdges.push_back(current_edge->m_data);
+					sortedEdges2.push_back(current_edge->m_data);
+					if (current_edge == last_edge)
+						break;
+					current_edge = current_edge->m_right;
+				}
 
 				//current_edge = current_vertex->m_edges.m_head;
 				//current_edge = current_edge->m_right;
@@ -575,16 +576,17 @@ struct miMesh
 				//			sortedEdges[i2] = sortedEdges[i2 + 1];
 				//		}
 				//		sortedEdges[sortedEdges.size() - 1] = e2;
+
 				//		goto begin;
 				//	}
 				//}
 
-				//current_edge = current_vertex->m_edges.m_head;
-				//for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
-				//{
-				//	current_edge->m_data = sortedEdges[i];
-				//	current_edge = current_edge->m_right;
-				//}
+				current_edge = current_vertex->m_edges.m_head;
+				for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
+				{
+					current_edge->m_data = sortedEdges[i];
+					current_edge = current_edge->m_right;
+				}
 
 				if (current_vertex == last_vertex)
 					break;
@@ -665,6 +667,56 @@ struct miMesh
 			newVertex->m_right = m_first_vertex;
 			m_first_vertex->m_left = newVertex;
 		}
+	}
+	void _add_polygon_to_list(miPolygon* newPolygon) {
+		if (!m_first_polygon)
+		{
+			m_first_polygon = newPolygon;
+			m_first_polygon->m_right = m_first_polygon;
+			m_first_polygon->m_left = m_first_polygon;
+		}
+		else
+		{
+			auto last = m_first_polygon->m_left;
+			last->m_right = newPolygon;
+			newPolygon->m_left = last;
+			newPolygon->m_right = m_first_polygon;
+			m_first_polygon->m_left = newPolygon;
+		}
+	}
+	
+	void _remove_edge_from_list(miEdge* o) {
+		auto l = o->m_left;
+		auto r = o->m_right;
+		l->m_right = r;
+		r->m_left = l;
+
+		if (o == m_first_edge)
+			m_first_edge = o->m_right;
+		if (o == m_first_edge)
+			m_first_edge = 0;
+	}
+	void _remove_vertex_from_list(miVertex* o) {
+		auto l = o->m_left;
+		auto r = o->m_right;
+		l->m_right = r;
+		r->m_left = l;
+
+		if (o == m_first_vertex)
+			m_first_vertex = o->m_right;
+		if (o == m_first_vertex)
+			m_first_vertex = 0;
+	}
+	void _remove_polygon_from_list(miPolygon* o) {
+		auto l = o->m_left;
+		auto r = o->m_right;
+		l->m_right = r;
+		r->m_left = l;
+
+		if (o == m_first_polygon)
+			m_first_polygon = o->m_right;
+		if (o == m_first_polygon)
+			m_first_polygon = 0;
 	}
 };
 

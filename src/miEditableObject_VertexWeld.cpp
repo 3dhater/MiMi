@@ -27,9 +27,12 @@ void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr)
 		return;
 
 	auto object = (miEditableObject*)obj;
-	if (*fptr < 0.f)
-		*fptr = 0.f;
-	object->OnWeld();
+	if (object->m_isWeld)
+	{
+		if (*fptr < 0.f)
+			*fptr = 0.f;
+		object->OnWeld();
+	}
 }
 
 void editableObjectGUI_weldButtonOK_onClick(s32 id) {
@@ -91,6 +94,8 @@ void editableObjectGUI_weldButton_onUncheck(s32 id) {
 }
 
 void miEditableObject::OnWeld() {
+	//return;
+
 	m_isWeld = true;
 	DestroyTMPModelWithPoolAllocator();
 	CreateTMPModelWithPoolAllocator(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
@@ -156,19 +161,254 @@ void miEditableObject::OnWeld() {
 	}
 
 
-	_updateModel();
+	_updateModel(false);
 }
 
 void miEditableObject::OnWeldApply() {
 	if (!m_isWeld)
 		return;
 	m_isWeld = false;
-//	this->DeleteInvisiblePolygons(true);
 
-	//_createMeshFromTMPMesh();
-	_createMeshFromTMPMesh_meshBuilder(false, false);
+	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
+	
+	// 1. Delete all invisible polygons if they have at least one selected vertex
+	// 2. Create some help structs/containers that contain all polygons and vertices 
+	//     in same position.
+	// 3. Remove from polygon that vertices, who have same position. Save only last vertex.
+	// 4. Add to this polygons that vertites of other polygons, who have same position 
+	//     with vertex of this polygon.
+
+
+	// 1.
+	{
+		auto currentPolygon = mesh->m_first_polygon;
+		auto lastPolygon = currentPolygon->m_left;
+		while (true)
+		{
+			auto nextPolygon = currentPolygon->m_right;
+
+			if (!currentPolygon->IsVisible())
+			{
+				auto cv = currentPolygon->m_verts.m_head;
+				auto lv = cv->m_left;
+				while(true)
+				{
+					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					{
+						this->DeletePolygon(currentPolygon);
+						break;
+					}
+
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+
+			if (currentPolygon == lastPolygon)
+				break;
+			currentPolygon = nextPolygon;
+		}
+	}
+	this->VertexBreak();
+	
+	//// 2.
+	//{
+	//	struct _node
+	//	{
+	//		miList<miListNode2<miVertex*,v2f>*> m_vertices;
+	//	};
+	//	miArray<_node> nodes;
+
+	//	auto currentPolygon = mesh->m_first_polygon;
+	//	auto lastPolygon = currentPolygon->m_left;
+	//	while (true)
+	//	{
+	//		auto nextPolygon = currentPolygon->m_right;
+
+
+
+	//		if (currentPolygon == lastPolygon)
+	//			break;
+	//		currentPolygon = nextPolygon;
+	//	}
+	//}
+
+	//// 2.
+	//{
+	//	struct _city
+	//	{
+	//		_city(){}
+	//		~_city(){
+	//			for (u32 i = 0; i < m_brands.m_size; ++i){
+	//				delete m_brands.m_data[i];
+	//			}
+	//		}
+
+	//		struct _brand{
+	//			_brand(){
+	//				m_brand = 0;
+	//			}
+	//			
+	//			~_brand(){}
+
+	//			miArray<miVertex*> m_models;
+	//			miPolygon* m_brand;
+	//		};
+
+	//		miArray<_brand*> m_brands;
+
+	//		v3f m_cityName;
+	//	};
+	//	miArray<_city*> cities;
+	//	cities.reserve(0x1000);
+
+	//	auto cv = mesh->m_first_vertex;
+	//	auto lv = cv->m_left;
+	//	while (true)
+	//	{
+	//		if (cv->m_flags & miVertex::flag_isSelected)
+	//		{
+	//			// find city
+	//			_city * city = 0;
+	//			for (u32 i = 0; i < cities.m_size; ++i)
+	//			{
+	//				if (cities.m_data[i]->m_cityName == cv->m_position)
+	//				{
+	//					city = cities.m_data[i];
+	//					break;
+	//				}
+	//			}
+
+	//			// if not found then add new city
+	//			if (!city)
+	//			{
+	//				city = new _city;
+	//				city->m_cityName = cv->m_position;
+	//				cities.push_back(city);
+	//			}
+
+	//			auto currVertexPolygon = cv->m_polygons.m_head;
+	//			auto lastVertexPolygon = currVertexPolygon->m_left;
+	//			while (true)
+	//			{
+	//				_city::_brand* brand = 0;
+
+	//				// find brand or add new
+	//				for (u32 i = 0; i < city->m_brands.m_size; ++i)
+	//				{
+	//					auto currBrand = city->m_brands.m_data[i];
+	//					if (currVertexPolygon->m_data == currBrand->m_brand)
+	//					{
+	//						brand = currBrand;
+	//						break;
+	//					}
+	//				}
+	//				if (!brand)
+	//				{
+	//					brand = new _city::_brand;
+	//					brand->m_brand = currVertexPolygon->m_data;
+	//					city->m_brands.push_back(brand);
+	//				}
+	//				
+	//				// add model of this brand
+	//				brand->m_models.push_back(cv);
+
+	//				if (currVertexPolygon == lastVertexPolygon)
+	//					break;
+	//				currVertexPolygon = currVertexPolygon->m_right;
+	//			}
+
+	//		}
+
+	//		if (cv == lv)
+	//			break;
+	//		cv = cv->m_right;
+	//	}
+
+	//	// 3. 
+	//	for (u32 i = 0; i < cities.m_size; ++i)
+	//	{
+	//		auto city = cities.m_data[i];
+	//		
+	//		for (u32 i2 = 0; i2 < city->m_brands.m_size; ++i2)
+	//		{
+	//			auto brand = city->m_brands.m_data[i2];
+	//			
+	//			// every brand in this city must have only one model
+	//			if (brand->m_models.m_size > 1)
+	//			{
+	//				for (u32 i3 = 1; i3 < brand->m_models.m_size; ++i3)
+	//				{
+	//					auto model = brand->m_models.m_data[i3];
+
+	//					// remove this model...
+	//					brand->m_brand->m_verts.erase_first(model);
+	//					model->m_polygons.erase_first(brand->m_brand);
+	//					if (!model->m_polygons.m_head)
+	//					{
+	//						mesh->_remove_vertex_from_list(model);
+	//						model->~miVertex();
+	//						m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(model);
+	//					}
+	//				}
+	//			}
+	//		}
+	//		
+	//	}
+
+	//	// 4.
+	//	_updateModel(true);
+	//	for (u32 i = 0; i < cities.m_size; ++i)
+	//	{
+	//		auto city = cities.m_data[i];
+	//		//printf("City %u\n", i);
+
+	//		auto brand1 = city->m_brands.m_data[0];
+
+	//		for (u32 i2 = 1; i2 < city->m_brands.m_size; ++i2)
+	//		{
+	//			auto brand2 = city->m_brands.m_data[i2];
+	//		
+	//			//printf("%f\n", brand2->m_models.m_data[0]->m_position.x);
+	//			/*miPolygon* p1 = 0;
+	//			miPolygon* p2 = 0;
+	//			this->VertexTargetWeld(brand2->m_models.m_data[0], brand1->m_models.m_data[0], &p1, &p2);
+	//			if (p1) printf("p1!\n");
+	//			if (p2) printf("p2!\n");
+
+	//			_updateModel(false);*/
+
+	//			/*printf("Brand %u\n", i2);
+
+	//			for (u32 i3 = 0; i3 < brand2->m_models.m_size; ++i3)
+	//			{
+	//				printf("Model %u\n", i3);
+	//			}*/
+
+	//			/*brand1->m_models.m_data[0]->m_polygons.push_back(brand2->m_brand);
+	//				
+	//			brand2->m_brand->m_verts.replace(brand2->m_models.m_data[0], brand1->m_models.m_data[0], v2f());
+
+	//			mesh->_remove_vertex_from_list(brand2->m_models.m_data[0]);
+	//			brand2->m_models.m_data[0]->~miVertex();
+	//			m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(brand2->m_models.m_data[0]);*/
+	//		}
+	//	}
+
+
+	//	for (u32 i = 0; i < cities.m_size; ++i)
+	//	{
+	//		delete cities.m_data[i];
+	//	}
+	//}
+	
+
+	_destroyMesh();
+	m_mesh = miCreate<miMesh>();
+	g_app->m_sdk->AppendMesh(m_mesh, mesh);
 
 	this->DestroyTMPModelWithPoolAllocator();
-	_updateModel();
+	_updateModel(false);
 	DeselectAll(g_app->m_editMode);
 }

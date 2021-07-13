@@ -728,7 +728,7 @@ void miEditableObject::OnTransformEdge(
 	default:
 		break;
 	}
-	_callVisualObjectOnTransform();
+	CallVisualObjectOnTransform();
 }
 
 void miEditableObject::OnTransformVertex(
@@ -753,17 +753,35 @@ void miEditableObject::OnTransformVertex(
 	default:
 		break;
 	}
-	_callVisualObjectOnTransform();
+	CallVisualObjectOnTransform();
 }
 
-void miEditableObject::_callVisualObjectOnTransform() {
-	auto voc = GetVisualObjectCount();
-	for (int i = 0; i < voc; ++i)
-	{
-		auto vo = GetVisualObject(i);
-		vo->OnTransform();
-	}
-}
+//void miEditableObject::CallVisualObjectOnTransform() {
+//	auto voc = GetVisualObjectCount();
+//	for (int i = 0; i < voc; ++i)
+//	{
+//		auto vo = GetVisualObject(i);
+//		vo->OnTransform();
+//	}
+//}
+//
+//void miEditableObject::CallVisualObjectOnSelect() {
+//	switch (g_app->m_editMode)
+//	{
+//	case miEditMode::Vertex:
+//	case miEditMode::Edge:
+//	case miEditMode::Polygon:
+//			auto voc = GetVisualObjectCount();
+//			for (int o = 0; o < voc; ++o)
+//			{
+//				GetVisualObject(o)->OnSelect(g_app->m_editMode);
+//			}
+//		break;
+//	case miEditMode::Object:
+//	default:
+//		break;
+//	}
+//}
 
 void miEditableObject::OnTransformPolygon(
 	miTransformMode tm, 
@@ -787,7 +805,7 @@ void miEditableObject::OnTransformPolygon(
 	default:
 		break;
 	}
-	_callVisualObjectOnTransform();
+	CallVisualObjectOnTransform();
 }
 
 void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
@@ -904,7 +922,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 	default:
 		break;
 	}
-	printf("VERTS FOR TRANSFORM: %u\n", m_vertsForTransform.m_size);
+	//printf("VERTS FOR TRANSFORM: %u\n", m_vertsForTransform.m_size);
 }
 
 void miEditableObject::VertexConnect() {
@@ -1089,8 +1107,10 @@ void miEditableObject::VertexBreak() {
 
 	m_mesh->_delete_edges(m_allocatorEdge);
 	m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
+	_updateVertsForTransformArray(miEditMode::Vertex);
 	RebuildVisualObjects(false);
 	UpdateCounts();
+	g_app->_callVisualObjectOnSelect();
 }
 
 void miEditableObject::AttachObject(miEditableObject* otherObject) {
@@ -1254,72 +1274,6 @@ u32 miEditableObject::GetEdgeCount() {
 
 u32 miEditableObject::GetPolygonCount() {
 	return m_polygonCount;
-}
-
-void miEditableObject::DeleteInvisiblePolygons(bool weldVertices) {
-	static miArray<miPolygon*> polygons;
-	
-	auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
-	{
-		auto c = mesh->m_first_polygon;
-		if (c)
-		{
-			auto l = c->m_left;
-			while (true)
-			{
-				if (!c->IsVisible())
-					polygons.push_back(c);
-
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-	}
-	
-	//printf("DELETE %u POLYGONS\n", polygons.m_size);
-	for (u32 i = 0; i < polygons.m_size; ++i)
-	{
-		auto currPolygon = polygons.m_data[i];
-
-		static miArray<miVertex*> vertsForTargetWeld;
-		//if (weldVertices)
-		//{
-		//	vertsForTargetWeld.clear();
-
-		//	// I need to find vertices that have more than 1 polygon
-		//	auto currVertex = currPolygon->m_verts.m_head;
-		//	auto lastVertex = currVertex->m_left;
-		//	while (true)
-		//	{
-		//		u32 polyCount = 0;
-		//		if (currVertex->m_data1->m_polygons.m_head)
-		//		{
-		//			auto cp = currVertex->m_data1->m_polygons.m_head;
-		//			auto lp = cp->m_left;
-		//			while (true)
-		//			{
-		//				++polyCount;
-		//				if (cp == lp)
-		//					break;
-		//				cp = cp->m_right;
-		//			}
-		//		}
-		//		if (polyCount > 1)
-		//		{
-		//			vertsForTargetWeld.push_back(currVertex->m_data1);
-		//		}
-
-		//		if (currVertex == lastVertex)
-		//			break;
-		//		currVertex = currVertex->m_right;
-		//	}
-		//}
-
-		this->DeletePolygon(currPolygon);
-	}
-
-	polygons.clear();
 }
 
 void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected) {

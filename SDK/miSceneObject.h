@@ -324,6 +324,32 @@ public:
 	virtual void OnSelect(miEditMode) {}
 	virtual void OnSetEditMode(miEditMode) {}
 	virtual void OnEndTransform(miEditMode) {}
+
+	virtual void CallVisualObjectOnTransform() {
+		auto voc = GetVisualObjectCount();
+		for (int i = 0; i < voc; ++i)
+		{
+			auto vo = GetVisualObject(i);
+			vo->OnTransform();
+		}
+	}
+	virtual void CallVisualObjectOnSelect(miEditMode em) {
+		switch (em)
+		{
+		case miEditMode::Vertex:
+		case miEditMode::Edge:
+		case miEditMode::Polygon: {
+			auto voc = GetVisualObjectCount();
+			for (int o = 0; o < voc; ++o)
+			{
+				GetVisualObject(o)->OnSelect(em);
+			}
+		}break;
+		case miEditMode::Object:
+		default:
+			break;
+		}
+	}
 };
 
 #endif

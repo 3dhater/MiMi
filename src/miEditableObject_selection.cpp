@@ -273,11 +273,24 @@ void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf
 		while (true)
 		{
 			++ecount;
+			//printf("E: %u\n", (u32)ce);
 			if (ce == le)
 				break;
 			ce = ce->m_right;
 		}
 		printf("%u edges in vertex\n", ecount);
+		
+		auto cp = verts_in_frust.m_data[0]->m_polygons.m_head;
+		auto lp = cp->m_left;
+		u32 pcount = 0;
+		while (true)
+		{
+			++pcount;
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+		printf("%u polygons in vertex\n", pcount);
 	}
 }
 
@@ -323,6 +336,9 @@ void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) 
 		};
 		edges_in_frust.sort_insertion(_pred());
 		m_sdk->AddEdgeToSelection(edges_in_frust.m_data[0], this);
+		
+		printf("Polygons in edge: %u  and %u\n", edges_in_frust.m_data[0]->m_polygon1, edges_in_frust.m_data[0]->m_polygon2);
+		printf("Vertices in edge: %u  and %u\n", edges_in_frust.m_data[0]->m_vertex1, edges_in_frust.m_data[0]->m_vertex2);
 	}
 }
 

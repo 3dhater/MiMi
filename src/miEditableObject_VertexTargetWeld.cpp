@@ -27,7 +27,7 @@ void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v
 	{
 		if (p1) selObject->DeletePolygon(p1);
 		if (p2) selObject->DeletePolygon(p2);
-		selObject->_updateModel();
+		selObject->_updateModel(false);
 	}
 }
 void editableObjectGUI_tgweldButton_onCancel(){
@@ -278,7 +278,7 @@ void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 
 }
 
-void miEditableObject::_updateModel() {
+void miEditableObject::_updateModel(bool onlyEdge) {
 	if (m_meshBuilderTmpModelPool)
 	{
 		m_meshBuilderTmpModelPool->m_mesh->_delete_edges(m_meshBuilderTmpModelPool->m_allocatorEdge);
@@ -289,6 +289,9 @@ void miEditableObject::_updateModel() {
 		m_mesh->_delete_edges(m_allocatorEdge);
 		m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	}
+
+	if (onlyEdge)
+		return;
 
 	RebuildVisualObjects(false);
 	UpdateCounts();
@@ -308,7 +311,7 @@ void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v
 
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	selObject->VertexMoveTo(v1,v2);
-	selObject->_updateModel();
+	selObject->_updateModel(false);
 }
 void editableObjectGUI_movetoButton_onCancel() {
 	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];

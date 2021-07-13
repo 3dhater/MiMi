@@ -41,13 +41,13 @@ class miEditableObject : public miSceneObject
 	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);
 
-	void _callVisualObjectOnTransform();
+	
 
 	u32 m_vertexCount;
 	u32 m_edgeCount;
 	u32 m_polygonCount;
 
-	void _updateModel();
+	void _updateModel(bool onlyEdge = false);
 
 	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected);
 
@@ -57,6 +57,7 @@ class miEditableObject : public miSceneObject
 	friend void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_weldButton_onCancel();
 	friend void editableObjectGUI_chamferButton_onCancel();
+	friend void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr);
 public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
@@ -100,10 +101,14 @@ public:
 	virtual void OnSetEditMode(miEditMode) override;
 	virtual void OnEndTransform(miEditMode) override;
 
+	/*virtual void CallVisualObjectOnTransform() override;
+	virtual void CallVisualObjectOnSelect() override;*/
+
 	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
 	void DeletePolygon(miPolygon*);
+	
 	void VertexConnect();
 	void VertexBreak();
 	bool VertexTargetWeld(miVertex* v1, miVertex* v2, miPolygon** polygonForDelete1, miPolygon** polygonForDelete2);
@@ -123,13 +128,14 @@ public:
 	void DestroyTMPModelWithPoolAllocator();
 	void OnWeld();
 	void OnWeldApply();
-	void DeleteInvisiblePolygons(bool weldVertices);
 	void _createMeshFromTMPMesh();
 
 	f32 m_chamferValue;
 	bool m_addPolygonsWhenChamfer;
 	void OnChamfer();
 	void OnChamferApply();
+
+	
 };
 
 #endif
