@@ -1,10 +1,12 @@
  Info: Init window...
-Info: Init video driver - D3D11...
-Info: featureLevel : 45056
-Info: Hardware MSAA Quality levels : 1
+Info: Init video driver - OpenGL...
+Info: Init OpenGL 3.3
+Info: Vendor: Intel
+Info: Renderer: Intel(R) HD Graphics 510
 Info: Load texture: ../res/gui/white.dds
-Info: Load plugin: plugins\stdPlugin.plg...
-Info: DONE (Standart plugin)
+Info: Load texture: ../res/gui/black.dds
+Info: Load texture: ../res/gui/tr.dds
+Info: Create sprite
 Info: Load texture: ..\res\fonts\Noto\notosans.txt0.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt1.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt2.dds
@@ -12,6 +14,9 @@ Info: Load texture: ..\res\fonts\Noto\notosans.txt3.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt4.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt5.dds
 Info: Load texture: ..\res\fonts\Noto\notosans.txt6.dds
-Info: Load texture: ../res/gui/black.dds
 Info: Load texture: ../res/gui/icons.png
+Info: Load plugin: plugins\stdPlugin.plg...
+Info: Load texture: ../res/gui/checkbox.png
+Info: DONE (Standart plugin)
 Info: Destroy main window...
+Info: Destroy video driver...

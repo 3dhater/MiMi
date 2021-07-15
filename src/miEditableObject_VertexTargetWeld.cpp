@@ -190,7 +190,7 @@ end:;
 		bool v1OnEdge = v1->IsOnEdge();
 		bool v2OnEdge = v2->IsOnEdge();
 
-		if (v2OnEdge && v2OnEdge)
+		if (v1OnEdge && v2OnEdge)
 		{
 			// replase v1->v2
 			auto cp = v1->m_polygons.m_head;
@@ -278,7 +278,7 @@ void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 
 }
 
-void miEditableObject::_updateModel(bool onlyEdge) {
+void miEditableObject::_updateModel(bool onlyEdge, bool updateCounts) {
 	if (m_meshBuilderTmpModelPool)
 	{
 		m_meshBuilderTmpModelPool->m_mesh->_delete_edges(m_meshBuilderTmpModelPool->m_allocatorEdge);
@@ -294,7 +294,9 @@ void miEditableObject::_updateModel(bool onlyEdge) {
 		return;
 
 	RebuildVisualObjects(false);
-	UpdateCounts();
+
+	if(updateCounts)
+		UpdateCounts();
 }
 
 bool editableObjectGUI_movetoButton_onIsGoodVertex(miSceneObject* o, miVertex* v) {

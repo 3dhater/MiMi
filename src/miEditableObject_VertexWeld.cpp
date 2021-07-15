@@ -31,7 +31,7 @@ void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr)
 	{
 		if (*fptr < 0.f)
 			*fptr = 0.f;
-		object->OnWeld();
+		object->OnWeld(false);
 	}
 }
 
@@ -79,7 +79,7 @@ void editableObjectGUI_weldButton_onCheck(s32 id) {
 
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->UpdateCounts();
-	object->OnWeld();
+	object->OnWeld(true);
 }
 
 void editableObjectGUI_weldButton_onUncheck(s32 id) {
@@ -91,16 +91,33 @@ void editableObjectGUI_weldButton_onUncheck(s32 id) {
 	}
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->DestroyTMPModelWithPoolAllocator();
+	object->_updateModel(false);
 }
 
-void miEditableObject::OnWeld() {
+void miEditableObject::OnWeld(bool createNewTMPModel) {
 	//return;
 
-	m_isWeld = true;
-	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
+	if (!m_isWeld)
+	{
+		m_isWeld = true;
+	}
+
+	if (createNewTMPModel)
+	{
+		DestroyTMPModelWithPoolAllocator();
+		CreateTMPModelWithPoolAllocator(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
+	}
+	
 
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
+
+	// easy to go through array than through list
+	static miArray<miVertex*> varr_base;
+	static miArray<miVertex*> varr;
+	varr_base.reserve(0x2000);
+	varr_base.clear();
+	varr.reserve(0x2000);
+	varr.clear();
 
 	{
 		auto c = mesh->m_first_vertex;
@@ -108,10 +125,15 @@ void miEditableObject::OnWeld() {
 		auto l = c->m_left;
 		while (true)
 		{
+			varr_base.push_back(c_base);
+			varr.push_back(c);
+
 			if (c_base->m_flags & c_base->flag_User1) c_base->m_flags ^= c_base->flag_User1;
 			if (c_base->m_flags & c_base->flag_User2) c_base->m_flags ^= c_base->flag_User2;
 			if (c->m_flags & c->flag_User1) c->m_flags ^= c->flag_User1;
 			if (c->m_flags & c->flag_User2) c->m_flags ^= c->flag_User2;
+			
+			c->m_position = c_base->m_position;
 
 			if (c == l)
 				break;
@@ -120,48 +142,46 @@ void miEditableObject::OnWeld() {
 		}
 	}
 
+	for (u32 i = 0; i < varr.m_size; ++i)
 	{
-		auto c = mesh->m_first_vertex;
-		auto base_c = m_mesh->m_first_vertex;
-		auto l = c->m_left;
-		while (true)
+		if ((varr.m_data[i]->m_flags & miVertex::flag_User1) == 0 && varr.m_data[i]->m_flags & miVertex::flag_isSelected)
 		{
-			if ((c->m_flags & miVertex::flag_User1) == 0 && c->m_flags & miVertex::flag_isSelected)
+			u32 vcount = 2;
+			for (u32 i2 = i; i2 < varr.m_size; ++i2)
 			{
-				base_c->m_flags |= miVertex::flag_User1;
-				c->m_flags |= miVertex::flag_User1;
-
-				auto c2 = c->m_right;
-				auto base_c2 = base_c->m_right;
-				while (true)
+				if ((varr.m_data[i2]->m_flags & miVertex::flag_User1) == 0 && varr.m_data[i2]->m_flags & miVertex::flag_isSelected)
 				{
-					if ((c2->m_flags & miVertex::flag_User1) == 0 && c2->m_flags & miVertex::flag_isSelected)
+					f32 d = varr_base.m_data[i]->m_position.distance(varr_base.m_data[i2]->m_position);
+					if (d <= m_weldValue)
 					{
-						f32 d = base_c->m_position.distance(base_c2->m_position);
-						if (d <= m_weldValue)
-						{
-							base_c2->m_flags |= miVertex::flag_User1;
-							c2->m_flags |= miVertex::flag_User1;
+						varr.m_data[i2]->m_flags |= miVertex::flag_User1;
 
-							this->VertexMoveTo(c2,c);
-						}
+						v3f pos = varr_base.m_data[i]->m_position + varr_base.m_data[i2]->m_position;
+						pos *= 1.f/(f32)vcount;
+						varr.m_data[i]->m_position = pos;
+						//++vcount;
+
+						this->VertexMoveTo(varr.m_data[i2], varr.m_data[i]);
 					}
-					if (c2 == l)
-						break;
-					c2 = c2->m_right;
-					base_c2 = base_c2->m_right;
 				}
-
 			}
-			if (c == l)
-				break;
-			c = c->m_right;
-			base_c = base_c->m_right;
+			
+			/*for (u32 i2 = i, div = 2; i2 < varr.m_size; ++i2)
+			{
+				if (varr.m_data[i2]->m_flags & miVertex::flag_isSelected)
+				{
+					f32 d = varr_base.m_data[i]->m_position.distance(varr_base.m_data[i2]->m_position);
+					if (d <= m_weldValue)
+					{
+						varr.m_data[i2]->m_position *= 1.f / (f32)vcount;
+					}
+				}
+			}*/
 		}
 	}
 
 
-	_updateModel(false);
+	_updateModel(false, false);
 }
 
 void miEditableObject::OnWeldApply() {
@@ -172,12 +192,8 @@ void miEditableObject::OnWeldApply() {
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 	
 	// 1. Delete all invisible polygons if they have at least one selected vertex
-	// 2. Create some help structs/containers that contain all polygons and vertices 
-	//     in same position.
-	// 3. Remove from polygon that vertices, who have same position. Save only last vertex.
-	// 4. Add to this polygons that vertites of other polygons, who have same position 
-	//     with vertex of this polygon.
-
+	// 2. Delete vertices(from polygon) with same position
+	// 3.  'weld' all selected
 
 	// 1.
 	{
@@ -210,7 +226,8 @@ void miEditableObject::OnWeldApply() {
 			currentPolygon = nextPolygon;
 		}
 	}
-	
+	_updateModel(false, true);
+
 	_destroyMesh();
 	m_mesh = miCreate<miMesh>();
 	g_app->m_sdk->AppendMesh(m_mesh, mesh);
@@ -218,307 +235,190 @@ void miEditableObject::OnWeldApply() {
 
 	this->VertexBreak();
 
-	// Delete vertices(from polygon) with same position
-	auto currentPolygon = m_mesh->m_first_polygon;
-	auto lastPolygon = currentPolygon->m_left;
-	while (true)
+	// 2.
 	{
-		auto nextPolygon = currentPolygon->m_right;
-
-	begin:;
-		auto currVertex = currentPolygon->m_verts.m_head;
-		auto lastVertex = currVertex->m_left;
+		auto currentPolygon = m_mesh->m_first_polygon;
+		auto lastPolygon = currentPolygon->m_left;
 		while (true)
 		{
-			if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
+			auto nextPolygon = currentPolygon->m_right;
+		begin:;
+			auto currVertex = currentPolygon->m_verts.m_head;
+			auto lastVertex = currVertex->m_left;
+			while (true)
 			{
-				if (currVertex->m_data1->m_flags & miVertex::flag_User1)
-					currVertex->m_data1->m_flags ^= miVertex::flag_User1;
-
-				auto currVertex2 = currVertex->m_right;
-				auto lastVertex2 = currVertex2->m_left;
-				while (true)
+				if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
 				{
-					if (currVertex2->m_data1->m_flags & miVertex::flag_isSelected)
-					{
-						if (currVertex2->m_data1->m_flags & miVertex::flag_User1)
-							currVertex2->m_data1->m_flags ^= miVertex::flag_User1;
+					if (currVertex->m_data1->m_flags & miVertex::flag_User1)
+						currVertex->m_data1->m_flags ^= miVertex::flag_User1;
 
-						if (currVertex->m_data1 != currVertex2->m_data1)
+					auto currVertex2 = currVertex->m_right;
+					auto lastVertex2 = currVertex2->m_left;
+					while (true)
+					{
+						if (currVertex2->m_data1->m_flags & miVertex::flag_isSelected)
 						{
-							if (currVertex->m_data1->m_position == currVertex2->m_data1->m_position)
+							if (currVertex2->m_data1->m_flags & miVertex::flag_User1)
+								currVertex2->m_data1->m_flags ^= miVertex::flag_User1;
+
+							if (currVertex->m_data1 != currVertex2->m_data1)
 							{
-								currentPolygon->m_verts.erase_first(currVertex2->m_data1);
-								currVertex2->m_data1->m_polygons.erase_first(currentPolygon);
-								if (!currVertex2->m_data1->m_polygons.m_head)
+								if (currVertex->m_data1->m_position == currVertex2->m_data1->m_position)
 								{
-									m_mesh->_remove_vertex_from_list(currVertex2->m_data1);
-									currVertex2->m_data1->~miVertex();
-									m_allocatorVertex->Deallocate(currVertex2->m_data1);
-									goto begin;
+									currentPolygon->m_verts.erase_first(currVertex2->m_data1);
+									currVertex2->m_data1->m_polygons.erase_first(currentPolygon);
+									if (!currVertex2->m_data1->m_polygons.m_head)
+									{
+										m_mesh->_remove_vertex_from_list(currVertex2->m_data1);
+										currVertex2->m_data1->~miVertex();
+										m_allocatorVertex->Deallocate(currVertex2->m_data1);
+										goto begin;
+									}
 								}
 							}
 						}
-					}
 
-					if (currVertex2 == lastVertex2)
-						break;
-					currVertex2 = currVertex2->m_right;
+						if (currVertex2 == lastVertex2)
+							break;
+						currVertex2 = currVertex2->m_right;
+					}
 				}
+
+				if (currVertex == lastVertex)
+					break;
+				currVertex = currVertex->m_right;
 			}
 
-			if (currVertex == lastVertex)
+			if (currentPolygon == lastPolygon)
 				break;
-			currVertex = currVertex->m_right;
+			currentPolygon = nextPolygon;
 		}
-
-		if (currentPolygon == lastPolygon)
-			break;
-		currentPolygon = nextPolygon;
 	}
-
-	// just target weld
+	
+	// 3.
 	{
-	begin2:;
-		auto currVertex = m_mesh->m_first_vertex;
-		auto lastVertex = currVertex->m_left;
+		// I need list of vertices in specific position
+		std::unordered_map<std::string, miListNode2<miVertex*, v2f>*> weldMap;
+
+		std::string vertsMapHash;
+		auto _set_hash = [&](v3f* position)
+		{
+			vertsMapHash.clear();
+			char * ptr = (char *)position->data();
+			char bytes[13];
+			bytes[0] = ptr[0];
+			bytes[1] = ptr[1];
+			bytes[2] = ptr[2];
+			bytes[3] = ptr[3];
+			bytes[4] = ptr[4];
+			bytes[5] = ptr[5];
+			bytes[6] = ptr[6];
+			bytes[7] = ptr[7];
+			bytes[8] = ptr[8];
+			bytes[9] = ptr[9];
+			bytes[10] = ptr[10];
+			bytes[11] = ptr[11];
+			if (bytes[0] == 0) bytes[0] = 1;
+			if (bytes[1] == 0) bytes[1] = 1;
+			if (bytes[2] == 0) bytes[2] = 1;
+			if (bytes[3] == 0) bytes[3] = 1;
+			if (bytes[4] == 0) bytes[4] = 1;
+			if (bytes[5] == 0) bytes[5] = 1;
+			if (bytes[6] == 0) bytes[6] = 1;
+			if (bytes[7] == 0) bytes[7] = 1;
+			if (bytes[8] == 0) bytes[8] = 1;
+			if (bytes[9] == 0) bytes[9] = 1;
+			if (bytes[10] == 0) bytes[10] = 1;
+			if (bytes[11] == 0) bytes[11] = 1;
+			bytes[12] = 0;
+			vertsMapHash = bytes;
+		};
+
+		auto currentPolygon = m_mesh->m_first_polygon;
+		auto lastPolygon = currentPolygon->m_left;
 		while (true)
 		{
-			if ((currVertex->m_flags & miVertex::flag_User1) == 0
-				&& (currVertex->m_flags & miVertex::flag_isSelected))
+			auto nextPolygon = currentPolygon->m_right;
+			auto currVertex = currentPolygon->m_verts.m_head;
+			auto lastVertex = currVertex->m_left;
+			while (true)
 			{
-
-				auto currVertex2 = currVertex->m_right;
-				auto lastVertex2 = currVertex2->m_left;
-				while (true)
+				if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
 				{
-					if (currVertex2->m_flags & miVertex::flag_isSelected)
+					if (currVertex->m_data1->m_flags & miVertex::flag_User1)
+						currVertex->m_data1->m_flags ^= miVertex::flag_User1;
+
+					_set_hash(&currVertex->m_data1->m_position);
+					auto it = weldMap.find(vertsMapHash);
+					if (it == weldMap.end())
 					{
-						if (currVertex != currVertex2)
+						weldMap[vertsMapHash] = currVertex; // I need to know only one vertex in this position
+					}
+				}
+
+				if (currVertex == lastVertex)
+					break;
+				currVertex = currVertex->m_right;
+			}
+
+			if (currentPolygon == lastPolygon)
+				break;
+			currentPolygon = nextPolygon;
+		}
+
+		{
+			auto currentVertex = m_mesh->m_first_vertex;
+			auto lastVertex = currentVertex->m_left;
+			while (true)
+			{
+				auto nextVertex = currentVertex->m_right;
+
+				if (currentVertex->m_flags & miVertex::flag_isSelected)
+				{
+					_set_hash(&currentVertex->m_position);
+					auto iterator = weldMap.find(vertsMapHash);
+					if (iterator != weldMap.end())
+					{
+						bool v1OnEdge = iterator->second->m_data1->IsOnEdge();
+
+						if (currentVertex != iterator->second->m_data1
+							&& v1OnEdge)
 						{
-							if (currVertex->m_position == currVertex2->m_position)
+
+							auto cp = currentVertex->m_polygons.m_head;
+							auto lp = cp->m_left;
+							while (true)
 							{
-								miPolygon* p1 = 0;
-								miPolygon* p2 = 0;
-								this->VertexTargetWeld(currVertex2, currVertex, &p1, &p2);
-								_updateModel(true);
-								if (p1) printf("!!! p1\n");
-								if (p2) printf("!!! p2\n");
-								goto begin2;
+								// weld only vertices on the edge
+								bool v2OnEdge = currentVertex->IsOnEdge();
+								if (v2OnEdge)
+								{
+									cp->m_data->m_verts.replace(currentVertex, iterator->second->m_data1, iterator->second->m_data2);
+									iterator->second->m_data1->m_polygons.push_back(cp->m_data);
+									currentVertex->m_polygons.erase_first(cp->m_data);
+								}
+
+								if (cp == lp)
+									break;
+								cp = cp->m_right;
+							}
+
+							if (!currentVertex->m_polygons.m_head)
+							{
+								m_mesh->_remove_vertex_from_list(currentVertex);
+								currentVertex->~miVertex();
+								m_allocatorVertex->Deallocate(currentVertex);
 							}
 						}
 					}
-
-					if (currVertex2 == lastVertex2)
-						break;
-					currVertex2 = currVertex2->m_right;
 				}
+				if (currentVertex == lastVertex)
+					break;
+				currentVertex = nextVertex;
 			}
-
-			currVertex->m_flags |= miVertex::flag_User1;
-
-			if (currVertex == lastVertex)
-				break;
-			currVertex = currVertex->m_right;
 		}
 	}
 
-	//// 2.
-	//{
-	//	struct _node
-	//	{
-	//		miList<miListNode2<miVertex*,v2f>*> m_vertices;
-	//	};
-	//	miArray<_node> nodes;
-
-	//	auto currentPolygon = mesh->m_first_polygon;
-	//	auto lastPolygon = currentPolygon->m_left;
-	//	while (true)
-	//	{
-	//		auto nextPolygon = currentPolygon->m_right;
-
-
-
-	//		if (currentPolygon == lastPolygon)
-	//			break;
-	//		currentPolygon = nextPolygon;
-	//	}
-	//}
-
-	//// 2.
-	//{
-	//	struct _city
-	//	{
-	//		_city(){}
-	//		~_city(){
-	//			for (u32 i = 0; i < m_brands.m_size; ++i){
-	//				delete m_brands.m_data[i];
-	//			}
-	//		}
-
-	//		struct _brand{
-	//			_brand(){
-	//				m_brand = 0;
-	//			}
-	//			
-	//			~_brand(){}
-
-	//			miArray<miVertex*> m_models;
-	//			miPolygon* m_brand;
-	//		};
-
-	//		miArray<_brand*> m_brands;
-
-	//		v3f m_cityName;
-	//	};
-	//	miArray<_city*> cities;
-	//	cities.reserve(0x1000);
-
-	//	auto cv = mesh->m_first_vertex;
-	//	auto lv = cv->m_left;
-	//	while (true)
-	//	{
-	//		if (cv->m_flags & miVertex::flag_isSelected)
-	//		{
-	//			// find city
-	//			_city * city = 0;
-	//			for (u32 i = 0; i < cities.m_size; ++i)
-	//			{
-	//				if (cities.m_data[i]->m_cityName == cv->m_position)
-	//				{
-	//					city = cities.m_data[i];
-	//					break;
-	//				}
-	//			}
-
-	//			// if not found then add new city
-	//			if (!city)
-	//			{
-	//				city = new _city;
-	//				city->m_cityName = cv->m_position;
-	//				cities.push_back(city);
-	//			}
-
-	//			auto currVertexPolygon = cv->m_polygons.m_head;
-	//			auto lastVertexPolygon = currVertexPolygon->m_left;
-	//			while (true)
-	//			{
-	//				_city::_brand* brand = 0;
-
-	//				// find brand or add new
-	//				for (u32 i = 0; i < city->m_brands.m_size; ++i)
-	//				{
-	//					auto currBrand = city->m_brands.m_data[i];
-	//					if (currVertexPolygon->m_data == currBrand->m_brand)
-	//					{
-	//						brand = currBrand;
-	//						break;
-	//					}
-	//				}
-	//				if (!brand)
-	//				{
-	//					brand = new _city::_brand;
-	//					brand->m_brand = currVertexPolygon->m_data;
-	//					city->m_brands.push_back(brand);
-	//				}
-	//				
-	//				// add model of this brand
-	//				brand->m_models.push_back(cv);
-
-	//				if (currVertexPolygon == lastVertexPolygon)
-	//					break;
-	//				currVertexPolygon = currVertexPolygon->m_right;
-	//			}
-
-	//		}
-
-	//		if (cv == lv)
-	//			break;
-	//		cv = cv->m_right;
-	//	}
-
-	//	// 3. 
-	//	for (u32 i = 0; i < cities.m_size; ++i)
-	//	{
-	//		auto city = cities.m_data[i];
-	//		
-	//		for (u32 i2 = 0; i2 < city->m_brands.m_size; ++i2)
-	//		{
-	//			auto brand = city->m_brands.m_data[i2];
-	//			
-	//			// every brand in this city must have only one model
-	//			if (brand->m_models.m_size > 1)
-	//			{
-	//				for (u32 i3 = 1; i3 < brand->m_models.m_size; ++i3)
-	//				{
-	//					auto model = brand->m_models.m_data[i3];
-
-	//					// remove this model...
-	//					brand->m_brand->m_verts.erase_first(model);
-	//					model->m_polygons.erase_first(brand->m_brand);
-	//					if (!model->m_polygons.m_head)
-	//					{
-	//						mesh->_remove_vertex_from_list(model);
-	//						model->~miVertex();
-	//						m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(model);
-	//					}
-	//				}
-	//			}
-	//		}
-	//		
-	//	}
-
-	//	// 4.
-	//	_updateModel(true);
-	//	for (u32 i = 0; i < cities.m_size; ++i)
-	//	{
-	//		auto city = cities.m_data[i];
-	//		//printf("City %u\n", i);
-
-	//		auto brand1 = city->m_brands.m_data[0];
-
-	//		for (u32 i2 = 1; i2 < city->m_brands.m_size; ++i2)
-	//		{
-	//			auto brand2 = city->m_brands.m_data[i2];
-	//		
-	//			//printf("%f\n", brand2->m_models.m_data[0]->m_position.x);
-	//			/*miPolygon* p1 = 0;
-	//			miPolygon* p2 = 0;
-	//			this->VertexTargetWeld(brand2->m_models.m_data[0], brand1->m_models.m_data[0], &p1, &p2);
-	//			if (p1) printf("p1!\n");
-	//			if (p2) printf("p2!\n");
-
-	//			_updateModel(false);*/
-
-	//			/*printf("Brand %u\n", i2);
-
-	//			for (u32 i3 = 0; i3 < brand2->m_models.m_size; ++i3)
-	//			{
-	//				printf("Model %u\n", i3);
-	//			}*/
-
-	//			/*brand1->m_models.m_data[0]->m_polygons.push_back(brand2->m_brand);
-	//				
-	//			brand2->m_brand->m_verts.replace(brand2->m_models.m_data[0], brand1->m_models.m_data[0], v2f());
-
-	//			mesh->_remove_vertex_from_list(brand2->m_models.m_data[0]);
-	//			brand2->m_models.m_data[0]->~miVertex();
-	//			m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(brand2->m_models.m_data[0]);*/
-	//		}
-	//	}
-
-
-	//	for (u32 i = 0; i < cities.m_size; ++i)
-	//	{
-	//		delete cities.m_data[i];
-	//	}
-	//}
-	
-
-	/*_destroyMesh();
-	m_mesh = miCreate<miMesh>();
-	g_app->m_sdk->AppendMesh(m_mesh, mesh);
-	this->DestroyTMPModelWithPoolAllocator();*/
 
 	_updateModel(false);
 	DeselectAll(g_app->m_editMode);

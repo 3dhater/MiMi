@@ -47,7 +47,7 @@ class miEditableObject : public miSceneObject
 	u32 m_edgeCount;
 	u32 m_polygonCount;
 
-	void _updateModel(bool onlyEdge = false);
+	void _updateModel(bool onlyEdge = false, bool updateCounts = true);
 
 	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected);
 
@@ -58,6 +58,8 @@ class miEditableObject : public miSceneObject
 	friend void editableObjectGUI_weldButton_onCancel();
 	friend void editableObjectGUI_chamferButton_onCancel();
 	friend void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr);
+	friend void editableObjectGUI_weldButton_onUncheck(s32 id);
+
 public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
@@ -107,6 +109,8 @@ public:
 	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
+
+	// always update rebuild edges after this
 	void DeletePolygon(miPolygon*);
 	
 	void VertexConnect();
@@ -126,7 +130,7 @@ public:
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilderTmpModelPool;
 	void CreateTMPModelWithPoolAllocator(s32 polygonNum, s32 edgeNum, s32 vertexNum);
 	void DestroyTMPModelWithPoolAllocator();
-	void OnWeld();
+	void OnWeld(bool createNewTMPModel);
 	void OnWeldApply();
 	void _createMeshFromTMPMesh();
 

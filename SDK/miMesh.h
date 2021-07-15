@@ -582,7 +582,7 @@ struct miMesh
 				//}
 
 				current_edge = current_vertex->m_edges.m_head;
-				for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
+				for (size_t i = 0, sz = sortedEdges.size(); i < sz; ++i)
 				{
 					current_edge->m_data = sortedEdges[i];
 					current_edge = current_edge->m_right;

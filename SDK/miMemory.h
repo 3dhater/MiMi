@@ -45,7 +45,7 @@ public:
 		unsigned char* p = m_pool;
 		m_firstFree = p;
 		m_freeCount = m_poolSize;
-		int count = m_poolSize;
+		size_t count = m_poolSize;
 		while (--count) 
 		{
 			*(void**)p = (p + sizeof(_type));

@@ -198,7 +198,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_weldRange_onSelectObject,
 		editableObjectGUI_weldRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
-		0.1);
+		0.01);
 	m_pluginGuiForEditableObject->AddButton(v4f(160.f, y, 40.f, 15.f), L"OK",
 		-1,
 		editableObjectGUI_weldButtonOK_onClick,
@@ -296,7 +296,9 @@ void miEditableObject::DestroyTMPModelWithPoolAllocator() {
 		return;
 	delete m_meshBuilderTmpModelPool;
 	m_meshBuilderTmpModelPool = 0;
-	RebuildVisualObjects(false);
+
+	/*if(rebuildVisualObjects)
+		RebuildVisualObjects(false);*/
 }
 
 void miEditableObject::_destroyMesh() {
@@ -490,7 +492,7 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		DeletePolygon(polygonsForDelete[i]);
 	}
-	UpdateCounts();
+	this->_updateModel(true, true);
 
 	auto voc = GetVisualObjectCount();
 	for (int i = 0; i < voc; ++i)
@@ -501,9 +503,9 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 
 void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 	static yyArraySimple<miVertex*> vertsForDelete;
-	static yyArraySimple<miEdge*> edgesForDelete;
+	//static yyArraySimple<miEdge*> edgesForDelete;
 	vertsForDelete.clear();
-	edgesForDelete.clear();
+	//edgesForDelete.clear();
 	
 	auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
 
@@ -526,29 +528,29 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 	}
 
 	// check edges
-	{
-		auto c = _polygon->m_edges.m_head;
-		auto l = c->m_left;
-		while (true)
-		{
-			if (c->m_data->m_polygon1 == _polygon)
-				c->m_data->m_polygon1 = 0;
-			if (c->m_data->m_polygon2 == _polygon)
-				c->m_data->m_polygon2 = 0;
+	//{
+	//	auto c = _polygon->m_edges.m_head;
+	//	auto l = c->m_left;
+	//	while (true)
+	//	{
+	//		if (c->m_data->m_polygon1 == _polygon)
+	//			c->m_data->m_polygon1 = 0;
+	//		if (c->m_data->m_polygon2 == _polygon)
+	//			c->m_data->m_polygon2 = 0;
 
-			if (c->m_data->m_polygon1 == 0 && c->m_data->m_polygon2 == 0)
-			{
-				edgesForDelete.push_back(c->m_data);
-				// remove this edge from lists in verts
-				c->m_data->m_vertex1->m_edges.erase_first(c->m_data);
-				c->m_data->m_vertex2->m_edges.erase_first(c->m_data);
-			}
+	//		if (c->m_data->m_polygon1 == 0 && c->m_data->m_polygon2 == 0)
+	//		{
+	//			edgesForDelete.push_back(c->m_data);
+	//			// remove this edge from lists in verts
+	//			c->m_data->m_vertex1->m_edges.erase_first(c->m_data);
+	//			c->m_data->m_vertex2->m_edges.erase_first(c->m_data);
+	//		}
 
-			if (c == l)
-				break;
-			c = c->m_right;
-		}
-	}
+	//		if (c == l)
+	//			break;
+	//		c = c->m_right;
+	//	}
+	//}
 
 	{
 		auto l = _polygon->m_left;
@@ -587,7 +589,7 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 			m_allocatorVertex->Deallocate(c);
 	}
 
-	for (u32 i = 0; i < edgesForDelete.m_size; ++i)
+	/*for (u32 i = 0; i < edgesForDelete.m_size; ++i)
 	{
 		auto c = edgesForDelete.m_data[i];
 
@@ -607,7 +609,7 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 			m_meshBuilderTmpModelPool->m_allocatorEdge->Deallocate(c);
 		else
 			m_allocatorEdge->Deallocate(c);
-	}
+	}*/
 
 	_polygon->~miPolygon();
 

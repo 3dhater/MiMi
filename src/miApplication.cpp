@@ -126,7 +126,9 @@ void window_onActivate(yyWindow* window) {
 }
 
 int main(int argc, char* argv[]) {
-	
+
+	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+
 	yyPtr<miApplication> app = yyCreate<miApplication>();
 
 	{
@@ -332,7 +334,7 @@ miMaterial* miApplication::CreateMaterial() {
 		m_materials.push_back(p);
 	}
 
-	static u32 c = 0;
+	static s32 c = 0;
 	m->m_name = "Material";
 	m->m_name += c++;
 	m_GUIManager->OnNewMaterial(m);
