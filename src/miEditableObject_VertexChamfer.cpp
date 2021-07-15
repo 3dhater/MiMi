@@ -9,6 +9,7 @@ extern miApplication * g_app;
 
 void editableObjectGUI_chamferButton_onCheck(s32 id);
 void editableObjectGUI_chamferButton_onCancel();
+void editableObjectGUI_chamferButton_onUncheck(s32 id);
 
 void editableObjectGUI_chamferCheckBox_onClick(bool isChecked) {
 
@@ -64,8 +65,9 @@ void editableObjectGUI_chamferButton_onCancel() {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
 	g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 	g_app->m_sdk->SetSelectObjectCallbacks(0);
-	object->DestroyTMPModelWithPoolAllocator();
-	object->m_isChamfer = false;
+	/*object->DestroyTMPModelWithPoolAllocator();
+	object->m_isChamfer = false;*/
+	editableObjectGUI_chamferButton_onUncheck(-1);
 }
 
 void editableObjectGUI_chamferButton_onClick(s32 id, bool isChecked) {
@@ -91,11 +93,13 @@ void editableObjectGUI_chamferButton_onUncheck(s32 id) {
 		g_app->m_sdk->SetSelectObjectCallbacks(0);
 	}
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->m_isChamfer = false;
 	object->DestroyTMPModelWithPoolAllocator();
+	object->_updateModel(false);
 }
 
 void miEditableObject::OnChamfer() {
-	return;
+//	return;
 
 	static s32 pc = 0;
 	static s32 ec = 0;
@@ -372,9 +376,9 @@ void miEditableObject::OnChamferApply() {
 		return;
 	m_isChamfer = false;
 
-	/*_createMeshFromTMPMesh_meshBuilder(true, false);
+	_createMeshFromTMPMesh_meshBuilder(true, false);
 	
 	this->DestroyTMPModelWithPoolAllocator();
-	_updateModel();*/
+	_updateModel();
 }
 

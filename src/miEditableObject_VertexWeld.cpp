@@ -8,6 +8,7 @@
 extern miApplication * g_app;
 
 void editableObjectGUI_weldButton_onCancel();
+void editableObjectGUI_weldButton_onUncheck(s32 id);
 
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
@@ -51,8 +52,9 @@ void editableObjectGUI_weldButton_onCancel() {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
 	g_app->m_sdk->SetPickVertexCallbacks(0, 0, 0, 0);
 	g_app->m_sdk->SetSelectObjectCallbacks(0);
-	object->DestroyTMPModelWithPoolAllocator();
-	object->m_isWeld = false;
+	/*object->DestroyTMPModelWithPoolAllocator();
+	object->m_isWeld = false;*/
+	editableObjectGUI_weldButton_onUncheck(-1);
 }
 
 void editableObjectGUI_weldButton_onCheck(s32 id);
@@ -91,6 +93,7 @@ void editableObjectGUI_weldButton_onUncheck(s32 id) {
 	}
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	object->DestroyTMPModelWithPoolAllocator();
+	object->m_isWeld = false;
 	object->_updateModel(false);
 }
 
@@ -146,7 +149,6 @@ void miEditableObject::OnWeld(bool createNewTMPModel) {
 	{
 		if ((varr.m_data[i]->m_flags & miVertex::flag_User1) == 0 && varr.m_data[i]->m_flags & miVertex::flag_isSelected)
 		{
-			u32 vcount = 2;
 			for (u32 i2 = i; i2 < varr.m_size; ++i2)
 			{
 				if ((varr.m_data[i2]->m_flags & miVertex::flag_User1) == 0 && varr.m_data[i2]->m_flags & miVertex::flag_isSelected)
@@ -155,28 +157,10 @@ void miEditableObject::OnWeld(bool createNewTMPModel) {
 					if (d <= m_weldValue)
 					{
 						varr.m_data[i2]->m_flags |= miVertex::flag_User1;
-
-						v3f pos = varr_base.m_data[i]->m_position + varr_base.m_data[i2]->m_position;
-						pos *= 1.f/(f32)vcount;
-						varr.m_data[i]->m_position = pos;
-						//++vcount;
-
 						this->VertexMoveTo(varr.m_data[i2], varr.m_data[i]);
 					}
 				}
 			}
-			
-			/*for (u32 i2 = i, div = 2; i2 < varr.m_size; ++i2)
-			{
-				if (varr.m_data[i2]->m_flags & miVertex::flag_isSelected)
-				{
-					f32 d = varr_base.m_data[i]->m_position.distance(varr_base.m_data[i2]->m_position);
-					if (d <= m_weldValue)
-					{
-						varr.m_data[i2]->m_position *= 1.f / (f32)vcount;
-					}
-				}
-			}*/
 		}
 	}
 
@@ -409,6 +393,7 @@ void miEditableObject::OnWeldApply() {
 								currentVertex->~miVertex();
 								m_allocatorVertex->Deallocate(currentVertex);
 							}
+
 						}
 					}
 				}

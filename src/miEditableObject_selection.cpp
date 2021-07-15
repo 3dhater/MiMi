@@ -267,13 +267,15 @@ void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf
 		*/
 		m_sdk->AddVertexToSelection(verts_in_frust.m_data[0], this);
 
+		printf("---------\n");
+		printf("Vertex: %u\n", (u32)verts_in_frust.m_data[0]);
+		u32 ecount = 0;
 		auto ce = verts_in_frust.m_data[0]->m_edges.m_head;
 		auto le = ce->m_left;
-		u32 ecount = 0;
 		while (true)
 		{
 			++ecount;
-			//printf("E: %u\n", (u32)ce);
+			printf("E: %u\n", (u32)ce->m_data);
 			if (ce == le)
 				break;
 			ce = ce->m_right;
@@ -286,11 +288,13 @@ void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf
 		while (true)
 		{
 			++pcount;
+			printf("P: %u\n", (u32)cp->m_data);
 			if (cp == lp)
 				break;
 			cp = cp->m_right;
 		}
 		printf("%u polygons in vertex\n", pcount);
+		printf("---------\n");
 	}
 }
 
@@ -337,8 +341,11 @@ void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) 
 		edges_in_frust.sort_insertion(_pred());
 		m_sdk->AddEdgeToSelection(edges_in_frust.m_data[0], this);
 		
+		printf("---------\n");
+		printf("Edge: %u\n", (u32)edges_in_frust.m_data[0]);
 		printf("Polygons in edge: %u  and %u\n", edges_in_frust.m_data[0]->m_polygon1, edges_in_frust.m_data[0]->m_polygon2);
 		printf("Vertices in edge: %u  and %u\n", edges_in_frust.m_data[0]->m_vertex1, edges_in_frust.m_data[0]->m_vertex2);
+		printf("---------\n");
 	}
 }
 
@@ -414,12 +421,15 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 		polygons_in_frust.sort_insertion(_pred());
 		m_sdk->AddPolygonToSelection(polygons_in_frust.m_data[0], this);
 
+		printf("---------\n");
+		printf("Polygon: %u\n", (u32)polygons_in_frust.m_data[0].m_first);
 		auto cv = polygons_in_frust.m_data[0].m_first->m_verts.m_head;
 		auto lv = cv->m_left;
 		u32 vcount = 0;
 		while (true)
 		{
 			++vcount;
+			printf("V: %u\n", (u32)cv->m_data1);
 			if (cv == lv)
 				break;
 			cv = cv->m_right;
@@ -431,12 +441,14 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 		while (true)
 		{
 			++ecount;
+			printf("E: %u\n", (u32)ce->m_data);
 			if (ce == le)
 				break;
 			ce = ce->m_right;
 		}
 		printf("%u vertices in polygon\n", vcount);
 		printf("%u edges in polygon\n", ecount);
+		printf("---------\n");
 	}
 }
 

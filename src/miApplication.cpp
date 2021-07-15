@@ -127,7 +127,7 @@ void window_onActivate(yyWindow* window) {
 
 int main(int argc, char* argv[]) {
 
-	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
 	yyPtr<miApplication> app = yyCreate<miApplication>();
 
