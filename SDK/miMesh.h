@@ -509,8 +509,10 @@ struct miMesh
 
 				if (!newEdge->m_polygon1)
 					newEdge->m_polygon1 = current_polygon;
-				else
+				else if (!newEdge->m_polygon2)
 					newEdge->m_polygon2 = current_polygon;
+				if (newEdge->m_polygon1 == newEdge->m_polygon2)
+					newEdge->m_polygon2 = 0;
 
 				current_polygon->m_edges.push_back(newEdge);
 				

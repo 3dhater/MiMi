@@ -368,12 +368,98 @@ void miEditableObject::OnWeldApply() {
 						if (currentVertex != iterator->second->m_data1
 							&& v1OnEdge)
 						{
+							{
+								// replace vertices in edges
+								auto ce = currentVertex->m_edges.m_head;
+								auto le = ce->m_left;
+								while (true)
+								{
+									bool add = false;
+									auto ne = ce->m_right;
+
+									if (ce->m_data->m_vertex1 == currentVertex)
+									{
+										ce->m_data->m_vertex1 = iterator->second->m_data1;
+										add = true;
+									}
+									else if (ce->m_data->m_vertex2 == currentVertex)
+									{
+										ce->m_data->m_vertex2 = iterator->second->m_data1;
+										add = true;
+									}
+
+									if (add)
+									{
+										//check duplicates
+										bool isDuplicate = false;
+										auto ce2 = iterator->second->m_data1->m_edges.m_head;
+										auto le2 = ce2->m_left;
+										while (true)
+										{
+											if (ce2->m_data != ce->m_data)
+											{
+												auto v1_1 = ce2->m_data->m_vertex1;
+												auto v2_1 = ce2->m_data->m_vertex2;
+												if (v2_1 < v1_1)
+												{
+													v2_1 = ce2->m_data->m_vertex1;
+													v1_1 = ce2->m_data->m_vertex2;
+												}
+
+												auto v1_2 = ce->m_data->m_vertex1;
+												auto v2_2 = ce->m_data->m_vertex2;
+												if (v2_2 < v1_2)
+												{
+													v2_2 = ce->m_data->m_vertex1;
+													v1_2 = ce->m_data->m_vertex2;
+												}
+
+												if (v1_1 == v1_2 && v2_1 == v2_2)
+												{
+													isDuplicate = true;
+													break;
+												}
+											}
+											if (ce2 == le2)
+												break;
+											ce2 = ce2->m_right;
+										}
+										if (isDuplicate)
+										{
+											// change pointers for polygon
+											miPolygon* ce_polygon = ce->m_data->m_polygon1;
+											if (!ce_polygon)
+												ce_polygon = ce->m_data->m_polygon2;
+
+											ce_polygon->m_edges.replace(ce->m_data, ce2->m_data);
+
+											if (!ce2->m_data->m_polygon1)
+												ce2->m_data->m_polygon1 = ce_polygon;
+											else if (!ce2->m_data->m_polygon2)
+												ce2->m_data->m_polygon2 = ce_polygon;
+
+											// delete edge
+											m_mesh->_remove_edge_from_list(ce->m_data);
+											ce->m_data->~miEdge();
+											m_allocatorEdge->Deallocate(ce->m_data);
+										//	printf("DUPLICATE\n");
+										}
+										else
+										{
+											iterator->second->m_data1->m_edges.push_back(ce->m_data);
+										}
+									}
+
+									if (ce == le)
+										break;
+									ce = ne;
+								}
+							}
 
 							auto cp = currentVertex->m_polygons.m_head;
 							auto lp = cp->m_left;
 							while (true)
 							{
-								// weld only vertices on the edge
 								bool v2OnEdge = currentVertex->IsOnEdge();
 								if (v2OnEdge)
 								{
@@ -387,7 +473,6 @@ void miEditableObject::OnWeldApply() {
 								cp = cp->m_right;
 							}
 
-							if (!currentVertex->m_polygons.m_head)
 							{
 								m_mesh->_remove_vertex_from_list(currentVertex);
 								currentVertex->~miVertex();
