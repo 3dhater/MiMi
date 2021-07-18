@@ -37,10 +37,37 @@ public:
 		return m_allocated;
 	}
 
+	u32 size() {
+		return m_size;
+	}
+
 	void reserve(u16 new_capacity)
 	{
 		if (new_capacity > m_allocated)
 			reallocate(new_capacity);
+	}
+
+	void insert(u32 where, const_reference object)
+	{
+		if (where >= m_size)
+		{
+			push_back(object);
+		}
+		else
+		{
+			u32 new_size = m_size + 1u;
+			if (new_size > m_allocated)
+				reallocate(new_size);
+			
+			for (u32 i = m_size; i > where;)
+			{
+				m_data[i] = m_data[i - 1];
+				--i;
+			}
+			new(&m_data[where]) type(object);
+
+			m_size = new_size;
+		}
 	}
 
 	void push_back(const_reference object)

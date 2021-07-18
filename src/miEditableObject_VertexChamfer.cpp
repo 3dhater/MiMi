@@ -337,7 +337,7 @@ void miEditableObject::OnChamfer() {
 					ce_new = ce_new->m_right;
 				}
 
-				if (vericesForNewpolygon.m_size > 2)
+				if (vericesForNewpolygon.m_size > 2 && m_addPolygonsWhenChamfer)
 				{
 					auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
 					
