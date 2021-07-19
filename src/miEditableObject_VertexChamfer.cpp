@@ -12,7 +12,10 @@ void editableObjectGUI_chamferButton_onCancel();
 void editableObjectGUI_chamferButton_onUncheck(s32 id);
 
 void editableObjectGUI_chamferCheckBox_onClick(bool isChecked) {
-
+	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->m_addPolygonsWhenChamfer = isChecked;
+	if (object->m_isChamfer)
+		object->OnChamfer();
 }
 
 void editableObjectGUI_chamferButtonOK_onClick(s32 id) {

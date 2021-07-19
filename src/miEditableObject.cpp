@@ -222,7 +222,7 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_chamferButtonOK_onClick,
 		miPluginGUI::Flag_ForVertexEditMode);
 	y += 17.f;
-	m_pluginGuiForEditableObject->AddCheckBox(v2f(50.f, y), L"Add polygons when chamfer",
+	m_pluginGuiForEditableObject->AddCheckBox(v2f(50.f, y), L"Chamfer: add polygons",
 		editableObjectGUI_chamferCheckBox_onClick,
 		true,
 		miPluginGUI::Flag_ForVertexEditMode);

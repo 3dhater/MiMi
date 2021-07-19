@@ -5,8 +5,6 @@ class miEditableObject : public miSceneObject
 {
 	miSDK* m_sdk;
 	miPlugin* m_plugin;
-	bool m_isWeld;
-	bool m_isChamfer;
 
 	miVisualObject* m_visualObject_polygon;
 	miVisualObject* m_visualObject_vertex;
@@ -127,6 +125,7 @@ public:
 	u32 GetEdgeCount();
 	u32 GetPolygonCount();
 
+	bool m_isWeld;
 	f32 m_weldValue;
 	
 	miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>> * m_meshBuilderTmpModelPool;
@@ -136,6 +135,7 @@ public:
 	void OnWeldApply();
 	void _createMeshFromTMPMesh();
 
+	bool m_isChamfer;
 	f32 m_chamferValue;
 	bool m_addPolygonsWhenChamfer;
 	void OnChamfer();
