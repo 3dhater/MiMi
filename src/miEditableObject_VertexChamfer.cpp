@@ -193,7 +193,14 @@ void miEditableObject::OnChamfer() {
 				miPolygon* firstEdgePolygon1 = ce_new->m_data->m_polygon1;
 				miPolygon* firstEdgePolygon2 = ce_new->m_data->m_polygon2;
 
-				static miArray<miVertex*> vericesForNewpolygon;
+				struct helpStruct2
+				{
+					helpStruct2(miVertex* v, const v2f& uv):m_vertex(v),m_uv(uv) {}
+
+					miVertex* m_vertex;
+					v2f m_uv;
+				};
+				static miArray<helpStruct2> vericesForNewpolygon;
 				vericesForNewpolygon.clear();
 
 				auto le = ce->m_left;
@@ -220,6 +227,20 @@ void miEditableObject::OnChamfer() {
 					}
 
 					miVertex* vertex = 0;
+					v2f uv;
+
+					if (ce->m_data->m_polygon1)
+					{
+						auto fv = ce->m_data->m_polygon1->FindVertex(c);
+						if (fv)
+							uv = fv->m_data2;
+					}
+					else if (ce->m_data->m_polygon2)
+					{
+						auto fv = ce->m_data->m_polygon2->FindVertex(c);
+						if (fv)
+							uv = fv->m_data2;
+					}
 
 					// first edge for this vertex
 					if (ce == c->m_edges.m_head)
@@ -323,7 +344,6 @@ void miEditableObject::OnChamfer() {
 							if (ce_new->m_data->m_polygon2 != firstEdgePolygon1
 								&& ce_new->m_data->m_polygon2 != firstEdgePolygon2)
 							{
-						//		ce_new->m_data->m_polygon2->m_verts.erase_first(c_new);
 								removeVertFromPolygon.push_back(helpStruct(ce_new->m_data->m_polygon2, c_new));
 							}
 						}
@@ -332,7 +352,7 @@ void miEditableObject::OnChamfer() {
 					if (vertex) 
 					{
 						vertex->m_position = c->m_position + chamferValue * dir;
-						vericesForNewpolygon.push_back(vertex);
+						vericesForNewpolygon.push_back(helpStruct2(vertex,uv));
 					}
 					
 
@@ -349,9 +369,9 @@ void miEditableObject::OnChamfer() {
 					
 					for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
 					{
-						auto v = vericesForNewpolygon.m_data[i];
-						newPolygon->m_verts.push_back(v, v2f());
-						v->m_polygons.push_back(newPolygon);
+						auto & v = vericesForNewpolygon.m_data[i];
+						newPolygon->m_verts.push_back(v.m_vertex, v.m_uv);
+						v.m_vertex->m_polygons.push_back(newPolygon);
 					}
 
 					newPolygon->m_left = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left;
