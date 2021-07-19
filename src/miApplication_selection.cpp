@@ -499,7 +499,7 @@ void miApplication::OnSelect() {
 	_callVisualObjectOnSelect();
 	
 	UpdateSelectionAabb();
-	m_GUIManager->SetCommonParamsRangePosition();
+	//m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_updateIsVertexEdgePolygonSelected() {

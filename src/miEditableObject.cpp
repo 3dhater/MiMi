@@ -13,6 +13,8 @@ const s32 g_SelectButtonID_ConnectVerts1 = 2;
 const s32 g_SelectButtonID_BreakVerts = 3;
 
 void editableObjectGUI_selectButtons_onClick(s32 id);
+void editableObjectGUI_selectEdgeLoop_onClick(s32 id);
+void editableObjectGUI_selectEdgeRing_onClick(s32 id);
 
 void editableObjectGUI_tgweldButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_tgweldButton_onCheck(s32 id);
@@ -226,6 +228,15 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_chamferCheckBox_onClick,
 		true,
 		miPluginGUI::Flag_ForVertexEditMode);
+
+	y = 18.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Ring", -1,
+		editableObjectGUI_selectEdgeRing_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode );
+	m_pluginGuiForEditableObject->AddButton(v4f(105.f, y, 50.f, 15.f), L"Loop", -1,
+		editableObjectGUI_selectEdgeLoop_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode );
+	y += 15.f + 3.f;
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {

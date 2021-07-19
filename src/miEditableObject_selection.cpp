@@ -207,7 +207,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 		}
 	}
 	o->OnSelect(em);
-// error drawGroup...	g_app->OnSelect();
+	g_app->UpdateSelectionAabb();
 }
 
 void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {
@@ -885,3 +885,161 @@ void miEditableObject::OnSelect(miEditMode em) {
 	RebuildVisualObjects(true);
 }
 
+void editableObjectGUI_selectEdgeLoop_onClick(s32 id) {
+	if (g_app->m_selectedObjects.m_size != 1)
+		return;
+
+	auto object = g_app->m_selectedObjects.m_data[0];
+	if (object->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if (object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
+		return;
+
+	miEditableObject* o = (miEditableObject*)object;
+	bool needUpdate = false;
+begin:;
+
+	auto c = o->m_mesh->m_first_edge;
+	if (!c) return;
+	auto l = c->m_left;
+	while (true) 
+	{
+		if ((c->m_flags & miEdge::flag_isSelected) == 0)
+		{
+			if (c->m_polygon1 && c->m_polygon2)
+			{
+				{
+					u32 count = 0;
+					bool start = false;
+					auto ce = c->m_vertex1->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						// first, find this edge (c) in this list (c->m_vertex1->m_edges)
+						if (!start)
+						{
+							if (c == ce->m_data)
+							{
+								le = ce->m_left;
+								start = true;
+							}
+						}
+
+						if (start)
+						{
+							++count;
+							if (count == 3 && ce->m_right == le)
+							{
+								if (ce->m_data->m_flags & miEdge::flag_isSelected)
+								{
+									c->m_flags |= miEdge::flag_isSelected;
+									needUpdate = true;
+									goto begin;
+								}
+							}
+						}
+
+						if (ce == le)break;
+						ce = ce->m_right;
+					}
+				}
+				{
+					u32 count = 0;
+					bool start = false;
+					auto ce = c->m_vertex2->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						// first, find this edge (c) in this list (c->m_vertex1->m_edges)
+						if (!start)
+						{
+							if (c == ce->m_data)
+							{
+								le = ce->m_left;
+								start = true;
+							}
+						}
+
+						if (start)
+						{
+							++count;
+							if (count == 3 && ce->m_right == le)
+							{
+								if (ce->m_data->m_flags & miEdge::flag_isSelected)
+								{
+									c->m_flags |= miEdge::flag_isSelected;
+									needUpdate = true;
+									goto begin;
+								}
+							}
+						}
+
+						if (ce == le)break;
+						ce = ce->m_right;
+					}
+				}
+			}
+			else
+			{
+				{
+					auto ce = c->m_vertex1->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						if (ce->m_data != c)
+						{
+							if (ce->m_data->m_polygon1 == 0
+								|| ce->m_data->m_polygon2 == 0)
+							{
+								if (ce->m_data->m_flags & miEdge::flag_isSelected)
+								{
+									c->m_flags |= miEdge::flag_isSelected;
+									needUpdate = true;
+									goto begin;
+								}
+							}
+						}
+						if (ce == le)break;
+						ce = ce->m_right;
+					}
+				}
+				{
+					auto ce = c->m_vertex2->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						if (ce->m_data != c)
+						{
+							if (ce->m_data->m_polygon1 == 0
+								|| ce->m_data->m_polygon2 == 0)
+							{
+								if (ce->m_data->m_flags & miEdge::flag_isSelected)
+								{
+									c->m_flags |= miEdge::flag_isSelected;
+									needUpdate = true;
+									goto begin;
+								}
+							}
+						}
+						if (ce == le)break;
+						ce = ce->m_right;
+					}
+				}
+			}
+		}
+
+		if (c == l)
+			break;
+		c = c->m_right;
+	}
+	if (needUpdate)
+	{
+		o->OnSelect(g_app->GetEditMode());
+		g_app->UpdateSelectionAabb();
+	}
+}
+
+void editableObjectGUI_selectEdgeRing_onClick(s32 id) {
+
+}
