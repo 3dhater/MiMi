@@ -38,9 +38,12 @@ void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float* fp
 	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
 	auto object = (miEditableObject*)obj;
-	if (*fptr < 0.f)
-		*fptr = 0.f;
-	object->OnChamfer();
+	if (object->m_isChamfer)
+	{
+		if (*fptr < 0.f)
+			*fptr = 0.f;
+		object->OnChamfer();
+	}
 }
 
 void editableObjectGUI_chamferButton_onSelect(miEditMode em)

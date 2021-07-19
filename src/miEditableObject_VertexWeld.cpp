@@ -144,6 +144,30 @@ void miEditableObject::OnWeld(bool createNewTMPModel) {
 			c_base = c_base->m_right;
 		}
 	}
+	{
+		auto c = mesh->m_first_polygon;
+		auto c_base = m_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto cv = c->m_verts.m_head;
+			auto cv_base = c_base->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				cv->m_data2 = cv_base->m_data2;
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+				cv_base = cv_base->m_right;
+			}
+
+			if (c == l)
+				break;
+			c = c->m_right;
+			c_base = c_base->m_right;
+		}
+	}
 
 	for (u32 i = 0; i < varr.m_size; ++i)
 	{

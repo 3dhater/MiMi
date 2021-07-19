@@ -77,6 +77,13 @@ void miSelectionFrustImpl::CreateWithAabb(const Aabb& aabb){
 	e1.cross2(e2, m_data.m_BackN);
 	m_data.m_BackC = m_data.m_back[0] + m_data.m_back[1] + m_data.m_back[2] + m_data.m_back[3];
 	m_data.m_BackC *= 0.25;
+
+	m_data.m_RN.normalize2();
+	m_data.m_LN.normalize2();
+	m_data.m_TN.normalize2();
+	m_data.m_BN.normalize2();
+	m_data.m_BackN.normalize2();
+	m_data.m_FrontN.normalize2();
 }
 
 void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect, const Mat4& VP_invert){
@@ -164,6 +171,13 @@ void miSelectionFrustImpl::CreateWithFrame(const v4f& frame, const v4f& vp_rect,
 	m_data.m_ray5.m_origin = m_data.m_BackC;
 	m_data.m_ray5.m_end = m_data.m_FrontC;
 	m_data.m_ray5.update();
+
+	m_data.m_RN.normalize2();
+	m_data.m_LN.normalize2();
+	m_data.m_TN.normalize2();
+	m_data.m_BN.normalize2();
+	m_data.m_BackN.normalize2();
+	m_data.m_FrontN.normalize2();
 }
 
 bool miSelectionFrustImpl::PointInFrust(const v4f& v)const{

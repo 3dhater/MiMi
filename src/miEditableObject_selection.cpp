@@ -211,6 +211,8 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 }
 
 void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf) {
+	
+
 	auto current_vertex = m_mesh->m_first_vertex;
 	if (!current_vertex)
 		return;
@@ -470,6 +472,8 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 		break;
 	}
 
+	
+
 	//if (m_isSelected)
 	//	_updateVertsForTransformArray(em);
 	// App will call miSceneObject::OnSelect
@@ -608,6 +612,9 @@ void miEditableObject::_selectVerts_rectangle(miEditMode em, miKeyboardModifier 
 }
 
 void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf) {
+	if (sf->m_data.m_TN == v3f())
+		return;
+
 	miSceneObject::Select(em, km, sf);
 	switch (em)
 	{
@@ -626,6 +633,12 @@ void miEditableObject::Select(miEditMode em, miKeyboardModifier km, miSelectionF
 	}
 	if (m_isSelected)
 		_updateVertsForTransformArray(em);
+
+	/*printf("SF TN %f %f %f\n", sf->m_data.m_TN.x, sf->m_data.m_TN.y, sf->m_data.m_TN.z);
+	printf("SF BN %f %f %f\n", sf->m_data.m_BN.x, sf->m_data.m_BN.y, sf->m_data.m_BN.z);
+	printf("SF RN %f %f %f\n", sf->m_data.m_RN.x, sf->m_data.m_RN.y, sf->m_data.m_RN.z);
+	printf("SF LN %f %f %f\n", sf->m_data.m_LN.x, sf->m_data.m_LN.y, sf->m_data.m_LN.z);
+	printf("\n");*/
 }
 
 void miEditableObject::_selectAllPolygons() {
