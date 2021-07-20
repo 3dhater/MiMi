@@ -1369,6 +1369,14 @@ void miGizmo::OnClick() {
 
 	g_app->_setGizmoMode(gm);
 	//printf("%s %i\n", __FUNCTION__, (s32)gm);
+
+	if (g_app->m_keyboardModifier == miKeyboardModifier::Shift)
+	{
+		for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+		{
+			g_app->m_selectedObjects.m_data[i]->GetPlugin()->OnShiftGizmo(gm, g_app->m_editMode, g_app->m_selectedObjects.m_data[i]);
+		}
+	}
 }
 
 void miGizmo::OnStartFrame() {

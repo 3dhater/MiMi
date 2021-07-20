@@ -50,6 +50,10 @@ public:
 	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) {}
 
 	virtual void OnImport(const wchar_t* fileName, unsigned int id) {}
+	
+	// when hold shift and first click on gizmo
+	// will be called on each selected object
+	virtual void OnShiftGizmo(miGizmoMode, miEditMode, miSceneObject*) {}
 };
 
 #endif

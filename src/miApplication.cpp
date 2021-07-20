@@ -26,6 +26,30 @@ miApplicationPlugin::miApplicationPlugin() {
 miApplicationPlugin::~miApplicationPlugin() {}
 void miApplicationPlugin::Init(miSDK* sdk) {
 }
+void miApplicationPlugin::OnShiftGizmo(miGizmoMode gm, miEditMode em, miSceneObject* o) {
+	if (o->GetPlugin() != this)
+		return;
+
+	switch (em)
+	{
+	case miEditMode::Vertex:
+		break;
+	case miEditMode::Edge: {
+		if(o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+			printf("Edge extrude\n");
+	}break;
+	case miEditMode::Polygon:{
+		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+			printf("Polygon extrude\n");
+	}break;
+	case miEditMode::Object: {
+		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+			printf("Clone object\n");
+	}break;
+	default:
+		break;
+	}
+}
 
 void log_writeToFile(const char* message) {
 	auto l = strlen(message);

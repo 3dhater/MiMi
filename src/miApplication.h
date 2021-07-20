@@ -63,6 +63,8 @@ public:
 	virtual ~miApplicationPlugin();
 	virtual void Init(miSDK* sdk) override;
 
+	virtual void OnShiftGizmo(miGizmoMode, miEditMode, miSceneObject*) override;
+
 	static u32 m_objectType_editableObject;
 };
 

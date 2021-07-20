@@ -166,3 +166,23 @@ void miplStd::OnImport(const wchar_t* fileName, unsigned int id) {
 		break;
 	}
 }
+
+void miplStd::OnShiftGizmo(miGizmoMode gm, miEditMode em, miSceneObject* o) 
+{
+	if (o->GetPlugin() != this)
+		return;
+
+	switch (em)
+	{
+	case miEditMode::Vertex:
+		break;
+	case miEditMode::Edge:
+		break;
+	case miEditMode::Polygon:
+		break;
+	case miEditMode::Object:
+		break;
+	default:
+		break;
+	}
+}
