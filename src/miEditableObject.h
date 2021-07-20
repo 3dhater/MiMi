@@ -58,8 +58,9 @@ class miEditableObject : public miSceneObject
 	friend void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr);
 	friend void editableObjectGUI_weldButton_onUncheck(s32 id);
 	friend void editableObjectGUI_chamferButton_onUncheck(s32 id);
-	friend void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float* fptr);
+	friend void editableObjectGUI_chamferRange_onValueChanged(miSceneObject*obj, float* fptr);
 	friend void editableObjectGUI_selectEdgeLoop_onClick(s32 id);
+	friend void editableObjectGUI_selectEdgeRing_onClick(s32 id);
 
 public:
 	miEditableObject(miSDK*, miPlugin*);

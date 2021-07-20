@@ -1041,5 +1041,105 @@ begin:;
 }
 
 void editableObjectGUI_selectEdgeRing_onClick(s32 id) {
+	if (g_app->m_selectedObjects.m_size != 1)
+		return;
 
+	auto object = g_app->m_selectedObjects.m_data[0];
+	if (object->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if (object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
+		return;
+
+	miEditableObject* o = (miEditableObject*)object;
+	bool needUpdate = false;
+begin:;
+	auto c = o->m_mesh->m_first_edge;
+	if (!c) return;
+	auto l = c->m_left;
+	while (true)
+	{
+		if ((c->m_flags & miEdge::flag_isSelected) == 0)
+		{
+			if (c->m_polygon1)
+			{
+				u32 count = 0;
+				bool start = false;
+				auto ce = c->m_polygon1->m_edges.m_head;
+				auto le = ce->m_left;
+				while (true)
+				{
+					if (!start)
+					{
+						if (c == ce->m_data)
+						{
+							le = ce->m_left;
+							start = true;
+						}
+					}
+
+					if (start)
+					{
+						++count;
+						if (count == 3 && ce->m_right == le)
+						{
+							if (ce->m_data->m_flags & miEdge::flag_isSelected)
+							{
+								c->m_flags |= miEdge::flag_isSelected;
+								needUpdate = true;
+								goto begin;
+							}
+						}
+					}
+
+					if (ce == le)break;
+					ce = ce->m_right;
+				}
+			}
+			if (c->m_polygon2)
+			{
+				u32 count = 0;
+				bool start = false;
+				auto ce = c->m_polygon2->m_edges.m_head;
+				auto le = ce->m_left;
+				while (true)
+				{
+					if (!start)
+					{
+						if (c == ce->m_data)
+						{
+							le = ce->m_left;
+							start = true;
+						}
+					}
+
+					if (start)
+					{
+						++count;
+						if (count == 3 && ce->m_right == le)
+						{
+							if (ce->m_data->m_flags & miEdge::flag_isSelected)
+							{
+								c->m_flags |= miEdge::flag_isSelected;
+								needUpdate = true;
+								goto begin;
+							}
+						}
+					}
+
+					if (ce == le)break;
+					ce = ce->m_right;
+				}
+			}
+		}
+
+		if (c == l)
+			break;
+		c = c->m_right;
+	}
+	if (needUpdate)
+	{
+		o->OnSelect(g_app->GetEditMode());
+		g_app->UpdateSelectionAabb();
+	}
 }
