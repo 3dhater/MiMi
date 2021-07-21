@@ -143,7 +143,7 @@ public:
 	void OnChamfer();
 	void OnChamferApply();
 
-	
+	void EdgeExtrude();
 };
 
 #endif

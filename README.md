@@ -8,6 +8,24 @@
 * [x]  plugins
 * [x]  import model
 * [ ]  edit model
+* * [x] Select objects/vertices/edges/polygons
+* * [x] Gizmo
+* * [x] Move/Rotate/Scale objects/vertices/edges/polygons
+* * [x] Delete objects/vertices/edges/polygons
+* * [x] Attach objects
+* * [x] Vertex Target Weld
+* * [x] Vertex Weld
+* * [x] Vertex Chamfer
+* * [x] Vertex Connect
+* * [x] Vertex Break
+* * [x] Edge Select Loop/Ring
+* * [ ] Edge Extrude
+* * [ ] Edge Connect
+* * [ ] Edge Bridge
+* * [ ] Edge Chamfer
+* * [ ] Polygon Extrude
+* * [ ] Polygon Bridge
+* * [ ] Polygon Detach
 * [ ]  edit UV
 * [ ]  edit normals
 * [ ]  export model
