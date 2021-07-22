@@ -513,6 +513,48 @@ void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifi
 				break;
 			current_edge = current_edge->m_right;
 		}
+
+		Mat4 M = this->GetWorldMatrix()->getBasis();
+		auto position = this->GetGlobalPosition();
+		auto current_polygon = m_mesh->m_first_polygon;
+		auto last_polygon = current_polygon->m_left;
+		while (true) {
+			if (current_polygon->m_flags & miPolygon::flag_isSelected)
+			{
+				auto current_vertex = current_polygon->m_verts.m_head;
+				auto last_vertex = current_vertex->m_left;
+				auto first_vertex = current_vertex;
+				while (true)
+				{
+					auto next_vertex = current_vertex->m_right;
+
+					miTriangle tri;
+					tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.update();
+
+					f32 T, U, V, W;
+					T = U = V = W = 0.f;
+					if (tri.rayTest_MT(sf->m_data.m_ray1, true, T, U, V, W))
+					{
+						current_polygon->m_flags ^= miPolygon::flag_isSelected;
+						needUpdate = true;
+					}
+
+					if (current_vertex == last_vertex)
+						break;
+					current_vertex = current_vertex->m_right;
+				}
+			}
+
+			if (current_polygon == last_polygon)
+				break;
+			current_polygon = current_polygon->m_right;
+		}
 	}
 	else
 	{
@@ -530,6 +572,48 @@ void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifi
 			if (current_edge == last_edge)
 				break;
 			current_edge = current_edge->m_right;
+		}
+
+		Mat4 M = this->GetWorldMatrix()->getBasis();
+		auto position = this->GetGlobalPosition();
+		auto current_polygon = m_mesh->m_first_polygon;
+		auto last_polygon = current_polygon->m_left;
+		while (true) {
+			if ((current_polygon->m_flags & miPolygon::flag_isSelected)==0)
+			{
+				auto current_vertex = current_polygon->m_verts.m_head;
+				auto last_vertex = current_vertex->m_left;
+				auto first_vertex = current_vertex;
+				while (true)
+				{
+					auto next_vertex = current_vertex->m_right;
+
+					miTriangle tri;
+					tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
+						+ *this->GetGlobalPosition();
+					tri.update();
+
+					f32 T, U, V, W;
+					T = U = V = W = 0.f;
+					if (tri.rayTest_MT(sf->m_data.m_ray1, true, T, U, V, W))
+					{
+						needUpdate = true;
+						current_polygon->m_flags |= miPolygon::flag_isSelected;
+					}
+
+					if (current_vertex == last_vertex)
+						break;
+					current_vertex = current_vertex->m_right;
+				}
+			}
+
+			if (current_polygon == last_polygon)
+				break;
+			current_polygon = current_polygon->m_right;
 		}
 	}
 	if(needUpdate)

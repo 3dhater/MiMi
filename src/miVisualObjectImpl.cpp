@@ -632,6 +632,17 @@ bool miVisualObjectImpl::IsInSelectionFrust(miSelectionFrust* sf) {
 		current_edge = current_edge->m_right;
 	}
 
+	if (!result)
+	{
+		v4f ip;
+		f32 d;
+		if (IsRayIntersect(&sf->m_data.m_ray1, &ip, &d)) return true;
+		if (IsRayIntersect(&sf->m_data.m_ray2, &ip, &d)) return true;
+		if (IsRayIntersect(&sf->m_data.m_ray3, &ip, &d)) return true;
+		if (IsRayIntersect(&sf->m_data.m_ray4, &ip, &d)) return true;
+		if (IsRayIntersect(&sf->m_data.m_ray5, &ip, &d)) return true;
+	}
+
 	return result;
 }
 

@@ -237,6 +237,8 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_selectEdgeLoop_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode );
 	y += 15.f + 3.f;
+	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Edit:", 0,
+		miPluginGUI::Flag_ForEdgeEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
