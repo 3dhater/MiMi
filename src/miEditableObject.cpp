@@ -939,7 +939,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 }
 
 void miEditableObject::VertexConnect() {
-	miArray<miListNode2<miVertex*, v2f>*> vertsForNewpolygon;
+	miArray<miListNode3<miVertex*, v2f, v3f>*> vertsForNewpolygon;
 
 	/*for (s32 o = 0, osz = GetMeshCount(); o < osz; ++o)
 	{
@@ -1001,7 +1001,7 @@ void miEditableObject::VertexConnect() {
 									--vertexCount;
 								}
 								
-								newPolygon->m_verts.push_back(v->m_data1, v->m_data2);
+								newPolygon->m_verts.push_back(v->m_data1, v->m_data2, v->m_data3);
 								v->m_data1->m_polygons.push_back(newPolygon);
 
 								if (v == lastVertex)
@@ -1101,7 +1101,7 @@ void miEditableObject::VertexBreak() {
 				//auto vNode = v->m_polygons.m_head->m_data->FindVertex(v);
 				auto vNode = cp->m_data->FindVertex(v);
 
-				cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2);
+				cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2, vNode->m_data3);
 				newVertex->m_polygons.push_back(cp->m_data);
 
 				removeThisPolygons.push_back(cp->m_data);
@@ -1168,11 +1168,11 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 			auto n = c->m_right;
 			m_mesh->_add_vertex_to_list(c);
 
-			v3f norm(c->m_normal[0], c->m_normal[1], c->m_normal[2]);
+			/*v3f norm(c->m_normal);
 			norm = math::mul(norm, TIM);
 			c->m_normal[0] = norm.x;
 			c->m_normal[1] = norm.y;
-			c->m_normal[2] = norm.z;
+			c->m_normal[2] = norm.z;*/
 
 			c->m_position = math::mulBasis(c->m_position, otherObject->m_rotationScaleMatrix)
 				+ otherObject->m_globalPosition - m_globalPosition;
@@ -1306,7 +1306,7 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 					cv->m_data1->m_position,
 					weld,
 					select,
-					v3f(cv->m_data1->m_normal[0], cv->m_data1->m_normal[1], cv->m_data1->m_normal[2]),
+					cv->m_data3,
 					cv->m_data2);
 
 				if (cv == lv)

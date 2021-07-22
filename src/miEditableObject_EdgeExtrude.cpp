@@ -11,11 +11,10 @@ void miEditableObject::EdgeExtrude()
 {
 	miArray<miPair<miVertex*, miVertex*>> newEdgesVertices;
 
+	//miArray<miEdge*> selectedEdges;
+	//selectedEdges.reserve(10);
 
-	miArray<miEdge*> selectedEdges;
-	selectedEdges.reserve(10);
-
-	miBinarySearchTree<miListNode2<miVertex*, v2f>> verticesTree;
+	miBinarySearchTree<miListNode3<miVertex*, v2f, v3f>> verticesTree;
 
 	bool needUpdate = false;
 
@@ -23,123 +22,114 @@ void miEditableObject::EdgeExtrude()
 	auto l = c->m_left;
 	while (true)
 	{
-		selectedEdges.clear();
-
-		auto ce = c->m_edges.m_head;
-		auto le = ce->m_left;
-		while(true)
+		// go through vertices in right order
+		auto cv = c->m_verts.m_head;
+		auto lv = cv->m_left;
+		while (true)
 		{
-			if (ce->m_data->m_flags & miEdge::flag_isSelected)
+			// take first and second vertices
+			auto nv = cv->m_right;
+
+			// find edge with this vertices
+			miEdge* edge = 0;
 			{
-				if (!ce->m_data->m_polygon1 || !ce->m_data->m_polygon2)
+				auto v1 = cv->m_data1;
+				auto v2 = nv->m_data1;
+				if (v2 < v1)
 				{
-					if (ce->m_data->m_flags & miEdge::flag_User1)
-						ce->m_data->m_flags ^= miEdge::flag_User1;
-
-					selectedEdges.push_back(ce->m_data);
+					v1 = nv->m_data1;
+					v2 = cv->m_data1;
 				}
-			}
-			if (ce == le)
-				break;
-			ce = ce->m_right;
-		}
-
-		for (u32 i = 0; i < selectedEdges.m_size; ++i)
-		{
-			auto e = selectedEdges.m_data[i];
-			if ((e->m_flags & miEdge::flag_User1) == 0)
-			{
-				e->m_flags |= miEdge::flag_User1;
-				// create polygon
-
-				// find vertices in right order
-				miListNode2<miVertex*, v2f>* v1 = 0;
-				miListNode2<miVertex*, v2f>* v2 = 0;
-				auto cv = c->m_verts.m_head;
-				auto lv = cv->m_left;
+				auto ce = c->m_edges.m_head;
+				auto le = ce->m_left;
 				while (true)
 				{
-					if (!v1)
+					if (ce->m_data->m_vertex1 == v1
+						&& ce->m_data->m_vertex2 == v2)
 					{
-						if (cv->m_data1 == e->m_vertex1 || cv->m_data1 == e->m_vertex2)
-							v1 = cv;
-					}
-					else if (!v2)
-					{
-						if (cv->m_data1 == e->m_vertex1 || cv->m_data1 == e->m_vertex2)
+						// found
+						// it must be selected edge with only 1 polygon
+						if (ce->m_data->m_flags & miEdge::flag_isSelected)
 						{
-							v2 = cv;
-							break;
+							if (!ce->m_data->m_polygon1 || !ce->m_data->m_polygon2)
+							{
+								edge = ce->m_data;
+								break;
+							}
 						}
 					}
-					if (cv == lv)
+					if (ce == le)
 						break;
-					cv = cv->m_right;
-				}
-
-				miPolygon* newPolygon = m_allocatorPolygon->Allocate();
-				if (newPolygon)
-				{
-					newPolygon->m_verts.push_back(v2->m_data1, v2->m_data2);
-					newPolygon->m_verts.push_back(v1->m_data1, v1->m_data2);
-					
-					v1->m_data1->m_polygons.push_back(newPolygon);
-					v2->m_data1->m_polygons.push_back(newPolygon);
-
-					miPair<miVertex*, miVertex*> verticesPair;
-
-					miListNode2<miVertex*, v2f> node;
-					if (verticesTree.Get((uint64_t)v1->m_data1, node))
-					{
-						newPolygon->m_verts.push_back(node.m_data1, node.m_data2);
-						node.m_data1->m_polygons.push_back(newPolygon);
-						verticesPair.m_first = node.m_data1;
-					}
-					else
-					{
-						miVertex* newVertex = m_allocatorVertex->Allocate();
-						newVertex->CopyData(v1->m_data1);
-						newVertex->m_polygons.push_back(newPolygon);
-						newPolygon->m_verts.push_back(newVertex, v1->m_data2);
-						m_mesh->_add_vertex_to_list(newVertex);
-						verticesPair.m_first = newVertex;
-
-						verticesTree.Add((uint64_t)v1->m_data1, *newPolygon->m_verts.find(newVertex));
-					}
-
-					if (verticesTree.Get((uint64_t)v2->m_data1, node))
-					{
-						newPolygon->m_verts.push_back(node.m_data1, node.m_data2);
-						node.m_data1->m_polygons.push_back(newPolygon);
-						verticesPair.m_second = node.m_data1;
-					}
-					else
-					{
-						miVertex* newVertex = m_allocatorVertex->Allocate();
-						newVertex->CopyData(v2->m_data1);
-						newVertex->m_polygons.push_back(newPolygon);
-						newPolygon->m_verts.push_back(newVertex, v2->m_data2);
-						m_mesh->_add_vertex_to_list(newVertex);
-						verticesPair.m_second = newVertex;
-
-						verticesTree.Add((uint64_t)v2->m_data1, *newPolygon->m_verts.find(newVertex));
-					}
-
-					if (verticesPair.m_second < verticesPair.m_first)
-					{
-						auto old = verticesPair.m_second;
-						verticesPair.m_second = verticesPair.m_first;
-						verticesPair.m_first = old;
-					}
-
-					newEdgesVertices.push_back(verticesPair);
-
-					m_mesh->_add_polygon_to_list(newPolygon);
-					needUpdate = true;
+					ce = ce->m_right;
 				}
 			}
-		}
+			if (edge)
+			{
+				//printf("EDGE\n");
+				// create polygon
+				miPolygon* newPolygon = m_allocatorPolygon->Allocate();
+				newPolygon->m_verts.push_back(nv->m_data1, nv->m_data2, nv->m_data3);
+				newPolygon->m_verts.push_back(cv->m_data1, cv->m_data2, cv->m_data3);
 
+				cv->m_data1->m_polygons.push_back(newPolygon);
+				nv->m_data1->m_polygons.push_back(newPolygon);
+
+				miPair<miVertex*, miVertex*> verticesPair;
+				miListNode3<miVertex*, v2f, v3f> node;
+
+				if (verticesTree.Get((uint64_t)cv->m_data1, node))
+				{
+					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					node.m_data1->m_polygons.push_back(newPolygon);
+					verticesPair.m_first = node.m_data1;
+									
+				}
+				else
+				{
+					miVertex* newVertex = m_allocatorVertex->Allocate();
+					newVertex->CopyData(cv->m_data1);
+					newVertex->m_polygons.push_back(newPolygon);
+					auto v3 = newPolygon->m_verts.push_back(newVertex, cv->m_data2, cv->m_data3);
+					m_mesh->_add_vertex_to_list(newVertex);
+					verticesPair.m_first = newVertex;
+
+					verticesTree.Add((uint64_t)cv->m_data1, *v3);
+				}
+
+				if (verticesTree.Get((uint64_t)nv->m_data1, node))
+				{
+					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					node.m_data1->m_polygons.push_back(newPolygon);
+					verticesPair.m_second = node.m_data1;
+				}
+				else
+				{
+					miVertex* newVertex = m_allocatorVertex->Allocate();
+					newVertex->CopyData(nv->m_data1);
+					newVertex->m_polygons.push_back(newPolygon);
+					auto v4 = newPolygon->m_verts.push_back(newVertex, nv->m_data2, nv->m_data3);
+					m_mesh->_add_vertex_to_list(newVertex);
+					verticesPair.m_second = newVertex;
+
+					verticesTree.Add((uint64_t)nv->m_data1, *v4);
+				}
+
+				if (verticesPair.m_second < verticesPair.m_first)
+				{
+					auto old = verticesPair.m_second;
+					verticesPair.m_second = verticesPair.m_first;
+					verticesPair.m_first = old;
+				}
+
+				newEdgesVertices.push_back(verticesPair);
+				m_mesh->_add_polygon_to_list(newPolygon);
+				needUpdate = true;
+			}
+
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+		}
 		if (c == l)
 			break;
 		c = c->m_right;

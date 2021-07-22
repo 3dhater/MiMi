@@ -96,7 +96,7 @@ end:;
 		auto lp = cp->m_left;
 		while (true)
 		{
-			miListNode2<miVertex*, v2f>* UV_v1 = 0;
+			miListNode3<miVertex*, v2f, v3f>* UV_v1 = 0;
 
 			// if polygon contain v2 then remove v1 from this polygon
 			// else replace v1 to v2 and add this polygon to v2
@@ -167,7 +167,7 @@ end:;
 				}*/
 				auto vNode = v2->m_polygons.m_head->m_data->FindVertex(v2);
 
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
+				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2, vNode->m_data3);
 				v2->m_polygons.push_back(cp->m_data);
 			}
 
@@ -198,7 +198,7 @@ end:;
 			while (true)
 			{
 				auto vNode = cp->m_data->FindVertex(v1);
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2);
+				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2, vNode->m_data3);
 				v2->m_polygons.push_back(cp->m_data);
 
 				if (cp == lp)

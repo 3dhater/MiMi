@@ -177,9 +177,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex1->m_position;
-			vertexAnimated_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
-			vertexAnimated_ptr->Normal.y = current_edge->m_vertex1->m_normal[1];
-			vertexAnimated_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
+			vertexAnimated_ptr->Normal = v3f();
 			++vertexAnimated_ptr;
 		}
 		else
@@ -187,9 +185,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex1->m_position;
-			vertex_ptr->Normal.x = current_edge->m_vertex1->m_normal[0];
-			vertex_ptr->Normal.y = current_edge->m_vertex1->m_normal[1];
-			vertex_ptr->Normal.z = current_edge->m_vertex1->m_normal[2];
+			vertex_ptr->Normal = v3f();
 			++vertex_ptr;
 		}
 		*inds_ptr = index;
@@ -201,9 +197,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex2->m_position;
-			vertexAnimated_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
-			vertexAnimated_ptr->Normal.y = current_edge->m_vertex2->m_normal[1];
-			vertexAnimated_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
+			vertexAnimated_ptr->Normal = v3f();
 			++vertexAnimated_ptr;
 		}
 		else
@@ -211,9 +205,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex2->m_position;
-			vertex_ptr->Normal.x = current_edge->m_vertex2->m_normal[0];
-			vertex_ptr->Normal.y = current_edge->m_vertex2->m_normal[1];
-			vertex_ptr->Normal.z = current_edge->m_vertex2->m_normal[2];
+			vertex_ptr->Normal = v3f();
 			++vertex_ptr;
 		}
 		*inds_ptr = index;
@@ -304,9 +296,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_1->m_data1->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data2;
-				vertexAnimatedModel_ptr->Normal.x = vertex_1->m_data1->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_1->m_data1->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_1->m_data1->m_normal[2];
+				vertexAnimatedModel_ptr->Normal = vertex_1->m_data3;
 				++vertexAnimatedModel_ptr;
 			}
 			else
@@ -315,9 +305,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_1->m_data1->m_position;
 				vertexModel_ptr->TCoords = vertex_1->m_data2;
-				vertexModel_ptr->Normal.x = vertex_1->m_data1->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_1->m_data1->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_1->m_data1->m_normal[2];
+				vertexModel_ptr->Normal = vertex_1->m_data3;
 				++vertexModel_ptr;
 			}
 
@@ -333,9 +321,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_2->m_data1->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data2;
-				vertexAnimatedModel_ptr->Normal.x = vertex_2->m_data1->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_2->m_data1->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_2->m_data1->m_normal[2];
+				vertexAnimatedModel_ptr->Normal = vertex_2->m_data3;
 				++vertexAnimatedModel_ptr;
 			}
 			else
@@ -344,9 +330,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_2->m_data1->m_position;
 				vertexModel_ptr->TCoords = vertex_2->m_data2;
-				vertexModel_ptr->Normal.x = vertex_2->m_data1->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_2->m_data1->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_2->m_data1->m_normal[2];
+				vertexModel_ptr->Normal = vertex_2->m_data3;
 				++vertexModel_ptr;
 			}
 
@@ -360,9 +344,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_3->m_data1->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data2;
-				vertexAnimatedModel_ptr->Normal.x = vertex_3->m_data1->m_normal[0];
-				vertexAnimatedModel_ptr->Normal.y = vertex_3->m_data1->m_normal[1];
-				vertexAnimatedModel_ptr->Normal.z = vertex_3->m_data1->m_normal[2];
+				vertexAnimatedModel_ptr->Normal = vertex_3->m_data3;
 				++vertexAnimatedModel_ptr;
 			}
 			else
@@ -371,9 +353,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_3->m_data1->m_position;
 				vertexModel_ptr->TCoords = vertex_3->m_data2;
-				vertexModel_ptr->Normal.x = vertex_3->m_data1->m_normal[0];
-				vertexModel_ptr->Normal.y = vertex_3->m_data1->m_normal[1];
-				vertexModel_ptr->Normal.z = vertex_3->m_data1->m_normal[2];
+				vertexModel_ptr->Normal = vertex_3->m_data3;
 				++vertexModel_ptr;
 			}
 
@@ -607,14 +587,14 @@ void miVisualObjectImpl::Draw() {
 			if (g_app->m_editMode == miEditMode::Polygon
 				&& g_app->m_currentViewportDraw->m_drawMode == miViewportDrawMode::Wireframe)
 			{
-				default_polygon_material.m_cullBackFace = false;
+				//default_polygon_material.m_cullBackFace = false;
 			}
 
 			yySetMaterial(&default_polygon_material);
+			
+			g_app->m_gpu->Draw();
 
 			default_polygon_material.m_cullBackFace = old_cullBF;
-
-			g_app->m_gpu->Draw();
 		}
 		break;
 	default:

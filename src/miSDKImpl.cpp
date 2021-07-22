@@ -380,7 +380,7 @@ void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, Alloc
 					uint64_t new_v_address = 0;
 					if (vmap.Get((uint64_t)current_vertex->m_data1, new_v_address))
 					{
-						new_P->m_verts.push_back((miVertex*)new_v_address, current_vertex->m_data2);
+						new_P->m_verts.push_back((miVertex*)new_v_address, current_vertex->m_data2, current_vertex->m_data3);
 					}
 
 					if (current_vertex == last_vertex)
@@ -445,6 +445,13 @@ void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, Alloc
 
 				if (vmap.Get((uint64_t)current_edge->m_vertex2, new_v2_address))
 					new_E->m_vertex2 = (miVertex*)new_v2_address;
+
+				if (new_E->m_vertex2 < new_E->m_vertex1)
+				{
+					auto old = new_E->m_vertex1;
+					new_E->m_vertex1 = new_E->m_vertex2;
+					new_E->m_vertex2 = old;
+				}
 
 				uint64_t new_p1_address = 0;
 				uint64_t new_p2_address = 0;

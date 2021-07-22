@@ -306,7 +306,7 @@ void miEditableObject::OnWeldApply() {
 	// 3.
 	{
 		// I need list of vertices in specific position
-		std::unordered_map<std::string, miListNode2<miVertex*, v2f>*> weldMap;
+		std::unordered_map<std::string, miListNode3<miVertex*, v2f, v3f>*> weldMap;
 
 		std::string vertsMapHash;
 		auto _set_hash = [&](v3f* position)
@@ -487,7 +487,7 @@ void miEditableObject::OnWeldApply() {
 								bool v2OnEdge = currentVertex->IsOnEdge();
 								if (v2OnEdge)
 								{
-									cp->m_data->m_verts.replace(currentVertex, iterator->second->m_data1, iterator->second->m_data2);
+									cp->m_data->m_verts.replace(currentVertex, iterator->second->m_data1, iterator->second->m_data2, iterator->second->m_data3);
 									iterator->second->m_data1->m_polygons.push_back(cp->m_data);
 									currentVertex->m_polygons.erase_first(cp->m_data);
 								}

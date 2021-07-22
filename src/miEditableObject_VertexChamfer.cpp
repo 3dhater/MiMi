@@ -195,10 +195,11 @@ void miEditableObject::OnChamfer() {
 
 				struct helpStruct2
 				{
-					helpStruct2(miVertex* v, const v2f& uv):m_vertex(v),m_uv(uv) {}
+					helpStruct2(miVertex* v, const v2f& uv, const v3f& n):m_vertex(v),m_uv(uv),m_normal(n) {}
 
 					miVertex* m_vertex;
 					v2f m_uv;
+					v3f m_normal;
 				};
 				static miArray<helpStruct2> vericesForNewpolygon;
 				vericesForNewpolygon.clear();
@@ -228,18 +229,25 @@ void miEditableObject::OnChamfer() {
 
 					miVertex* vertex = 0;
 					v2f uv;
+					v3f normal;
 
 					if (ce->m_data->m_polygon1)
 					{
 						auto fv = ce->m_data->m_polygon1->FindVertex(c);
 						if (fv)
+						{
 							uv = fv->m_data2;
+							normal = fv->m_data3;
+						}
 					}
 					else if (ce->m_data->m_polygon2)
 					{
 						auto fv = ce->m_data->m_polygon2->FindVertex(c);
 						if (fv)
+						{
 							uv = fv->m_data2;
+							normal = fv->m_data3;
+						}
 					}
 
 					// first edge for this vertex
@@ -257,9 +265,9 @@ void miEditableObject::OnChamfer() {
 						// create new vertex
 						vertex = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
 						vertex->m_flags |= miVertex::flag_isSelected;
-						vertex->m_normal[0] = c->m_normal[0];
+						/*vertex->m_normal[0] = c->m_normal[0];
 						vertex->m_normal[1] = c->m_normal[1];
-						vertex->m_normal[2] = c->m_normal[2];
+						vertex->m_normal[2] = c->m_normal[2];*/
 						
 						vertex->m_right = c_new;
 						vertex->m_left = c_new->m_left;
@@ -285,11 +293,11 @@ void miEditableObject::OnChamfer() {
 
 									if (pvc->m_right->m_data1 == c2)
 									{
-										ce_new->m_data->m_polygon1->m_verts.insert_after(c_new, vertex, pvc->m_data2);
+										ce_new->m_data->m_polygon1->m_verts.insert_after(c_new, vertex, pvc->m_data2, pvc->m_data3);
 									}
 									else
 									{
-										ce_new->m_data->m_polygon1->m_verts.insert_before(c_new, vertex, pvc->m_data2);
+										ce_new->m_data->m_polygon1->m_verts.insert_before(c_new, vertex, pvc->m_data2, pvc->m_data3);
 									}
 									break;
 								}
@@ -326,11 +334,11 @@ void miEditableObject::OnChamfer() {
 
 									if (pvc->m_right->m_data1 == c2)
 									{
-										ce_new->m_data->m_polygon2->m_verts.insert_after(c_new, vertex, pvc->m_data2);
+										ce_new->m_data->m_polygon2->m_verts.insert_after(c_new, vertex, pvc->m_data2, pvc->m_data3);
 									}
 									else
 									{
-										ce_new->m_data->m_polygon2->m_verts.insert_before(c_new, vertex, pvc->m_data2);
+										ce_new->m_data->m_polygon2->m_verts.insert_before(c_new, vertex, pvc->m_data2, pvc->m_data3);
 									}
 									break;
 								}
@@ -352,7 +360,7 @@ void miEditableObject::OnChamfer() {
 					if (vertex) 
 					{
 						vertex->m_position = c->m_position + chamferValue * dir;
-						vericesForNewpolygon.push_back(helpStruct2(vertex,uv));
+						vericesForNewpolygon.push_back(helpStruct2(vertex,uv, normal));
 					}
 					
 
@@ -367,11 +375,15 @@ void miEditableObject::OnChamfer() {
 				{
 					auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
 					
-					for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
+					for (u32 i = vericesForNewpolygon.m_size - 1; i >= 0; )
 					{
 						auto & v = vericesForNewpolygon.m_data[i];
-						newPolygon->m_verts.push_back(v.m_vertex, v.m_uv);
+						newPolygon->m_verts.push_back(v.m_vertex, v.m_uv, v.m_normal);
 						v.m_vertex->m_polygons.push_back(newPolygon);
+
+						if (i==0)
+							break;
+						--i;
 					}
 
 					newPolygon->m_left = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left;

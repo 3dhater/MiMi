@@ -21,7 +21,6 @@ struct miVertex
 	miVertex* m_right;
 
 	v3f m_position;
-	half m_normal[3];
 
 	unsigned char m_flags;
 	enum { 
@@ -32,9 +31,6 @@ struct miVertex
 	void CopyData(miVertex* other)
 	{
 		m_position = other->m_position;
-		m_normal[0] = other->m_normal[0];
-		m_normal[1] = other->m_normal[1];
-		m_normal[2] = other->m_normal[2];
 		m_flags = other->m_flags;
 	}
 
@@ -125,10 +121,10 @@ struct miPolygon
 	miPolygon* m_left;
 	miPolygon* m_right;
 	
-	miList2<miVertex*, v2f> m_verts;
+	miList3<miVertex*, v2f, v3f> m_verts;
 	miList<miEdge*> m_edges;
 
-	miListNode2<miVertex*, v2f>* FindVertex(miVertex* v) {
+	miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
 		auto lastV = curV->m_left;
 		while (true)
@@ -896,9 +892,9 @@ struct miMeshBuilder
 					newVertex->m_position = positions[i].m_first;
 					//newVertex->m_tCoords = tCoords[i];
 					
-					newVertex->m_normal[0] = normals[i].x;
+					/*newVertex->m_normal[0] = normals[i].x;
 					newVertex->m_normal[1] = normals[i].y;
-					newVertex->m_normal[2] = normals[i].z;
+					newVertex->m_normal[2] = normals[i].z;*/
 
 					m_weldMap[m_vertsMapHash] = newVertex;
 					m_mesh->_add_vertex_to_list(newVertex);
@@ -915,9 +911,9 @@ struct miMeshBuilder
 				newVertex->m_position = positions[i].m_first;
 				//newVertex->m_tCoords = tCoords[i];
 
-				newVertex->m_normal[0] = normals[i].x;
+				/*newVertex->m_normal[0] = normals[i].x;
 				newVertex->m_normal[1] = normals[i].y;
-				newVertex->m_normal[2] = normals[i].z;
+				newVertex->m_normal[2] = normals[i].z;*/
 
 				m_mesh->_add_vertex_to_list(newVertex);
 			}
@@ -930,7 +926,7 @@ struct miMeshBuilder
 			if (newVertex->m_polygons.find(newPolygon) == 0)
 			{
 				newVertex->m_polygons.push_back(newPolygon);
-				newPolygon->m_verts.push_back(newVertex, tCoords[i]);
+				newPolygon->m_verts.push_back(newVertex, tCoords[i], normals[i]);
 			}
 		}
 	}
