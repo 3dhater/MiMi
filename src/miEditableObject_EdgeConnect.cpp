@@ -125,7 +125,12 @@ void miEditableObject::EdgeConnect()
 
 				if (e->m_vertex1 == v1 && e->m_vertex2 == v2)
 				{
-					e->m_polygon1->m_verts.insert_after(cv->m_data1, newVertex, cv->m_data2, cv->m_data3);
+					v2f uv;
+					uv.x = cv->m_data2.x + nv->m_data2.x;
+					uv.y = cv->m_data2.y + nv->m_data2.y;
+					uv *= 0.5f;
+
+					e->m_polygon1->m_verts.insert_after(cv->m_data1, newVertex, uv, cv->m_data3);
 					break;
 				}
 
@@ -154,7 +159,11 @@ void miEditableObject::EdgeConnect()
 
 				if (e->m_vertex1 == v1 && e->m_vertex2 == v2)
 				{
-					e->m_polygon2->m_verts.insert_after(cv->m_data1, newVertex, cv->m_data2, cv->m_data3);
+					v2f uv;
+					uv.x = cv->m_data2.x + nv->m_data2.x;
+					uv.y = cv->m_data2.y + nv->m_data2.y;
+					uv *= 0.5f;
+					e->m_polygon2->m_verts.insert_after(cv->m_data1, newVertex, uv, cv->m_data3);
 					break;
 				}
 
