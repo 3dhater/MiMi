@@ -144,6 +144,7 @@ public:
 	void OnChamferApply();
 
 	void EdgeExtrude();
+	void EdgeConnect();
 };
 
 #endif

@@ -130,6 +130,7 @@ void miEditableObject::EdgeExtrude()
 				break;
 			cv = cv->m_right;
 		}
+
 		if (c == l)
 			break;
 		c = c->m_right;

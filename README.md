@@ -20,7 +20,7 @@
 * * [x] Vertex Break
 * * [x] Edge Select Loop/Ring
 * * [x] Edge Extrude
-* * [ ] Edge Connect
+* * [x] Edge Connect
 * * [ ] Edge Bridge
 * * [ ] Edge Chamfer
 * * [ ] Polygon Extrude
