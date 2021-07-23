@@ -32,6 +32,7 @@
     <ClCompile Include="..\src\miEditableObject_VertexChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeExtrude.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeConnect.cpp" />
+    <ClCompile Include="..\src\miEditableObject_EdgeBridge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

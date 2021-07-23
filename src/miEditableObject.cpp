@@ -40,6 +40,8 @@ void editableObjectGUI_chamferCheckBox_onClick(bool);
 
 void editableObjectGUI_connectEdge_onClick(s32);
 
+void editableObjectGUI_bridgeEdge_onClick(s32);
+
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
@@ -238,11 +240,15 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddButton(v4f(105.f, y, 50.f, 15.f), L"Loop", -1,
 		editableObjectGUI_selectEdgeLoop_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode );
-	y += 15.f + 3.f;
+	y += 15.f + 6.f;
 	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Edit:", 0,
 		miPluginGUI::Flag_ForEdgeEditMode);
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Connect", -1,
 		editableObjectGUI_connectEdge_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode);
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Bridge", -1,
+		editableObjectGUI_bridgeEdge_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode);
 }
 

@@ -145,6 +145,7 @@ public:
 
 	void EdgeExtrude();
 	void EdgeConnect();
+	void EdgeBridge();
 };
 
 #endif

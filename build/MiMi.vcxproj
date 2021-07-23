@@ -33,6 +33,7 @@
     <ClCompile Include="..\src\miApplication_selection.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
+    <ClCompile Include="..\src\miEditableObject_EdgeBridge.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeConnect.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeExtrude.cpp" />
     <ClCompile Include="..\src\miEditableObject_selection.cpp" />

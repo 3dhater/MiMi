@@ -11,6 +11,7 @@ struct miListNode
 	miListNode* m_right;
 };
 
+// circular double linked list
 template<typename _type>
 class miList
 {
@@ -197,11 +198,27 @@ public:
 		}
 	}
 
+	void reverse() {
+		if (!m_head)
+			return;
+		miListNode<_type>* tail = m_head->m_left;
+		miListNode<_type>* curr = m_head;
+		while (true)
+		{
+			auto l = curr->m_left;
+			auto r = curr->m_right;
+			
+			curr->m_left = r;
+			curr->m_right = l;
+
+			if (curr == tail)
+				break;
+			curr = r;
+		}
+		m_head = tail;
+	}
+
 	miListNode<_type>* m_head;
-	
-	//miListNode<_type>*(*m_onAllocate)();
-	//void(*m_onDeallocate)(miListNode<_type>*);
-	//_allocator_type<_type> m_allocator;
 };
 
 template<typename _type1, typename _type2>
