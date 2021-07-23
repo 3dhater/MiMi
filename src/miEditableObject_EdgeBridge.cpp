@@ -245,12 +245,17 @@ void miEditableObject::EdgeBridge()
 	// create until g1 have edges
 	// when g1 is empty, and g2 is not, create triangles using g2
 	{
+		miListNode3<miVertex*, v2f, v3f>* vertex_for_triangle1 = 0;
+		miListNode3<miVertex*, v2f, v3f>* vertex_for_triangle2 = 0;
+		miPolygon* lastNewPolygon = 0;
+		miEdge * g2_edge_prev = 0;
+
 	begin_creating:;
 		miEdge * g1_edge = 0; 
 		if(g1->m_head)
 			g1_edge = g1->m_head->m_data;
 
-		miEdge * g2_edge = 0; 
+		miEdge * g2_edge = 0;
 		if (g2->m_head)
 			g2_edge = g2->m_head->m_data;
 
@@ -266,7 +271,7 @@ void miEditableObject::EdgeBridge()
 			miListNode3<miVertex*, v2f, v3f>* v2 = 0;
 			miListNode3<miVertex*, v2f, v3f>* v3 = 0;
 			miListNode3<miVertex*, v2f, v3f>* v4 = 0;
-
+			
 			{
 				auto edge_polygon = g1_edge->m_polygon1;
 				if (!edge_polygon)
@@ -281,12 +286,16 @@ void miEditableObject::EdgeBridge()
 					{
 						v1 = cv;
 						v2 = nv;
+						vertex_for_triangle1 = v1;
+						vertex_for_triangle2 = v2;
 						break;
 					}
 					else if (cv->m_data1 == g1_edge->m_vertex2 && nv->m_data1 == g1_edge->m_vertex1)
 					{
 						v1 = cv;
 						v2 = nv;
+						vertex_for_triangle1 = v1;
+						vertex_for_triangle2 = v2;
 						break;
 					}
 
@@ -297,33 +306,10 @@ void miEditableObject::EdgeBridge()
 			}
 
 			miPolygon* newPolygon = m_allocatorPolygon->Allocate();
-			
+			lastNewPolygon = newPolygon;
 			newPolygon->m_verts.push_back(v2->m_data1, v2->m_data2, v2->m_data3);
 			newPolygon->m_verts.push_back(v1->m_data1, v1->m_data2, v1->m_data3);
 
-			/*f32 d1 = v2->m_data1->m_position.distance(g2_edge->m_vertex1->m_position);
-			f32 d2 = v2->m_data1->m_position.distance(g2_edge->m_vertex2->m_position);
-			if (d1 < d2)
-			{
-				edge_polygon = g2_edge->m_polygon1;
-				if (!edge_polygon)
-					edge_polygon = g2_edge->m_polygon2;
-				auto _v1 = edge_polygon->FindVertex(g2_edge->m_vertex1);
-				auto _v2 = edge_polygon->FindVertex(g2_edge->m_vertex2);
-				newPolygon->m_verts.push_back(g2_edge->m_vertex2, _v2->m_data2, _v2->m_data3);
-				newPolygon->m_verts.push_back(g2_edge->m_vertex1, _v1->m_data2, _v1->m_data3);
-			}
-			else
-			{
-				edge_polygon = g2_edge->m_polygon1;
-				if (!edge_polygon)
-					edge_polygon = g2_edge->m_polygon2;
-				auto _v1 = edge_polygon->FindVertex(g2_edge->m_vertex1);
-				auto _v2 = edge_polygon->FindVertex(g2_edge->m_vertex2);
-
-				newPolygon->m_verts.push_back(g2_edge->m_vertex1, _v1->m_data2, _v1->m_data3);
-				newPolygon->m_verts.push_back(g2_edge->m_vertex2, _v2->m_data2, _v2->m_data3);
-			}*/
 			{
 				auto edge_polygon = g2_edge->m_polygon1;
 				if (!edge_polygon)
@@ -363,12 +349,87 @@ void miEditableObject::EdgeBridge()
 
 			m_mesh->_add_polygon_to_list(newPolygon);
 
+			g2_edge_prev = g2_edge;
 			goto begin_creating;
 		}
 		else if (g2_edge)
 		{
+			printf("create triangle\n");
+			miListNode3<miVertex*, v2f, v3f>* v1 = 0;
+			miListNode3<miVertex*, v2f, v3f>* v2 = 0;
+			{
+				auto edge_polygon = g2_edge->m_polygon1;
+				if (!edge_polygon)
+					edge_polygon = g2_edge->m_polygon2;
+				auto cv = edge_polygon->m_verts.m_head;
+				auto lv = cv->m_left;
+				while (true)
+				{
+					auto nv = cv->m_right;
+
+					if (cv->m_data1 == g2_edge->m_vertex1 && nv->m_data1 == g2_edge->m_vertex2)
+					{
+						v1 = cv;
+						v2 = nv;
+						break;
+					}
+					else if (cv->m_data1 == g2_edge->m_vertex2 && nv->m_data1 == g2_edge->m_vertex1)
+					{
+						v1 = cv;
+						v2 = nv;
+						break;
+					}
+
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+
+			miPolygon* newPolygon = m_allocatorPolygon->Allocate();
+			
+			miListNode3<miVertex*, v2f, v3f>* v3 = 0;
+			{
+				// I need to find common vertex with edge and last polygon
+				auto cv = lastNewPolygon->m_verts.m_head;
+				auto lv = cv->m_left;
+				while (true)
+				{
+					if (cv->m_data1 == g2_edge->m_vertex1 || cv->m_data1 == g2_edge->m_vertex2)
+					{
+						if (cv->m_right->m_data1 == g2_edge_prev->m_vertex1 || cv->m_right->m_data1 == g2_edge_prev->m_vertex2)
+						{
+							v3 = cv->m_left;
+						}
+						else
+							v3 = cv->m_right;
+
+						break;
+					}
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+
+			newPolygon->m_verts.push_back(v2->m_data1, v2->m_data2, v2->m_data3);
+			newPolygon->m_verts.push_back(v1->m_data1, v1->m_data2, v1->m_data3);
+			newPolygon->m_verts.push_back(v3->m_data1, v3->m_data2, v3->m_data3);
+			//newPolygon->m_verts.push_back(vertex_for_triangle->m_data1, vertex_for_triangle->m_data2, vertex_for_triangle->m_data3);
+			
+			g2_edge->m_vertex1->m_polygons.push_back(newPolygon);
+			g2_edge->m_vertex2->m_polygons.push_back(newPolygon);
+			v3->m_data1->m_polygons.push_back(newPolygon);
+			//vertex_for_triangle->m_data1->m_polygons.push_back(newPolygon);
+			m_mesh->_add_polygon_to_list(newPolygon);
+			
+			lastNewPolygon = newPolygon;
+
+			g2_edge_prev = g2_edge;
 			goto begin_creating;
 		}
+
+
 	}
 
 	DeselectAll(g_app->m_editMode);
