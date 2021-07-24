@@ -389,6 +389,8 @@ void miEditableObject::OnVertexChamfer() {
 					newPolygon->m_left = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left;
 					newPolygon->m_right = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon;
 
+					newPolygon->CalculateNormal();
+
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left->m_right = newPolygon;
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;
 				}

@@ -139,7 +139,6 @@ struct miPolygon
 	}
 
 	bool IsVisible() {
-		
 		auto vertex_1 = m_verts.m_head;
 		auto vertex_3 = vertex_1->m_right;
 		auto vertex_2 = vertex_3->m_right;
@@ -163,6 +162,61 @@ struct miPolygon
 				break;
 		}
 		return false;
+	}
+
+	void CalculateNormal() {
+		{
+			auto vertex_1 = m_verts.m_head;
+			vertex_1->m_data3.set(0.f);
+
+			auto vertex_3 = vertex_1->m_right;
+			auto vertex_2 = vertex_3->m_right;
+			while (true) {
+				vertex_2->m_data3.set(0.f);
+				vertex_3->m_data3.set(0.f);
+				// ===============================
+				vertex_2 = vertex_2->m_right;
+				vertex_3 = vertex_3->m_right;
+
+				if (vertex_3 == vertex_1)
+					break;
+			}
+		}
+		{
+			auto vertex_1 = m_verts.m_head;
+			auto vertex_3 = vertex_1->m_right;
+			auto vertex_2 = vertex_3->m_right;
+			while (true) {
+				auto e1 = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
+				auto e2 = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
+				auto n = e1.cross(e2);
+				vertex_1->m_data3 -= n;
+				vertex_2->m_data3 -= n;
+				vertex_3->m_data3 -= n;
+				// ===============================
+				vertex_2 = vertex_2->m_right;
+				vertex_3 = vertex_3->m_right;
+
+				if (vertex_3 == vertex_1)
+					break;
+			}
+		}
+		{
+			auto vertex_1 = m_verts.m_head;
+			vertex_1->m_data3.normalize2();
+			auto vertex_3 = vertex_1->m_right;
+			auto vertex_2 = vertex_3->m_right;
+			while (true) {
+				vertex_2->m_data3.normalize2();
+				vertex_3->m_data3.normalize2();
+				// ===============================
+				vertex_2 = vertex_2->m_right;
+				vertex_3 = vertex_3->m_right;
+
+				if (vertex_3 == vertex_1)
+					break;
+			}
+		}
 	}
 };
 #include "miPackOff.h"
