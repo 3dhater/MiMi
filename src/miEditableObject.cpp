@@ -30,17 +30,21 @@ void editableObjectGUI_weldButton_onUncheck(s32 id);
 float* editableObjectGUI_weldRange_onSelectObject(miSceneObject* obj);
 void editableObjectGUI_weldRange_onValueChanged(miSceneObject*, float*);
 
-void editableObjectGUI_chamferButton_onClick(s32 id, bool isChecked);
-void editableObjectGUI_chamferButton_onCheck(s32 id);
-void editableObjectGUI_chamferButton_onUncheck(s32 id);
-void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float*);
-float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj);
-void editableObjectGUI_chamferButtonOK_onClick(s32 id);
-void editableObjectGUI_chamferCheckBox_onClick(bool);
+void editableObjectGUI_vertexChamferButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_vertexChamferButton_onCheck(s32 id);
+void editableObjectGUI_vertexChamferButton_onUncheck(s32 id);
+void editableObjectGUI_vertexChamferRange_onValueChanged(miSceneObject* obj, float*);
+float* editableObjectGUI_vertexChamferRange_onSelectObject(miSceneObject* obj);
+void editableObjectGUI_vertexChamferButtonOK_onClick(s32 id);
+void editableObjectGUI_vertexChamferCheckBox_onClick(bool);
 
 void editableObjectGUI_connectEdge_onClick(s32);
 
 void editableObjectGUI_bridgeEdge_onClick(s32);
+
+void editableObjectGUI_edgeChamferButton_onClick(s32 id, bool isChecked);
+void editableObjectGUI_edgeChamferButton_onCheck(s32 id);
+void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -213,23 +217,23 @@ void miApplication::_initEditableObjectGUI() {
 	y += 20.f;
 	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 40.f, 15.f), L"Chamfer",
 		-1,
-		editableObjectGUI_chamferButton_onClick,
-		editableObjectGUI_chamferButton_onCheck,
-		editableObjectGUI_chamferButton_onUncheck,
+		editableObjectGUI_vertexChamferButton_onClick,
+		editableObjectGUI_vertexChamferButton_onCheck,
+		editableObjectGUI_vertexChamferButton_onUncheck,
 		1,
 		miPluginGUI::Flag_ForVertexEditMode);
 	m_pluginGuiForEditableObject->AddRangeSliderFloatNoLimit(v4f(90.f, y, 70.f, 15.f),
-		editableObjectGUI_chamferRange_onSelectObject,
-		editableObjectGUI_chamferRange_onValueChanged,
+		editableObjectGUI_vertexChamferRange_onSelectObject,
+		editableObjectGUI_vertexChamferRange_onValueChanged,
 		miPluginGUI::Flag_ForVertexEditMode,
 		0.01);
 	m_pluginGuiForEditableObject->AddButton(v4f(160.f, y, 40.f, 15.f), L"OK",
 		-1,
-		editableObjectGUI_chamferButtonOK_onClick,
+		editableObjectGUI_vertexChamferButtonOK_onClick,
 		miPluginGUI::Flag_ForVertexEditMode);
 	y += 17.f;
 	m_pluginGuiForEditableObject->AddCheckBox(v2f(50.f, y), L"Chamfer: add polygons",
-		editableObjectGUI_chamferCheckBox_onClick,
+		editableObjectGUI_vertexChamferCheckBox_onClick,
 		true,
 		miPluginGUI::Flag_ForVertexEditMode);
 
@@ -250,13 +254,25 @@ void miApplication::_initEditableObjectGUI() {
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Bridge", -1,
 		editableObjectGUI_bridgeEdge_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode);
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButtonAsCheckbox(v4f(50.f, y, 50.f, 15.f), L"Chamfer",
+		-1,
+		editableObjectGUI_edgeChamferButton_onClick,
+		editableObjectGUI_edgeChamferButton_onCheck,
+		editableObjectGUI_edgeChamferButton_onUncheck,
+		1,
+		miPluginGUI::Flag_ForEdgeEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
-	m_addPolygonsWhenChamfer = true;
-	m_chamferValue = 0.1f;
+	m_addPolygonsWhenVertexChamfer = true;
+	m_vertexChamferValue = 0.1f;
 	m_isWeld = false;
-	m_isChamfer = false;
+	m_isVertexChamfer = false;
+	m_isEdgeChamfer = false;
+	m_edgeChamferValue = 0.1f;
+	m_addPolygonsWhenEdgeChamfer = true;
+
 	m_weldValue = 0.1f;
 	m_sdk = sdk;
 	m_visualObject_polygon = m_sdk->CreateVisualObject(this, miVisualObjectType::Polygon);

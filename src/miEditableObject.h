@@ -54,13 +54,14 @@ class miEditableObject : public miSceneObject
 	friend void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_movetoButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
 	friend void editableObjectGUI_weldButton_onCancel();
-	friend void editableObjectGUI_chamferButton_onCancel();
+	friend void editableObjectGUI_vertexChamferButton_onCancel();
 	friend void editableObjectGUI_weldRange_onValueChanged(miSceneObject* obj, float* fptr);
 	friend void editableObjectGUI_weldButton_onUncheck(s32 id);
-	friend void editableObjectGUI_chamferButton_onUncheck(s32 id);
-	friend void editableObjectGUI_chamferRange_onValueChanged(miSceneObject*obj, float* fptr);
+	friend void editableObjectGUI_vertexChamferButton_onUncheck(s32 id);
+	friend void editableObjectGUI_vertexChamferRange_onValueChanged(miSceneObject*obj, float* fptr);
 	friend void editableObjectGUI_selectEdgeLoop_onClick(s32 id);
 	friend void editableObjectGUI_selectEdgeRing_onClick(s32 id);
+	friend void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
 
 public:
 	miEditableObject(miSDK*, miPlugin*);
@@ -137,15 +138,21 @@ public:
 	void OnWeldApply();
 	void _createMeshFromTMPMesh();
 
-	bool m_isChamfer;
-	f32 m_chamferValue;
-	bool m_addPolygonsWhenChamfer;
-	void OnChamfer();
-	void OnChamferApply();
+	bool m_isVertexChamfer;
+	f32 m_vertexChamferValue;
+	bool m_addPolygonsWhenVertexChamfer;
+	void OnVertexChamfer();
+	void OnVertexChamferApply();
 
 	void EdgeExtrude();
 	void EdgeConnect();
 	void EdgeBridge();
+
+	bool m_isEdgeChamfer;
+	f32 m_edgeChamferValue;
+	bool m_addPolygonsWhenEdgeChamfer;
+	void OnEdgeChamfer();
+	void OnEdgeChamferApply();
 };
 
 #endif

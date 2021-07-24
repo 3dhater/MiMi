@@ -21,11 +21,12 @@
 * * [x] Edge Select Loop/Ring
 * * [x] Edge Extrude
 * * [x] Edge Connect
-* * [ ] Edge Bridge
+* * [x] Edge Bridge
 * * [ ] Edge Chamfer
 * * [ ] Polygon Extrude
 * * [ ] Polygon Bridge
 * * [ ] Polygon Detach
+* * [ ] Polygon Flip
 * [ ]  edit UV
 * [ ]  edit normals
 * [ ]  export model

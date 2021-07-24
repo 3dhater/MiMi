@@ -7,54 +7,54 @@
 
 extern miApplication * g_app;
 
-void editableObjectGUI_chamferButton_onCheck(s32 id);
-void editableObjectGUI_chamferButton_onCancel();
-void editableObjectGUI_chamferButton_onUncheck(s32 id);
+void editableObjectGUI_vertexChamferButton_onCheck(s32 id);
+void editableObjectGUI_vertexChamferButton_onCancel();
+void editableObjectGUI_vertexChamferButton_onUncheck(s32 id);
 
-void editableObjectGUI_chamferCheckBox_onClick(bool isChecked) {
+void editableObjectGUI_vertexChamferCheckBox_onClick(bool isChecked) {
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->m_addPolygonsWhenChamfer = isChecked;
-	if (object->m_isChamfer)
-		object->OnChamfer();
+	object->m_addPolygonsWhenVertexChamfer = isChecked;
+	if (object->m_isVertexChamfer)
+		object->OnVertexChamfer();
 }
 
-void editableObjectGUI_chamferButtonOK_onClick(s32 id) {
+void editableObjectGUI_vertexChamferButtonOK_onClick(s32 id) {
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->OnChamferApply();
-	editableObjectGUI_chamferButton_onCancel();
+	object->OnVertexChamferApply();
+	editableObjectGUI_vertexChamferButton_onCancel();
 }
 
-float* editableObjectGUI_chamferRange_onSelectObject(miSceneObject* obj) {
+float* editableObjectGUI_vertexChamferRange_onSelectObject(miSceneObject* obj) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
 		return 0;
 
 	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return 0;
 
-	return &((miEditableObject*)obj)->m_chamferValue;
+	return &((miEditableObject*)obj)->m_vertexChamferValue;
 }
 
-void editableObjectGUI_chamferRange_onValueChanged(miSceneObject* obj, float* fptr) {
+void editableObjectGUI_vertexChamferRange_onValueChanged(miSceneObject* obj, float* fptr) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
 		return;
 
 	if (obj->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
 		return;
 	auto object = (miEditableObject*)obj;
-	if (object->m_isChamfer)
+	if (object->m_isVertexChamfer)
 	{
 		if (*fptr < 0.f)
 			*fptr = 0.f;
-		object->OnChamfer();
+		object->OnVertexChamfer();
 	}
 }
 
-void editableObjectGUI_chamferButton_onSelect(miEditMode em)
+void editableObjectGUI_vertexChamferButton_onSelect(miEditMode em)
 {
 	switch (em)
 	{
 	case miEditMode::Vertex: {
-		editableObjectGUI_chamferButton_onCheck(-1);
+		editableObjectGUI_vertexChamferButton_onCheck(-1);
 	}break;
 	case miEditMode::Edge:
 	case miEditMode::Polygon:
@@ -64,7 +64,7 @@ void editableObjectGUI_chamferButton_onSelect(miEditMode em)
 	}
 }
 
-void editableObjectGUI_chamferButton_onCancel() {
+void editableObjectGUI_vertexChamferButton_onCancel() {
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
 	auto gui = object->GetGui();
 	gui->UncheckButtonGroup(1);
@@ -73,25 +73,25 @@ void editableObjectGUI_chamferButton_onCancel() {
 	g_app->m_sdk->SetSelectObjectCallbacks(0);
 	/*object->DestroyTMPModelWithPoolAllocator();
 	object->m_isChamfer = false;*/
-	editableObjectGUI_chamferButton_onUncheck(-1);
+	editableObjectGUI_vertexChamferButton_onUncheck(-1);
 }
 
-void editableObjectGUI_chamferButton_onClick(s32 id, bool isChecked) {
+void editableObjectGUI_vertexChamferButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
 }
 
-void editableObjectGUI_chamferButton_onCheck(s32 id) {
+void editableObjectGUI_vertexChamferButton_onCheck(s32 id) {
 	g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::Other);
 	g_app->m_sdk->SetPickVertexCallbacks(
 		0, 0, 0,
-		editableObjectGUI_chamferButton_onCancel);
-	g_app->m_sdk->SetSelectObjectCallbacks(editableObjectGUI_chamferButton_onSelect);
+		editableObjectGUI_vertexChamferButton_onCancel);
+	g_app->m_sdk->SetSelectObjectCallbacks(editableObjectGUI_vertexChamferButton_onSelect);
 
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->OnChamfer();
+	object->OnVertexChamfer();
 }
 
-void editableObjectGUI_chamferButton_onUncheck(s32 id) {
+void editableObjectGUI_vertexChamferButton_onUncheck(s32 id) {
 	if (g_app->m_sdk->GetCursorBehaviorMode() == miCursorBehaviorMode::Other)
 	{
 		g_app->m_sdk->SetCursorBehaviorMode(miCursorBehaviorMode::CommonMode);
@@ -99,12 +99,12 @@ void editableObjectGUI_chamferButton_onUncheck(s32 id) {
 		g_app->m_sdk->SetSelectObjectCallbacks(0);
 	}
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->m_isChamfer = false;
+	object->m_isVertexChamfer = false;
 	object->DestroyTMPModelWithPoolAllocator();
 	object->_updateModel(false);
 }
 
-void miEditableObject::OnChamfer() {
+void miEditableObject::OnVertexChamfer() {
 //	return;
 
 	static s32 pc = 0;
@@ -114,7 +114,7 @@ void miEditableObject::OnChamfer() {
 
 	// I need to know maximum numbers of vertices/edges/polygons
 	// for poolAllocator
-	if (!m_isChamfer)
+	if (!m_isVertexChamfer)
 	{
 		this->UpdateCounts();
 
@@ -163,7 +163,7 @@ void miEditableObject::OnChamfer() {
 			}
 		}
 	}
-	m_isChamfer = true;
+	m_isVertexChamfer = true;
 
 	DestroyTMPModelWithPoolAllocator();
 	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() + pc, this->GetEdgeCount() + ec, this->GetVertexCount() + vc);
@@ -214,7 +214,7 @@ void miEditableObject::OnChamfer() {
 						dir = ce->m_data->m_vertex1->m_position - ce->m_data->m_vertex2->m_position;
 					dir.normalize2();
 
-					auto chamferValue = m_chamferValue;
+					auto chamferValue = m_vertexChamferValue;
 
 					f32 edgeLen = ce->m_data->m_vertex1->m_position.distance(ce->m_data->m_vertex2->m_position);
 					f32 edgeLenHalf = edgeLen* 0.5f;
@@ -371,7 +371,7 @@ void miEditableObject::OnChamfer() {
 					ce_new = ce_new->m_right;
 				}
 
-				if (vericesForNewpolygon.m_size > 2 && m_addPolygonsWhenChamfer)
+				if (vericesForNewpolygon.m_size > 2 && m_addPolygonsWhenVertexChamfer)
 				{
 					auto newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
 					
@@ -409,10 +409,10 @@ void miEditableObject::OnChamfer() {
 	_updateModel();
 }
 
-void miEditableObject::OnChamferApply() {
-	if (!m_isChamfer)
+void miEditableObject::OnVertexChamferApply() {
+	if (!m_isVertexChamfer)
 		return;
-	m_isChamfer = false;
+	m_isVertexChamfer = false;
 
 	_createMeshFromTMPMesh_meshBuilder(true, false);
 	

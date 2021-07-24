@@ -34,9 +34,10 @@
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeBridge.cpp" />
+    <ClCompile Include="..\src\miEditableObject_EdgeChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeConnect.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeExtrude.cpp" />
-    <ClCompile Include="..\src\miEditableObject_selection.cpp" />
+    <ClCompile Include="..\src\miEditableObject_Selection.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexTargetWeld.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexWeld.cpp" />
