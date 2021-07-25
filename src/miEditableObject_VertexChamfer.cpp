@@ -187,6 +187,38 @@ void miEditableObject::OnVertexChamfer() {
 		{
 			if (c->m_flags & miVertex::flag_isSelected)
 			{
+				v3f vertexNormal;
+				// calculate vertex normal
+				{
+					auto cp = c->m_polygons.m_head;
+					auto lp = cp->m_left;
+					while (true)
+					{
+						// find this vertex in polygon
+						auto cv = cp->m_data->m_verts.m_head;
+						auto lv = cv->m_left;
+						while (true)
+						{
+							if (cv->m_data1 == c)
+							{
+								auto e1 = cv->m_left->m_data1->m_position - cv->m_data1->m_position;
+								auto e2 = cv->m_right->m_data1->m_position - cv->m_data1->m_position;
+								auto n = e1.cross(e2);
+								vertexNormal -= n;
+								break;
+							}
+							if (cv == lv)
+								break;
+							cv = cv->m_right;
+						}
+
+						if (cp == lp)
+							break;
+						cp = cp->m_right;
+					}
+					vertexNormal.normalize2();
+				}
+
 				auto ce = c->m_edges.m_head;
 				auto ce_new = c_new->m_edges.m_head;
 
@@ -360,7 +392,19 @@ void miEditableObject::OnVertexChamfer() {
 					if (vertex) 
 					{
 						vertex->m_position = c->m_position + chamferValue * dir;
-						vericesForNewpolygon.push_back(helpStruct2(vertex,uv, normal));
+						
+						bool _addv = true;
+						for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
+						{
+							if (vericesForNewpolygon.m_data[i].m_vertex == vertex)
+							{
+								_addv = false;
+								break;
+							}
+						}
+
+						if(_addv)
+							vericesForNewpolygon.push_back(helpStruct2(vertex,uv, normal));
 					}
 					
 
@@ -390,6 +434,33 @@ void miEditableObject::OnVertexChamfer() {
 					newPolygon->m_right = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon;
 
 					newPolygon->CalculateNormal();
+					//newPolygon->m_verts.m_head->m_data3
+					{
+						/*v3f P0 = v3f();
+						v3f P1 = v3f();
+						v3f N0 = newPolygon->m_verts.m_head->m_data3 + P0;
+						v3f N1 = vertexNormal + P1;
+						v3f delta = P1 - P0;
+						f32 dp0 = delta.dot(N0);
+						f32 dp1 = delta.dot(N1);*/
+						auto n1 = newPolygon->m_verts.m_head->m_data3;
+						auto n2 = vertexNormal;
+					//	printf("%f %f %f : %f %f %f\n", n1.x, n1.y, n1.z, n2.x,n2.y,n2.z);
+					//	//printf("%f %f\n", dp0, dp1);
+					////	printf("%f\n", newPolygon->m_verts.m_head->m_data3.dot(vertexNormal));
+					//	if (dp0 < 0.f && dp1 > 0.f)
+					//	{
+					//	//	newPolygon->Flip();
+					//	//	newPolygon->CalculateNormal();
+					//	}
+						if (n1.dot(n2) < 0.f)
+						{
+							newPolygon->Flip();
+							newPolygon->CalculateNormal();
+						}
+					}
+
+					//auto crPr = vertexNormal.cross();
 
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left->m_right = newPolygon;
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;
@@ -401,6 +472,8 @@ void miEditableObject::OnVertexChamfer() {
 			c = c->m_right;
 			c_new = c_new->m_right;
 		}
+		//printf("\n\n");
+
 	}
 
 	for (u32 i = 0; i < removeVertFromPolygon.m_size; ++i)

@@ -178,7 +178,7 @@ struct miPolygon
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
 
-				if (vertex_3 == vertex_1)
+				if (vertex_2 == vertex_1)
 					break;
 			}
 		}
@@ -197,7 +197,7 @@ struct miPolygon
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
 
-				if (vertex_3 == vertex_1)
+				if (vertex_2 == vertex_1)
 					break;
 			}
 		}
@@ -213,10 +213,14 @@ struct miPolygon
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
 
-				if (vertex_3 == vertex_1)
+				if (vertex_2 == vertex_1)
 					break;
 			}
 		}
+	}
+
+	void Flip() {
+		m_verts.reverse();
 	}
 };
 #include "miPackOff.h"

@@ -156,6 +156,12 @@ struct v3f
 		if (z != v.z)return false;
 		return true;
 	}
+	bool operator!=(const v3f& v)const {
+		if (x != v.x)return true;
+		if (y != v.y)return true;
+		if (z != v.z)return true;
+		return false;
+	}
 	v3f cross(const v3f& a)const {
 		v3f out;
 		out.x = (y * a.z) - (z * a.y);

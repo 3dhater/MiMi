@@ -488,6 +488,26 @@ public:
 		}
 	}
 
+	void reverse() {
+		if (!m_head)
+			return;
+		miListNode2<_type1, _type2>* tail = m_head->m_left;
+		miListNode2<_type1, _type2>* curr = m_head;
+		while (true)
+		{
+			auto l = curr->m_left;
+			auto r = curr->m_right;
+
+			curr->m_left = r;
+			curr->m_right = l;
+
+			if (curr == tail)
+				break;
+			curr = r;
+		}
+		m_head = tail;
+	}
+
 	miListNode2<_type1, _type2>* m_head;
 };
 
@@ -759,6 +779,26 @@ public:
 				break;
 			node = next;
 		}
+	}
+
+	void reverse() {
+		if (!m_head)
+			return;
+		miListNode3<_type1, _type2, _type3>* tail = m_head->m_left;
+		miListNode3<_type1, _type2, _type3>* curr = m_head;
+		while (true)
+		{
+			auto l = curr->m_left;
+			auto r = curr->m_right;
+
+			curr->m_left = r;
+			curr->m_right = l;
+
+			if (curr == tail)
+				break;
+			curr = r;
+		}
+		m_head = tail;
 	}
 
 	miListNode3<_type1, _type2, _type3>* m_head;
