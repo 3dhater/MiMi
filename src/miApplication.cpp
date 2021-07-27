@@ -710,7 +710,7 @@ vidOk:
 	m_blackTexture = yyGetTextureFromCache("../res/gui/black.dds");
 	m_transparentTexture = yyGetTextureFromCache("../res/gui/tr.dds");
 
-	m_color_viewportBorder = ColorYellow;
+	m_color_viewportBorder = ColorDarkGray;
 
 	m_color_windowClearColor.set(0.41f);
 	m_gpu->SetClearColor(m_color_windowClearColor.m_data[0], m_color_windowClearColor.m_data[1], m_color_windowClearColor.m_data[2], 1.f);

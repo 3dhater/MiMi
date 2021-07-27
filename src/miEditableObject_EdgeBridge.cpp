@@ -347,6 +347,7 @@ void miEditableObject::EdgeBridge()
 			g2_edge->m_vertex1->m_polygons.push_back(newPolygon);
 			g2_edge->m_vertex2->m_polygons.push_back(newPolygon);
 
+			newPolygon->CalculateNormal();
 			m_mesh->_add_polygon_to_list(newPolygon);
 
 			g2_edge_prev = g2_edge;
@@ -421,6 +422,7 @@ void miEditableObject::EdgeBridge()
 			g2_edge->m_vertex2->m_polygons.push_back(newPolygon);
 			v3->m_data1->m_polygons.push_back(newPolygon);
 			//vertex_for_triangle->m_data1->m_polygons.push_back(newPolygon);
+			newPolygon->CalculateNormal();
 			m_mesh->_add_polygon_to_list(newPolygon);
 			
 			lastNewPolygon = newPolygon;

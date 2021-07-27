@@ -393,7 +393,7 @@ void miEditableObject::OnVertexChamfer() {
 					{
 						vertex->m_position = c->m_position + chamferValue * dir;
 						
-						bool _addv = true;
+						/*bool _addv = true;
 						for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
 						{
 							if (vericesForNewpolygon.m_data[i].m_vertex == vertex)
@@ -403,11 +403,9 @@ void miEditableObject::OnVertexChamfer() {
 							}
 						}
 
-						if(_addv)
+						if(_addv)*/
 							vericesForNewpolygon.push_back(helpStruct2(vertex,uv, normal));
 					}
-					
-
 
 					if (ce == le)
 						break;

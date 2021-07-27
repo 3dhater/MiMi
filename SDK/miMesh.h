@@ -602,87 +602,91 @@ struct miMesh
 
 				u32 count = 0;
 				auto current_edge = current_vertex->m_edges.m_head;
-				auto last_edge = current_edge->m_left;
-				while (true)
+				if (current_edge)
 				{
 
-					if (current_edge->m_data->m_flags & miEdge::flag_User1)
-						current_edge->m_data->m_flags ^= miEdge::flag_User1;
-
-					sortedEdges.push_back(current_edge->m_data);
-
-					if (current_edge == last_edge)
-						break;
-					current_edge = current_edge->m_right;
-				}
-
-				miEdge* lastEdge = 0;
-				for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
-				{
-					if (i == 0)
+					auto last_edge = current_edge->m_left;
+					while (true)
 					{
-						sortedEdges2.push_back(sortedEdges.m_data[i]);
-						sortedEdges.m_data[i]->m_flags |= miEdge::flag_User1;
-						lastEdge = sortedEdges.m_data[i];
+
+						if (current_edge->m_data->m_flags & miEdge::flag_User1)
+							current_edge->m_data->m_flags ^= miEdge::flag_User1;
+
+						sortedEdges.push_back(current_edge->m_data);
+
+						if (current_edge == last_edge)
+							break;
+						current_edge = current_edge->m_right;
 					}
-					else
+
+					miEdge* lastEdge = 0;
+					for (u32 i = 0, sz = sortedEdges.size(); i < sz; ++i)
 					{
-						miEdge* thatEdge = 0;
-						for (u32 i2 = 1, sz2 = sortedEdges.size(); i2 < sz2; ++i2)
-						{
-							auto e = sortedEdges.m_data[i2];
-							if ((e->m_flags & miEdge::flag_User1) == 0)
-							{
-								if (lastEdge->m_polygon1){
-									if (e->m_polygon1){
-										if (e->m_polygon1 == lastEdge->m_polygon1){
-											thatEdge = e;
-											break;
-										}
-									}
-									if (e->m_polygon2) {
-										if (e->m_polygon2 == lastEdge->m_polygon1){
-											thatEdge = e;
-											break;
-										}
-									}
-								}
-								if (lastEdge->m_polygon2) {
-									if (e->m_polygon1) {
-										if (e->m_polygon1 == lastEdge->m_polygon2) {
-											thatEdge = e;
-											break;
-										}
-									}
-									if (e->m_polygon2) {
-										if (e->m_polygon2 == lastEdge->m_polygon2) {
-											thatEdge = e;
-											break;
-										}
-									}
-								}
-							}
-						}
-						if (thatEdge)
-						{
-							sortedEdges2.push_back(thatEdge);
-							thatEdge->m_flags |= miEdge::flag_User1;
-							lastEdge = thatEdge;
-						}
-						else
+						if (i == 0)
 						{
 							sortedEdges2.push_back(sortedEdges.m_data[i]);
 							sortedEdges.m_data[i]->m_flags |= miEdge::flag_User1;
 							lastEdge = sortedEdges.m_data[i];
 						}
+						else
+						{
+							miEdge* thatEdge = 0;
+							for (u32 i2 = 1, sz2 = sortedEdges.size(); i2 < sz2; ++i2)
+							{
+								auto e = sortedEdges.m_data[i2];
+								if ((e->m_flags & miEdge::flag_User1) == 0)
+								{
+									if (lastEdge->m_polygon1) {
+										if (e->m_polygon1) {
+											if (e->m_polygon1 == lastEdge->m_polygon1) {
+												thatEdge = e;
+												break;
+											}
+										}
+										if (e->m_polygon2) {
+											if (e->m_polygon2 == lastEdge->m_polygon1) {
+												thatEdge = e;
+												break;
+											}
+										}
+									}
+									if (lastEdge->m_polygon2) {
+										if (e->m_polygon1) {
+											if (e->m_polygon1 == lastEdge->m_polygon2) {
+												thatEdge = e;
+												break;
+											}
+										}
+										if (e->m_polygon2) {
+											if (e->m_polygon2 == lastEdge->m_polygon2) {
+												thatEdge = e;
+												break;
+											}
+										}
+									}
+								}
+							}
+							if (thatEdge)
+							{
+								sortedEdges2.push_back(thatEdge);
+								thatEdge->m_flags |= miEdge::flag_User1;
+								lastEdge = thatEdge;
+							}
+							else
+							{
+								sortedEdges2.push_back(sortedEdges.m_data[i]);
+								sortedEdges.m_data[i]->m_flags |= miEdge::flag_User1;
+								lastEdge = sortedEdges.m_data[i];
+							}
+						}
 					}
-				}
 
-				current_edge = current_vertex->m_edges.m_head;
-				for (size_t i = 0, sz = sortedEdges2.size(); i < sz; ++i)
-				{
-					current_edge->m_data = sortedEdges2.m_data[i];
-					current_edge = current_edge->m_right;
+					current_edge = current_vertex->m_edges.m_head;
+					for (size_t i = 0, sz = sortedEdges2.size(); i < sz; ++i)
+					{
+						current_edge->m_data = sortedEdges2.m_data[i];
+						current_edge = current_edge->m_right;
+					}
 				}
 
 				if (current_vertex == last_vertex)
