@@ -316,12 +316,12 @@ void miEditableObject::OnEdgeChamfer() {
 		while (true)
 		{
 			auto cv = c->m_verts.m_head;
-			auto cv_old = c_old->m_verts.m_head;
+			//auto cv_old = c_old->m_verts.m_head;
 			auto lv = cv->m_left;
 			while (true)
 			{
 				auto nv = cv->m_right;
-				auto nv_old = cv_old->m_right;
+				//auto nv_old = cv_old->m_right;
 
 				// check if this vertex is part of some selected edge
 				bool isTrue = false;
@@ -381,8 +381,8 @@ void miEditableObject::OnEdgeChamfer() {
 					miVertex* v1 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
 					miVertex* v2 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
 
-					v1->m_position = cv_old->m_data1->m_position;
-					v2->m_position = cv_old->m_data1->m_position;
+					v1->m_position = cv->m_data1->m_position;
+					v2->m_position = cv->m_data1->m_position;
 
 					v1->m_position += m_edgeChamferValue * dir1;
 					v2->m_position += m_edgeChamferValue * dir2;
@@ -401,7 +401,7 @@ void miEditableObject::OnEdgeChamfer() {
 
 				if (cv == lv)break;
 				cv = nv;
-				cv_old = nv_old;
+				//cv_old = nv_old;
 			}
 
 			if (c == l)
@@ -411,86 +411,86 @@ void miEditableObject::OnEdgeChamfer() {
 		}
 	}
 
-	//// create polygons from edges
-	//{
-	//	miArray<helpStructPolygon1> arr;
-	//	arr.reserve(0x1000);
-	//	newPolygons.Get(&arr);
-	//	for (u32 i = 0; i < arr.m_size; ++i)
-	//	{
-	//		auto & hsp1 = arr.m_data[i];
+	// create polygons from edges
+	{
+		miArray<helpStructPolygon1> arr;
+		arr.reserve(0x1000);
+		newPolygons.Get(&arr);
+		for (u32 i = 0; i < arr.m_size; ++i)
+		{
+			auto & hsp1 = arr.m_data[i];
 
-	//		if (!hsp1.m_v1 || !hsp1.m_v2 || !hsp1.m_v3 || !hsp1.m_v4)
-	//			continue;
+			if (!hsp1.m_v1 || !hsp1.m_v2 || !hsp1.m_v3 || !hsp1.m_v4)
+				continue;
 
-	//		miPolygon * newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
-	//		
-	//		newPolygon->m_verts.push_back(hsp1.m_v1->m_data1, hsp1.m_v1->m_data2, hsp1.m_v1->m_data3);
-	//		newPolygon->m_verts.push_back(hsp1.m_v2->m_data1, hsp1.m_v2->m_data2, hsp1.m_v2->m_data3);
-	//		//newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
-	//		//newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
-	//		{
-	//			/*v3f d1 = hsp1.m_v4->m_data1->m_position - hsp1.m_v3->m_data1->m_position;
-	//			v3f d2 = hsp1.m_v2->m_data1->m_position - hsp1.m_v1->m_data1->m_position;
-	//			d1.normalize2();
-	//			d2.normalize2();*/
-	//			
-	//			yyRay r;
-	//			r.m_origin = hsp1.m_v4->m_data1->m_position;
-	//			r.m_end = hsp1.m_v3->m_data1->m_position;
+			miPolygon * newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
+			
+			newPolygon->m_verts.push_back(hsp1.m_v1->m_data1, hsp1.m_v1->m_data2, hsp1.m_v1->m_data3);
+			newPolygon->m_verts.push_back(hsp1.m_v2->m_data1, hsp1.m_v2->m_data2, hsp1.m_v2->m_data3);
+			//newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
+			//newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
+			{
+				/*v3f d1 = hsp1.m_v4->m_data1->m_position - hsp1.m_v3->m_data1->m_position;
+				v3f d2 = hsp1.m_v2->m_data1->m_position - hsp1.m_v1->m_data1->m_position;
+				d1.normalize2();
+				d2.normalize2();*/
+				
+				yyRay r;
+				r.m_origin = hsp1.m_v4->m_data1->m_position;
+				r.m_end = hsp1.m_v3->m_data1->m_position;
 
-	//			auto d = r.distanceToLine(hsp1.m_v2->m_data1->m_position, hsp1.m_v1->m_data1->m_position);
+				auto d = r.distanceToLine(hsp1.m_v2->m_data1->m_position, hsp1.m_v1->m_data1->m_position);
 
-	//			bool good = true;
+				bool good = true;
 
-	//			if (d < 0.1f)
-	//				good = false;
-	//			
-	//			if (good)
-	//			{
-	//				r.m_origin = hsp1.m_v4->m_data1->m_position;
-	//				r.m_end = hsp1.m_v1->m_data1->m_position;
-	//				d = r.distanceToLine(hsp1.m_v3->m_data1->m_position, hsp1.m_v2->m_data1->m_position);
-	//				if (d < 0.1f)
-	//					good = false;
-	//			}
+				if (d < 0.1f)
+					good = false;
+				
+				if (good)
+				{
+					r.m_origin = hsp1.m_v4->m_data1->m_position;
+					r.m_end = hsp1.m_v1->m_data1->m_position;
+					d = r.distanceToLine(hsp1.m_v3->m_data1->m_position, hsp1.m_v2->m_data1->m_position);
+					if (d < 0.1f)
+						good = false;
+				}
 
-	//			if (good)
-	//			{
-	//				newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
-	//				newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
-	//			}
-	//			else
-	//			{
-	//				newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
-	//				newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
-	//			}
-	//		}
+				if (good)
+				{
+					newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
+					newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
+				}
+				else
+				{
+					newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
+					newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
+				}
+			}
 
-	//		newPolygon->CalculateNormal();
-	//		mesh->_add_polygon_to_list(newPolygon);
+			newPolygon->CalculateNormal();
+			mesh->_add_polygon_to_list(newPolygon);
 
-	//		// Check normal. 
-	//		v3f edgeNormal;
-	//		if (hsp1.m_edge->m_polygon1)
-	//		{
-	//			hsp1.m_edge->m_polygon1->CalculateNormal();
-	//			edgeNormal += hsp1.m_edge->m_polygon1->GetFaceNormal();
-	//		}
-	//		if (hsp1.m_edge->m_polygon2)
-	//		{
-	//			hsp1.m_edge->m_polygon2->CalculateNormal();
-	//			edgeNormal += hsp1.m_edge->m_polygon2->GetFaceNormal();
-	//		}
-	//		edgeNormal.normalize2();
+			// Check normal. 
+			v3f edgeNormal;
+			if (hsp1.m_edge->m_polygon1)
+			{
+				hsp1.m_edge->m_polygon1->CalculateNormal();
+				edgeNormal += hsp1.m_edge->m_polygon1->GetFaceNormal();
+			}
+			if (hsp1.m_edge->m_polygon2)
+			{
+				hsp1.m_edge->m_polygon2->CalculateNormal();
+				edgeNormal += hsp1.m_edge->m_polygon2->GetFaceNormal();
+			}
+			edgeNormal.normalize2();
 
-	//		if (edgeNormal.dot(newPolygon->GetFaceNormal()) <= 0.f)
-	//		{
-	//			newPolygon->Flip();
-	//			newPolygon->CalculateNormal();
-	//		}
-	//	}
-	//}
+			if (edgeNormal.dot(newPolygon->GetFaceNormal()) <= 0.f)
+			{
+				newPolygon->Flip();
+				newPolygon->CalculateNormal();
+			}
+		}
+	}
 
 	{
 		miArray<miVertex*> arr;
