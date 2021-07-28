@@ -238,6 +238,73 @@ struct miPolygon
 	void Flip() {
 		m_verts.reverse();
 	}
+
+	void FixOrder(f32 lineLineCollisionLen) {
+		// only if 4 or more vertices
+		u32 num = 0;
+		auto curV = m_verts.m_head;
+		auto lastV = curV->m_left;
+		while (true)
+		{
+			++num;
+			if (curV == lastV)
+				break;
+			curV = curV->m_right;
+		}
+		if (num < 4)
+			return;
+
+		for (u32 i = 0; i < num; ++i)
+		{
+			curV = m_verts.m_head;
+			lastV = curV->m_left;
+			while (true)
+			{
+				miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> current;
+				miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> prev;
+
+				current.m_first = curV;
+				current.m_second = current.m_first->m_right;
+
+				prev.m_second = current.m_first;
+				prev.m_first = prev.m_second->m_left;
+
+				auto tgCurr = current.m_second->m_right;
+				auto tgLast = tgCurr->m_left;
+				while (true)
+				{
+					miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> target;
+					target.m_first = tgCurr;
+					target.m_second = tgCurr->m_right;
+
+					if (target.m_first == prev.m_first)
+						break;
+
+					yyRay r;
+					r.m_origin = current.m_first->m_data1->m_position;
+					r.m_end = current.m_second->m_data1->m_position;
+
+					f32 d = r.distanceToLine(target.m_first->m_data1->m_position, target.m_second->m_data1->m_position);
+					if (d < lineLineCollisionLen)
+					{
+						auto tmp = target.m_first->m_data1;
+						target.m_first->m_data1 = current.m_second->m_data1;
+						current.m_second->m_data1 = tmp;
+					}
+
+					if (tgCurr == tgLast)
+						break;
+
+					tgCurr = tgCurr->m_right;
+				}
+
+
+				if (curV == lastV)
+					break;
+				curV = curV->m_right;
+			}
+		}
+	}
 };
 #include "miPackOff.h"
 

@@ -47,6 +47,7 @@ void editableObjectGUI_edgeChamferButton_onCheck(s32 id);
 void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
 void editableObjectGUI_edgeChamferRange_onValueChanged(miSceneObject* obj, float*);
 float* editableObjectGUI_edgeChamferRange_onSelectObject(miSceneObject* obj);
+void editableObjectGUI_edgeChamferButtonOK_onClick(s32);
 
 void editableObjectGUI_attachButton_onClick(s32 id, bool isChecked) {
 	g_app->m_sdk->SetTransformMode(miTransformMode::NoTransform);
@@ -269,6 +270,10 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_edgeChamferRange_onValueChanged,
 		miPluginGUI::Flag_ForEdgeEditMode,
 		0.01);
+	m_pluginGuiForEditableObject->AddButton(v4f(170.f, y, 40.f, 15.f), L"OK",
+		-1,
+		editableObjectGUI_edgeChamferButtonOK_onClick,
+		miPluginGUI::Flag_ForEdgeEditMode);
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {

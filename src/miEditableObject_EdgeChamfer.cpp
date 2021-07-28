@@ -18,12 +18,6 @@ void editableObjectGUI_edgeChamferCheckBox_onClick(bool isChecked) {
 		object->OnEdgeChamfer();
 }
 
-void editableObjectGUI_edgeChamferButtonOK_onClick(s32 id) {
-	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->OnEdgeChamferApply();
-	editableObjectGUI_edgeChamferButton_onCancel();
-}
-
 float* editableObjectGUI_edgeChamferRange_onSelectObject(miSceneObject* obj) {
 	if (obj->GetPlugin() != g_app->m_pluginForApp)
 		return 0;
@@ -47,6 +41,12 @@ void editableObjectGUI_edgeChamferRange_onValueChanged(miSceneObject* obj, float
 			*fptr = 0.f;
 		object->OnEdgeChamfer();
 	}
+}
+
+void editableObjectGUI_edgeChamferButtonOK_onClick(s32) {
+	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	object->OnEdgeChamferApply();
+	editableObjectGUI_edgeChamferButton_onCancel();
 }
 
 void editableObjectGUI_edgeChamferButton_onSelect(miEditMode em)
@@ -163,6 +163,19 @@ void miEditableObject::OnEdgeChamfer() {
 	};
 	miBinarySearchTree<helpStructPolygon2> newPolygons2; // key is edge vertices
 
+	if (m_mesh->m_first_vertex)
+	{
+		auto c = mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			if (c->m_flags & miVertex::flag_isSelected)
+				c->m_flags ^= miVertex::flag_isSelected;
+			if (c == l)break;
+			c = c->m_right;
+		}
+	}
+
 	// find selected edges in polygons
 	if (m_mesh->m_first_polygon)
 	{
@@ -220,6 +233,7 @@ void miEditableObject::OnEdgeChamfer() {
 					else
 					{
 						v1 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+						v1->m_flags |= miVertex::flag_isSelected;
 						v1->m_position = ce->m_data->m_vertex1->m_position;
 						h1.m_newVertex = v1;
 						hs.Add((uint64_t)ce->m_data->m_vertex1, h1);
@@ -246,6 +260,7 @@ void miEditableObject::OnEdgeChamfer() {
 					else
 					{
 						v2 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+						v2->m_flags |= miVertex::flag_isSelected;
 						v2->m_position = ce->m_data->m_vertex2->m_position;
 						h2.m_newVertex = v2;
 						hs.Add((uint64_t)ce->m_data->m_vertex2, h2);
@@ -326,110 +341,6 @@ void miEditableObject::OnEdgeChamfer() {
 					break;
 				ce = ce->m_right;
 				ce_old = ce_old->m_right;
-			}
-
-			if (c == l)
-				break;
-			c = c->m_right;
-			c_old = c_old->m_right;
-		}
-	}
-
-	// now `corners` that have one vertex of selected edge
-	if (m_mesh->m_first_polygon)
-	{
-		auto c = mesh->m_first_polygon;
-		auto c_old = m_mesh->m_first_polygon;
-		auto l = c->m_left;
-		while (true)
-		{
-			auto cv = c->m_verts.m_head;
-			//auto cv_old = c_old->m_verts.m_head;
-			auto lv = cv->m_left;
-			while (true)
-			{
-				auto nv = cv->m_right;
-				//auto nv_old = cv_old->m_right;
-
-				// check if this vertex is part of some selected edge
-				bool isTrue = false;
-				{
-					auto ce = cv->m_data1->m_edges.m_head;
-					if (ce)
-					{
-						auto le = ce->m_left;
-						while (true)
-						{
-							if (ce->m_data->m_flags & miEdge::flag_isSelected)
-							{
-								isTrue = true;
-								break;
-							}
-							if (ce == le)break;
-							ce = ce->m_right;
-						}
-					}
-				}
-
-				// if true, check selected edges in this polygon
-				if (isTrue)
-				{
-					auto ce = c->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
-					{
-						if (ce->m_data->m_flags & miEdge::flag_isSelected)
-						{
-							if (ce->m_data->m_vertex1 == cv->m_data1
-								|| ce->m_data->m_vertex2 == cv->m_data1)
-							{
-								// this vertex part of edge
-								isTrue = false;
-								break;
-							}
-						}
-						if (ce == le)break;
-						ce = ce->m_right;
-					}
-				}
-
-				// if still true then this is vertex what I need
-				if (isTrue)
-				{
-					// calculate directions
-					v3f dir1, dir2;
-					{
-						dir1 = cv->m_right->m_data1->m_position - cv->m_data1->m_position;
-						dir2 = cv->m_left->m_data1->m_position - cv->m_data1->m_position;
-						dir1.normalize2();
-						dir2.normalize2();
-					}
-
-					// create 2 new vertices
-					miVertex* v1 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
-					miVertex* v2 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
-
-					v1->m_position = cv->m_data1->m_position;
-					v2->m_position = cv->m_data1->m_position;
-
-					v1->m_position += m_edgeChamferValue * dir1;
-					v2->m_position += m_edgeChamferValue * dir2;
-
-					v1->m_polygons.push_back(c);
-					v2->m_polygons.push_back(c);
-
-					mesh->_add_vertex_to_list(v1);
-					mesh->_add_vertex_to_list(v2);
-
-					auto vNode = c->m_verts.find(cv->m_data1);
-					c->m_verts.insert_after(vNode->m_data1, v1, vNode->m_data2, vNode->m_data3);
-					c->m_verts.insert_before(vNode->m_data1, v2, vNode->m_data2, vNode->m_data3);
-				}
-
-
-				if (cv == lv)break;
-				cv = nv;
-				//cv_old = nv_old;
 			}
 
 			if (c == l)
@@ -585,6 +496,7 @@ void miEditableObject::OnEdgeChamfer() {
 
 			newPolygon->CalculateNormal();
 			mesh->_add_polygon_to_list(newPolygon);
+			newPolygon->FixOrder(0.1f);
 
 			// Check normal. 
 			v3f edgeNormal;
@@ -608,6 +520,142 @@ void miEditableObject::OnEdgeChamfer() {
 		}
 	}
 
+	// now `corners` that have one vertex of selected edge
+	if (m_mesh->m_first_polygon)
+	{
+		auto c = mesh->m_first_polygon;
+		auto c_old = m_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto cv = c->m_verts.m_head;
+			//auto cv_old = c_old->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				auto nv = cv->m_right;
+				//auto nv_old = cv_old->m_right;
+
+				// check if this vertex is part of some selected edge
+				bool isTrue = false;
+				{
+					auto ce = cv->m_data1->m_edges.m_head;
+					if (ce)
+					{
+						auto le = ce->m_left;
+						while (true)
+						{
+							if (ce->m_data->m_flags & miEdge::flag_isSelected)
+							{
+								isTrue = true;
+								break;
+							}
+							if (ce == le)break;
+							ce = ce->m_right;
+						}
+					}
+				}
+
+				// if true, check selected edges in this polygon
+				if (isTrue)
+				{
+					auto ce = c->m_edges.m_head;
+					auto le = ce->m_left;
+					while (true)
+					{
+						if (ce->m_data->m_flags & miEdge::flag_isSelected)
+						{
+							if (ce->m_data->m_vertex1 == cv->m_data1
+								|| ce->m_data->m_vertex2 == cv->m_data1)
+							{
+								// this vertex part of edge
+								isTrue = false;
+								break;
+							}
+						}
+						if (ce == le)break;
+						ce = ce->m_right;
+					}
+				}
+
+				// if still true then this is vertex what I need
+				if (isTrue)
+				{
+					// calculate directions
+					v3f dir1, dir2;
+					{
+						dir1 = cv->m_right->m_data1->m_position - cv->m_data1->m_position;
+						dir2 = cv->m_left->m_data1->m_position - cv->m_data1->m_position;
+						dir1.normalize2();
+						dir2.normalize2();
+					}
+
+					// create 2 new vertices
+					miVertex* v1 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+					miVertex* v2 = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
+					v1->m_flags |= miVertex::flag_isSelected;
+					v2->m_flags |= miVertex::flag_isSelected;
+
+					v1->m_position = cv->m_data1->m_position;
+					v2->m_position = cv->m_data1->m_position;
+
+					v1->m_position += m_edgeChamferValue * dir1;
+					v2->m_position += m_edgeChamferValue * dir2;
+
+					v1->m_polygons.push_back(c);
+					v2->m_polygons.push_back(c);
+
+					mesh->_add_vertex_to_list(v1);
+					mesh->_add_vertex_to_list(v2);
+
+					auto vNode = c->m_verts.find(cv->m_data1);
+					auto vNode1 = c->m_verts.insert_after(vNode->m_data1, v1, vNode->m_data2, vNode->m_data3);
+					auto vNode2 = c->m_verts.insert_before(vNode->m_data1, v2, vNode->m_data2, vNode->m_data3);
+
+					helpStructPolygon2 hsp2;
+					auto hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data1);
+					if (!hspPtr)
+					{
+						newPolygons2.Add((uint64_t)cv->m_data1, hsp2);
+						hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data1);
+					}
+					bool add = true;
+					for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i){
+						if (hspPtr->m_verices.at(i)->m_data1->m_position == vNode1->m_data1->m_position){
+							add = false;
+							break;
+						}
+					}
+
+					if (add)
+						hspPtr->m_verices.push_back(vNode1);
+
+					add = true;
+
+					for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i){
+						if (hspPtr->m_verices.at(i)->m_data1->m_position == vNode2->m_data1->m_position){
+							add = false;
+							break;
+						}
+					}
+
+					if (add)
+						hspPtr->m_verices.push_back(vNode2);
+				}
+
+
+				if (cv == lv)break;
+				cv = nv;
+				//cv_old = nv_old;
+			}
+
+			if (c == l)
+				break;
+			c = c->m_right;
+			c_old = c_old->m_right;
+		}
+	}
+
 	// create polygons from corners
 	{
 		miArray<helpStructPolygon2> arr;
@@ -627,6 +675,7 @@ void miEditableObject::OnEdgeChamfer() {
 					newPolygon->m_verts.push_back(vNode->m_data1, vNode->m_data2, vNode->m_data3);
 					vNode->m_data1->m_polygons.push_back(newPolygon);
 				}
+				newPolygon->FixOrder(0.1f);
 				newPolygon->CalculateNormal();
 				mesh->_add_polygon_to_list(newPolygon);
 

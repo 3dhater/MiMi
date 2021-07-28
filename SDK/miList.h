@@ -567,7 +567,7 @@ public:
 		m_head = nullptr;
 	}
 
-	void insert_after(const _type1& after_this, const _type1& data1, const _type2& data2, const _type3& data3) 
+	miListNode3<_type1, _type2, _type3>* insert_after(const _type1& after_this, const _type1& data1, const _type2& data2, const _type3& data3)
 	{
 		miListNode3<_type1, _type2, _type3>* node = (miListNode3<_type1, _type2, _type3>*)miMalloc(sizeof(miListNode3<_type1, _type2, _type3>));
 		new(node)miListNode3<_type1, _type2, _type3>();
@@ -598,7 +598,7 @@ public:
 					c->m_right = node;
 					r->m_left = node;
 
-					return;
+					return node;
 				}
 
 				if (c == l)
@@ -612,9 +612,10 @@ public:
 			node->m_right = m_head;
 			m_head->m_left = node;
 		}
+		return node;
 	}
 
-	void insert_before(const _type1& after_this, const _type1& data1, const _type2& data2, const _type3& data3) {
+	miListNode3<_type1, _type2, _type3>* insert_before(const _type1& after_this, const _type1& data1, const _type2& data2, const _type3& data3) {
 		miListNode3<_type1, _type2, _type3>* node = (miListNode3<_type1, _type2, _type3>*)miMalloc(sizeof(miListNode3<_type1, _type2, _type3>));
 		new(node)miListNode3<_type1, _type2, _type3>();
 
@@ -644,7 +645,7 @@ public:
 					c->m_left = node;
 					l->m_right = node;
 
-					return;
+					return node;
 				}
 
 				if (c == l)
@@ -658,6 +659,7 @@ public:
 			node->m_right = m_head;
 			m_head->m_left = node;
 		}
+		return node;
 	}
 
 	miListNode3<_type1, _type2, _type3>* push_back(const _type1& data1, const _type2& data2, const _type3& data3) {

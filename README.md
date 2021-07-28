@@ -22,7 +22,7 @@
 * * [x] Edge Extrude
 * * [x] Edge Connect
 * * [x] Edge Bridge
-* * [ ] Edge Chamfer
+* * [x] Edge Chamfer
 * * [ ] Polygon Extrude
 * * [ ] Polygon Bridge
 * * [ ] Polygon Detach
