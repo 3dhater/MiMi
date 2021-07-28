@@ -108,7 +108,7 @@ void miEditableObject::OnEdgeChamfer() {
 	this->UpdateCounts();
 
 	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() * 5, this->GetEdgeCount() * 5, this->GetVertexCount() * 5);
+	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() * 6, this->GetEdgeCount() * 6, this->GetVertexCount() * 6);
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 
 	miBinarySearchTree<miVertex*> deleteVertices;
@@ -130,6 +130,8 @@ void miEditableObject::OnEdgeChamfer() {
 			m_v4 = 0;
 
 			m_edge = 0;
+			m_edgeV1 = 0;
+			m_edgeV2 = 0;
 		}
 		helpStructPolygon1(miListNode3<miVertex*, v2f, v3f>* v1, miListNode3<miVertex*, v2f, v3f>* v2, miListNode3<miVertex*, v2f, v3f>* v3, miListNode3<miVertex*, v2f, v3f>* v4) :
 			m_v1(v1),
@@ -138,6 +140,8 @@ void miEditableObject::OnEdgeChamfer() {
 			m_v4(v4)
 		{
 			m_edge = 0;
+			m_edgeV1 = 0;
+			m_edgeV2 = 0;
 		}
 
 		miListNode3<miVertex*,v2f,v3f>* m_v1;
@@ -146,9 +150,18 @@ void miEditableObject::OnEdgeChamfer() {
 		miListNode3<miVertex*, v2f, v3f>* m_v4;
 
 		miEdge* m_edge;
+		miListNode3<miVertex*, v2f, v3f>* m_edgeV1;
+		miListNode3<miVertex*, v2f, v3f>* m_edgeV2;
 	};
 	miBinarySearchTree<helpStructPolygon1> newPolygons; // key is selected edge
-	//miArray<helpStructPolygon1> newPolygons;
+	
+	struct helpStructPolygon2 // for corners
+	{
+		helpStructPolygon2() {}
+		std::vector<miListNode3<miVertex*, v2f, v3f>*> m_verices;
+		v3f m_normal;
+	};
+	miBinarySearchTree<helpStructPolygon2> newPolygons2; // key is edge vertices
 
 	// find selected edges in polygons
 	if (m_mesh->m_first_polygon)
@@ -272,6 +285,8 @@ void miEditableObject::OnEdgeChamfer() {
 						//}
 
 						hsp1.m_edge = ce_old->m_data;
+						hsp1.m_edgeV1 = c->m_verts.find(ce->m_data->m_vertex1);
+						hsp1.m_edgeV2 = c->m_verts.find(ce->m_data->m_vertex2);
 
 						newPolygons.Add((uint64_t)ce->m_data, hsp1);
 					}
@@ -293,6 +308,19 @@ void miEditableObject::OnEdgeChamfer() {
 						
 						newPolygons.Add((uint64_t)ce->m_data, hsp1);
 					}
+
+					////auto vNode1 = c->FindVertex(v1);
+					////auto vNode2 = c->FindVertex(v2);
+					//helpStructPolygon2 hsp2;
+					//auto hspPtr = newPolygons2.GetPtr((uint64_t)ce->m_data->m_vertex1);
+					//if (!hspPtr)
+					//{
+					//	newPolygons2.Add((uint64_t)ce->m_data->m_vertex1, hsp2);
+					//	hspPtr = newPolygons2.GetPtr((uint64_t)ce->m_data->m_vertex1);
+					//}
+
+					//hspPtr->m_verices.push_back(vNode1);
+					//hspPtr->m_verices.push_back(vNode2);
 				}
 				if (ce == le)
 					break;
@@ -466,6 +494,94 @@ void miEditableObject::OnEdgeChamfer() {
 					newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
 				}
 			}
+			hsp1.m_v1->m_data1->m_polygons.push_back(newPolygon);
+			hsp1.m_v2->m_data1->m_polygons.push_back(newPolygon);
+			hsp1.m_v3->m_data1->m_polygons.push_back(newPolygon);
+			hsp1.m_v4->m_data1->m_polygons.push_back(newPolygon);
+
+			{
+				helpStructPolygon2 hsp2;
+				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data1);
+				if (!hspPtr)
+				{
+					newPolygons2.Add((uint64_t)hsp1.m_edgeV1->m_data1, hsp2);
+					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data1);
+				}
+
+				bool add = true;
+				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
+				{
+					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v1->m_data1->m_position)
+					{
+						add = false;
+						break;
+					}
+				}
+
+				if(add)
+					hspPtr->m_verices.push_back(hsp1.m_v1);
+				
+				add = true;
+
+				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
+				{
+					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v3->m_data1->m_position)
+					{
+						add = false;
+						break;
+					}
+				}
+
+				if (add)
+					hspPtr->m_verices.push_back(hsp1.m_v3);
+
+				if(hsp1.m_edge->m_polygon1)
+					hspPtr->m_normal += hsp1.m_edge->m_polygon1->GetFaceNormal();
+				if (hsp1.m_edge->m_polygon2)
+					hspPtr->m_normal += hsp1.m_edge->m_polygon2->GetFaceNormal();
+			}
+
+			{
+				helpStructPolygon2 hsp2;
+				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data1);
+				if (!hspPtr)
+				{
+					newPolygons2.Add((uint64_t)hsp1.m_edgeV2->m_data1, hsp2);
+					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data1);
+				}
+
+				bool add = true;
+				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
+				{
+					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v2->m_data1->m_position)
+					{
+						add = false;
+						break;
+					}
+				}
+
+				if (add)
+					hspPtr->m_verices.push_back(hsp1.m_v2);
+
+				add = true;
+
+				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
+				{
+					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v4->m_data1->m_position)
+					{
+						add = false;
+						break;
+					}
+				}
+
+				if (add)
+					hspPtr->m_verices.push_back(hsp1.m_v4);
+
+				if (hsp1.m_edge->m_polygon1)
+					hspPtr->m_normal += hsp1.m_edge->m_polygon1->GetFaceNormal();
+				if (hsp1.m_edge->m_polygon2)
+					hspPtr->m_normal += hsp1.m_edge->m_polygon2->GetFaceNormal();
+			}
 
 			newPolygon->CalculateNormal();
 			mesh->_add_polygon_to_list(newPolygon);
@@ -488,6 +604,38 @@ void miEditableObject::OnEdgeChamfer() {
 			{
 				newPolygon->Flip();
 				newPolygon->CalculateNormal();
+			}
+		}
+	}
+
+	// create polygons from corners
+	{
+		miArray<helpStructPolygon2> arr;
+		arr.reserve(0x1000);
+		newPolygons2.Get(&arr);
+		for (u32 i = 0; i < arr.m_size; ++i)
+		{
+			auto & hsp1 = arr.m_data[i];
+			
+			if (hsp1.m_verices.size() > 2)
+			{
+				miPolygon * newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
+				//printf("NEW POLYGON: %u\n", (u32)hsp1.m_verices.size());
+				for (u32 i2 = 0; i2 < hsp1.m_verices.size(); ++i2)
+				{
+					auto vNode = hsp1.m_verices[i2];
+					newPolygon->m_verts.push_back(vNode->m_data1, vNode->m_data2, vNode->m_data3);
+					vNode->m_data1->m_polygons.push_back(newPolygon);
+				}
+				newPolygon->CalculateNormal();
+				mesh->_add_polygon_to_list(newPolygon);
+
+				hsp1.m_normal.normalize2();
+				if (hsp1.m_normal.dot(newPolygon->GetFaceNormal()) <= 0.f)
+				{
+					newPolygon->Flip();
+					newPolygon->CalculateNormal();
+				}
 			}
 		}
 	}
