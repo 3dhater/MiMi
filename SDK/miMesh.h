@@ -219,6 +219,22 @@ struct miPolygon
 		}
 	}
 
+	v3f GetFaceNormal()
+	{
+		v3f n;
+		auto curV = m_verts.m_head;
+		auto lastV = curV->m_left;
+		while (true)
+		{
+			n += curV->m_data3;
+			if (curV == lastV)
+				break;
+			curV = curV->m_right;
+		}
+		n.normalize2();
+		return n;
+	}
+
 	void Flip() {
 		m_verts.reverse();
 	}
