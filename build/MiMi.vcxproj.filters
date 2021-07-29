@@ -34,6 +34,8 @@
     <ClCompile Include="..\src\miEditableObject_EdgeBridge.cpp" />
     <ClCompile Include="..\src\miEditableObject_Selection.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeChamfer.cpp" />
+    <ClCompile Include="..\src\miEditableObject_PolygonDetach.cpp" />
+    <ClCompile Include="..\src\miEditableObject_PolygonCalculateNormal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

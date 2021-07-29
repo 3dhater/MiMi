@@ -33,6 +33,8 @@
     <ClCompile Include="..\src\miApplication_selection.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
+    <ClCompile Include="..\src\miEditableObject_PolygonCalculateNormal.cpp" />
+    <ClCompile Include="..\src\miEditableObject_PolygonDetach.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeBridge.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeConnect.cpp" />

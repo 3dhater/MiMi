@@ -156,6 +156,8 @@ public:
 
 	void PolygonFlip();
 	void PolygonCalculateNormal(bool smooth);
+	void PolygonDetachAsElement();
+	void PolygonDetachAsObject();
 };
 
 #endif
