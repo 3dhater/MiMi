@@ -153,6 +153,8 @@ public:
 	bool m_addPolygonsWhenEdgeChamfer;
 	void OnEdgeChamfer();
 	void OnEdgeChamferApply();
+
+	void PolygonFlip();
 };
 
 #endif

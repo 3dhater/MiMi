@@ -42,6 +42,11 @@ void editableObjectGUI_connectEdge_onClick(s32);
 
 void editableObjectGUI_bridgeEdge_onClick(s32);
 
+void editableObjectGUI_polygonFlip_onClick(s32) {
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->PolygonFlip();
+}
+
 void editableObjectGUI_edgeChamferButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_edgeChamferButton_onCheck(s32 id);
 void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
@@ -274,6 +279,14 @@ void miApplication::_initEditableObjectGUI() {
 		-1,
 		editableObjectGUI_edgeChamferButtonOK_onClick,
 		miPluginGUI::Flag_ForEdgeEditMode);
+
+	// POLYGONS
+	y = 18.f;
+	m_pluginGuiForEditableObject->AddText(v2f(0.f, y), L"Edit:", 0,
+		miPluginGUI::Flag_ForPolygonEditMode);
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Flip", -1,
+		editableObjectGUI_polygonFlip_onClick, miPluginGUI::Flag_ForPolygonEditMode);
+	y += 15.f;
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
@@ -1366,4 +1379,24 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 	}
 	m_mesh = importeHelper.m_meshBuilder->m_mesh;
 	importeHelper.m_meshBuilder->m_mesh = 0;
+}
+
+void miEditableObject::PolygonFlip() {
+	if (m_mesh->m_first_polygon)
+	{
+		auto curr = m_mesh->m_first_polygon;
+		auto last = curr->m_left;
+		while (true)
+		{
+			if (curr->m_flags & miPolygon::flag_isSelected)
+			{
+				curr->Flip();
+				curr->CalculateNormal();
+			}
+			if (curr == last)
+				break;
+			curr = curr->m_right;
+		}
+	}
+	_updateModel();
 }

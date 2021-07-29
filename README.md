@@ -23,10 +23,10 @@
 * * [x] Edge Connect
 * * [x] Edge Bridge
 * * [x] Edge Chamfer
+* * [x] Polygon Flip
+* * [ ] Polygon Detach
 * * [ ] Polygon Extrude
 * * [ ] Polygon Bridge
-* * [ ] Polygon Detach
-* * [ ] Polygon Flip
 * [ ]  edit UV
 * [ ]  edit normals
 * [ ]  export model
