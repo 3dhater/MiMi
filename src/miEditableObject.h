@@ -155,6 +155,7 @@ public:
 	void OnEdgeChamferApply();
 
 	void PolygonFlip();
+	void PolygonCalculateNormal(bool smooth);
 };
 
 #endif

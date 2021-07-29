@@ -47,6 +47,16 @@ void editableObjectGUI_polygonFlip_onClick(s32) {
 	selObject->PolygonFlip();
 }
 
+void editableObjectGUI_polygonCalculateNormal_onClick(s32) {
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->PolygonCalculateNormal(false);
+}
+
+void editableObjectGUI_polygonCalculateNormalSmooth_onClick(s32) {
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->PolygonCalculateNormal(true);
+}
+
 void editableObjectGUI_edgeChamferButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_edgeChamferButton_onCheck(s32 id);
 void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
@@ -286,7 +296,13 @@ void miApplication::_initEditableObjectGUI() {
 		miPluginGUI::Flag_ForPolygonEditMode);
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 50.f, 15.f), L"Flip", -1,
 		editableObjectGUI_polygonFlip_onClick, miPluginGUI::Flag_ForPolygonEditMode);
-	y += 15.f;
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 150.f, 15.f), L"Calculate normal", -1,
+		editableObjectGUI_polygonCalculateNormal_onClick, miPluginGUI::Flag_ForPolygonEditMode);
+	y += 18.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 150.f, 15.f), L"Calculate normal (smooth)", -1,
+		editableObjectGUI_polygonCalculateNormalSmooth_onClick, miPluginGUI::Flag_ForPolygonEditMode);
+	y += 18.f;
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
@@ -1398,5 +1414,80 @@ void miEditableObject::PolygonFlip() {
 			curr = curr->m_right;
 		}
 	}
+	_updateModel();
+}
+
+void miEditableObject::PolygonCalculateNormal(bool smooth) {
+	if (m_mesh->m_first_polygon)
+	{
+		auto curr = m_mesh->m_first_polygon;
+		auto last = curr->m_left;
+		while (true)
+		{
+			if (curr->m_flags & miPolygon::flag_isSelected)
+			{
+				curr->CalculateNormal();
+			}
+			if (curr == last)
+				break;
+			curr = curr->m_right;
+		}
+	}
+
+	if (smooth)
+	{
+		if (m_mesh->m_first_vertex)
+		{
+			auto curr = m_mesh->m_first_vertex;
+			auto last = curr->m_left;
+			while (true)
+			{
+				v3f normal;
+
+				{
+					auto cp = curr->m_polygons.m_head;
+					auto lp = cp->m_left;
+					while (true)
+					{
+						if (cp->m_data->m_flags & miPolygon::flag_isSelected)
+						{
+							auto vNode = cp->m_data->FindVertex(curr);
+							if (vNode)
+								normal += vNode->m_data3;
+						}
+
+						if (cp == lp)
+							break;
+						cp = cp->m_right;
+					}
+				}
+
+				normal.normalize2();
+
+				{
+					auto cp = curr->m_polygons.m_head;
+					auto lp = cp->m_left;
+					while (true)
+					{
+						if (cp->m_data->m_flags & miPolygon::flag_isSelected)
+						{
+							auto vNode = cp->m_data->FindVertex(curr);
+							if (vNode)
+								vNode->m_data3 = normal;
+						}
+
+						if (cp == lp)
+							break;
+						cp = cp->m_right;
+					}
+				}
+
+				if (curr == last)
+					break;
+				curr = curr->m_right;
+			}
+		}
+	}
+
 	_updateModel();
 }
