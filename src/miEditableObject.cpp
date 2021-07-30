@@ -67,6 +67,12 @@ void editableObjectGUI_polygonDetachAsObject_onClick(s32) {
 	selObject->PolygonDetachAsObject();
 }
 
+void editableObjectGUI_polygonDuplicate_onClick(s32)
+{
+	auto selObject = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
+	selObject->PolygonDuplicate();
+}
+
 void editableObjectGUI_edgeChamferButton_onClick(s32 id, bool isChecked);
 void editableObjectGUI_edgeChamferButton_onCheck(s32 id);
 void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
@@ -314,6 +320,9 @@ void miApplication::_initEditableObjectGUI() {
 		editableObjectGUI_polygonCalculateNormalSmooth_onClick, miPluginGUI::Flag_ForPolygonEditMode);
 	
 	y += 18.f + 100.f;
+	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 150.f, 15.f), L"Duplicate", -1,
+		editableObjectGUI_polygonDuplicate_onClick, miPluginGUI::Flag_ForPolygonEditMode);
+	y += 18.f;
 	m_pluginGuiForEditableObject->AddButton(v4f(50.f, y, 150.f, 15.f), L"Detach (as element)", -1,
 		editableObjectGUI_polygonDetachAsElement_onClick, miPluginGUI::Flag_ForPolygonEditMode);
 	y += 18.f;

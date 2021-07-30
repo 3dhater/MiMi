@@ -158,6 +158,7 @@ public:
 	void PolygonCalculateNormal(bool smooth);
 	void PolygonDetachAsElement();
 	void PolygonDetachAsObject();
+	void PolygonDuplicate();
 };
 
 #endif

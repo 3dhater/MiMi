@@ -39,6 +39,7 @@
     <ClCompile Include="..\src\miEditableObject_EdgeChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeConnect.cpp" />
     <ClCompile Include="..\src\miEditableObject_EdgeExtrude.cpp" />
+    <ClCompile Include="..\src\miEditableObject_PolygonDuplicate.cpp" />
     <ClCompile Include="..\src\miEditableObject_Selection.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexTargetWeld.cpp" />
