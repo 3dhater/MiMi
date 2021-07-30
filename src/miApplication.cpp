@@ -1649,10 +1649,13 @@ void miApplication::ConvertSelectedObjectsToEditableObjects() {
 	UpdateSelectedObjectsArray();
 }
 
-bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
+void miApplication::NameIsFree(const miString& name, miSceneObject* o, u8* a) {
 	auto & n = o->GetName();
 	if (n == name)
-		return false;
+	{
+		*a = 0;
+		return;
+	}
 
 	auto children = o->GetChildren();
 	auto node = children->m_head;
@@ -1661,15 +1664,7 @@ bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
 		auto last = node->m_left;
 		while (true)
 		{
-			if (NameIsFree(name, node->m_data))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-
+			NameIsFree(name, node->m_data, a);
 
 			if (node == last)
 				break;
@@ -1677,7 +1672,6 @@ bool miApplication::NameIsFree(const miString& name, miSceneObject* o) {
 			node = node->m_right;
 		}
 	}
-	return true;
 }
 miString miApplication::GetFreeName(const wchar_t* name) {
 	miString newName = name;
@@ -1685,14 +1679,17 @@ miString miApplication::GetFreeName(const wchar_t* name) {
 	static int i = 0;
 
 	while (true) {
-		if (NameIsFree(newName, m_rootObject))
-		{
-			break;
-		}
-		else
+		u8 a = 1;
+		NameIsFree(newName, m_rootObject, &a);
+
+		if(a == 0)
 		{
 			newName = name;
 			newName += i++;
+		}
+		else
+		{
+			break;
 		}
 	}
 

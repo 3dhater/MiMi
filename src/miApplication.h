@@ -191,7 +191,7 @@ class miApplication
 
 	miRootObject* m_rootObject;
 	void AddObjectToScene(miSceneObject* o, const wchar_t* name);
-	bool NameIsFree(const miString& name, miSceneObject*);
+	void NameIsFree(const miString& name, miSceneObject*, u8*);
 	void DestroyAllSceneObjects(miSceneObject* o);
 	void RemoveObjectFromScene(miSceneObject* o);
 

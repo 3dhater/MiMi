@@ -116,6 +116,75 @@ void miEditableObject::PolygonDetachAsElement() {
 
 void miEditableObject::PolygonDetachAsObject() {
 	PolygonDetachAsElement();
-	_updateModel();
-	this->OnSelect(g_app->m_editMode);
+
+	std::set<miPolygon*> polygons;
+	std::set<miVertex*> vertices;
+
+	bool isPolygonSelected = false;
+	{
+		if (m_mesh->m_first_polygon)
+		{
+			auto c = m_mesh->m_first_polygon;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_flags & miPolygon::flag_isSelected)
+				{
+					isPolygonSelected = true;
+					polygons.insert(c);
+
+					auto cv = c->m_verts.m_head;
+					auto lv = cv->m_left;
+					while (true)
+					{
+						vertices.insert(cv->m_data1);
+						if (cv == lv)
+							break;
+						cv = cv->m_right;
+					}
+
+				}
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+		}
+	}
+
+	if (isPolygonSelected)
+	{
+		miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
+		new(newObject)miEditableObject(g_app->m_sdk, 0);
+
+		newObject->CopyBase(this);
+		newObject->m_isSelected = false;
+		newObject->m_plugin = m_plugin;
+		newObject->m_mesh = miCreate<miMesh>();
+		
+		for (auto p : polygons)
+		{
+			m_mesh->_remove_polygon_from_list(p);
+			newObject->m_mesh->_add_polygon_to_list(p);
+		}
+
+		for (auto v : vertices)
+		{
+			m_mesh->_remove_vertex_from_list(v);
+			newObject->m_mesh->_add_vertex_to_list(v);
+		}
+
+		g_app->AddObjectToScene(newObject, this->m_name.data());
+
+		newObject->_updateModel();
+		newObject->DeselectAll(g_app->m_editMode);
+		newObject->UpdateAabb();
+
+		this->DeselectAll(g_app->m_editMode);
+		
+		_updateModel();
+		this->OnSelect(g_app->m_editMode);
+		_updateModel();
+		this->UpdateAabb();
+		g_app->UpdateSelectionAabb();
+	}
 }

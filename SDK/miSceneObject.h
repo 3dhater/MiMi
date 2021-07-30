@@ -83,6 +83,7 @@ public:
 	virtual void CopyBase(miSceneObject* other)
 	{
 		m_material = other->m_material;
+		m_useMaterial = other->m_useMaterial;
 		m_typeForPlugin = other->m_typeForPlugin;
 		m_aabb = other->m_aabb;
 		m_aabbTransformed = other->m_aabbTransformed;
