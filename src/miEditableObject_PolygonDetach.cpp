@@ -58,6 +58,8 @@ void miEditableObject::PolygonDetachAsElement() {
 			c = c->m_right;
 		}
 	}
+
+	miBinarySearchTree<miVertex*> newVerts;
 	for (auto p : polygons)
 	{
 		//printf("P");
@@ -88,9 +90,15 @@ void miEditableObject::PolygonDetachAsElement() {
 
 		for (auto o : targetVertices)
 		{
-			auto newVertex = m_allocatorVertex->Allocate();
-			m_mesh->_add_vertex_to_list(newVertex);
-			newVertex->m_position = o->m_position;
+			miVertex* newVertex = 0;// m_allocatorVertex->Allocate();
+
+			if (!newVerts.Get((uint64_t)o, newVertex))
+			{
+				newVertex = m_allocatorVertex->Allocate();
+				m_mesh->_add_vertex_to_list(newVertex);
+				newVertex->m_position = o->m_position;
+				newVerts.Add((uint64_t)o, newVertex);
+			}
 
 			if (!newVertex->m_polygons.find(p))
 				newVertex->m_polygons.push_back(p);
@@ -107,5 +115,7 @@ void miEditableObject::PolygonDetachAsElement() {
 }
 
 void miEditableObject::PolygonDetachAsObject() {
+	PolygonDetachAsElement();
 	_updateModel();
+	this->OnSelect(g_app->m_editMode);
 }
