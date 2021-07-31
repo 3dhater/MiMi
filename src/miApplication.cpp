@@ -149,6 +149,7 @@ void window_callbackOnCommand(s32 commandID) {
 
 void window_onActivate(yyWindow* window) {
 	g_app->m_isViewportInFocus = false;
+	g_app->m_inputContext->m_isMMBHold = false;
 }
 
 int main(int argc, char* argv[]) {
