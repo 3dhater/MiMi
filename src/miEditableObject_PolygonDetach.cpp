@@ -30,7 +30,7 @@ void miEditableObject::PolygonDetachAsElement() {
 
 				if (haveNotSelected && haveSelected)
 				{
-					if (cp->m_data->m_flags & miPolygon::flag_isSelected)
+					//if (cp->m_data->m_flags & miPolygon::flag_isSelected)
 						break;
 				}
 

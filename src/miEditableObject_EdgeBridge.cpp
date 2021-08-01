@@ -42,7 +42,7 @@ void miEditableObject::EdgeBridge()
 	if (!selectedEdges.m_size)
 		return;
 
-	printf("Edge bridge\n");
+	//printf("Edge bridge\n");
 
 	miList<miEdge*> group1;
 	miList<miEdge*> group2;
@@ -355,7 +355,7 @@ void miEditableObject::EdgeBridge()
 		}
 		else if (g2_edge)
 		{
-			printf("create triangle\n");
+			//printf("create triangle\n");
 			miListNode3<miVertex*, v2f, v3f>* v1 = 0;
 			miListNode3<miVertex*, v2f, v3f>* v2 = 0;
 			{
@@ -430,8 +430,6 @@ void miEditableObject::EdgeBridge()
 			g2_edge_prev = g2_edge;
 			goto begin_creating;
 		}
-
-
 	}
 
 	DeselectAll(g_app->m_editMode);

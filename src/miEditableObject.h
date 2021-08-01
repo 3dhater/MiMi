@@ -159,6 +159,7 @@ public:
 	void PolygonDetachAsElement();
 	void PolygonDetachAsObject();
 	void PolygonDuplicate();
+	void PolygonExtrude();
 };
 
 #endif

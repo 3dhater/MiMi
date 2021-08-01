@@ -25,7 +25,7 @@
 * * [x] Edge Chamfer
 * * [x] Polygon Flip
 * * [x] Polygon Detach
-* * [ ] Polygon Extrude
+* * [x] Polygon Extrude
 * * [ ] Polygon Bridge
 * [ ]  edit UV
 * [ ]  edit normals

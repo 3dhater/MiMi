@@ -36,13 +36,11 @@ void miApplicationPlugin::OnShiftGizmo(miGizmoMode gm, miEditMode em, miSceneObj
 		break;
 	case miEditMode::Edge: {
 		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-		{
 			((miEditableObject*)o)->EdgeExtrude();
-		}
 	}break;
 	case miEditMode::Polygon:{
 		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-			printf("Polygon extrude\n");
+			((miEditableObject*)o)->PolygonExtrude();
 	}break;
 	case miEditMode::Object: {
 		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)

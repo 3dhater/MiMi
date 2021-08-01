@@ -124,6 +124,11 @@ struct miPolygon
 	miList3<miVertex*, v2f, v3f> m_verts;
 	miList<miEdge*> m_edges;
 
+	bool IsSelected()
+	{
+		return (m_flags & flag_isSelected) == flag_isSelected;
+	}
+
 	miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
 		auto lastV = curV->m_left;
