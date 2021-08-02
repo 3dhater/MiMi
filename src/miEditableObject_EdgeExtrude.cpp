@@ -80,9 +80,10 @@ void miEditableObject::EdgeExtrude()
 				if (verticesTree.Get((uint64_t)cv->m_data1, node))
 				{
 					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					
 					node.m_data1->m_polygons.push_back(newPolygon);
-					verticesPair.m_first = node.m_data1;
-									
+
+					verticesPair.m_first = node.m_data1;									
 				}
 				else
 				{
@@ -99,7 +100,9 @@ void miEditableObject::EdgeExtrude()
 				if (verticesTree.Get((uint64_t)nv->m_data1, node))
 				{
 					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					
 					node.m_data1->m_polygons.push_back(newPolygon);
+
 					verticesPair.m_second = node.m_data1;
 				}
 				else
@@ -161,5 +164,6 @@ void miEditableObject::EdgeExtrude()
 		}
 		OnSelect(g_app->m_editMode);
 		g_app->_callVisualObjectOnSelect();
+		_updateModel();
 	}
 }

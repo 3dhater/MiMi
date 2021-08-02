@@ -279,7 +279,7 @@ void miEditableObject::_selectVertex(miKeyboardModifier km, miSelectionFrust* sf
 		while (true)
 		{
 			++ecount;
-			printf("E: %u\n", (u32)ce->m_data);
+			printf("E: %u [%u]\n", (u32)ce->m_data, (u32)ce);
 			if (ce == le)
 				break;
 			ce = ce->m_right;

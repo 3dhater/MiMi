@@ -120,9 +120,6 @@ public:
 			return;
 		auto next = m_head->m_right;
 		auto last = m_head->m_left;
-		//m_allocator.destruct(m_head);
-		//m_allocator.deallocate(m_head);
-		///m_onDeallocate(m_head);
 		m_head->~miListNode();
 		miFree(m_head);
 
@@ -134,6 +131,24 @@ public:
 		m_head = next;
 		next->m_left = last;
 		last->m_right = next;
+	}
+
+	void pop_back()
+	{
+		if (!m_head)
+			return;
+		
+		auto lastNode = m_head->m_left;
+		lastNode->m_left->m_right = m_head;
+		m_head->m_left = lastNode->m_left;
+
+		lastNode->~miListNode();
+		miFree(lastNode);
+
+		if (lastNode == m_head)
+		{
+			m_head = nullptr;
+		}
 	}
 	
 	void erase(miListNode<_type>* node) {

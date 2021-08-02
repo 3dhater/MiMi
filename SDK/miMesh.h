@@ -605,7 +605,6 @@ struct miMesh
 
 		auto current_polygon = m_first_polygon;
 		auto last_polygon = current_polygon->m_left;
-
 		while (true) {
 			auto next_polygon = current_polygon->m_right;
 
@@ -654,9 +653,15 @@ struct miMesh
 					new(newEdge)miEdge();
 					newEdge->m_vertex1 = v1;
 					newEdge->m_vertex2 = v2;
-
+					
 					v1->m_edges.push_back(newEdge);
 					v2->m_edges.push_back(newEdge);
+					
+					/*{
+						auto n1 = v1->m_edges.find(newEdge);
+						auto n2 = v2->m_edges.find(newEdge);
+						printf("E[%u] N1[%u] N2[%u]\n", (u32)newEdge, (u32)n1, (u32)n2);
+					}*/
 
 					_add_edge_to_list(newEdge);
 				}

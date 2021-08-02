@@ -241,6 +241,37 @@ void miEditableObject::EdgeBridge()
 		g2 = &group1;
 	}
 
+	//{// try to find group is circle or not
+	//}
+	/*bool isReverseG2 = false;
+	{
+		auto _g1 = g1->m_head;
+		auto _g2_r = g2->m_head->m_right;
+		auto _g2_l = g2->m_head->m_left;
+
+		v3f p1 = _g1->m_data->m_vertex1->m_position
+			+ _g1->m_data->m_vertex2->m_position;
+		p1 *= 0.5f;
+
+		v3f p2 = _g2_r->m_data->m_vertex1->m_position
+			+ _g2_r->m_data->m_vertex2->m_position;
+		p2 *= 0.5f;
+
+		v3f p3 = _g2_l->m_data->m_vertex1->m_position
+			+ _g2_l->m_data->m_vertex2->m_position;
+		p3 *= 0.5f;
+
+		f32 d1 = p1.distance(p2);
+		f32 d2 = p1.distance(p3);
+
+		if (d1 < d2)
+		{
+			isReverseG2 = true;
+			printf("REVERSE\n");
+		}
+	}*/
+
+
 	// take current edge in g1, and in g2, create polygon
 	// create until g1 have edges
 	// when g1 is empty, and g2 is not, create triangles using g2
@@ -255,12 +286,23 @@ void miEditableObject::EdgeBridge()
 		if(g1->m_head)
 			g1_edge = g1->m_head->m_data;
 
-		miEdge * g2_edge = 0;
-		if (g2->m_head)
-			g2_edge = g2->m_head->m_data;
-
 		g1->pop_front();
-		g2->pop_front();
+
+		miEdge * g2_edge = 0;
+		/*if (isReverseG2)
+		{
+			if (g2->m_head)
+				g2_edge = g2->m_head->m_left->m_data;
+
+			g2->pop_back();
+		}
+		else*/
+		{
+			if (g2->m_head)
+				g2_edge = g2->m_head->m_data;
+
+			g2->pop_front();
+		}
 
 		// create polygon
 		if (g1_edge && g2_edge)
@@ -342,10 +384,10 @@ void miEditableObject::EdgeBridge()
 			newPolygon->m_verts.push_back(v4->m_data1, v4->m_data2, v4->m_data3);
 			newPolygon->m_verts.push_back(v3->m_data1, v3->m_data2, v3->m_data3);
 
-			g1_edge->m_vertex1->m_polygons.push_back(newPolygon);
-			g1_edge->m_vertex2->m_polygons.push_back(newPolygon);
-			g2_edge->m_vertex1->m_polygons.push_back(newPolygon);
-			g2_edge->m_vertex2->m_polygons.push_back(newPolygon);
+			v1->m_data1->m_polygons.push_back(newPolygon);
+			v2->m_data1->m_polygons.push_back(newPolygon);
+			v3->m_data1->m_polygons.push_back(newPolygon);
+			v4->m_data1->m_polygons.push_back(newPolygon);
 
 			newPolygon->CalculateNormal();
 			m_mesh->_add_polygon_to_list(newPolygon);
