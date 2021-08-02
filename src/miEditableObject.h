@@ -61,6 +61,7 @@ class miEditableObject : public miSceneObject
 	friend void editableObjectGUI_vertexChamferRange_onValueChanged(miSceneObject*obj, float* fptr);
 	friend void editableObjectGUI_selectEdgeLoop_onClick(s32 id);
 	friend void editableObjectGUI_selectEdgeRing_onClick(s32 id);
+	friend void editableObjectGUI_selectEdgeBorder_onClick(s32 id);
 	friend void editableObjectGUI_edgeChamferButton_onUncheck(s32 id);
 
 public:

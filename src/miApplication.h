@@ -208,7 +208,6 @@ class miApplication
 	
 	bool m_isVertexEdgePolygonSelected;
 	void _updateIsVertexEdgePolygonSelected();
-	void _callVisualObjectOnSelect();
 
 	void _onSelect();
 	void _select_multiple();
@@ -251,6 +250,8 @@ public:
 
 	yyArraySimple<miSceneObject*> m_selectedObjects;
 	void UpdateSelectedObjectsArray();
+	
+	void _callVisualObjectOnSelect();
 
 	std::vector<yyRay> g_rays;
 

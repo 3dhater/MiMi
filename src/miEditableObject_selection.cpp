@@ -1121,6 +1121,94 @@ begin:;
 	{
 		o->OnSelect(g_app->GetEditMode());
 		g_app->UpdateSelectionAabb();
+		g_app->_callVisualObjectOnSelect();
+	}
+}
+
+void editableObjectGUI_selectEdgeBorder_onClick(s32 id) {
+	if (g_app->m_selectedObjects.m_size != 1)
+		return;
+
+	auto object = g_app->m_selectedObjects.m_data[0];
+	if (object->GetPlugin() != g_app->m_pluginForApp)
+		return;
+
+	if (object->GetTypeForPlugin() != miApplicationPlugin::m_objectType_editableObject)
+		return;
+
+	miEditableObject* o = (miEditableObject*)object;
+	if (!o->m_mesh->m_first_edge)
+		return;
+
+	bool needUpdate = false;
+
+	std::set<miVertex*> vertices;
+
+begin:;
+	vertices.clear();
+	{
+		auto c = o->m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			bool haveSelected = false;
+			bool haveNotSelected = false;
+
+			auto ce = c->m_edges.m_head;
+			auto le = ce->m_left;
+			while (true)
+			{
+				if (ce->m_data->IsSelected())
+					haveSelected = true;
+				else
+					haveNotSelected = true;
+				if (ce == le)
+					break;
+				ce = ce->m_right;
+			}
+
+			if (haveSelected && haveNotSelected)
+				vertices.insert(c);
+
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}
+
+	bool needAgaind = false;
+	for (auto v : vertices)
+	{
+		auto ce = v->m_edges.m_head;
+		auto le = ce->m_left;
+
+		while (true)
+		{
+			if (!ce->m_data->IsSelected())
+			{
+				if ((ce->m_data->m_polygon1 && !ce->m_data->m_polygon2) || (!ce->m_data->m_polygon1 && ce->m_data->m_polygon2))
+				{
+					needAgaind = true;
+					ce->m_data->Select();
+					break;
+				}
+			}
+			if (ce == le)
+				break;
+			ce = ce->m_right;
+		}
+	}
+	if (needAgaind)
+	{
+		needUpdate = true;
+		goto begin;
+	}
+
+	if (needUpdate)
+	{
+		o->OnSelect(g_app->GetEditMode());
+		g_app->UpdateSelectionAabb();
+		g_app->_callVisualObjectOnSelect();
 	}
 }
 
@@ -1225,5 +1313,6 @@ begin:;
 	{
 		o->OnSelect(g_app->GetEditMode());
 		g_app->UpdateSelectionAabb();
+		g_app->_callVisualObjectOnSelect();
 	}
 }
