@@ -5,6 +5,8 @@
 #include "miSDKImpl.h"
 #include "miEditableObject.h"
 
+#include <set>
+
 extern miApplication * g_app;
 
 extern s32 g_SelectButtonID_More;
@@ -981,142 +983,140 @@ void editableObjectGUI_selectEdgeLoop_onClick(s32 id) {
 		return;
 
 	miEditableObject* o = (miEditableObject*)object;
+	if (!o->m_mesh->m_first_edge)
+		return;
+
 	bool needUpdate = false;
+	
+	std::set<miVertex*> vertices;
+
 begin:;
-
-	auto c = o->m_mesh->m_first_edge;
-	if (!c) return;
-	auto l = c->m_left;
-	while (true) 
+	vertices.clear();
 	{
-		if ((c->m_flags & miEdge::flag_isSelected) == 0)
+		auto c = o->m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
 		{
-			if (c->m_polygon1 && c->m_polygon2)
+			bool haveSelected = false;
+			bool haveNotSelected = false;
+			u32 edgeNum = 0;
+
+			auto ce = c->m_edges.m_head;
+			auto le = ce->m_left;
+			while (true)
 			{
+				++edgeNum;
+				if (ce->m_data->IsSelected())
 				{
-					u32 count = 0;
-					bool start = false;
-					auto ce = c->m_vertex1->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
-					{
-						// first, find this edge (c) in this list (c->m_vertex1->m_edges)
-						if (!start)
-						{
-							if (c == ce->m_data)
-							{
-								le = ce->m_left;
-								start = true;
-							}
-						}
-
-						if (start)
-						{
-							++count;
-							if (count == 3 && ce->m_right == le)
-							{
-								if (ce->m_data->m_flags & miEdge::flag_isSelected)
-								{
-									c->m_flags |= miEdge::flag_isSelected;
-									needUpdate = true;
-									goto begin;
-								}
-							}
-						}
-
-						if (ce == le)break;
-						ce = ce->m_right;
-					}
+					haveSelected = true;
 				}
+				else
 				{
-					u32 count = 0;
-					bool start = false;
-					auto ce = c->m_vertex2->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
-					{
-						// first, find this edge (c) in this list (c->m_vertex1->m_edges)
-						if (!start)
-						{
-							if (c == ce->m_data)
-							{
-								le = ce->m_left;
-								start = true;
-							}
-						}
+					haveNotSelected = true;
+				}
+				if (ce == le)
+					break;
+				ce = ce->m_right;
+			}
 
-						if (start)
-						{
-							++count;
-							if (count == 3 && ce->m_right == le)
-							{
-								if (ce->m_data->m_flags & miEdge::flag_isSelected)
-								{
-									c->m_flags |= miEdge::flag_isSelected;
-									needUpdate = true;
-									goto begin;
-								}
-							}
-						}
+			if (haveSelected && haveNotSelected)
+			{
+				if (edgeNum == 3 || edgeNum == 4)
+				{
+					vertices.insert(c);
+				}
+			}
 
-						if (ce == le)break;
-						ce = ce->m_right;
-					}
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}
+
+	bool needAgaind = false;
+	for (auto v : vertices)
+	{
+		bool start = false;
+		u32 count = 1;
+		u32 edgeNum = 0;
+		
+		bool isSelectedOnBorder = false;
+
+		auto ce = v->m_edges.m_head;
+		auto le = ce->m_left;
+		while (true)
+		{
+			++edgeNum;
+			if (ce->m_data->IsSelected())
+			{
+				if ((ce->m_data->m_polygon1 && !ce->m_data->m_polygon2) || (!ce->m_data->m_polygon1 && ce->m_data->m_polygon2))
+					isSelectedOnBorder = true;
+			}
+			if (ce == le)
+				break;
+			ce = ce->m_right;
+		}
+
+
+		ce = v->m_edges.m_head;
+		le = ce->m_left;
+
+		while (true)
+		{
+			if (!start)
+			{
+				if (ce->m_data->IsSelected())
+				{
+					start = true;
+					le = ce->m_left;
 				}
 			}
 			else
 			{
+				++count;
+				if (!ce->m_data->IsSelected())
 				{
-					auto ce = c->m_vertex1->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
+					if (edgeNum == 3)
 					{
-						if (ce->m_data != c)
+						if (isSelectedOnBorder)
 						{
-							if (ce->m_data->m_polygon1 == 0
-								|| ce->m_data->m_polygon2 == 0)
+							if ((ce->m_data->m_polygon1 && !ce->m_data->m_polygon2) || (!ce->m_data->m_polygon1 && ce->m_data->m_polygon2))
 							{
-								if (ce->m_data->m_flags & miEdge::flag_isSelected)
-								{
-									c->m_flags |= miEdge::flag_isSelected;
-									needUpdate = true;
-									goto begin;
-								}
+								needAgaind = true;
+								ce->m_data->Select();
+								break;
 							}
 						}
-						if (ce == le)break;
-						ce = ce->m_right;
+						else
+						{
+
+						}
 					}
-				}
-				{
-					auto ce = c->m_vertex2->m_edges.m_head;
-					auto le = ce->m_left;
-					while (true)
+					else
 					{
-						if (ce->m_data != c)
+						if (count == 3)
 						{
-							if (ce->m_data->m_polygon1 == 0
-								|| ce->m_data->m_polygon2 == 0)
+							if (!ce->m_data->IsSelected())
 							{
-								if (ce->m_data->m_flags & miEdge::flag_isSelected)
-								{
-									c->m_flags |= miEdge::flag_isSelected;
-									needUpdate = true;
-									goto begin;
-								}
+								needAgaind = true;
+								ce->m_data->Select();
+								break;
 							}
 						}
-						if (ce == le)break;
-						ce = ce->m_right;
 					}
 				}
 			}
+			if (ce == le)
+				break;
+			ce = ce->m_right;
 		}
-
-		if (c == l)
-			break;
-		c = c->m_right;
 	}
+	if (needAgaind)
+	{
+		needUpdate = true;
+		goto begin;
+	}
+
 	if (needUpdate)
 	{
 		o->OnSelect(g_app->GetEditMode());

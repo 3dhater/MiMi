@@ -160,5 +160,6 @@ void miEditableObject::EdgeExtrude()
 			}
 		}
 		OnSelect(g_app->m_editMode);
+		g_app->_callVisualObjectOnSelect();
 	}
 }

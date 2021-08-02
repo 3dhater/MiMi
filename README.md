@@ -28,5 +28,4 @@
 * * [x] Polygon Extrude
 * * [ ] Polygon Bridge
 * [ ]  edit UV
-* [ ]  edit normals
 * [ ]  export model

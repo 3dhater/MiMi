@@ -28,6 +28,11 @@ struct miVertex
 		flag_User1 = BIT(1),
 		flag_User2 = BIT(2),
 	};
+
+	bool IsSelected() { return (m_flags & flag_isSelected) == flag_isSelected; }
+	void Select() { m_flags |= flag_isSelected; }
+	void Deselect() { if (m_flags & flag_isSelected) m_flags ^= flag_isSelected; }
+
 	void CopyData(miVertex* other)
 	{
 		m_position = other->m_position;
@@ -65,6 +70,10 @@ struct miEdge
 		flag_User1 = BIT(1),
 	};
 	
+	bool IsSelected(){return (m_flags & flag_isSelected) == flag_isSelected;}
+	void Select() { m_flags |= flag_isSelected; }
+	void Deselect() { if(m_flags & flag_isSelected) m_flags ^= flag_isSelected;}
+
 	void CopyData(miEdge* other) {
 		m_flags = other->m_flags;
 	}
@@ -124,10 +133,9 @@ struct miPolygon
 	miList3<miVertex*, v2f, v3f> m_verts;
 	miList<miEdge*> m_edges;
 
-	bool IsSelected()
-	{
-		return (m_flags & flag_isSelected) == flag_isSelected;
-	}
+	bool IsSelected() { return (m_flags & flag_isSelected) == flag_isSelected; }
+	void Select() { m_flags |= flag_isSelected; }
+	void Deselect() { if (m_flags & flag_isSelected) m_flags ^= flag_isSelected; }
 
 	miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
