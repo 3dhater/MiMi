@@ -91,6 +91,7 @@ enum class miViewportCameraType : u32 {
 	Left,
 	Right,
 	Top,
+	UV, // Top
 	Bottom,
 	Front,
 	Back

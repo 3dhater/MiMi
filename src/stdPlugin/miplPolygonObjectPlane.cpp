@@ -319,28 +319,28 @@ void miplPolygonObjectPlane_generate(
 					v3f(begin_x - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(0.f, 0.f, -1.f),
+					v3f(0.f, 0.f, 1.f),
 					v2f(uv_begin_x, uv_begin_y - uv_segment_size_h));
 
 				pc->Add(
 					v3f(begin_x - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(0.f, 0.f, -1.f),
+					v3f(0.f, 0.f, 1.f),
 					v2f(uv_begin_x, uv_begin_y));
 
 				pc->Add(
 					v3f(begin_x + segment_size_w - aabbcenter.x, begin_z - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(0.f, 0.f, -1.f),
+					v3f(0.f, 0.f, 1.f),
 					v2f(uv_begin_x + uv_segment_size_w, uv_begin_y));
 
 				pc->Add(
 					v3f(begin_x + segment_size_w - aabbcenter.x, begin_z + segment_size_h - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(0.f, 0.f, -1.f),
+					v3f(0.f, 0.f, 1.f),
 					v2f(uv_begin_x + uv_segment_size_w, uv_begin_y - uv_segment_size_h));
 
 				mb->AddPolygon(pc, false, false);
@@ -360,28 +360,28 @@ void miplPolygonObjectPlane_generate(
 					v3f(begin_z + segment_size_h - aabbcenter.x, begin_x - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(-1.f, 0.f, 0.f),
+					v3f(0.f, 0.f, -1.f),
 					v2f(uv_begin_y - uv_segment_size_h, uv_begin_x));
 
 				pc->Add(
 					v3f(begin_z - aabbcenter.x, begin_x - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(-1.f, 0.f, 0.f),
+					v3f(0.f, 0.f, -1.f),
 					v2f(uv_begin_y, uv_begin_x));
 
 				pc->Add(
 					v3f(begin_z - aabbcenter.x, begin_x + segment_size_w - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(-1.f, 0.f, 0.f),
+					v3f(0.f, 0.f, -1.f),
 					v2f(uv_begin_y, uv_begin_x - uv_segment_size_w));
 
 				pc->Add(
 					v3f(begin_z + segment_size_h - aabbcenter.x, begin_x + segment_size_w - aabbcenter.y, firstPoint.z),
 					true,
 					false,
-					v3f(-1.f, 0.f, 0.f),
+					v3f(0.f, 0.f, -1.f),
 					v2f(uv_begin_y - uv_segment_size_h, uv_begin_x - uv_segment_size_w));
 
 				mb->AddPolygon(pc, false, false);

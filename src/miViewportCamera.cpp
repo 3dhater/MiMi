@@ -154,6 +154,10 @@ void miViewportCamera::Reset() {
 	case miViewportCameraType::Top:
 		m_rotationPlatform = v3f();
 		break;
+	case miViewportCameraType::UV:
+		m_rotationPlatform = v3f();
+		m_positionPlatform = v4f(0.5f, 0.f, 0.5f, 1.5f);
+		break;
 	}
 
 	Rotate(0, 0);
@@ -180,6 +184,8 @@ void miViewportCamera::PanMove() {
 }
 
 void miViewportCamera::Rotate(f32 x, f32 y) {
+	//if (m_type == miViewportCameraType::UV) return;
+
 	const f32 speed = 0.69f * g_app->m_dt;
 	m_rotationPlatform.x += y * speed;
 	m_rotationPlatform.y += x * speed;

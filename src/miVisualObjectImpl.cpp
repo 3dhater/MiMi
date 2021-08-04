@@ -504,7 +504,6 @@ void miVisualObjectImpl::Draw() {
 
 	static yyMaterial wireframe_model_material;
 	static Mat4 Vi;
-	auto ec = this->m_parentSceneObject->GetEdgeColor();
 
 	switch (m_type)
 	{
@@ -526,6 +525,9 @@ void miVisualObjectImpl::Draw() {
 		}
 		break;
 	case miVisualObjectType::Edge:
+	{
+
+		v4f* ec = this->m_parentSceneObject->GetEdgeColor();
 		if (this->m_parentSceneObject->IsSelected())
 		{
 			wireframe_model_material.m_baseColor.m_data[0] = 1.f;
@@ -550,7 +552,7 @@ void miVisualObjectImpl::Draw() {
 			g_app->m_gpu->SetTexture(0, defTexture0);
 			g_app->m_gpu->Draw();
 		}
-		break;
+	}break;
 	case miVisualObjectType::Polygon:
 		if (m_parentSceneObject->m_material && m_parentSceneObject->m_useMaterial)
 		{

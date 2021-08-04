@@ -127,6 +127,10 @@ public:
 	void AssignSelectedMaterial();
 	void LoadNewImageForMaterial();
 	void UpdateMaterialMapPictureBox();
+
+	yyGUIComboBox* m_editorTypeCombo;
+	yyGUIComboBoxItem* m_editorTypeComboItem_3D;
+	yyGUIComboBoxItem* m_editorTypeComboItem_UV;
 };
 
 #endif

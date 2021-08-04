@@ -98,6 +98,12 @@ enum class miCursorType : u32
 	_count
 };
 
+enum class miEditorType
+{
+	_3D,
+	UV
+};
+
 class miApplication
 {
 	yyInputContext * m_inputContext;
@@ -106,6 +112,8 @@ class miApplication
 	yyVideoDriverAPI* m_gpu;
 
 	yyCursor* m_cursors[(u32)miCursorType::_count];
+
+	miEditorType m_editorType;
 
 	// draw selection rectangle and other things
 	miGraphics2D* m_2d;
@@ -177,6 +185,7 @@ class miApplication
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
+	miViewportLayout* m_UVViewport;
 	void _initViewports();
 
 	void _initPlugins();
@@ -237,6 +246,9 @@ class miApplication
 
 	bool _isDoNotSelect();
 
+	yyResource* m_UVPlaneModel;
+	yyResource* m_UVPlaneTexture;
+
 public:
 	miApplication();
 	~miApplication();
@@ -245,6 +257,8 @@ public:
 	void DeselectAll();
 	void InvertSelection();
 	void DeleteSelected();
+
+	void SetEditorType(miEditorType);
 
 	miString GetFreeName(const wchar_t* name);
 

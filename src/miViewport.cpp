@@ -36,6 +36,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
 	m_camera[Camera_Top] = new miViewportCamera(this, miViewportCameraType::Top);
+	m_camera[Camera_UV] = new miViewportCamera(this, miViewportCameraType::UV);
 	m_camera[Camera_Bottom] = new miViewportCamera(this, miViewportCameraType::Bottom);
 	m_camera[Camera_Front] = new miViewportCamera(this, miViewportCameraType::Front);
 	m_camera[Camera_Back] = new miViewportCamera(this, miViewportCameraType::Back);
@@ -53,6 +54,9 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 		break;
 	case miViewportCameraType::Right:
 		m_activeCamera = m_camera[Camera_Right];
+		break;
+	case miViewportCameraType::UV:
+		m_activeCamera = m_camera[Camera_UV];
 		break;
 	case miViewportCameraType::Top:
 		m_activeCamera = m_camera[Camera_Top];
@@ -73,6 +77,7 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	{
 	case miViewportCameraType::Perspective:
 	case miViewportCameraType::Top:
+	case miViewportCameraType::UV:
 		m_rayTestTiangles[0].v1 = v4f(-999999.f, 0.f, -999999.f, 0.f);
 		m_rayTestTiangles[0].v2 = v4f(-999999.f, 0.f, 999999.f, 0.f);
 		m_rayTestTiangles[0].v3 = v4f(999999.f,0.f, 999999.f, 0.f);
@@ -186,51 +191,56 @@ void miViewport::Init() {
 	/*if (m_creationRect.x == 0.f)
 		vpNamePosX += miViewportLeftIndent;*/
 
-	m_gui_text_vpName = yyGUICreateText(v2f(vpNamePosX, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
-		L"T", 0);
-	m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
-	m_gui_text_vpName->IgnoreInput(false);
-	//m_gui_text_vpName->m_onClick = miViewport_onClick_viewportName;
-	m_gui_text_vpName->m_ignoreSetCursorInGUI = false;
-	m_gui_text_vpName->m_userData = this;
-	m_gui_text_vpName->m_onClick = miViewport_onClick_viewport;
-	m_gui_group->AddElement(m_gui_text_vpName);
 
-	f32 buttonPositionX = 70.f ;
-	/*if (m_creationRect.x == 0.f)
-		buttonPositionX += miViewportLeftIndent;*/
+	if (m_cameraType != miViewportCameraType::UV)
+	{
 
-	f32 buttonWidth = 17.f;
+		m_gui_text_vpName = yyGUICreateText(v2f(vpNamePosX, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
+			L"T", 0);
+		m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
+		m_gui_text_vpName->IgnoreInput(false);
+		//m_gui_text_vpName->m_onClick = miViewport_onClick_viewportName;
+		m_gui_text_vpName->m_ignoreSetCursorInGUI = false;
+		m_gui_text_vpName->m_userData = this;
+		m_gui_text_vpName->m_onClick = miViewport_onClick_viewport;
+		m_gui_group->AddElement(m_gui_text_vpName);
 
-	v4f region(0.f,72.f,16.f,88.f);
-	m_gui_button_resetCamera = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
-		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
-	m_gui_button_resetCamera->m_isAnimated = true;
-	region.set(24.f,72.f,40.f,88.f);
-	m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
-	m_gui_group->AddElement(m_gui_button_resetCamera);
-	m_gui_button_resetCamera->SetOpacity(0.19f, 0);
-	m_gui_button_resetCamera->SetOpacity(0.19f, 1);
-	m_gui_button_resetCamera->SetOpacity(0.19f, 2);
-	m_gui_button_resetCamera->m_onClick = miViewport_onClick_cameraReset;
-	m_gui_button_resetCamera->m_userData = this;
+		f32 buttonPositionX = 70.f;
+		/*if (m_creationRect.x == 0.f)
+			buttonPositionX += miViewportLeftIndent;*/
 
-	buttonPositionX += buttonWidth;
+		f32 buttonWidth = 17.f;
 
-	/*region.set(0.f, 96.f, 16.f, 112.f);
-	m_gui_button_viewport = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
-		yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
-	m_gui_button_viewport->m_isAnimated = true;
-	region.set(24.f, 96.f, 40.f, 112.f);
-	m_gui_button_viewport->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
-	m_gui_group->AddElement(m_gui_button_viewport);
-	m_gui_button_viewport->SetOpacity(0.19f, 0);
-	m_gui_button_viewport->SetOpacity(0.19f, 1);
-	m_gui_button_viewport->SetOpacity(0.19f, 2);
-	m_gui_button_viewport->m_onClick = miViewport_onClick_viewport;
-	m_gui_button_viewport->m_userData = this;*/
-	
-	buttonPositionX += buttonWidth;
+		v4f region(0.f, 72.f, 16.f, 88.f);
+		m_gui_button_resetCamera = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
+			yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
+		m_gui_button_resetCamera->m_isAnimated = true;
+		region.set(24.f, 72.f, 40.f, 88.f);
+		m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
+		m_gui_group->AddElement(m_gui_button_resetCamera);
+		m_gui_button_resetCamera->SetOpacity(0.19f, 0);
+		m_gui_button_resetCamera->SetOpacity(0.19f, 1);
+		m_gui_button_resetCamera->SetOpacity(0.19f, 2);
+		m_gui_button_resetCamera->m_onClick = miViewport_onClick_cameraReset;
+		m_gui_button_resetCamera->m_userData = this;
+
+		buttonPositionX += buttonWidth;
+
+		/*region.set(0.f, 96.f, 16.f, 112.f);
+		m_gui_button_viewport = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
+			yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
+		m_gui_button_viewport->m_isAnimated = true;
+		region.set(24.f, 96.f, 40.f, 112.f);
+		m_gui_button_viewport->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
+		m_gui_group->AddElement(m_gui_button_viewport);
+		m_gui_button_viewport->SetOpacity(0.19f, 0);
+		m_gui_button_viewport->SetOpacity(0.19f, 1);
+		m_gui_button_viewport->SetOpacity(0.19f, 2);
+		m_gui_button_viewport->m_onClick = miViewport_onClick_viewport;
+		m_gui_button_viewport->m_userData = this;*/
+
+		buttonPositionX += buttonWidth;
+	}
 
 	SetCameraType(m_cameraType);
 }
@@ -246,6 +256,12 @@ void miViewport::SetViewportName(const wchar_t* name) {
 }
 
 void miViewport::SetCameraType(miViewportCameraType ct) {
+	if (m_cameraType == miViewportCameraType::UV)
+	{
+		m_activeCamera = m_camera[Camera_UV];
+		return;
+	}
+
 	m_cameraType = ct;
 	switch (ct)
 	{
@@ -288,6 +304,7 @@ void miViewport::SetCameraType(miViewportCameraType ct) {
 		m_activeCamera = m_camera[Camera_Right];
 		break;
 	case miViewportCameraType::Top:
+	case miViewportCameraType::UV:
 		m_activeCamera = m_camera[Camera_Top];
 		break;
 	case miViewportCameraType::Bottom:
@@ -380,6 +397,28 @@ void miViewport::_frustum_cull(miSceneObject* o) {
 	}
 }
 
+void miViewport::OnDrawUV()
+{
+	static yyMaterial m;
+	m.m_baseColor.set(0.5f);
+	m.m_type = yyMaterialType::Simple;
+	yySetMaterial(&m);
+
+	g_app->m_gpu->SetTexture(0, yyGetDefaultTexture());
+
+	m_gpu->UseDepth(false);
+	auto W = Mat4();
+	auto WVP = m_activeCamera->m_projectionMatrix* m_activeCamera->m_viewMatrix * W;
+	yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+	yySetMatrix(yyMatrixType::World, &W);
+	m_gpu->SetModel(g_app->m_UVPlaneModel);
+	m_gpu->Draw();
+
+	m_gpu->UseDepth(false);
+	m_gpu->DrawLine3D(v4f(), v4f(1.f, 0.f, 0.f, 0.f), ColorRed);
+	m_gpu->DrawLine3D(v4f(), v4f(0.f, 0.f, 1.f, 0.f), ColorLime);
+}
+
 void miViewport::OnDraw() {
 	m_activeCamera->Update();
 	yySetEyePosition(&m_activeCamera->m_positionCamera);
@@ -391,67 +430,70 @@ void miViewport::OnDraw() {
 	m_gpu->SetScissorRect(m_currentRect, g_app->m_window, 0);
 	m_gpu->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_window, 0);
 
-
 	yySetMatrix(yyMatrixType::View, &m_activeCamera->m_viewMatrix);
 	yySetMatrix(yyMatrixType::Projection, &m_activeCamera->m_projectionMatrix);
 	yySetMatrix(yyMatrixType::ViewProjection,
 		&m_activeCamera->m_viewProjectionMatrix);
 
-	/*for (auto & r : g_app->g_rays)
+	if (m_cameraType == miViewportCameraType::UV)
 	{
-		m_gpu->DrawLine3D(math::v4f_to_v4f(r.m_origin), math::v4f_to_v4f(r.m_end), ColorWhite);
-	}*/
-
-	
-	
-	if (g_app->m_isClickAndDrag)
-	{
-		m_gpu->DrawLine3D(g_app->m_cursorLMBClickPosition3D, g_app->m_cursorPosition3D, ColorWhite);
+		OnDrawUV();
 	}
-
-
-	if (m_drawGrid)
+	else
 	{
-		_drawGrid();
-	}
+		/*for (auto & r : g_app->g_rays)
+		{
+			m_gpu->DrawLine3D(math::v4f_to_v4f(r.m_origin), math::v4f_to_v4f(r.m_end), ColorWhite);
+		}*/
 
-	// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
-	//g_app->m_currentViewportDrawCamera = m_activeCamera;
-	g_app->m_currentViewportDraw = this;
+		if (g_app->m_isClickAndDrag)
+		{
+			m_gpu->DrawLine3D(g_app->m_cursorLMBClickPosition3D, g_app->m_cursorPosition3D, ColorWhite);
+		}
 
-	g_app->m_gpu->UseDepth(true);
+		if (m_drawGrid)
+		{
+			_drawGrid();
+		}
 
-	m_visibleObjects.clear();
-	_frustum_cull(g_app->m_rootObject);
+		// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
+		//g_app->m_currentViewportDrawCamera = m_activeCamera;
+		g_app->m_currentViewportDraw = this;
 
-	//printf("%i\n", (s32)m_visibleObjects.m_size);
+		g_app->m_gpu->UseDepth(true);
 
-	g_app->m_gpu->UseDepth(true);
+		m_visibleObjects.clear();
+		_frustum_cull(g_app->m_rootObject);
 
-	/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[0], g_app->m_selectionFrust->m_data.m_left[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[1], g_app->m_selectionFrust->m_data.m_left[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[2], g_app->m_selectionFrust->m_data.m_left[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[3], g_app->m_selectionFrust->m_data.m_left[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[0], g_app->m_selectionFrust->m_data.m_right[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[1], g_app->m_selectionFrust->m_data.m_right[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[2], g_app->m_selectionFrust->m_data.m_right[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[3], g_app->m_selectionFrust->m_data.m_right[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[0], g_app->m_selectionFrust->m_data.m_top[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[1], g_app->m_selectionFrust->m_data.m_top[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[2], g_app->m_selectionFrust->m_data.m_top[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[3], g_app->m_selectionFrust->m_data.m_top[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[0], g_app->m_selectionFrust->m_data.m_bottom[1], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[1], g_app->m_selectionFrust->m_data.m_bottom[2], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[2], g_app->m_selectionFrust->m_data.m_bottom[3], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[3], g_app->m_selectionFrust->m_data.m_bottom[0], ColorWhite);
-	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_BackC, g_app->m_selectionFrust->m_data.m_FrontC, ColorWhite);*/
+		//printf("%i\n", (s32)m_visibleObjects.m_size);
 
-	if (m_visibleObjects.m_size)
-	{
-		_drawSelectedObjectFrame();
-		_drawScene();
-		if (m_isDrawAabbs)
-			g_app->DrawAabb(g_app->m_sceneAabb, v4f(1.f), v3f());
+		g_app->m_gpu->UseDepth(true);
+
+		/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[0], g_app->m_selectionFrust->m_data.m_left[1], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[1], g_app->m_selectionFrust->m_data.m_left[2], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[2], g_app->m_selectionFrust->m_data.m_left[3], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[3], g_app->m_selectionFrust->m_data.m_left[0], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[0], g_app->m_selectionFrust->m_data.m_right[1], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[1], g_app->m_selectionFrust->m_data.m_right[2], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[2], g_app->m_selectionFrust->m_data.m_right[3], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_right[3], g_app->m_selectionFrust->m_data.m_right[0], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[0], g_app->m_selectionFrust->m_data.m_top[1], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[1], g_app->m_selectionFrust->m_data.m_top[2], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[2], g_app->m_selectionFrust->m_data.m_top[3], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_top[3], g_app->m_selectionFrust->m_data.m_top[0], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[0], g_app->m_selectionFrust->m_data.m_bottom[1], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[1], g_app->m_selectionFrust->m_data.m_bottom[2], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[2], g_app->m_selectionFrust->m_data.m_bottom[3], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_bottom[3], g_app->m_selectionFrust->m_data.m_bottom[0], ColorWhite);
+		m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_BackC, g_app->m_selectionFrust->m_data.m_FrontC, ColorWhite);*/
+
+		if (m_visibleObjects.m_size)
+		{
+			_drawSelectedObjectFrame();
+			_drawScene();
+			if (m_isDrawAabbs)
+				g_app->DrawAabb(g_app->m_sceneAabb, v4f(1.f), v3f());
+		}
 	}
 }
 
@@ -460,15 +502,6 @@ void miViewport::ToggleDrawAABB() {
 }
 
 void miViewport::_drawScene() {
-	static f32 a = 0.f;
-
-	a += 0.001f;
-
-	if (a > 10.f)
-		a = 0.f;
-
-	Quat q(v4f(0.f, a, 0.f, 0.f));
-
 	for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
 	{
 		auto object = m_visibleObjects.m_data[i];
@@ -566,6 +599,7 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 		{
 		default:
 		case miViewportCameraType::Top:
+		case miViewportCameraType::UV:
 		case miViewportCameraType::Perspective:
 			// another way
 			if (!m_rayTestTiangles[0].rayTest_MT(ray, true, T, U, V, W))

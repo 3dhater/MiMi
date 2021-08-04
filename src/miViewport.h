@@ -15,6 +15,7 @@ struct miViewport
 
 	void OnWindowSize();
 	void OnDraw();
+	void OnDrawUV();
 	yyVideoDriverAPI* m_gpu;
 
 	bool m_isOnLeftBorder;
@@ -27,6 +28,7 @@ struct miViewport
 	enum {
 		Camera_Perspective = 0,
 		Camera_Top,
+		Camera_UV,
 		Camera_Bottom,
 		Camera_Front,
 		Camera_Back,

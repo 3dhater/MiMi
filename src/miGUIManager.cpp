@@ -9,6 +9,17 @@ f32 g_guiBGOpacity = 0.3f;
 f32 g_guiButtonMinimumOpacity = 0.1f;
 v4f g_guiWindowBackgroundPBRect;
 
+void gui_editorTypeCombo_onSelect(yyGUIComboBox*, yyGUIComboBoxItem* item) {
+	if (item == g_guiManager->m_editorTypeComboItem_3D)
+	{
+		g_app->SetEditorType(miEditorType::_3D);
+	}
+	else if (item == g_guiManager->m_editorTypeComboItem_UV)
+	{
+		g_app->SetEditorType(miEditorType::UV);
+	}
+}
+
 void gui_group_commonParams_range_Position(yyGUIRangeSlider* slider) {
 	if (g_app->m_selectedObjects.m_size > 1)
 	{
@@ -264,6 +275,7 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 
 miGUIManager::miGUIManager(){
+	m_editorTypeCombo = 0;
 	m_gui_pictureBox_map = 0;
 	m_default_value_float = 0.f;
 	m_buttonGroup_transformMode = new yyGUIButtonGroup;
@@ -374,6 +386,14 @@ miGUIManager::miGUIManager(){
 		m_button_import->m_onClick = gui_importButton_onClick;
 	}
 
+	X += button_import_size;
+	m_editorTypeCombo = yyGUICreateComboBox(v2f(X, 0.f), 50.f, m_fontDefault, 0);
+	m_editorTypeComboItem_3D = m_editorTypeCombo->AddItem(L"3D");
+	m_editorTypeComboItem_UV = m_editorTypeCombo->AddItem(L"UV");
+	m_editorTypeCombo->SelectItem(m_editorTypeComboItem_3D);
+	m_editorTypeCombo->m_onSelect = gui_editorTypeCombo_onSelect;
+
+
 	m_button_importWindow_import = yyGUICreateButton(v4f(
 		g_guiWindowBackgroundPBRect.x,
 		g_guiWindowBackgroundPBRect.w - 30.f,
@@ -392,6 +412,7 @@ miGUIManager::miGUIManager(){
 	m_button_importWindow_import->m_bgColor = yyColor(0.3f, 0.3f, 0.9f, 1.f);
 	m_button_importWindow_import->m_bgColorHover = yyColor(0.4f, 0.4f, 0.9f, 1.f);
 	m_button_importWindow_import->m_bgColorPress = yyColor(0.2f, 0.2f, 0.9f, 1.f);
+
 
 	m_textInput_rename = yyGUICreateTextInput(
 		v4f(

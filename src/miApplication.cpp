@@ -9,6 +9,7 @@
 #include "miRootObject.h"
 #include "miPluginGUIImpl.h"
 #include "miEditableObject.h"
+#include "miVisualObjectImpl.h"
 #include "yy_color.h"
 #include "yy_gui.h"
 #include "yy_model.h"
@@ -184,6 +185,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_editorType = miEditorType::_3D;
 	m_pluginForApp = 0;
 	m_currentPluginGUI = 0;
 	m_pluginGuiForEditableObject = 0;
@@ -263,6 +265,7 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+
 	if (m_gizmo) delete m_gizmo;
 	for (u32 i = 0; i < (u32)miCursorType::_count; ++i)
 	{
@@ -312,6 +315,8 @@ miApplication::~miApplication() {
 		if(m_viewportLayouts[i])
 			delete m_viewportLayouts[i];
 	}
+	if (m_UVViewport)
+		delete m_UVViewport;
 	if (m_gridModel_left1) yyMegaAllocator::Destroy(m_gridModel_left1);
 	if (m_gridModel_left2) yyMegaAllocator::Destroy(m_gridModel_left2);
 	if (m_gridModel_left1_10) yyMegaAllocator::Destroy(m_gridModel_left1_10);
@@ -463,6 +468,7 @@ void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 }
 
 void miApplication::_initViewports() {
+	const f32 midX = 0.4;
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
 	{
 		m_viewportLayouts[i] = new miViewportLayout;
@@ -475,7 +481,6 @@ void miApplication::_initViewports() {
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
 			break;
 		case miViewportLayout_Standart: {
-			const f32 midX = 0.4;
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top);
 			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
 			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front);
@@ -483,6 +488,10 @@ void miApplication::_initViewports() {
 		}break;
 		}
 	}
+
+	m_UVViewport = new miViewportLayout;
+	m_UVViewport->Add(v4f(0.f, 0.f, midX, 1.f), miViewportCameraType::UV);
+	m_UVViewport->Add(v4f(midX, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
 	m_activeViewportLayout->ShowGUI();
@@ -730,6 +739,44 @@ vidOk:
 
 	_initViewports();
 	m_2d->UpdateClip();
+
+
+	{
+		auto model = yyMegaAllocator::CreateModel();
+		model->m_vertexType = yyVertexType::Model;
+		model->m_iCount = 6;
+		model->m_indexType = yyMeshIndexType::u16;
+		model->m_stride = sizeof(yyVertexTriangle);
+		model->m_vCount = 4;
+		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		
+		yyVertexTriangle* vPtr = (yyVertexTriangle*)model->m_vertices;
+		vPtr[0].Normal.set(0.f, 1.f, 0.f);
+		vPtr[0].Position.set(0.f, 0.f, 0.f);
+		
+		vPtr[1].Normal.set(0.f, 1.f, 0.f);
+		vPtr[1].Position.set(1.f, 0.f, 0.f);
+		
+		vPtr[2].Normal.set(0.f, 1.f, 0.f);
+		vPtr[2].Position.set(1.f, 0.f, 1.f);
+		
+		vPtr[3].Normal.set(0.f, 1.f, 0.f);
+		vPtr[3].Position.set(0.f, 0.f, 1.f);
+
+		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		u16* iPtr = (u16*)model->m_indices;
+		iPtr[0] = 0;
+		iPtr[1] = 1;
+		iPtr[2] = 2;
+		iPtr[3] = 0;
+		iPtr[4] = 2;
+		iPtr[5] = 3;
+
+		m_UVPlaneModel = yyCreateModel(model);
+		m_UVPlaneModel->Load();
+	
+		yyMegaAllocator::Destroy(model);
+	}
 
 	yyGUIRebuild();
 
@@ -1419,7 +1466,7 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
-	if(m_inputContext->IsKeyHit(yyKey::K_NUM_4))
+	if (m_inputContext->IsKeyHit(yyKey::K_NUM_4))
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(-5.f, 0.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_6))
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(5.f, 0.f);
@@ -1428,7 +1475,7 @@ void miApplication::UpdateViewports() {
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_8))
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, 5.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_5))
-		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho = 
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
 
 	//if(m_isCursorInGUI) printf("InGUI");
@@ -1508,6 +1555,10 @@ void miApplication::_callViewportOnSize() {
 			l->m_viewports[i]->OnWindowSize();
 		}
 	}
+	for (u16 i = 0, sz = m_UVViewport->m_viewports.size(); i < sz; ++i)
+	{
+		m_UVViewport->m_viewports[i]->OnWindowSize();
+	}
 }
 
 void miApplication::ShowPopupAtCursor(miPopup* popup) {
@@ -1530,6 +1581,9 @@ void miApplication::CommandViewportChangeView(miViewport* vp, miViewportCameraTy
 }
 
 void miApplication::CommandViewportToggleFullView(miViewport* vp) {
+	if (m_editorType != miEditorType::_3D)
+		return;
+
 	if (m_activeViewportLayout == m_viewportLayouts[miViewportLayout_Full])
 	{
 		m_activeViewportLayout->HideGUI();
@@ -2044,4 +2098,36 @@ miPopup* miApplication::_getPopupInViewport() {
 		}
 	}
 	return p;
+}
+
+void miApplication::SetEditorType(miEditorType t){
+	static miViewportLayout* prev3DViewport = 0;
+	static auto last = m_editorType;
+
+	if (last == miEditorType::_3D)
+	{
+		prev3DViewport = m_activeViewportLayout;
+	}
+	
+
+	m_activeViewportLayout->HideGUI();
+	
+	m_editorType = t;
+	last = m_editorType;
+	switch (t)
+	{
+	case miEditorType::_3D:
+		printf("Editor Type: 3D\n");
+		m_activeViewportLayout = prev3DViewport;
+		break;
+	case miEditorType::UV:
+		printf("Editor Type: UV\n");
+		m_activeViewportLayout = m_UVViewport;
+		break;
+	default:
+		break;
+	}
+	m_activeViewportLayout->ShowGUI();
+
+	m_activeViewportLayout->m_activeViewport->UpdateAspect();
 }
