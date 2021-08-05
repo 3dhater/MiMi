@@ -622,7 +622,8 @@ miGUIManager::miGUIManager(){
 	}
 
 	// RIGHT SIDE
-	m_mainMenu_Y = miViewportTopIndent;
+	f32 topIndent = 5.f;
+	m_mainMenu_Y = miViewportTopIndent + topIndent;
 	{
 		v4f uvregion1(0.f, 120.f, 23.f, 143.f);
 		f32 w = (f32)(uvregion1.z - uvregion1.x);
@@ -683,7 +684,7 @@ miGUIManager::miGUIManager(){
 	}
 
 	// COMMON PARAMS
-	auto y = miViewportTopIndent;
+	auto y = miViewportTopIndent + topIndent;
 	m_gui_drawGroup_commonParams = yyGUICreateDrawGroup();
 	m_gui_drawGroup_commonParams->SetDraw(true);
 	m_gui_group_commonParams = yyGUICreateGroup(v4f(), -1, m_gui_drawGroup_commonParams);
@@ -754,7 +755,7 @@ miGUIManager::miGUIManager(){
 	{
 		v4f groupRect = v4f(
 			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize,
-			miViewportTopIndent,
+			miViewportTopIndent + topIndent,
 			window->m_creationSize.x,
 			window->m_creationSize.y);
 

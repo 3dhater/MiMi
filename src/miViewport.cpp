@@ -400,11 +400,11 @@ void miViewport::_frustum_cull(miSceneObject* o) {
 void miViewport::OnDrawUV()
 {
 	static yyMaterial m;
-	m.m_baseColor.set(0.5f);
+	m.m_baseColor.set(1.f,0.f,1.f,1.f);
 	m.m_type = yyMaterialType::Simple;
-	yySetMaterial(&m);
+	yySetMaterial(0);
 
-	g_app->m_gpu->SetTexture(0, yyGetDefaultTexture());
+	g_app->m_gpu->SetTexture(0, g_app->m_UVPlaneTexture);
 
 	m_gpu->UseDepth(false);
 	auto W = Mat4();
@@ -417,6 +417,14 @@ void miViewport::OnDrawUV()
 	m_gpu->UseDepth(false);
 	m_gpu->DrawLine3D(v4f(), v4f(1.f, 0.f, 0.f, 0.f), ColorRed);
 	m_gpu->DrawLine3D(v4f(), v4f(0.f, 0.f, 1.f, 0.f), ColorLime);
+
+	m_gpu->UseDepth(true);
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		auto object = g_app->m_selectedObjects.m_data[i];
+		
+		object->OnDrawUV();
+	}
 }
 
 void miViewport::OnDraw() {
@@ -434,6 +442,10 @@ void miViewport::OnDraw() {
 	yySetMatrix(yyMatrixType::Projection, &m_activeCamera->m_projectionMatrix);
 	yySetMatrix(yyMatrixType::ViewProjection,
 		&m_activeCamera->m_viewProjectionMatrix);
+	
+	// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
+	//g_app->m_currentViewportDrawCamera = m_activeCamera;
+	g_app->m_currentViewportDraw = this;
 
 	if (m_cameraType == miViewportCameraType::UV)
 	{
@@ -456,9 +468,7 @@ void miViewport::OnDraw() {
 			_drawGrid();
 		}
 
-		// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
-		//g_app->m_currentViewportDrawCamera = m_activeCamera;
-		g_app->m_currentViewportDraw = this;
+		
 
 		g_app->m_gpu->UseDepth(true);
 

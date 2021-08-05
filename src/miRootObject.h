@@ -10,6 +10,7 @@ public:
 	virtual ~miRootObject();
 
 	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt);
+	virtual void OnDrawUV() override;
 	virtual void OnUpdate(float dt);
 	virtual void OnCreation(miPluginGUI*);
 	virtual void OnCreationLMBDown();

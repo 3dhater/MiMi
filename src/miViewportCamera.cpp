@@ -103,6 +103,11 @@ void miViewportCamera::Update() {
 }
 
 void miViewportCamera::MoveToSelection() {
+	if (m_type == miViewportCameraType::UV)
+	{
+		Reset();
+		return;
+	}
 	if (!g_app->m_selectionAabb.isEmpty())
 	{
 		m_positionPlatform = g_app->m_selectionAabb_center;

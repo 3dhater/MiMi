@@ -1,0 +1,11 @@
+- fix Edge chamfer
+- Sorting
+- P element
+- reference
+- mirror
+- force draw without lines (F3)
+
+...
+
+- fix edge bridge
+- add polygon bridge

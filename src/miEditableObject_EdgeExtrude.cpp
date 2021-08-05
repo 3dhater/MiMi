@@ -10,11 +10,7 @@ extern miApplication * g_app;
 void miEditableObject::EdgeExtrude()
 {
 	miArray<miPair<miVertex*, miVertex*>> newEdgesVertices;
-
-	//miArray<miEdge*> selectedEdges;
-	//selectedEdges.reserve(10);
-
-	miBinarySearchTree<miListNode3<miVertex*, v2f, v3f>> verticesTree;
+	miBinarySearchTree<miListNode<miPolygon::_vertex_data>*> verticesTree;
 
 	bool needUpdate = false;
 
@@ -33,12 +29,12 @@ void miEditableObject::EdgeExtrude()
 			// find edge with this vertices
 			miEdge* edge = 0;
 			{
-				auto v1 = cv->m_data1;
-				auto v2 = nv->m_data1;
+				auto v1 = cv->m_data.m_vertex;
+				auto v2 = nv->m_data.m_vertex;
 				if (v2 < v1)
 				{
-					v1 = nv->m_data1;
-					v2 = cv->m_data1;
+					v1 = nv->m_data.m_vertex;
+					v2 = cv->m_data.m_vertex;
 				}
 				auto ce = c->m_edges.m_head;
 				auto le = ce->m_left;
@@ -68,53 +64,53 @@ void miEditableObject::EdgeExtrude()
 				//printf("EDGE\n");
 				// create polygon
 				miPolygon* newPolygon = m_allocatorPolygon->Allocate();
-				newPolygon->m_verts.push_back(nv->m_data1, nv->m_data2, nv->m_data3);
-				newPolygon->m_verts.push_back(cv->m_data1, cv->m_data2, cv->m_data3);
+				newPolygon->m_verts.push_back(miPolygon::_vertex_data(nv->m_data.m_vertex, nv->m_data.m_uv, nv->m_data.m_normal, 0));
+				newPolygon->m_verts.push_back(miPolygon::_vertex_data(cv->m_data.m_vertex, cv->m_data.m_uv, cv->m_data.m_normal, 0));
 
-				cv->m_data1->m_polygons.push_back(newPolygon);
-				nv->m_data1->m_polygons.push_back(newPolygon);
+				cv->m_data.m_vertex->m_polygons.push_back(newPolygon);
+				nv->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
 				miPair<miVertex*, miVertex*> verticesPair;
-				miListNode3<miVertex*, v2f, v3f> node;
+				miListNode<miPolygon::_vertex_data>* node;
 
-				if (verticesTree.Get((uint64_t)cv->m_data1, node))
+				if (verticesTree.Get((uint64_t)cv->m_data.m_vertex, node))
 				{
-					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(node->m_data.m_vertex, node->m_data.m_uv, node->m_data.m_normal, 0));
 					
-					node.m_data1->m_polygons.push_back(newPolygon);
+					node->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
-					verticesPair.m_first = node.m_data1;									
+					verticesPair.m_first = node->m_data.m_vertex;
 				}
 				else
 				{
 					miVertex* newVertex = m_allocatorVertex->Allocate();
-					newVertex->CopyData(cv->m_data1);
+					newVertex->CopyData(cv->m_data.m_vertex);
 					newVertex->m_polygons.push_back(newPolygon);
-					auto v3 = newPolygon->m_verts.push_back(newVertex, cv->m_data2, cv->m_data3);
+					auto v3 = newPolygon->m_verts.push_back(miPolygon::_vertex_data(newVertex, cv->m_data.m_uv, cv->m_data.m_normal, 0));
 					m_mesh->_add_vertex_to_list(newVertex);
 					verticesPair.m_first = newVertex;
 
-					verticesTree.Add((uint64_t)cv->m_data1, *v3);
+					verticesTree.Add((uint64_t)cv->m_data.m_vertex, v3);
 				}
 
-				if (verticesTree.Get((uint64_t)nv->m_data1, node))
+				if (verticesTree.Get((uint64_t)nv->m_data.m_vertex, node))
 				{
-					newPolygon->m_verts.push_back(node.m_data1, node.m_data2, node.m_data3);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(node->m_data.m_vertex, node->m_data.m_uv, node->m_data.m_normal, 0));
 					
-					node.m_data1->m_polygons.push_back(newPolygon);
+					node->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
-					verticesPair.m_second = node.m_data1;
+					verticesPair.m_second = node->m_data.m_vertex;
 				}
 				else
 				{
 					miVertex* newVertex = m_allocatorVertex->Allocate();
-					newVertex->CopyData(nv->m_data1);
+					newVertex->CopyData(nv->m_data.m_vertex);
 					newVertex->m_polygons.push_back(newPolygon);
-					auto v4 = newPolygon->m_verts.push_back(newVertex, nv->m_data2, nv->m_data3);
+					auto v4 = newPolygon->m_verts.push_back(miPolygon::_vertex_data(newVertex, nv->m_data.m_uv, nv->m_data.m_normal, 0));
 					m_mesh->_add_vertex_to_list(newVertex);
 					verticesPair.m_second = newVertex;
 
-					verticesTree.Add((uint64_t)nv->m_data1, *v4);
+					verticesTree.Add((uint64_t)nv->m_data.m_vertex, v4);
 				}
 
 				if (verticesPair.m_second < verticesPair.m_first)
@@ -138,6 +134,7 @@ void miEditableObject::EdgeExtrude()
 			break;
 		c = c->m_right;
 	}
+
 
 	if (needUpdate)
 	{
@@ -163,7 +160,5 @@ void miEditableObject::EdgeExtrude()
 			}
 		}
 		OnSelect(g_app->m_editMode);
-		g_app->_callVisualObjectOnSelect();
-		_updateModel();
 	}
 }

@@ -26,6 +26,19 @@ class miVisualObjectImpl : public miVisualObject
 		// miVertex, yyVertex___
 		yyArraySimple<miPair<void*,void*>> m_ptrs;
 	};
+
+	struct model_node_UV_CPU {
+		model_node_UV_CPU() {
+			m_modelCPU = 0;
+		}
+		~model_node_UV_CPU() {
+			if (m_modelCPU)
+				yyMegaAllocator::Destroy(m_modelCPU);
+		}
+		yyModel* m_modelCPU;
+
+		yyArraySimple<void*> m_ptrs;
+	};
 	
 	//yyResource* m_texture;
 
@@ -34,6 +47,7 @@ class miVisualObjectImpl : public miVisualObject
 	yyArraySimple<u32> m_nodesForUpdate; // index array
 
 	void _destroy();
+	void _destroy_UV();
 	void _createSoftwareModel_polys();
 	void _createSoftwareModel_edges();
 	void _createSoftwareModel_verts();
@@ -45,6 +59,13 @@ class miVisualObjectImpl : public miVisualObject
 
 	miVisualObjectType m_type;
 
+	// only points and lines
+	model_node_GPU* m_node_UV_GPU;
+	model_node_UV_CPU* m_node_UV_CPU;
+	//void _createSoftwareModel_polys_UV();
+	void _createSoftwareModel_edges_UV();
+	void _createSoftwareModel_verts_UV();
+
 	friend class miSDKImpl;
 
 public:
@@ -52,6 +73,7 @@ public:
 	virtual ~miVisualObjectImpl();
 
 	virtual void CreateNewGPUModels(miMesh*);
+	virtual void CreateNewGPUModelsUV(miMesh*);
 
 	virtual size_t GetBufferCount();
 	virtual unsigned char* GetVertexBuffer(size_t index) ;
@@ -60,7 +82,7 @@ public:
 	//virtual void UpdateCPUModelsOnly(miMesh*);
 	//virtual void RemapAllBuffers();
 
-	virtual void Draw();
+	virtual void Draw(bool uv);
 	virtual Aabb GetAabb();
 	virtual void UpdateAabb();
 

@@ -133,7 +133,7 @@ void miEditableObject::OnEdgeChamfer() {
 			m_edgeV1 = 0;
 			m_edgeV2 = 0;
 		}
-		helpStructPolygon1(miListNode3<miVertex*, v2f, v3f>* v1, miListNode3<miVertex*, v2f, v3f>* v2, miListNode3<miVertex*, v2f, v3f>* v3, miListNode3<miVertex*, v2f, v3f>* v4) :
+		helpStructPolygon1(miListNode<miPolygon::_vertex_data>* v1, miListNode<miPolygon::_vertex_data>* v2, miListNode<miPolygon::_vertex_data>* v3, miListNode<miPolygon::_vertex_data>* v4) :
 			m_v1(v1),
 			m_v2(v2),
 			m_v3(v3),
@@ -144,21 +144,21 @@ void miEditableObject::OnEdgeChamfer() {
 			m_edgeV2 = 0;
 		}
 
-		miListNode3<miVertex*,v2f,v3f>* m_v1;
-		miListNode3<miVertex*, v2f, v3f>* m_v2;
-		miListNode3<miVertex*, v2f, v3f>* m_v3;
-		miListNode3<miVertex*, v2f, v3f>* m_v4;
+		miListNode<miPolygon::_vertex_data>* m_v1;
+		miListNode<miPolygon::_vertex_data>* m_v2;
+		miListNode<miPolygon::_vertex_data>* m_v3;
+		miListNode<miPolygon::_vertex_data>* m_v4;
 
 		miEdge* m_edge;
-		miListNode3<miVertex*, v2f, v3f>* m_edgeV1;
-		miListNode3<miVertex*, v2f, v3f>* m_edgeV2;
+		miListNode<miPolygon::_vertex_data>* m_edgeV1;
+		miListNode<miPolygon::_vertex_data>* m_edgeV2;
 	};
 	miBinarySearchTree<helpStructPolygon1> newPolygons; // key is selected edge
 	
 	struct helpStructPolygon2 // for corners
 	{
 		helpStructPolygon2() {}
-		std::vector<miListNode3<miVertex*, v2f, v3f>*> m_verices;
+		std::vector<miListNode<miPolygon::_vertex_data>*> m_verices;
 		v3f m_normal;
 	};
 	miBinarySearchTree<helpStructPolygon2> newPolygons2; // key is edge vertices
@@ -209,14 +209,14 @@ void miEditableObject::OnEdgeChamfer() {
 						auto vNode1 = c_old->m_verts.find(ce_old->m_data->m_vertex1);
 						auto vNode2 = c_old->m_verts.find(ce_old->m_data->m_vertex2);
 						if (vNode1->m_right == vNode2)
-							dir1 = vNode1->m_left->m_data1->m_position - vNode1->m_data1->m_position;
+							dir1 = vNode1->m_left->m_data.m_vertex->m_position - vNode1->m_data.m_vertex->m_position;
 						else
-							dir1 = vNode1->m_right->m_data1->m_position - vNode1->m_data1->m_position;
+							dir1 = vNode1->m_right->m_data.m_vertex->m_position - vNode1->m_data.m_vertex->m_position;
 
 						if (vNode2->m_right == vNode1)
-							dir2 = vNode2->m_left->m_data1->m_position - vNode2->m_data1->m_position;
+							dir2 = vNode2->m_left->m_data.m_vertex->m_position - vNode2->m_data.m_vertex->m_position;
 						else
-							dir2 = vNode2->m_right->m_data1->m_position - vNode2->m_data1->m_position;
+							dir2 = vNode2->m_right->m_data.m_vertex->m_position - vNode2->m_data.m_vertex->m_position;
 
 						dir1.normalize2();
 						dir2.normalize2();
@@ -245,9 +245,9 @@ void miEditableObject::OnEdgeChamfer() {
 						auto vNode2 = c->m_verts.find(ce->m_data->m_vertex2);
 						
 						if(vNode1->m_right == vNode2)
-							c->m_verts.insert_before(vNode1->m_data1, v1, vNode1->m_data2, vNode1->m_data3);
+							c->m_verts.insert_before(vNode1->m_data, miPolygon::_vertex_data(v1, vNode1->m_data.m_uv, vNode1->m_data.m_normal, 0));
 						else
-							c->m_verts.insert_after(vNode1->m_data1, v1, vNode1->m_data2, vNode1->m_data3);
+							c->m_verts.insert_after(vNode1->m_data, miPolygon::_vertex_data(v1, vNode1->m_data.m_uv, vNode1->m_data.m_normal, 0));
 					
 						deleteVertices.Add((uint64_t)ce->m_data->m_vertex1, ce->m_data->m_vertex1);
 					}
@@ -272,9 +272,9 @@ void miEditableObject::OnEdgeChamfer() {
 						auto vNode2 = c->m_verts.find(ce->m_data->m_vertex2);
 
 						if (vNode2->m_right == vNode1)
-							c->m_verts.insert_before(vNode2->m_data1, v2, vNode2->m_data2, vNode2->m_data3);
+							c->m_verts.insert_before(vNode2->m_data, miPolygon::_vertex_data(v2, vNode2->m_data.m_uv, vNode2->m_data.m_normal, 0));
 						else
-							c->m_verts.insert_after(vNode2->m_data1, v2, vNode2->m_data2, vNode2->m_data3);
+							c->m_verts.insert_after(vNode2->m_data, miPolygon::_vertex_data(v2, vNode2->m_data.m_uv, vNode2->m_data.m_normal, 0));
 						
 						deleteVertices.Add((uint64_t)ce->m_data->m_vertex2, ce->m_data->m_vertex2);
 					}
@@ -364,8 +364,8 @@ void miEditableObject::OnEdgeChamfer() {
 
 			miPolygon * newPolygon = m_meshBuilderTmpModelPool->m_allocatorPolygon->Allocate();
 			
-			newPolygon->m_verts.push_back(hsp1.m_v1->m_data1, hsp1.m_v1->m_data2, hsp1.m_v1->m_data3);
-			newPolygon->m_verts.push_back(hsp1.m_v2->m_data1, hsp1.m_v2->m_data2, hsp1.m_v2->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v1->m_data.m_vertex, hsp1.m_v1->m_data.m_uv, hsp1.m_v1->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v2->m_data.m_vertex, hsp1.m_v2->m_data.m_uv, hsp1.m_v2->m_data.m_normal, 0));
 			//newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
 			//newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
 			{
@@ -375,10 +375,10 @@ void miEditableObject::OnEdgeChamfer() {
 				d2.normalize2();*/
 				
 				yyRay r;
-				r.m_origin = hsp1.m_v4->m_data1->m_position;
-				r.m_end = hsp1.m_v3->m_data1->m_position;
+				r.m_origin = hsp1.m_v4->m_data.m_vertex->m_position;
+				r.m_end = hsp1.m_v3->m_data.m_vertex->m_position;
 
-				auto d = r.distanceToLine(hsp1.m_v2->m_data1->m_position, hsp1.m_v1->m_data1->m_position);
+				auto d = r.distanceToLine(hsp1.m_v2->m_data.m_vertex->m_position, hsp1.m_v1->m_data.m_vertex->m_position);
 
 				bool good = true;
 
@@ -387,42 +387,42 @@ void miEditableObject::OnEdgeChamfer() {
 				
 				if (good)
 				{
-					r.m_origin = hsp1.m_v4->m_data1->m_position;
-					r.m_end = hsp1.m_v1->m_data1->m_position;
-					d = r.distanceToLine(hsp1.m_v3->m_data1->m_position, hsp1.m_v2->m_data1->m_position);
+					r.m_origin = hsp1.m_v4->m_data.m_vertex->m_position;
+					r.m_end = hsp1.m_v1->m_data.m_vertex->m_position;
+					d = r.distanceToLine(hsp1.m_v3->m_data.m_vertex->m_position, hsp1.m_v2->m_data.m_vertex->m_position);
 					if (d < 0.1f)
 						good = false;
 				}
 
 				if (good)
 				{
-					newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
-					newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v3->m_data.m_vertex, hsp1.m_v3->m_data.m_uv, hsp1.m_v3->m_data.m_normal, 0));
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v4->m_data.m_vertex, hsp1.m_v4->m_data.m_uv, hsp1.m_v4->m_data.m_normal, 0));
 				}
 				else
 				{
-					newPolygon->m_verts.push_back(hsp1.m_v4->m_data1, hsp1.m_v4->m_data2, hsp1.m_v4->m_data3);
-					newPolygon->m_verts.push_back(hsp1.m_v3->m_data1, hsp1.m_v3->m_data2, hsp1.m_v3->m_data3);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v4->m_data.m_vertex, hsp1.m_v4->m_data.m_uv, hsp1.m_v4->m_data.m_normal, 0));
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(hsp1.m_v3->m_data.m_vertex, hsp1.m_v3->m_data.m_uv, hsp1.m_v3->m_data.m_normal, 0));
 				}
 			}
-			hsp1.m_v1->m_data1->m_polygons.push_back(newPolygon);
-			hsp1.m_v2->m_data1->m_polygons.push_back(newPolygon);
-			hsp1.m_v3->m_data1->m_polygons.push_back(newPolygon);
-			hsp1.m_v4->m_data1->m_polygons.push_back(newPolygon);
+			hsp1.m_v1->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			hsp1.m_v2->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			hsp1.m_v3->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			hsp1.m_v4->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
 			{
 				helpStructPolygon2 hsp2;
-				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data1);
+				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data.m_vertex);
 				if (!hspPtr)
 				{
-					newPolygons2.Add((uint64_t)hsp1.m_edgeV1->m_data1, hsp2);
-					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data1);
+					newPolygons2.Add((uint64_t)hsp1.m_edgeV1->m_data.m_vertex, hsp2);
+					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV1->m_data.m_vertex);
 				}
 
 				bool add = true;
 				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
 				{
-					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v1->m_data1->m_position)
+					if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == hsp1.m_v1->m_data.m_vertex->m_position)
 					{
 						add = false;
 						break;
@@ -436,7 +436,7 @@ void miEditableObject::OnEdgeChamfer() {
 
 				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
 				{
-					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v3->m_data1->m_position)
+					if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == hsp1.m_v3->m_data.m_vertex->m_position)
 					{
 						add = false;
 						break;
@@ -454,17 +454,17 @@ void miEditableObject::OnEdgeChamfer() {
 
 			{
 				helpStructPolygon2 hsp2;
-				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data1);
+				auto hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data.m_vertex);
 				if (!hspPtr)
 				{
-					newPolygons2.Add((uint64_t)hsp1.m_edgeV2->m_data1, hsp2);
-					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data1);
+					newPolygons2.Add((uint64_t)hsp1.m_edgeV2->m_data.m_vertex, hsp2);
+					hspPtr = newPolygons2.GetPtr((uint64_t)hsp1.m_edgeV2->m_data.m_vertex);
 				}
 
 				bool add = true;
 				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
 				{
-					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v2->m_data1->m_position)
+					if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == hsp1.m_v2->m_data.m_vertex->m_position)
 					{
 						add = false;
 						break;
@@ -478,7 +478,7 @@ void miEditableObject::OnEdgeChamfer() {
 
 				for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i)
 				{
-					if (hspPtr->m_verices.at(i)->m_data1->m_position == hsp1.m_v4->m_data1->m_position)
+					if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == hsp1.m_v4->m_data.m_vertex->m_position)
 					{
 						add = false;
 						break;
@@ -539,7 +539,7 @@ void miEditableObject::OnEdgeChamfer() {
 				// check if this vertex is part of some selected edge
 				bool isTrue = false;
 				{
-					auto ce = cv->m_data1->m_edges.m_head;
+					auto ce = cv->m_data.m_vertex->m_edges.m_head;
 					if (ce)
 					{
 						auto le = ce->m_left;
@@ -565,8 +565,8 @@ void miEditableObject::OnEdgeChamfer() {
 					{
 						if (ce->m_data->m_flags & miEdge::flag_isSelected)
 						{
-							if (ce->m_data->m_vertex1 == cv->m_data1
-								|| ce->m_data->m_vertex2 == cv->m_data1)
+							if (ce->m_data->m_vertex1 == cv->m_data.m_vertex
+								|| ce->m_data->m_vertex2 == cv->m_data.m_vertex)
 							{
 								// this vertex part of edge
 								isTrue = false;
@@ -584,8 +584,8 @@ void miEditableObject::OnEdgeChamfer() {
 					// calculate directions
 					v3f dir1, dir2;
 					{
-						dir1 = cv->m_right->m_data1->m_position - cv->m_data1->m_position;
-						dir2 = cv->m_left->m_data1->m_position - cv->m_data1->m_position;
+						dir1 = cv->m_right->m_data.m_vertex->m_position - cv->m_data.m_vertex->m_position;
+						dir2 = cv->m_left->m_data.m_vertex->m_position - cv->m_data.m_vertex->m_position;
 						dir1.normalize2();
 						dir2.normalize2();
 					}
@@ -596,8 +596,8 @@ void miEditableObject::OnEdgeChamfer() {
 					v1->m_flags |= miVertex::flag_isSelected;
 					v2->m_flags |= miVertex::flag_isSelected;
 
-					v1->m_position = cv->m_data1->m_position;
-					v2->m_position = cv->m_data1->m_position;
+					v1->m_position = cv->m_data.m_vertex->m_position;
+					v2->m_position = cv->m_data.m_vertex->m_position;
 
 					v1->m_position += m_edgeChamferValue * dir1;
 					v2->m_position += m_edgeChamferValue * dir2;
@@ -608,20 +608,20 @@ void miEditableObject::OnEdgeChamfer() {
 					mesh->_add_vertex_to_list(v1);
 					mesh->_add_vertex_to_list(v2);
 
-					auto vNode = c->m_verts.find(cv->m_data1);
-					auto vNode1 = c->m_verts.insert_after(vNode->m_data1, v1, vNode->m_data2, vNode->m_data3);
-					auto vNode2 = c->m_verts.insert_before(vNode->m_data1, v2, vNode->m_data2, vNode->m_data3);
+					auto vNode = c->m_verts.find(cv->m_data.m_vertex);
+					auto vNode1 = c->m_verts.insert_after(vNode->m_data.m_vertex, miPolygon::_vertex_data(v1, vNode->m_data.m_uv, vNode->m_data.m_normal, 0));
+					auto vNode2 = c->m_verts.insert_before(vNode->m_data.m_vertex, miPolygon::_vertex_data(v2, vNode->m_data.m_uv, vNode->m_data.m_normal, 0));
 
 					helpStructPolygon2 hsp2;
-					auto hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data1);
+					auto hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data.m_vertex);
 					if (!hspPtr)
 					{
-						newPolygons2.Add((uint64_t)cv->m_data1, hsp2);
-						hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data1);
+						newPolygons2.Add((uint64_t)cv->m_data.m_vertex, hsp2);
+						hspPtr = newPolygons2.GetPtr((uint64_t)cv->m_data.m_vertex);
 					}
 					bool add = true;
 					for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i){
-						if (hspPtr->m_verices.at(i)->m_data1->m_position == vNode1->m_data1->m_position){
+						if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == vNode1->m_data.m_vertex->m_position){
 							add = false;
 							break;
 						}
@@ -633,7 +633,7 @@ void miEditableObject::OnEdgeChamfer() {
 					add = true;
 
 					for (u32 i = 0, sz = hspPtr->m_verices.size(); i < sz; ++i){
-						if (hspPtr->m_verices.at(i)->m_data1->m_position == vNode2->m_data1->m_position){
+						if (hspPtr->m_verices.at(i)->m_data.m_vertex->m_position == vNode2->m_data.m_vertex->m_position){
 							add = false;
 							break;
 						}
@@ -672,8 +672,8 @@ void miEditableObject::OnEdgeChamfer() {
 				for (u32 i2 = 0; i2 < hsp1.m_verices.size(); ++i2)
 				{
 					auto vNode = hsp1.m_verices[i2];
-					newPolygon->m_verts.push_back(vNode->m_data1, vNode->m_data2, vNode->m_data3);
-					vNode->m_data1->m_polygons.push_back(newPolygon);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(vNode->m_data.m_vertex, vNode->m_data.m_uv, vNode->m_data.m_normal, 0));
+					vNode->m_data.m_vertex->m_polygons.push_back(newPolygon);
 				}
 				newPolygon->FixOrder(0.1f);
 				newPolygon->CalculateNormal();

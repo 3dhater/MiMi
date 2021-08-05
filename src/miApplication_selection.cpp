@@ -33,6 +33,7 @@ bool miApplication::_isDoNotSelect() {
 }
 
 void miApplication::DeselectAll() {
+	if (m_isCursorInUVEditor) return;
 	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
@@ -43,6 +44,7 @@ void miApplication::DeselectAll() {
 }
 
 void miApplication::SelectAll() {
+	if (m_isCursorInUVEditor) return;
 	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
@@ -53,6 +55,7 @@ void miApplication::SelectAll() {
 }
 
 void miApplication::InvertSelection() {
+	if (m_isCursorInUVEditor) return;
 	if (_isDoNotSelect()) return;
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
@@ -63,6 +66,7 @@ void miApplication::InvertSelection() {
 }
 
 void miApplication::_select_multiple() {
+	if (m_isCursorInUVEditor) return;
 	if (_isDoNotSelect()) return;
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
@@ -75,6 +79,7 @@ void miApplication::_select_multiple() {
 }
 
 void miApplication::_select_single() {
+	if (m_isCursorInUVEditor) return;
 	if (_isDoNotSelect()) return;
 	if (m_keyboardModifier != miKeyboardModifier::Alt && m_keyboardModifier != miKeyboardModifier::Ctrl)
 		DeselectAll();
@@ -213,8 +218,8 @@ void miApplication::UpdateSelectionAabb() {
 							auto last_vertex = current_vertex->m_left;
 							while (true)
 							{
-								m_selectionAabb.add(math::mul(current_vertex->m_data1->m_position, M)
-									+ *obj->GetGlobalPosition());
+								//m_selectionAabb.add(math::mul(current_vertex->m_data1->m_position, M) + *obj->GetGlobalPosition());
+								m_selectionAabb.add(math::mul(current_vertex->m_data.m_vertex->m_position, M) + *obj->GetGlobalPosition());
 
 								if (current_vertex == last_vertex)
 									break;
@@ -270,6 +275,8 @@ void miApplication::UpdateSelectionAabb() {
 }
 
 void miApplication::_onSelect() {
+	if (m_isCursorInUVEditor) return;
+
 	if (m_isSelectByRectangle)
 	{
 		Aabb aabb;
@@ -491,6 +498,7 @@ void miApplication::_onSelect() {
 }
 
 void miApplication::OnSelect() {
+	if (m_isCursorInUVEditor) return;
 	if (m_sdk->m_selectObject_onSelect)
 		m_sdk->m_selectObject_onSelect(m_editMode);
 

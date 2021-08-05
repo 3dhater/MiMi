@@ -496,11 +496,15 @@ miMesh* miplPolygonObjectPlane::GetMesh(int) {
 void miplPolygonObjectPlane::OnUpdate(float dt) {
 }
 
+void miplPolygonObjectPlane::OnDrawUV() {
+
+}
+
 void miplPolygonObjectPlane::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
 	if (dm == miViewportDrawMode::Material
 		|| dm == miViewportDrawMode::MaterialWireframe)
 	{
-		if (m_visualObject_polygon) m_visualObject_polygon->Draw();
+		if (m_visualObject_polygon) m_visualObject_polygon->Draw(false);
 	}
 
 	if ((dm == miViewportDrawMode::Wireframe || dm == miViewportDrawMode::MaterialWireframe)
@@ -508,13 +512,8 @@ void miplPolygonObjectPlane::OnDraw(miViewportDrawMode dm, miEditMode em, float 
 		|| (m_isSelected && em == miEditMode::Polygon)
 		)
 	{
-		if (m_visualObject_edge) m_visualObject_edge->Draw();
+		if (m_visualObject_edge) m_visualObject_edge->Draw(false);
 	}
-
-	/*if (em == miEditMode::Vertex)
-	{
-		if (m_visualObject_vertex) m_visualObject_vertex->Draw();
-	}*/
 }
 
 miPlugin* miplPolygonObjectPlane::GetPlugin() {

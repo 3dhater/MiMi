@@ -31,16 +31,16 @@ void miEditableObject::PolygonDuplicate() {
 				{
 					miVertex* newVertex = 0;
 
-					if (!newVerts.Get((uint64_t)cv->m_data1, newVertex))
+					if (!newVerts.Get((uint64_t)cv->m_data.m_vertex, newVertex))
 					{
 						newVertex = m_allocatorVertex->Allocate();
-						newVertex->m_position = cv->m_data1->m_position;
+						newVertex->m_position = cv->m_data.m_vertex->m_position;
 						m_mesh->_add_vertex_to_list(newVertex);
-						newVerts.Add((uint64_t)cv->m_data1, newVertex);
+						newVerts.Add((uint64_t)cv->m_data.m_vertex, newVertex);
 					}
 
 					newVertex->m_polygons.push_back(newPolygon);
-					newPolygon->m_verts.push_back(newVertex, cv->m_data2, cv->m_data3);
+					newPolygon->m_verts.push_back(miPolygon::_vertex_data(newVertex, cv->m_data.m_uv, cv->m_data.m_normal, 0));
 
 					if (cv == lv)
 						break;

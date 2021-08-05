@@ -17,6 +17,9 @@ public:
 
 	// create CPU buffers then create GPU models
 	virtual void CreateNewGPUModels(miMesh*) = 0;
+	
+	// only for UV models
+	virtual void CreateNewGPUModelsUV(miMesh*) = 0;
 
 	// vertex and index buffer count
 	virtual size_t GetBufferCount() = 0;
@@ -27,7 +30,7 @@ public:
 	//virtual void RemapBuffers() = 0;
 
 	// call this in miSceneObject::OnDraw()
-	virtual void Draw() = 0;
+	virtual void Draw(bool uv) = 0;
 
 	virtual miVisualObjectType GetType() = 0;
 

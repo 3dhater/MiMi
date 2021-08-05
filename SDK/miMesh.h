@@ -130,19 +130,43 @@ struct miPolygon
 	miPolygon* m_left;
 	miPolygon* m_right;
 	
-	miList3<miVertex*, v2f, v3f> m_verts;
+	//miList3<miVertex*, v2f, v3f> m_verts;
+	struct _vertex_data {
+		_vertex_data() :m_vertex(0), m_flags(0) {}
+		_vertex_data(miVertex* v):m_vertex(v),m_flags(0){}
+		_vertex_data(miVertex* v, const v2f& uv, const v3f& normal, u32 flags)
+			:
+			m_vertex(v), 
+			m_uv(uv),
+			m_normal(normal),
+			m_flags(flags)
+		{}
+
+		bool operator==(const _vertex_data& other) {
+			return m_vertex == other.m_vertex;
+		}
+
+		miVertex* m_vertex;
+		v2f m_uv;
+		v3f m_normal;
+		u32 m_flags;
+	};
+	miList<_vertex_data> m_verts;
+
 	miList<miEdge*> m_edges;
 
 	bool IsSelected() { return (m_flags & flag_isSelected) == flag_isSelected; }
 	void Select() { m_flags |= flag_isSelected; }
 	void Deselect() { if (m_flags & flag_isSelected) m_flags ^= flag_isSelected; }
 
-	miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
+	//miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
+	miListNode<_vertex_data>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
 		auto lastV = curV->m_left;
 		while (true)
 		{
-			if (curV->m_data1 == v)
+			//if (curV->m_data1 == v)
+			if (curV->m_data.m_vertex == v)
 				break;
 			if (curV == lastV)
 				break;
@@ -157,9 +181,11 @@ struct miPolygon
 		auto vertex_2 = vertex_3->m_right;
 		while (true)
 		{
-			auto a = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
-			auto b = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
-			
+			//auto a = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
+			auto a = vertex_2->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
+			//auto b = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
+			auto b = vertex_3->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
+
 			v3f n;
 			a.cross2(b, n);
 			
@@ -180,13 +206,16 @@ struct miPolygon
 	void CalculateNormal() {
 		{
 			auto vertex_1 = m_verts.m_head;
-			vertex_1->m_data3.set(0.f);
+			//vertex_1->m_data3.set(0.f);
+			vertex_1->m_data.m_normal.set(0.f);
 
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				vertex_2->m_data3.set(0.f);
-				vertex_3->m_data3.set(0.f);
+				//vertex_2->m_data3.set(0.f);
+				vertex_2->m_data.m_normal.set(0.f);
+				//vertex_3->m_data3.set(0.f);
+				vertex_3->m_data.m_normal.set(0.f);
 				// ===============================
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
@@ -200,12 +229,18 @@ struct miPolygon
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				auto e1 = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
-				auto e2 = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
+				//auto e1 = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
+				auto e1 = vertex_2->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
+				//auto e2 = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
+				auto e2 = vertex_3->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
 				auto n = e1.cross(e2);
-				vertex_1->m_data3 -= n;
-				vertex_2->m_data3 -= n;
-				vertex_3->m_data3 -= n;
+				//vertex_1->m_data3 -= n;
+				vertex_1->m_data.m_normal -= n;
+				//vertex_2->m_data3 -= n;
+				vertex_2->m_data.m_normal -= n;
+				//vertex_3->m_data3 -= n;
+				vertex_3->m_data.m_normal -= n;
+
 				// ===============================
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
@@ -216,12 +251,16 @@ struct miPolygon
 		}
 		{
 			auto vertex_1 = m_verts.m_head;
-			vertex_1->m_data3.normalize2();
+			//vertex_1->m_data3.normalize2();
+			vertex_1->m_data.m_normal.normalize2();
+
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				vertex_2->m_data3.normalize2();
-				vertex_3->m_data3.normalize2();
+				//vertex_2->m_data3.normalize2();
+				vertex_2->m_data.m_normal.normalize2();
+				//vertex_3->m_data3.normalize2();
+				vertex_3->m_data.m_normal.normalize2();
 				// ===============================
 				vertex_2 = vertex_2->m_right;
 				vertex_3 = vertex_3->m_right;
@@ -239,7 +278,8 @@ struct miPolygon
 		auto lastV = curV->m_left;
 		while (true)
 		{
-			n += curV->m_data3;
+			//n += curV->m_data3;
+			n += curV->m_data.m_normal;
 			if (curV == lastV)
 				break;
 			curV = curV->m_right;
@@ -273,8 +313,10 @@ struct miPolygon
 			lastV = curV->m_left;
 			while (true)
 			{
-				miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> current;
-				miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> prev;
+				//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> current;
+				miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> current;
+				//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> prev;
+				miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> prev;
 
 				current.m_first = curV;
 				current.m_second = current.m_first->m_right;
@@ -286,7 +328,8 @@ struct miPolygon
 				auto tgLast = tgCurr->m_left;
 				while (true)
 				{
-					miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> target;
+					//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> target;
+					miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> target;
 					target.m_first = tgCurr;
 					target.m_second = tgCurr->m_right;
 
@@ -294,15 +337,21 @@ struct miPolygon
 						break;
 
 					yyRay r;
-					r.m_origin = current.m_first->m_data1->m_position;
-					r.m_end = current.m_second->m_data1->m_position;
+					//r.m_origin = current.m_first->m_data1->m_position;
+					r.m_origin = current.m_first->m_data.m_vertex->m_position;
+					//r.m_end = current.m_second->m_data1->m_position;
+					r.m_end = current.m_second->m_data.m_vertex->m_position;
 
-					f32 d = r.distanceToLine(target.m_first->m_data1->m_position, target.m_second->m_data1->m_position);
+					//f32 d = r.distanceToLine(target.m_first->m_data1->m_position, target.m_second->m_data1->m_position);
+					f32 d = r.distanceToLine(target.m_first->m_data.m_vertex->m_position, target.m_second->m_data.m_vertex->m_position);
 					if (d < lineLineCollisionLen)
 					{
-						auto tmp = target.m_first->m_data1;
-						target.m_first->m_data1 = current.m_second->m_data1;
-						current.m_second->m_data1 = tmp;
+						//auto tmp = target.m_first->m_data1;
+						auto tmp = target.m_first->m_data.m_vertex;
+						//target.m_first->m_data1 = current.m_second->m_data1;
+						target.m_first->m_data.m_vertex = current.m_second->m_data.m_vertex;
+						//current.m_second->m_data1 = tmp;
+						current.m_second->m_data.m_vertex = tmp;
 					}
 
 					if (tgCurr == tgLast)
@@ -612,15 +661,19 @@ struct miMesh
 			auto next_vertex = current_vertex->m_right;
 			auto last_vertex = current_vertex->m_left;
 			while (true) {
-				miVertex* v1 = current_vertex->m_data1;
-				miVertex* v2 = next_vertex->m_data1;
+				/*miVertex* v1 = current_vertex->m_data1;
+				miVertex* v2 = next_vertex->m_data1;*/
+				miVertex* v1 = current_vertex->m_data.m_vertex;
+				miVertex* v2 = next_vertex->m_data.m_vertex;
 
 				// пусть вершина с адресом значение которого меньше
 				//  будет на первом месте.
 				if (v2 < v1)
 				{
-					v1 = next_vertex->m_data1;
-					v2 = current_vertex->m_data1;
+					/*v1 = next_vertex->m_data1;
+					v2 = current_vertex->m_data1;*/
+					v1 = next_vertex->m_data.m_vertex;
+					v2 = current_vertex->m_data.m_vertex;
 				}
 
 				miEdge* newEdge = nullptr;
@@ -1089,7 +1142,11 @@ struct miMeshBuilder
 			if (newVertex->m_polygons.find(newPolygon) == 0)
 			{
 				newVertex->m_polygons.push_back(newPolygon);
-				newPolygon->m_verts.push_back(newVertex, tCoords[i], normals[i]);
+				miPolygon::_vertex_data newVD;
+				newVD.m_vertex = newVertex;
+				newVD.m_uv = tCoords[i];
+				newVD.m_normal = normals[i];
+				newPolygon->m_verts.push_back(newVD);
 			}
 		}
 	}

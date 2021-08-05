@@ -163,7 +163,7 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 					auto lv = cv->m_left;
 					while (true)
 					{
-						auto cp = cv->m_data1->m_polygons.m_head;
+						auto cp = cv->m_data.m_vertex->m_polygons.m_head;
 						auto lp = cp->m_left;
 						while (true)
 						{
@@ -385,11 +385,11 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 			auto next_vertex = current_vertex->m_right;
 
 			miTriangle tri;
-			tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
+			tri.v1 = math::mul(first_vertex->m_data.m_vertex->m_position, M)
 				+ *this->GetGlobalPosition();
-			tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
+			tri.v2 = math::mul(next_vertex->m_data.m_vertex->m_position, M)
 				+ *this->GetGlobalPosition();
-			tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
+			tri.v3 = math::mul(next_vertex->m_right->m_data.m_vertex->m_position, M)
 				+ *this->GetGlobalPosition();
 			tri.update();
 			
@@ -433,7 +433,7 @@ void miEditableObject::_selectPolygon(miKeyboardModifier km, miSelectionFrust* s
 		while (true)
 		{
 			++vcount;
-			printf("V: %u\n", (u32)cv->m_data1);
+			printf("V: %u\n", (u32)cv->m_data.m_vertex);
 			if (cv == lv)
 				break;
 			cv = cv->m_right;
@@ -531,11 +531,11 @@ void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifi
 					auto next_vertex = current_vertex->m_right;
 
 					miTriangle tri;
-					tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
+					tri.v1 = math::mul(first_vertex->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
-					tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
+					tri.v2 = math::mul(next_vertex->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
-					tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
+					tri.v3 = math::mul(next_vertex->m_right->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
 					tri.update();
 
@@ -591,11 +591,11 @@ void miEditableObject::_selectPolygons_rectangle(miEditMode em, miKeyboardModifi
 					auto next_vertex = current_vertex->m_right;
 
 					miTriangle tri;
-					tri.v1 = math::mul(first_vertex->m_data1->m_position, M)
+					tri.v1 = math::mul(first_vertex->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
-					tri.v2 = math::mul(next_vertex->m_data1->m_position, M)
+					tri.v2 = math::mul(next_vertex->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
-					tri.v3 = math::mul(next_vertex->m_right->m_data1->m_position, M)
+					tri.v3 = math::mul(next_vertex->m_right->m_data.m_vertex->m_position, M)
 						+ *this->GetGlobalPosition();
 					tri.update();
 

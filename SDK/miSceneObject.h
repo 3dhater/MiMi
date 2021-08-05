@@ -168,6 +168,7 @@ public:
 
 	// when app need to draw this object
 	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt) = 0;
+	virtual void OnDrawUV() = 0;
 	virtual void OnUpdate(float dt) = 0;
 	// when plugin create object
 	virtual void OnCreation(miPluginGUI*) = 0; // when press button\menu command

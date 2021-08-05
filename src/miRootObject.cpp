@@ -7,6 +7,7 @@ miRootObject::miRootObject(miSDK*, miPlugin*) {}
 miRootObject::~miRootObject() {}
 
 void miRootObject::OnDraw(miViewportDrawMode, miEditMode, float dt) {}
+void miRootObject::OnDrawUV() {}
 void miRootObject::OnUpdate(float dt) {}
 void miRootObject::OnCreation(miPluginGUI*) {};
 void miRootObject::OnCreationLMBDown() {}

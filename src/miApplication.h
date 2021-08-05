@@ -159,6 +159,7 @@ class miApplication
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
 	bool m_isCursorInViewport;
+	bool m_isCursorInUVEditor;
 	bool m_isCursorMove;
 	bool m_isGUIInputFocus;
 

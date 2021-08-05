@@ -105,8 +105,6 @@ void editableObjectGUI_vertexChamferButton_onUncheck(s32 id) {
 }
 
 void miEditableObject::OnVertexChamfer() {
-//	return;
-
 	static s32 pc = 0;
 	static s32 ec = 0;
 	static s32 vc = 0;
@@ -199,10 +197,10 @@ void miEditableObject::OnVertexChamfer() {
 						auto lv = cv->m_left;
 						while (true)
 						{
-							if (cv->m_data1 == c)
+							if (cv->m_data.m_vertex == c)
 							{
-								auto e1 = cv->m_left->m_data1->m_position - cv->m_data1->m_position;
-								auto e2 = cv->m_right->m_data1->m_position - cv->m_data1->m_position;
+								auto e1 = cv->m_left->m_data.m_vertex->m_position - cv->m_data.m_vertex->m_position;
+								auto e2 = cv->m_right->m_data.m_vertex->m_position - cv->m_data.m_vertex->m_position;
 								auto n = e1.cross(e2);
 								vertexNormal -= n;
 								break;
@@ -268,8 +266,8 @@ void miEditableObject::OnVertexChamfer() {
 						auto fv = ce->m_data->m_polygon1->FindVertex(c);
 						if (fv)
 						{
-							uv = fv->m_data2;
-							normal = fv->m_data3;
+							uv = fv->m_data.m_uv;
+							normal = fv->m_data.m_normal;
 						}
 					}
 					else if (ce->m_data->m_polygon2)
@@ -277,8 +275,8 @@ void miEditableObject::OnVertexChamfer() {
 						auto fv = ce->m_data->m_polygon2->FindVertex(c);
 						if (fv)
 						{
-							uv = fv->m_data2;
-							normal = fv->m_data3;
+							uv = fv->m_data.m_uv;
+							normal = fv->m_data.m_normal;
 						}
 					}
 
@@ -297,9 +295,6 @@ void miEditableObject::OnVertexChamfer() {
 						// create new vertex
 						vertex = m_meshBuilderTmpModelPool->m_allocatorVertex->Allocate();
 						vertex->m_flags |= miVertex::flag_isSelected;
-						/*vertex->m_normal[0] = c->m_normal[0];
-						vertex->m_normal[1] = c->m_normal[1];
-						vertex->m_normal[2] = c->m_normal[2];*/
 						
 						vertex->m_right = c_new;
 						vertex->m_left = c_new->m_left;
@@ -316,20 +311,20 @@ void miEditableObject::OnVertexChamfer() {
 							while (true)
 							{
 								// I need to find current vertex (c), in polygons vertices
-								if (pvc->m_data1 == c)
+								if (pvc->m_data.m_vertex == c)
 								{
 									// next to find second vertex of this edge
 									miVertex* c2 = ce->m_data->m_vertex1;
 									if (c == c2)
 										c2 = ce->m_data->m_vertex2;
 
-									if (pvc->m_right->m_data1 == c2)
+									if (pvc->m_right->m_data.m_vertex == c2)
 									{
-										ce_new->m_data->m_polygon1->m_verts.insert_after(c_new, vertex, pvc->m_data2, pvc->m_data3);
+										ce_new->m_data->m_polygon1->m_verts.insert_after(c_new, miPolygon::_vertex_data(vertex, pvc->m_data.m_uv, pvc->m_data.m_normal, 0));
 									}
 									else
 									{
-										ce_new->m_data->m_polygon1->m_verts.insert_before(c_new, vertex, pvc->m_data2, pvc->m_data3);
+										ce_new->m_data->m_polygon1->m_verts.insert_before(c_new, miPolygon::_vertex_data(vertex, pvc->m_data.m_uv, pvc->m_data.m_normal, 0));
 									}
 									break;
 								}
@@ -342,7 +337,6 @@ void miEditableObject::OnVertexChamfer() {
 							if (ce_new->m_data->m_polygon1 != firstEdgePolygon1
 								&& ce_new->m_data->m_polygon1 != firstEdgePolygon2)
 							{
-						//		ce_new->m_data->m_polygon1->m_verts.erase_first(c_new);
 								removeVertFromPolygon.push_back(helpStruct(ce_new->m_data->m_polygon1, c_new));
 							}
 						}
@@ -357,20 +351,20 @@ void miEditableObject::OnVertexChamfer() {
 							while (true)
 							{
 								// I need to find current vertex (c), in polygons vertices
-								if (pvc->m_data1 == c)
+								if (pvc->m_data.m_vertex == c)
 								{
 									// next to find second vertex of this edge
 									miVertex* c2 = ce->m_data->m_vertex1;
 									if (c == ce->m_data->m_vertex1)
 										c2 = ce->m_data->m_vertex2;
 
-									if (pvc->m_right->m_data1 == c2)
+									if (pvc->m_right->m_data.m_vertex == c2)
 									{
-										ce_new->m_data->m_polygon2->m_verts.insert_after(c_new, vertex, pvc->m_data2, pvc->m_data3);
+										ce_new->m_data->m_polygon2->m_verts.insert_after(c_new, miPolygon::_vertex_data( vertex, pvc->m_data.m_uv, pvc->m_data.m_normal, 0));
 									}
 									else
 									{
-										ce_new->m_data->m_polygon2->m_verts.insert_before(c_new, vertex, pvc->m_data2, pvc->m_data3);
+										ce_new->m_data->m_polygon2->m_verts.insert_before(c_new, miPolygon::_vertex_data(vertex, pvc->m_data.m_uv, pvc->m_data.m_normal, 0));
 									}
 									break;
 								}
@@ -393,7 +387,7 @@ void miEditableObject::OnVertexChamfer() {
 					{
 						vertex->m_position = c->m_position + chamferValue * dir;
 						
-						/*bool _addv = true;
+						/*bool _addv = true;  ????????????????????????
 						for (u32 i = 0; i < vericesForNewpolygon.m_size; ++i)
 						{
 							if (vericesForNewpolygon.m_data[i].m_vertex == vertex)
@@ -420,7 +414,7 @@ void miEditableObject::OnVertexChamfer() {
 					for (u32 i = vericesForNewpolygon.m_size - 1; i >= 0; )
 					{
 						auto & v = vericesForNewpolygon.m_data[i];
-						newPolygon->m_verts.push_back(v.m_vertex, v.m_uv, v.m_normal);
+						newPolygon->m_verts.push_back(miPolygon::_vertex_data(v.m_vertex, v.m_uv, v.m_normal, 0));
 						v.m_vertex->m_polygons.push_back(newPolygon);
 
 						if (i==0)
@@ -432,34 +426,15 @@ void miEditableObject::OnVertexChamfer() {
 					newPolygon->m_right = m_meshBuilderTmpModelPool->m_mesh->m_first_polygon;
 
 					newPolygon->CalculateNormal();
-					//newPolygon->m_verts.m_head->m_data3
 					{
-						/*v3f P0 = v3f();
-						v3f P1 = v3f();
-						v3f N0 = newPolygon->m_verts.m_head->m_data3 + P0;
-						v3f N1 = vertexNormal + P1;
-						v3f delta = P1 - P0;
-						f32 dp0 = delta.dot(N0);
-						f32 dp1 = delta.dot(N1);*/
-						auto n1 = newPolygon->m_verts.m_head->m_data3;
+						auto n1 = newPolygon->m_verts.m_head->m_data.m_normal;
 						auto n2 = vertexNormal;
-					//	printf("%f %f %f : %f %f %f\n", n1.x, n1.y, n1.z, n2.x,n2.y,n2.z);
-					//	//printf("%f %f\n", dp0, dp1);
-					////	printf("%f\n", newPolygon->m_verts.m_head->m_data3.dot(vertexNormal));
-					//	if (dp0 < 0.f && dp1 > 0.f)
-					//	{
-					//	//	newPolygon->Flip();
-					//	//	newPolygon->CalculateNormal();
-					//	}
 						if (n1.dot(n2) < 0.f)
 						{
 							newPolygon->Flip();
 							newPolygon->CalculateNormal();
 						}
 					}
-
-					//auto crPr = vertexNormal.cross();
-
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left->m_right = newPolygon;
 					m_meshBuilderTmpModelPool->m_mesh->m_first_polygon->m_left = newPolygon;
 				}

@@ -68,14 +68,15 @@ public:
 	miEditableObject(miSDK*, miPlugin*);
 	virtual ~miEditableObject();
 
-	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt);
-	virtual void OnUpdate(float dt);
-	virtual void OnCreation(miPluginGUI*);
-	virtual void OnCreationLMBDown();
-	virtual void OnCreationLMBUp();
-	virtual void OnCreationMouseMove();
-	virtual void OnCreationEnd();
-	virtual void OnConvertToEditableObject();
+	virtual void OnDraw(miViewportDrawMode, miEditMode, float dt) override;
+	virtual void OnDrawUV() override;
+	virtual void OnUpdate(float dt) override;
+	virtual void OnCreation(miPluginGUI*) override;
+	virtual void OnCreationLMBDown() override;
+	virtual void OnCreationLMBUp() override;
+	virtual void OnCreationMouseMove() override;
+	virtual void OnCreationEnd() override;
+	virtual void OnConvertToEditableObject() override;
 
 	virtual void SelectSingle(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);
 	virtual void Select(miEditMode em, miKeyboardModifier km, miSelectionFrust* sf);

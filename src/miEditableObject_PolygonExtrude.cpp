@@ -110,17 +110,17 @@ void miEditableObject::PolygonExtrude() {
 
 		if (vNode1->m_right == vNode2)
 		{
-			newPolygon->m_verts.push_back(hs1->m_v1, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs1->m_v2, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs2->m_v2, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs2->m_v1, someVNode->m_data2, someVNode->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs1->m_v1, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs1->m_v2, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs2->m_v2, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs2->m_v1, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
 		}
 		else
 		{
-			newPolygon->m_verts.push_back(hs1->m_v2, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs1->m_v1, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs2->m_v1, someVNode->m_data2, someVNode->m_data3);
-			newPolygon->m_verts.push_back(hs2->m_v2, someVNode->m_data2, someVNode->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs1->m_v2, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs1->m_v1, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs2->m_v1, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(hs2->m_v2, someVNode->m_data.m_uv, someVNode->m_data.m_normal, 0));
 		}
 
 		hs1->m_v1->m_polygons.push_back(newPolygon);
@@ -148,7 +148,7 @@ void miEditableObject::PolygonExtrude() {
 				auto vn = cp->m_data->m_verts.find(v);
 				if (vn)
 				{
-					vn->m_data1 = hs->m_v1;
+					vn->m_data.m_vertex = hs->m_v1;
 					if (!hs->m_v1->m_polygons.find(cp->m_data))
 						hs->m_v1->m_polygons.push_back(cp->m_data);
 				}
@@ -158,7 +158,7 @@ void miEditableObject::PolygonExtrude() {
 				auto vn = cp->m_data->m_verts.find(v);
 				if (vn)
 				{
-					vn->m_data1 = hs->m_v2;
+					vn->m_data.m_vertex = hs->m_v2;
 					if (!hs->m_v2->m_polygons.find(cp->m_data))
 						hs->m_v2->m_polygons.push_back(cp->m_data);
 				}

@@ -89,14 +89,11 @@ end:;
 	bool success = false;
 	if (isOnSameEdge)
 	{
-		//miArray<miPolygon*> polygonsForDelete;
-		//polygonsForDelete.reserve(10); // Better 2 ?
-
 		auto cp = v1->m_polygons.m_head;
 		auto lp = cp->m_left;
 		while (true)
 		{
-			miListNode3<miVertex*, v2f, v3f>* UV_v1 = 0;
+			miListNode<miPolygon::_vertex_data>* UV_v1 = 0;
 
 			// if polygon contain v2 then remove v1 from this polygon
 			// else replace v1 to v2 and add this polygon to v2
@@ -106,10 +103,10 @@ end:;
 				auto lv = cv->m_left;
 				while (true)
 				{
-					if (cv->m_data1 == v1)
+					if (cv->m_data.m_vertex == v1)
 						UV_v1 = cv;
 
-					if (cv->m_data1 == v2)
+					if (cv->m_data.m_vertex == v2)
 					{
 						//UV_v2 = cuv;
 						isContainV2 = true;
@@ -147,8 +144,6 @@ end:;
 						if (!*polygonForDelete1) *polygonForDelete1 = cp->m_data;
 						else *polygonForDelete2 = cp->m_data;
 					}
-
-					//polygonsForDelete.push_back(cp->m_data);
 				}
 			}
 			else
@@ -167,7 +162,7 @@ end:;
 				}*/
 				auto vNode = v2->m_polygons.m_head->m_data->FindVertex(v2);
 
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2, vNode->m_data3);
+				cp->m_data->m_verts.replace(v1, miPolygon::_vertex_data( v2, vNode->m_data.m_uv, vNode->m_data.m_normal, 0));
 				v2->m_polygons.push_back(cp->m_data);
 			}
 
@@ -176,12 +171,6 @@ end:;
 				break;
 			cp = cp->m_right;
 		}
-		
-
-		/*for (u32 i = 0, sz = polygonsForDelete.m_size; i < sz; ++i)
-		{
-			DeletePolygon(polygonsForDelete.m_data[i]);
-		}*/
 
 		success = true;
 	}
@@ -198,7 +187,7 @@ end:;
 			while (true)
 			{
 				auto vNode = cp->m_data->FindVertex(v1);
-				cp->m_data->m_verts.replace(v1, v2, vNode->m_data2, vNode->m_data3);
+				cp->m_data->m_verts.replace(v1, miPolygon::_vertex_data( v2, vNode->m_data.m_uv, vNode->m_data.m_normal, 0));
 				v2->m_polygons.push_back(cp->m_data);
 
 				if (cp == lp)
@@ -207,10 +196,6 @@ end:;
 			}
 			success = true;
 		}
-		/*else
-		{
-			printf("W\n");
-		}*/
 
 	}
 
@@ -252,7 +237,7 @@ void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 				auto vnode = c->m_data->FindVertex(v2);
 				if (vnode) 
 				{
-					UV = vnode->m_data2;
+					UV = vnode->m_data.m_uv;
 					break;
 				}
 				if (c == l)
@@ -268,7 +253,7 @@ void miEditableObject::VertexMoveTo(miVertex* v1, miVertex* v2) {
 			{
 				auto vnode = c->m_data->FindVertex(v1);
 				if (vnode)
-					vnode->m_data2 = UV;
+					vnode->m_data.m_uv = UV;
 				if (c == l)
 					break;
 				c = c->m_right;

@@ -155,7 +155,7 @@ void miEditableObject::OnWeld(bool createNewTMPModel) {
 			auto lv = cv->m_left;
 			while (true)
 			{
-				cv->m_data2 = cv_base->m_data2;
+				cv->m_data.m_uv = cv_base->m_data.m_uv;
 				if (cv == lv)
 					break;
 				cv = cv->m_right;
@@ -217,7 +217,7 @@ void miEditableObject::OnWeldApply() {
 				auto lv = cv->m_left;
 				while(true)
 				{
-					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					if (cv->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 					{
 						this->DeletePolygon(currentPolygon);
 						break;
@@ -256,31 +256,31 @@ void miEditableObject::OnWeldApply() {
 			auto lastVertex = currVertex->m_left;
 			while (true)
 			{
-				if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
+				if (currVertex->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 				{
-					if (currVertex->m_data1->m_flags & miVertex::flag_User1)
-						currVertex->m_data1->m_flags ^= miVertex::flag_User1;
+					if (currVertex->m_data.m_vertex->m_flags & miVertex::flag_User1)
+						currVertex->m_data.m_vertex->m_flags ^= miVertex::flag_User1;
 
 					auto currVertex2 = currVertex->m_right;
 					auto lastVertex2 = currVertex2->m_left;
 					while (true)
 					{
-						if (currVertex2->m_data1->m_flags & miVertex::flag_isSelected)
+						if (currVertex2->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 						{
-							if (currVertex2->m_data1->m_flags & miVertex::flag_User1)
-								currVertex2->m_data1->m_flags ^= miVertex::flag_User1;
+							if (currVertex2->m_data.m_vertex->m_flags & miVertex::flag_User1)
+								currVertex2->m_data.m_vertex->m_flags ^= miVertex::flag_User1;
 
-							if (currVertex->m_data1 != currVertex2->m_data1)
+							if (currVertex->m_data.m_vertex != currVertex2->m_data.m_vertex)
 							{
-								if (currVertex->m_data1->m_position == currVertex2->m_data1->m_position)
+								if (currVertex->m_data.m_vertex->m_position == currVertex2->m_data.m_vertex->m_position)
 								{
-									currentPolygon->m_verts.erase_first(currVertex2->m_data1);
-									currVertex2->m_data1->m_polygons.erase_first(currentPolygon);
-									if (!currVertex2->m_data1->m_polygons.m_head)
+									currentPolygon->m_verts.erase_first(currVertex2->m_data.m_vertex);
+									currVertex2->m_data.m_vertex->m_polygons.erase_first(currentPolygon);
+									if (!currVertex2->m_data.m_vertex->m_polygons.m_head)
 									{
-										m_mesh->_remove_vertex_from_list(currVertex2->m_data1);
-										currVertex2->m_data1->~miVertex();
-										m_allocatorVertex->Deallocate(currVertex2->m_data1);
+										m_mesh->_remove_vertex_from_list(currVertex2->m_data.m_vertex);
+										currVertex2->m_data.m_vertex->~miVertex();
+										m_allocatorVertex->Deallocate(currVertex2->m_data.m_vertex);
 										goto begin;
 									}
 								}
@@ -307,7 +307,7 @@ void miEditableObject::OnWeldApply() {
 	// 3.
 	{
 		// I need list of vertices in specific position
-		std::unordered_map<std::string, miListNode3<miVertex*, v2f, v3f>*> weldMap;
+		std::unordered_map<std::string, miListNode<miPolygon::_vertex_data>*> weldMap;
 
 		std::string vertsMapHash;
 		auto _set_hash = [&](v3f* position)
@@ -354,12 +354,12 @@ void miEditableObject::OnWeldApply() {
 			auto lastVertex = currVertex->m_left;
 			while (true)
 			{
-				if (currVertex->m_data1->m_flags & miVertex::flag_isSelected)
+				if (currVertex->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 				{
-					if (currVertex->m_data1->m_flags & miVertex::flag_User1)
-						currVertex->m_data1->m_flags ^= miVertex::flag_User1;
+					if (currVertex->m_data.m_vertex->m_flags & miVertex::flag_User1)
+						currVertex->m_data.m_vertex->m_flags ^= miVertex::flag_User1;
 
-					_set_hash(&currVertex->m_data1->m_position);
+					_set_hash(&currVertex->m_data.m_vertex->m_position);
 					auto it = weldMap.find(vertsMapHash);
 					if (it == weldMap.end())
 					{
@@ -390,9 +390,9 @@ void miEditableObject::OnWeldApply() {
 					auto iterator = weldMap.find(vertsMapHash);
 					if (iterator != weldMap.end())
 					{
-						bool v1OnEdge = iterator->second->m_data1->IsOnEdge();
+						bool v1OnEdge = iterator->second->m_data.m_vertex->IsOnEdge();
 
-						if (currentVertex != iterator->second->m_data1
+						if (currentVertex != iterator->second->m_data.m_vertex
 							&& v1OnEdge)
 						{
 							{
@@ -406,12 +406,12 @@ void miEditableObject::OnWeldApply() {
 
 									if (ce->m_data->m_vertex1 == currentVertex)
 									{
-										ce->m_data->m_vertex1 = iterator->second->m_data1;
+										ce->m_data->m_vertex1 = iterator->second->m_data.m_vertex;
 										add = true;
 									}
 									else if (ce->m_data->m_vertex2 == currentVertex)
 									{
-										ce->m_data->m_vertex2 = iterator->second->m_data1;
+										ce->m_data->m_vertex2 = iterator->second->m_data.m_vertex;
 										add = true;
 									}
 
@@ -419,7 +419,7 @@ void miEditableObject::OnWeldApply() {
 									{
 									//check duplicates
 									bool isDuplicate = false;
-									auto ce2 = iterator->second->m_data1->m_edges.m_head;
+									auto ce2 = iterator->second->m_data.m_vertex->m_edges.m_head;
 									auto le2 = ce2->m_left;
 									while (true)
 									{
@@ -473,7 +473,7 @@ void miEditableObject::OnWeldApply() {
 									}
 									else
 									{
-										iterator->second->m_data1->m_edges.push_back(ce->m_data);
+										iterator->second->m_data.m_vertex->m_edges.push_back(ce->m_data);
 									}
 									}
 
@@ -490,8 +490,8 @@ void miEditableObject::OnWeldApply() {
 								bool v2OnEdge = currentVertex->IsOnEdge();
 								if (v2OnEdge)
 								{
-									cp->m_data->m_verts.replace(currentVertex, iterator->second->m_data1, iterator->second->m_data2, iterator->second->m_data3);
-									iterator->second->m_data1->m_polygons.push_back(cp->m_data);
+									cp->m_data->m_verts.replace(currentVertex, miPolygon::_vertex_data(iterator->second->m_data.m_vertex, iterator->second->m_data.m_uv, iterator->second->m_data.m_normal, 0));
+									iterator->second->m_data.m_vertex->m_polygons.push_back(cp->m_data);
 									currentVertex->m_polygons.erase_first(cp->m_data);
 								}
 

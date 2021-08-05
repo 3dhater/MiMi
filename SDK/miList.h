@@ -50,10 +50,6 @@ public:
 		while (true)
 		{
 			auto next = m_head->m_right;
-			//m_allocator.destruct(m_head);
-			//m_allocator.deallocate(m_head);
-			///m_onDeallocate(m_head);
-			//delete m_head;
 			m_head->~miListNode();
 			miFree(m_head);
 
@@ -64,12 +60,99 @@ public:
 		m_head = nullptr;
 	}
 
-	void push_back(const _type& data)
+
+	miListNode<_type>* insert_after(const _type& after_this, const _type& data) {
+		miListNode<_type>* node = (miListNode<_type>*)miMalloc(sizeof(miListNode<_type>));
+		new(node)miListNode<_type>();
+
+		node->m_data = data;
+
+		if (!m_head)
+		{
+			m_head = node;
+			m_head->m_right = m_head;
+			m_head->m_left = m_head;
+		}
+		else
+		{
+			auto c = m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_data == after_this)
+				{
+					auto r = c->m_right;
+
+					node->m_left = c;
+					node->m_right = r;
+
+					c->m_right = node;
+					r->m_left = node;
+
+					return node;
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+
+			auto last = m_head->m_left;
+			last->m_right = node;
+			node->m_left = last;
+			node->m_right = m_head;
+			m_head->m_left = node;
+		}
+		return node;
+	}
+
+	miListNode<_type>* insert_before(const _type& after_this, const _type& data) {
+		miListNode<_type>* node = (miListNode<_type>*)miMalloc(sizeof(miListNode<_type>));
+		new(node)miListNode<_type>();
+
+		node->m_data = data;
+
+		if (!m_head)
+		{
+			m_head = node;
+			m_head->m_right = m_head;
+			m_head->m_left = m_head;
+		}
+		else
+		{
+			auto c = m_head;
+			auto l = c->m_left;
+			while (true)
+			{
+				if (c->m_data == after_this)
+				{
+					auto l = c->m_left;
+
+					node->m_left = l;
+					node->m_right = c;
+
+					c->m_left = node;
+					l->m_right = node;
+
+					return node;
+				}
+
+				if (c == l)
+					break;
+				c = c->m_right;
+			}
+
+			auto last = m_head->m_left;
+			last->m_right = node;
+			node->m_left = last;
+			node->m_right = m_head;
+			m_head->m_left = node;
+		}
+		return node;
+	}
+
+	miListNode<_type>* push_back(const _type& data)
 	{
-		//miListNode<_type>* node = m_allocator.allocate(1);
-		//m_allocator.construct(node, miListNode<_type>());
-		///miListNode<_type>* node = m_onAllocate();
-		//miListNode<_type>* node = new miListNode<_type>;
 		miListNode<_type>* node = (miListNode<_type>*)miMalloc(sizeof(miListNode<_type>));
 		new(node)miListNode<_type>();
 
@@ -89,9 +172,10 @@ public:
 			node->m_right = m_head;
 			m_head->m_left = node;
 		}
+		return node;
 	}
 
-	void push_front(const _type& data)
+	miListNode<_type>* push_front(const _type& data)
 	{
 		miListNode<_type>* node = (miListNode<_type>*)miMalloc(sizeof(miListNode<_type>));
 		new(node)miListNode<_type>();
@@ -112,6 +196,7 @@ public:
 			m_head->m_left = node;
 			m_head = node;
 		}
+		return node;
 	}
 
 	void pop_front()

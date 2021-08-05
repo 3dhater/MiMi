@@ -463,17 +463,21 @@ void miEditableObject::_destroyMesh() {
 	m_mesh = 0;
 }
 
+void miEditableObject::OnDrawUV() {
+	if (m_visualObject_vertex) m_visualObject_vertex->Draw(true);
+}
+
 void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
 	if (dm == miViewportDrawMode::Material
 		|| dm == miViewportDrawMode::MaterialWireframe)
 	{
 
-		if (m_visualObject_polygon) m_visualObject_polygon->Draw();
+		if (m_visualObject_polygon) m_visualObject_polygon->Draw(false);
 	}
 
 	if (em == miEditMode::Polygon)
 	{
-		if (m_visualObject_polygon && m_isSelected) m_visualObject_polygon->Draw();
+		if (m_visualObject_polygon && m_isSelected) m_visualObject_polygon->Draw(false);
 	}
 
 	if ((dm == miViewportDrawMode::Wireframe || dm == miViewportDrawMode::MaterialWireframe)
@@ -481,12 +485,12 @@ void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
 		|| (m_isSelected && em == miEditMode::Polygon)
 		)
 	{
-		if (m_visualObject_edge) m_visualObject_edge->Draw();
+		if (m_visualObject_edge) m_visualObject_edge->Draw(false);
 	}
 
 	if (em == miEditMode::Vertex && m_isSelected)
 	{
-		if (m_visualObject_vertex) m_visualObject_vertex->Draw();
+		if (m_visualObject_vertex) m_visualObject_vertex->Draw(false);
 	}
 }
 
@@ -628,10 +632,14 @@ void miEditableObject::DeletePolygon(miPolygon* _polygon) {
 		while (true)
 		{
 			// remove polygon from list
-			c->m_data1->m_polygons.erase_first(_polygon);
+			//c->m_data1->m_polygons.erase_first(_polygon);
+			c->m_data.m_vertex->m_polygons.erase_first(_polygon);
+
 			// if there was last polygon, then add this vertex in to array
-			if (!c->m_data1->m_polygons.m_head)
-				vertsForDelete.push_back(c->m_data1);
+			/*if (!c->m_data1->m_polygons.m_head)
+				vertsForDelete.push_back(c->m_data1);*/
+			if (!c->m_data.m_vertex->m_polygons.m_head)
+				vertsForDelete.push_back(c->m_data.m_vertex);
 
 			if (c == l)
 				break;
@@ -1018,7 +1026,8 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 				auto lv = cv->m_left;
 				while (true)
 				{
-					bst.Add((uint64_t)cv->m_data1, miPair<miVertex*, v3f>(cv->m_data1, cv->m_data1->m_position));
+					//bst.Add((uint64_t)cv->m_data1, miPair<miVertex*, v3f>(cv->m_data1, cv->m_data1->m_position));
+					bst.Add((uint64_t)cv->m_data.m_vertex, miPair<miVertex*, v3f>(cv->m_data.m_vertex, cv->m_data.m_vertex->m_position));
 
 					if (cv == lv)
 						break;
@@ -1040,7 +1049,7 @@ void miEditableObject::_updateVertsForTransformArray(miEditMode em) {
 }
 
 void miEditableObject::VertexConnect() {
-	miArray<miListNode3<miVertex*, v2f, v3f>*> vertsForNewpolygon;
+	miArray<miListNode<miPolygon::_vertex_data>*> vertsForNewpolygon;
 
 	/*for (s32 o = 0, osz = GetMeshCount(); o < osz; ++o)
 	{
@@ -1058,8 +1067,11 @@ void miEditableObject::VertexConnect() {
 				auto currentVertex = cp->m_verts.m_head;
 				auto lastVertex = currentVertex->m_left;
 				while (true) {
-					if (currentVertex->m_data1->m_flags & miVertex::flag_User1)
-						currentVertex->m_data1->m_flags ^= miVertex::flag_User1;
+					/*if (currentVertex->m_data1->m_flags & miVertex::flag_User1)
+						currentVertex->m_data1->m_flags ^= miVertex::flag_User1;*/
+					if (currentVertex->m_data.m_vertex->m_flags & miVertex::flag_User1)
+						currentVertex->m_data.m_vertex->m_flags ^= miVertex::flag_User1;
+
 					++vertexCount;
 					if (currentVertex == lastVertex)
 						break;
@@ -1072,7 +1084,8 @@ void miEditableObject::VertexConnect() {
 			auto currentVertex = cp->m_verts.m_head;
 			auto lastVertex = currentVertex->m_left;
 			while (true) {
-				if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
+				//if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
+				if (currentVertex->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 				{
 					if (!isStarted) {
 						isStarted = true;
@@ -1082,12 +1095,15 @@ void miEditableObject::VertexConnect() {
 
 				if (isStarted)
 				{
-					if ((currentVertex->m_data1->m_flags & miVertex::flag_User1) == 0)
+					//if ((currentVertex->m_data1->m_flags & miVertex::flag_User1) == 0)
+					if ((currentVertex->m_data.m_vertex->m_flags & miVertex::flag_User1) == 0)
 					{
+						//vertsForNewpolygon.push_back(currentVertex);
 						vertsForNewpolygon.push_back(currentVertex);
 					}
 
-					if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
+					//if (currentVertex->m_data1->m_flags & miVertex::flag_isSelected)
+					if (currentVertex->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 					{
 						if (vertsForNewpolygon.m_size > 2)
 						{
@@ -1098,12 +1114,15 @@ void miEditableObject::VertexConnect() {
 								auto v = vertsForNewpolygon.m_data[i];
 
 								if (i != 0 && i != l) {
-									v->m_data1->m_flags |= miVertex::flag_User1;
+									//v->m_data1->m_flags |= miVertex::flag_User1;
+									v->m_data.m_vertex->m_flags |= miVertex::flag_User1;
 									--vertexCount;
 								}
 								
-								newPolygon->m_verts.push_back(v->m_data1, v->m_data2, v->m_data3);
-								v->m_data1->m_polygons.push_back(newPolygon);
+								//newPolygon->m_verts.push_back(v->m_data1, v->m_data2, v->m_data3);
+								newPolygon->m_verts.push_back(v->m_data);
+								//v->m_data1->m_polygons.push_back(newPolygon);
+								v->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
 								if (v == lastVertex)
 									lastVertex = vertsForNewpolygon.m_data[0];
@@ -1202,7 +1221,14 @@ void miEditableObject::VertexBreak() {
 				//auto vNode = v->m_polygons.m_head->m_data->FindVertex(v);
 				auto vNode = cp->m_data->FindVertex(v);
 
-				cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2, vNode->m_data3);
+				//cp->m_data->m_verts.replace(v, newVertex, vNode->m_data2, vNode->m_data3);
+				miPolygon::_vertex_data newVD;
+				newVD.m_vertex = newVertex;
+				newVD.m_normal = vNode->m_data.m_normal;
+				newVD.m_uv = vNode->m_data.m_uv;
+				newVD.m_flags = vNode->m_data.m_flags;
+
+				cp->m_data->m_verts.replace(vNode->m_data, newVD);
 				newVertex->m_polygons.push_back(cp->m_data);
 
 				removeThisPolygons.push_back(cp->m_data);
@@ -1391,7 +1417,8 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 				bool select = false;
 				if (saveSelection)
 				{
-					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					//if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					if (cv->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 						select = true;
 				}
 
@@ -1399,16 +1426,23 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 				if (weldSelected)
 				{
 					weld = false;
-					if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					//if (cv->m_data1->m_flags & miVertex::flag_isSelected)
+					if (cv->m_data.m_vertex->m_flags & miVertex::flag_isSelected)
 						weld = true;
 				}
 
-				importeHelper.m_polygonCreator.Add(
+				/*importeHelper.m_polygonCreator.Add(
 					cv->m_data1->m_position,
 					weld,
 					select,
 					cv->m_data3,
-					cv->m_data2);
+					cv->m_data2);*/
+				importeHelper.m_polygonCreator.Add(
+					cv->m_data.m_vertex->m_position,
+					weld,
+					select,
+					cv->m_data.m_normal,
+					cv->m_data.m_uv);
 
 				if (cv == lv)
 					break;

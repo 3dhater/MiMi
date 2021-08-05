@@ -276,8 +276,8 @@ void miEditableObject::EdgeBridge()
 	// create until g1 have edges
 	// when g1 is empty, and g2 is not, create triangles using g2
 	{
-		miListNode3<miVertex*, v2f, v3f>* vertex_for_triangle1 = 0;
-		miListNode3<miVertex*, v2f, v3f>* vertex_for_triangle2 = 0;
+		miListNode<miPolygon::_vertex_data>* vertex_for_triangle1 = 0;
+		miListNode<miPolygon::_vertex_data>* vertex_for_triangle2 = 0;
 		miPolygon* lastNewPolygon = 0;
 		miEdge * g2_edge_prev = 0;
 
@@ -309,10 +309,10 @@ void miEditableObject::EdgeBridge()
 		{
 			// need to find g1_edge->m_vertex1 and g1_edge->m_vertex2
 			//  in polygon in right order
-			miListNode3<miVertex*, v2f, v3f>* v1 = 0;
-			miListNode3<miVertex*, v2f, v3f>* v2 = 0;
-			miListNode3<miVertex*, v2f, v3f>* v3 = 0;
-			miListNode3<miVertex*, v2f, v3f>* v4 = 0;
+			miListNode<miPolygon::_vertex_data>* v1 = 0;
+			miListNode<miPolygon::_vertex_data>* v2 = 0;
+			miListNode<miPolygon::_vertex_data>* v3 = 0;
+			miListNode<miPolygon::_vertex_data>* v4 = 0;
 			
 			{
 				auto edge_polygon = g1_edge->m_polygon1;
@@ -324,7 +324,7 @@ void miEditableObject::EdgeBridge()
 				{
 					auto nv = cv->m_right;
 
-					if (cv->m_data1 == g1_edge->m_vertex1 && nv->m_data1 == g1_edge->m_vertex2)
+					if (cv->m_data.m_vertex == g1_edge->m_vertex1 && nv->m_data.m_vertex == g1_edge->m_vertex2)
 					{
 						v1 = cv;
 						v2 = nv;
@@ -332,7 +332,7 @@ void miEditableObject::EdgeBridge()
 						vertex_for_triangle2 = v2;
 						break;
 					}
-					else if (cv->m_data1 == g1_edge->m_vertex2 && nv->m_data1 == g1_edge->m_vertex1)
+					else if (cv->m_data.m_vertex == g1_edge->m_vertex2 && nv->m_data.m_vertex == g1_edge->m_vertex1)
 					{
 						v1 = cv;
 						v2 = nv;
@@ -349,8 +349,8 @@ void miEditableObject::EdgeBridge()
 
 			miPolygon* newPolygon = m_allocatorPolygon->Allocate();
 			lastNewPolygon = newPolygon;
-			newPolygon->m_verts.push_back(v2->m_data1, v2->m_data2, v2->m_data3);
-			newPolygon->m_verts.push_back(v1->m_data1, v1->m_data2, v1->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v2->m_data.m_vertex, v2->m_data.m_uv, v2->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v1->m_data.m_vertex, v1->m_data.m_uv, v1->m_data.m_normal, 0));
 
 			{
 				auto edge_polygon = g2_edge->m_polygon1;
@@ -362,13 +362,13 @@ void miEditableObject::EdgeBridge()
 				{
 					auto nv = cv->m_right;
 
-					if (cv->m_data1 == g2_edge->m_vertex1 && nv->m_data1 == g2_edge->m_vertex2)
+					if (cv->m_data.m_vertex == g2_edge->m_vertex1 && nv->m_data.m_vertex == g2_edge->m_vertex2)
 					{
 						v3 = cv;
 						v4 = nv;
 						break;
 					}
-					else if (cv->m_data1 == g2_edge->m_vertex2 && nv->m_data1 == g2_edge->m_vertex1)
+					else if (cv->m_data.m_vertex == g2_edge->m_vertex2 && nv->m_data.m_vertex == g2_edge->m_vertex1)
 					{
 						v3 = cv;
 						v4 = nv;
@@ -381,13 +381,13 @@ void miEditableObject::EdgeBridge()
 				}
 			}
 
-			newPolygon->m_verts.push_back(v4->m_data1, v4->m_data2, v4->m_data3);
-			newPolygon->m_verts.push_back(v3->m_data1, v3->m_data2, v3->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v4->m_data.m_vertex, v4->m_data.m_uv, v4->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v3->m_data.m_vertex, v3->m_data.m_uv, v3->m_data.m_normal, 0));
 
-			v1->m_data1->m_polygons.push_back(newPolygon);
-			v2->m_data1->m_polygons.push_back(newPolygon);
-			v3->m_data1->m_polygons.push_back(newPolygon);
-			v4->m_data1->m_polygons.push_back(newPolygon);
+			v1->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			v2->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			v3->m_data.m_vertex->m_polygons.push_back(newPolygon);
+			v4->m_data.m_vertex->m_polygons.push_back(newPolygon);
 
 			newPolygon->CalculateNormal();
 			m_mesh->_add_polygon_to_list(newPolygon);
@@ -398,8 +398,8 @@ void miEditableObject::EdgeBridge()
 		else if (g2_edge)
 		{
 			//printf("create triangle\n");
-			miListNode3<miVertex*, v2f, v3f>* v1 = 0;
-			miListNode3<miVertex*, v2f, v3f>* v2 = 0;
+			miListNode<miPolygon::_vertex_data>* v1 = 0;
+			miListNode<miPolygon::_vertex_data>* v2 = 0;
 			{
 				auto edge_polygon = g2_edge->m_polygon1;
 				if (!edge_polygon)
@@ -410,13 +410,13 @@ void miEditableObject::EdgeBridge()
 				{
 					auto nv = cv->m_right;
 
-					if (cv->m_data1 == g2_edge->m_vertex1 && nv->m_data1 == g2_edge->m_vertex2)
+					if (cv->m_data.m_vertex == g2_edge->m_vertex1 && nv->m_data.m_vertex == g2_edge->m_vertex2)
 					{
 						v1 = cv;
 						v2 = nv;
 						break;
 					}
-					else if (cv->m_data1 == g2_edge->m_vertex2 && nv->m_data1 == g2_edge->m_vertex1)
+					else if (cv->m_data.m_vertex == g2_edge->m_vertex2 && nv->m_data.m_vertex == g2_edge->m_vertex1)
 					{
 						v1 = cv;
 						v2 = nv;
@@ -431,16 +431,16 @@ void miEditableObject::EdgeBridge()
 
 			miPolygon* newPolygon = m_allocatorPolygon->Allocate();
 			
-			miListNode3<miVertex*, v2f, v3f>* v3 = 0;
+			miListNode<miPolygon::_vertex_data>* v3 = 0;
 			{
 				// I need to find common vertex with edge and last polygon
 				auto cv = lastNewPolygon->m_verts.m_head;
 				auto lv = cv->m_left;
 				while (true)
 				{
-					if (cv->m_data1 == g2_edge->m_vertex1 || cv->m_data1 == g2_edge->m_vertex2)
+					if (cv->m_data.m_vertex == g2_edge->m_vertex1 || cv->m_data.m_vertex == g2_edge->m_vertex2)
 					{
-						if (cv->m_right->m_data1 == g2_edge_prev->m_vertex1 || cv->m_right->m_data1 == g2_edge_prev->m_vertex2)
+						if (cv->m_right->m_data.m_vertex == g2_edge_prev->m_vertex1 || cv->m_right->m_data.m_vertex == g2_edge_prev->m_vertex2)
 						{
 							v3 = cv->m_left;
 						}
@@ -455,14 +455,14 @@ void miEditableObject::EdgeBridge()
 				}
 			}
 
-			newPolygon->m_verts.push_back(v2->m_data1, v2->m_data2, v2->m_data3);
-			newPolygon->m_verts.push_back(v1->m_data1, v1->m_data2, v1->m_data3);
-			newPolygon->m_verts.push_back(v3->m_data1, v3->m_data2, v3->m_data3);
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v2->m_data.m_vertex, v2->m_data.m_uv, v2->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v1->m_data.m_vertex, v1->m_data.m_uv, v1->m_data.m_normal, 0));
+			newPolygon->m_verts.push_back(miPolygon::_vertex_data(v3->m_data.m_vertex, v3->m_data.m_uv, v3->m_data.m_normal, 0));
 			//newPolygon->m_verts.push_back(vertex_for_triangle->m_data1, vertex_for_triangle->m_data2, vertex_for_triangle->m_data3);
 			
 			g2_edge->m_vertex1->m_polygons.push_back(newPolygon);
 			g2_edge->m_vertex2->m_polygons.push_back(newPolygon);
-			v3->m_data1->m_polygons.push_back(newPolygon);
+			v3->m_data.m_vertex->m_polygons.push_back(newPolygon);
 			//vertex_for_triangle->m_data1->m_polygons.push_back(newPolygon);
 			newPolygon->CalculateNormal();
 			m_mesh->_add_polygon_to_list(newPolygon);

@@ -10,3 +10,5 @@
 * [x]  edit model
 * [ ]  edit UV
 * [ ]  export model
+
+future tasks in TODO.txt

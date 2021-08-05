@@ -69,13 +69,13 @@ void miEditableObject::PolygonDetachAsElement() {
 		auto l = c->m_left;
 		while (true)
 		{
-			auto cp = c->m_data1->m_polygons.m_head;
+			auto cp = c->m_data.m_vertex->m_polygons.m_head;
 			auto lp = cp->m_left;
 			while (true)
 			{
 				if ((cp->m_data->m_flags & miPolygon::flag_isSelected)==0)
 				{
-					targetVertices.insert(c->m_data1);
+					targetVertices.insert(c->m_data.m_vertex);
 					break;
 				}
 
@@ -106,7 +106,7 @@ void miEditableObject::PolygonDetachAsElement() {
 			o->m_polygons.erase_first(p);
 
 			auto vNode = p->FindVertex(o);
-			vNode->m_data1 = newVertex;
+			vNode->m_data.m_vertex = newVertex;
 		}
 	}
 
@@ -137,7 +137,7 @@ void miEditableObject::PolygonDetachAsObject() {
 					auto lv = cv->m_left;
 					while (true)
 					{
-						vertices.insert(cv->m_data1);
+						vertices.insert(cv->m_data.m_vertex);
 						if (cv == lv)
 							break;
 						cv = cv->m_right;

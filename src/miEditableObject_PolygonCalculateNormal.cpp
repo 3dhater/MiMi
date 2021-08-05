@@ -63,7 +63,7 @@ void miEditableObject::PolygonCalculateNormal(bool smooth) {
 						{
 							auto vNode = cp->m_data->FindVertex(curr);
 							if (vNode)
-								normal += vNode->m_data3;
+								normal += vNode->m_data.m_normal;
 						}
 
 						if (cp == lp)
@@ -83,7 +83,7 @@ void miEditableObject::PolygonCalculateNormal(bool smooth) {
 						{
 							auto vNode = cp->m_data->FindVertex(curr);
 							if (vNode)
-								vNode->m_data3 = normal;
+								vNode->m_data.m_normal = normal;
 						}
 
 						if (cp == lp)

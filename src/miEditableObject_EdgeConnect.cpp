@@ -115,22 +115,22 @@ void miEditableObject::EdgeConnect()
 				auto nv = cv->m_right;
 				
 				// I need to compare vertices with edge vertices to find current edge
-				auto v1 = cv->m_data1;
-				auto v2 = nv->m_data1;
+				auto v1 = cv->m_data.m_vertex;
+				auto v2 = nv->m_data.m_vertex;
 				if (v2 < v1)
 				{
-					v1 = nv->m_data1;
-					v2 = cv->m_data1;
+					v1 = nv->m_data.m_vertex;
+					v2 = cv->m_data.m_vertex;
 				}
 
 				if (e->m_vertex1 == v1 && e->m_vertex2 == v2)
 				{
 					v2f uv;
-					uv.x = cv->m_data2.x + nv->m_data2.x;
-					uv.y = cv->m_data2.y + nv->m_data2.y;
+					uv.x = cv->m_data.m_uv.x + nv->m_data.m_uv.x;
+					uv.y = cv->m_data.m_uv.y + nv->m_data.m_uv.y;
 					uv *= 0.5f;
 
-					e->m_polygon1->m_verts.insert_after(cv->m_data1, newVertex, uv, cv->m_data3);
+					e->m_polygon1->m_verts.insert_after(cv->m_data, miPolygon::_vertex_data(newVertex, uv, cv->m_data.m_normal, 0));
 					break;
 				}
 
@@ -149,21 +149,21 @@ void miEditableObject::EdgeConnect()
 			while (true)
 			{
 				auto nv = cv->m_right;
-				auto v1 = cv->m_data1;
-				auto v2 = nv->m_data1;
+				auto v1 = cv->m_data.m_vertex;
+				auto v2 = nv->m_data.m_vertex;
 				if (v2 < v1)
 				{
-					v1 = nv->m_data1;
-					v2 = cv->m_data1;
+					v1 = nv->m_data.m_vertex;
+					v2 = cv->m_data.m_vertex;
 				}
 
 				if (e->m_vertex1 == v1 && e->m_vertex2 == v2)
 				{
 					v2f uv;
-					uv.x = cv->m_data2.x + nv->m_data2.x;
-					uv.y = cv->m_data2.y + nv->m_data2.y;
+					uv.x = cv->m_data.m_uv.x + nv->m_data.m_uv.x;
+					uv.y = cv->m_data.m_uv.y + nv->m_data.m_uv.y;
 					uv *= 0.5f;
-					e->m_polygon2->m_verts.insert_after(cv->m_data1, newVertex, uv, cv->m_data3);
+					e->m_polygon2->m_verts.insert_after(cv->m_data, miPolygon::_vertex_data(newVertex, uv, cv->m_data.m_normal, 0));
 					break;
 				}
 

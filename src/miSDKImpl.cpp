@@ -378,9 +378,15 @@ void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, Alloc
 				while (true) {
 
 					uint64_t new_v_address = 0;
-					if (vmap.Get((uint64_t)current_vertex->m_data1, new_v_address))
+//					if (vmap.Get((uint64_t)current_vertex->m_data1, new_v_address))
+					if (vmap.Get((uint64_t)current_vertex->m_data.m_vertex, new_v_address))
 					{
-						new_P->m_verts.push_back((miVertex*)new_v_address, current_vertex->m_data2, current_vertex->m_data3);
+						//new_P->m_verts.push_back((miVertex*)new_v_address, current_vertex->m_data2, current_vertex->m_data3);
+						miPolygon::_vertex_data newVD;
+						newVD.m_vertex = (miVertex*)new_v_address;
+						newVD.m_uv = current_vertex->m_data.m_uv;
+						newVD.m_normal = current_vertex->m_data.m_normal;
+						new_P->m_verts.push_back(newVD);
 					}
 
 					if (current_vertex == last_vertex)

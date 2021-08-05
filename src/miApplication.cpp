@@ -227,6 +227,7 @@ miApplication::miApplication() {
 	m_previousViewportLayout = 0;
 	m_keyboardModifier = miKeyboardModifier::None;
 	m_isViewportInFocus = false;
+	m_isCursorInUVEditor = false;
 	m_gridModel_perspective1 = 0;
 	m_gridModel_perspective2 = 0;
 	m_gridModel_top1 = 0;
@@ -753,15 +754,24 @@ vidOk:
 		yyVertexTriangle* vPtr = (yyVertexTriangle*)model->m_vertices;
 		vPtr[0].Normal.set(0.f, 1.f, 0.f);
 		vPtr[0].Position.set(0.f, 0.f, 0.f);
+		vPtr[0].TCoords.set(0.f, 0.f);
 		
 		vPtr[1].Normal.set(0.f, 1.f, 0.f);
-		vPtr[1].Position.set(1.f, 0.f, 0.f);
-		
+		vPtr[1].Position.set(0.f, 0.f, 1.f);
+		vPtr[1].TCoords.set(0.f, 1.f);
+
 		vPtr[2].Normal.set(0.f, 1.f, 0.f);
 		vPtr[2].Position.set(1.f, 0.f, 1.f);
-		
+		vPtr[2].TCoords.set(1.f, 1.f);
+
 		vPtr[3].Normal.set(0.f, 1.f, 0.f);
-		vPtr[3].Position.set(0.f, 0.f, 1.f);
+		vPtr[3].Position.set(1.f, 0.f, 0.f);
+		vPtr[3].TCoords.set(1.f, 0.f);
+
+		vPtr[0].Color.set(0.f);
+		vPtr[1].Color.set(0.f);
+		vPtr[2].Color.set(0.f);
+		vPtr[3].Color.set(0.f);
 
 		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
 		u16* iPtr = (u16*)model->m_indices;
@@ -776,6 +786,9 @@ vidOk:
 		m_UVPlaneModel->Load();
 	
 		yyMegaAllocator::Destroy(model);
+
+		m_UVPlaneTexture = yyCreateTextureFromFile("../../../010.tga");
+		m_UVPlaneTexture->Load();
 	}
 
 	yyGUIRebuild();
@@ -984,24 +997,27 @@ void miApplication::MainLoop() {
 		
 			if (m_pluginActive  /*&& (m_activeViewportLayout->m_activeViewport == old_active_viewport)*/)
 			{
-				bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
-				if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
+				if (m_viewportUnderCursor->m_cameraType != miViewportCameraType::UV)
+				{
+					bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
+					if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
 
-				
-				if (m_inputContext->m_isLMBDown)
-					m_pluginActive->OnLMBDown(m_selectionFrust, m_isCursorInGUI);
 
-				if (m_inputContext->m_isLMBUp)
-					m_pluginActive->OnLMBUp(m_selectionFrust, m_isCursorInGUI);
+					if (m_inputContext->m_isLMBDown)
+						m_pluginActive->OnLMBDown(m_selectionFrust, m_isCursorInGUI);
 
-				if (m_isCursorMove && m_pluginActive)
-					m_pluginActive->OnCursorMove(m_selectionFrust, m_isCursorInGUI);
+					if (m_inputContext->m_isLMBUp)
+						m_pluginActive->OnLMBUp(m_selectionFrust, m_isCursorInGUI);
 
-				if (isCancel && m_pluginActive)
-					m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
+					if (m_isCursorMove && m_pluginActive)
+						m_pluginActive->OnCursorMove(m_selectionFrust, m_isCursorInGUI);
 
-				if(m_pluginActive)
-					m_pluginActive->OnUpdate(m_selectionFrust, m_isCursorInGUI);
+					if (isCancel && m_pluginActive)
+						m_pluginActive->OnCancel(m_selectionFrust, m_isCursorInGUI);
+
+					if (m_pluginActive)
+						m_pluginActive->OnUpdate(m_selectionFrust, m_isCursorInGUI);
+				}
 			}
 
 
@@ -1339,9 +1355,9 @@ void miApplication::UpdateViewports() {
 		{
 			auto viewport = m_activeViewportLayout->m_viewports[i];
 
-			viewport->m_isCursorInRect =
-				math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
-					viewport->m_currentRect);
+				viewport->m_isCursorInRect =
+					math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
+						viewport->m_currentRect);
 
 			if (viewport->m_isCursorInRect)
 			{
@@ -1354,7 +1370,11 @@ void miApplication::UpdateViewports() {
 				m_isCursorInViewport = true;
 				m_viewportUnderCursor = viewport;
 
-				
+				m_isCursorInUVEditor = false;
+				if (viewport->m_cameraType == miViewportCameraType::UV)
+				{
+					m_isCursorInUVEditor = true;
+				}
 
 				if(m_inputContext->m_wheelDelta)
 					viewport->m_activeCamera->Zoom();
