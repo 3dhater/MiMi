@@ -212,6 +212,9 @@ public:
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);
 	}
 
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier) {
+	}
+
 
 	// select object
 	//  or select one vertex/edge/polygon using miSelectionFrust

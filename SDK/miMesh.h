@@ -145,6 +145,8 @@ struct miPolygon
 		bool operator==(const _vertex_data& other) {
 			return m_vertex == other.m_vertex;
 		}
+		
+		enum { flag_isSelected = 1, };
 
 		miVertex* m_vertex;
 		v2f m_uv;

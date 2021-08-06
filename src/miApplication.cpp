@@ -149,6 +149,7 @@ void window_callbackOnCommand(s32 commandID) {
 void window_onActivate(yyWindow* window) {
 	g_app->m_isViewportInFocus = false;
 	g_app->m_inputContext->m_isMMBHold = false;
+	g_app->m_isSelectByRectangle = false;
 }
 
 int main(int argc, char* argv[]) {
@@ -185,6 +186,7 @@ int main(int argc, char* argv[]) {
 
 
 miApplication::miApplication() {
+	m_viewportInMouseFocus = 0;
 	m_editorType = miEditorType::_3D;
 	m_pluginForApp = 0;
 	m_currentPluginGUI = 0;
@@ -1376,6 +1378,7 @@ void miApplication::UpdateViewports() {
 					m_isCursorInUVEditor = true;
 				}
 
+
 				if(m_inputContext->m_wheelDelta)
 					viewport->m_activeCamera->Zoom();
 
@@ -1506,6 +1509,7 @@ void miApplication::UpdateViewports() {
 		if (m_inputContext->m_isMMBDown || m_inputContext->m_isLMBDown)
 		{
 			m_isViewportInFocus = true;
+			m_viewportInMouseFocus = m_viewportUnderCursor;
 		}
 	}
 
@@ -1513,6 +1517,10 @@ void miApplication::UpdateViewports() {
 	{
 		m_isViewportInFocus = false;
 	}
+}
+
+bool miApplication::IsMouseFocusInUVEditor() {
+	return m_viewportInMouseFocus->m_cameraType == miViewportCameraType::UV;
 }
 
 void miApplication::DrawViewports() {
@@ -1534,31 +1542,32 @@ void miApplication::DrawViewports() {
 			m_gpu->DrawRectangle(rect, m_color_viewportBorder, m_color_viewportBorder);
 		}
 
-		switch (m_editMode)
+		if (!m_isCursorInUVEditor)
 		{
-		case miEditMode::Object:
-			if(g_app->m_selectedObjects.m_size)
-				m_gizmo->Update(viewport);
-			break;
-		default:
-			if(m_isVertexEdgePolygonSelected)
-				m_gizmo->Update(viewport);
-			break;
-		}
-		
-		if (m_isCursorInViewport && viewport == m_viewportUnderCursor)
-		{
-			if (m_isGizmoMouseHover)
+			switch (m_editMode)
 			{
-				if (m_inputContext->m_isLMBDown)
+			case miEditMode::Object:
+				if (g_app->m_selectedObjects.m_size)
+					m_gizmo->Update(viewport);
+				break;
+			default:
+				if (m_isVertexEdgePolygonSelected)
+					m_gizmo->Update(viewport);
+				break;
+			}
+
+			if (m_isCursorInViewport && viewport == m_viewportUnderCursor)
+			{
+				if (m_isGizmoMouseHover)
 				{
-					m_gizmo->OnClick();
+					if (m_inputContext->m_isLMBDown)
+					{
+						m_gizmo->OnClick();
+					}
 				}
 			}
 		}
 
-		//if (m_gizmo->Update(viewport))
-			//m_isGizmoInput = true;
 		viewport->OnDraw();
 	}
 

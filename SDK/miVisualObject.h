@@ -46,6 +46,7 @@ public:
 	// update some information
 	// when select vertex/edge/polygon
 	virtual void OnSelect(miEditMode) = 0;
+
 };
 
 #endif

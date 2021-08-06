@@ -63,6 +63,67 @@ void miVisualObjectImpl::_createSoftwareModel_edges_UV() {
 		}
 	}
 
+	m_node_UV_CPU = new miVisualObjectImpl::model_node_UV_CPU;
+	m_node_UV_CPU->m_modelCPU = yyMegaAllocator::CreateModel();
+	m_node_UV_CPU->m_modelCPU->m_indexType = yyMeshIndexType::u32;
+
+	m_node_UV_CPU->m_modelCPU->m_vertexType = yyVertexType::LineModel;
+	m_node_UV_CPU->m_modelCPU->m_stride = sizeof(yyVertexLine);
+	m_node_UV_CPU->m_modelCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_modelCPU->m_stride * vCount * 2);
+	yyVertexLine* vertex_ptr = (yyVertexLine*)m_node_UV_CPU->m_modelCPU->m_vertices;
+	
+	m_node_UV_CPU->m_modelCPU->m_indices = (u8*)yyMemAlloc(sizeof(u32) * vCount * 2);
+
+	u32 * inds_ptr = (u32*)m_node_UV_CPU->m_modelCPU->m_indices;
+	u32 index = 0;
+
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				auto nv = cv->m_right;
+
+				v4f color(0.2f, 1.f, 0.2f, 1.f);
+				/*if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+					color.set(1.0f, 0.f, 0.f, 1.f);*/
+
+				*inds_ptr = index;
+				++index;
+				++inds_ptr;
+
+				vertex_ptr->Color = color;
+				vertex_ptr->Position.x = cv->m_data.m_uv.x;
+				vertex_ptr->Position.y = 0.f;
+				vertex_ptr->Position.z = cv->m_data.m_uv.y;
+				vertex_ptr++;
+
+				*inds_ptr = index;
+				++index;
+				++inds_ptr;
+
+				vertex_ptr->Color = color;
+				vertex_ptr->Position.x = nv->m_data.m_uv.x;
+				vertex_ptr->Position.y = 0.f;
+				vertex_ptr->Position.z = nv->m_data.m_uv.y;
+				vertex_ptr++;
+
+				m_node_UV_CPU->m_modelCPU->m_vCount += 2;
+				m_node_UV_CPU->m_modelCPU->m_iCount += 2;
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
 }
 
 void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
@@ -88,7 +149,7 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 			cp = cp->m_right;
 		}
 	}
-	printf("Create UV model\n");
+	//printf("Create UV model\n");
 
 	m_node_UV_CPU = new miVisualObjectImpl::model_node_UV_CPU;
 	m_node_UV_CPU->m_modelCPU = yyMegaAllocator::CreateModel();
@@ -100,7 +161,6 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 	yyVertexPoint* vertex_ptr = (yyVertexPoint*)m_node_UV_CPU->m_modelCPU->m_vertices;
 	m_node_UV_CPU->m_ptrs.reserve(vCount);
 
-	float size = 1.f;
 	{
 		auto cp = m_mesh->m_first_polygon;
 		auto lp = cp->m_left;
@@ -112,11 +172,10 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 			{
 
 				v4f color(1.f, 1.f, 0.f, 1.f);
-				/*if (g_app->m_editMode == miEditMode::Vertex)
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
 				{
-					if (current_vertex->m_flags & miEdge::flag_isSelected)
-						color.set(1.0f, 0.f, 0.f, 1.f);
-				}*/
+					color.set(1.0f, 0.f, 0.f, 1.f);
+				}
 
 				m_node_UV_CPU->m_ptrs.push_back(cv);
 				
@@ -523,7 +582,7 @@ void miVisualObjectImpl::CreateNewGPUModelsUV(miMesh* m) {
 		_createSoftwareModel_verts_UV();
 		break;
 	case miVisualObjectType::Edge:
-		//_createSoftwareModel_edges_UV();
+		_createSoftwareModel_edges_UV();
 		break;
 	case miVisualObjectType::Polygon:
 		break;
@@ -698,31 +757,44 @@ void miVisualObjectImpl::Draw(bool uv) {
 		break;
 	case miVisualObjectType::Edge:
 	{
-
-		v4f* ec = this->m_parentSceneObject->GetEdgeColor();
-		if (this->m_parentSceneObject->IsSelected())
+		if (uv)
 		{
-			wireframe_model_material.m_baseColor.m_data[0] = 1.f;
-			wireframe_model_material.m_baseColor.m_data[1] = 1.f;
-			wireframe_model_material.m_baseColor.m_data[2] = 1.f;
+			auto W = Mat4();
+			auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
+			yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+			yySetMatrix(yyMatrixType::World, &W);
+
+			g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+			g_app->m_gpu->SetTexture(0, defTexture0);
+			g_app->m_gpu->Draw();
 		}
 		else
 		{
-			wireframe_model_material.m_baseColor.m_data[0] = ec->x;
-			wireframe_model_material.m_baseColor.m_data[1] = ec->y;
-			wireframe_model_material.m_baseColor.m_data[2] = ec->z;
-		}
-		yySetMaterial(&wireframe_model_material);
+			v4f* ec = this->m_parentSceneObject->GetEdgeColor();
+			if (this->m_parentSceneObject->IsSelected())
+			{
+				wireframe_model_material.m_baseColor.m_data[0] = 1.f;
+				wireframe_model_material.m_baseColor.m_data[1] = 1.f;
+				wireframe_model_material.m_baseColor.m_data[2] = 1.f;
+			}
+			else
+			{
+				wireframe_model_material.m_baseColor.m_data[0] = ec->x;
+				wireframe_model_material.m_baseColor.m_data[1] = ec->y;
+				wireframe_model_material.m_baseColor.m_data[2] = ec->z;
+			}
+			yySetMaterial(&wireframe_model_material);
 
-		for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
-		{
-			auto node = m_nodes_GPU[i];
+			for (u32 i = 0, sz = m_nodes_GPU.size(); i < sz; ++i)
+			{
+				auto node = m_nodes_GPU[i];
 
-			yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
-			yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-			g_app->m_gpu->SetModel(node->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, defTexture0);
-			g_app->m_gpu->Draw();
+				yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
+				yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
+				g_app->m_gpu->SetModel(node->m_modelGPU);
+				g_app->m_gpu->SetTexture(0, defTexture0);
+				g_app->m_gpu->Draw();
+			}
 		}
 	}break;
 	case miVisualObjectType::Polygon:
@@ -1066,5 +1138,120 @@ void miVisualObjectImpl::UpdateAabb() {
 		if (current_vertex == last_vertex)
 			break;
 		current_vertex = current_vertex->m_right;
+	}
+}
+
+
+void miVisualObjectImpl::UpdateUVSelection(miEditMode em) {
+	if (g_app->m_editorType != miEditorType::UV)
+		return;
+
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					cv->m_data.m_flags ^= miPolygon::_vertex_data::flag_isSelected;
+				}
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+
+	if (em == miEditMode::Polygon)
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			if (cp->IsSelected())
+			{
+				auto cv = cp->m_verts.m_head;
+				auto lv = cv->m_left;
+				while (true)
+				{
+					cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+	else if (em == miEditMode::Edge)
+	{
+		auto ce = m_mesh->m_first_edge;
+		auto le = ce->m_left;
+		while (true)
+		{
+			if (ce->IsSelected())
+			{
+				if (ce->m_polygon1)
+				{
+					auto vNode = ce->m_polygon1->m_verts.find(ce->m_vertex1);
+					if (vNode)
+						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+					vNode = ce->m_polygon1->m_verts.find(ce->m_vertex2);
+					if (vNode)
+						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+				}
+
+				if (ce->m_polygon2)
+				{
+					auto vNode = ce->m_polygon2->m_verts.find(ce->m_vertex1);
+					if (vNode)
+						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+					vNode = ce->m_polygon2->m_verts.find(ce->m_vertex2);
+					if (vNode)
+						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+				}
+			}
+
+			if (ce == le)
+				break;
+			ce = ce->m_right;
+		}
+	}
+	else if (em == miEditMode::Vertex)
+	{
+		auto cv = m_mesh->m_first_vertex;
+		auto lv = cv->m_left;
+		while (true)
+		{
+			if (cv->IsSelected())
+			{
+				auto cp = cv->m_polygons.m_head;
+				auto lp = cp->m_left;
+				while (true)
+				{
+					auto vNode = cp->m_data->m_verts.find(cv);
+					if (vNode)
+						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+
+					if (cp == lp)
+						break;
+					cp = cp->m_right;
+				}
+			}
+
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+		}
 	}
 }

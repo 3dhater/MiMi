@@ -4,6 +4,9 @@
 - reference
 - mirror
 - force draw without lines (F3)
+- drag n drop texture
+- line for d3d11
+- shaders
 
 ...
 

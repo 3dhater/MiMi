@@ -189,7 +189,7 @@ void miViewportCamera::PanMove() {
 }
 
 void miViewportCamera::Rotate(f32 x, f32 y) {
-	//if (m_type == miViewportCameraType::UV) return;
+	if (m_type == miViewportCameraType::UV) return;
 
 	const f32 speed = 0.69f * g_app->m_dt;
 	m_rotationPlatform.x += y * speed;
@@ -226,6 +226,7 @@ void miViewportCamera::Zoom() {
 }
 
 void miViewportCamera::ChangeFOV() {
+	if (m_type == miViewportCameraType::UV) return;
 	m_fov += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
 	if (m_fov < 0.01f)
 		m_fov = 0.01f;
@@ -235,5 +236,6 @@ void miViewportCamera::ChangeFOV() {
 }
 
 void miViewportCamera::RotateZ() {
+	if (m_type == miViewportCameraType::UV) return;
 	m_rotationPlatform.z += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
 }

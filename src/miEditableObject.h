@@ -162,6 +162,10 @@ public:
 	void PolygonDetachAsObject();
 	void PolygonDuplicate();
 	void PolygonExtrude();
+
+	void UpdateUVSelection(miEditMode);
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier) override;
+	void RebuildUVModel();
 };
 
 #endif

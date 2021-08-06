@@ -275,7 +275,29 @@ void miApplication::UpdateSelectionAabb() {
 }
 
 void miApplication::_onSelect() {
-	if (m_isCursorInUVEditor) return;
+	if (IsMouseFocusInUVEditor())
+	{
+		if (m_isSelectByRectangle)
+		{
+			Aabb aabb;
+			aabb.add(v3f(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y, 0.f));
+			aabb.add(v3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
+
+			m_selectionFrust->CreateWithFrame(
+				v4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+				m_activeViewportLayout->m_activeViewport->m_currentRect,
+				m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+		}
+		
+		if (m_selectionFrust->m_data.m_TN == v3f())
+			return;
+
+		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+		{
+			m_selectedObjects.m_data[i]->SelectUV(m_selectionFrust, m_keyboardModifier);
+		}
+		return;
+	}
 
 	if (m_isSelectByRectangle)
 	{

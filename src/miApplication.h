@@ -183,6 +183,7 @@ class miApplication
 	//miViewportCamera* m_currentViewportDrawCamera;
 	miViewport* m_currentViewportDraw;
 	miViewport* m_viewportUnderCursor;
+	miViewport* m_viewportInMouseFocus;
 	miViewportLayout* m_activeViewportLayout;
 	miViewportLayout* m_previousViewportLayout; // save here when Alt + W
 	miViewportLayout* m_viewportLayouts[miViewportLayout_Count];
@@ -254,6 +255,7 @@ public:
 	miApplication();
 	~miApplication();
 
+	bool IsMouseFocusInUVEditor();
 	void SelectAll();
 	void DeselectAll();
 	void InvertSelection();

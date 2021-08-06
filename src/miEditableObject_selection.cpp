@@ -474,8 +474,6 @@ void miEditableObject::SelectSingle(miEditMode em, miKeyboardModifier km, miSele
 		break;
 	}
 
-	
-
 	//if (m_isSelected)
 	//	_updateVertsForTransformArray(em);
 	// App will call miSceneObject::OnSelect
@@ -968,6 +966,7 @@ bool miEditableObject::IsPolygonSelected() {
 
 void miEditableObject::OnSelect(miEditMode em) {
 	_updateVertsForTransformArray(em);
+	UpdateUVSelection(em);
 	RebuildVisualObjects(true);
 }
 

@@ -4,6 +4,7 @@
 #include "miPluginGUIImpl.h"
 #include "miSDKImpl.h"
 #include "miEditableObject.h"
+#include "miVisualObjectImpl.h"
 
 extern miApplication * g_app;
 
@@ -465,6 +466,7 @@ void miEditableObject::_destroyMesh() {
 
 void miEditableObject::OnDrawUV() {
 	if (m_visualObject_vertex) m_visualObject_vertex->Draw(true);
+	if (m_visualObject_edge) m_visualObject_edge->Draw(true);
 }
 
 void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
@@ -950,6 +952,7 @@ void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
 			m_visualObject_polygon->CreateNewGPUModels(mesh);
 			break;
 		}
+		m_visualObject_vertex->CreateNewGPUModelsUV(m_mesh);
 	}
 	else
 	{
@@ -1462,3 +1465,76 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 	importeHelper.m_meshBuilder->m_mesh = 0;
 }
 
+void miEditableObject::UpdateUVSelection(miEditMode em) {
+	auto voc = GetVisualObjectCount();
+	for (int i = 0; i < voc; ++i)
+	{
+		auto vo = (miVisualObjectImpl*)GetVisualObject(i);
+		vo->UpdateUVSelection(em);
+	}
+}
+
+void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km) {
+	if (km != miKeyboardModifier::Alt && km != miKeyboardModifier::Ctrl)
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+					cv->m_data.m_flags ^= miPolygon::_vertex_data::flag_isSelected;
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+
+				if (sf->PointInFrust(v4f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y, 0.f)))
+				{
+					if (km == miKeyboardModifier::Alt)
+					{
+						if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+							cv->m_data.m_flags ^= miPolygon::_vertex_data::flag_isSelected;
+					}
+					else
+						cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+				}
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+	RebuildUVModel();
+}
+
+void miEditableObject::RebuildUVModel() {
+	auto voc = GetVisualObjectCount();
+	for (int i = 0; i < voc; ++i)
+	{
+		auto vo = (miVisualObjectImpl*)GetVisualObject(i);
+		vo->CreateNewGPUModelsUV(m_mesh);
+	}
+}
