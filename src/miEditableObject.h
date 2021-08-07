@@ -163,8 +163,8 @@ public:
 	void PolygonDuplicate();
 	void PolygonExtrude();
 
-	void UpdateUVSelection(miEditMode);
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier) override;
+	void UpdateUVSelection(miEditMode, Aabb*);
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, Aabb*) override;
 	void RebuildUVModel();
 };
 

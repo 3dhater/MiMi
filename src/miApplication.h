@@ -359,6 +359,8 @@ public:
 	miSDKImpl* m_sdk;
 	void CallPluginGUIOnCancel();
 
+	Aabb m_UVAabb;
+
 	friend class miEditableObject;
 	friend class miGizmo;
 	friend class miGUIManager;

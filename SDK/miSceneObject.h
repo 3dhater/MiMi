@@ -41,6 +41,8 @@ protected:
 	float m_cursorIntersectionPointDistance;
 	v4f m_cursorIntersectionPoint;
 
+	bool m_isUVSelected;
+
 	u32 m_flags;
 
 	// plugin must know type of this object
@@ -58,6 +60,7 @@ public:
 	miSceneObject(){
 		m_material = 0;
 		m_useMaterial = true;
+		m_isUVSelected = false;
 		m_typeForPlugin = 0;
 		m_flags = 0;
 		m_gui = 0;
@@ -68,6 +71,8 @@ public:
 	}
 	virtual ~miSceneObject() {}
 	
+	bool IsUVSelected() {return m_isUVSelected;}
+
 	/* correct only when
 		if(m_material){
 			if(m_material->m_second == 1)
@@ -212,7 +217,7 @@ public:
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);
 	}
 
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier) {
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, Aabb*) {
 	}
 
 

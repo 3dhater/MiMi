@@ -94,7 +94,6 @@ public:
 	virtual void OnTransform();
 	virtual void OnSelect(miEditMode);
 
-	void UpdateUVSelection(miEditMode em);
 };
 
 #endif
