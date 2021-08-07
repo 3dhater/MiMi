@@ -209,6 +209,7 @@ class miApplication
 	miEditMode m_editMode;
 	miTransformMode m_transformMode;
 	miGizmoMode m_gizmoMode;
+	miGizmoUVMode m_gizmoModeUV;
 	void _setGizmoMode(miGizmoMode);
 	void _transformObjects();
 	void _transformObjects_move(miSceneObject* o);
@@ -360,6 +361,8 @@ public:
 	void CallPluginGUIOnCancel();
 
 	Aabb m_UVAabb;
+	void TransformUV();
+
 
 	friend class miEditableObject;
 	friend class miGizmo;

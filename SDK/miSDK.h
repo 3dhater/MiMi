@@ -82,6 +82,20 @@ enum class miGizmoMode : u32 {
 	RotateY,
 	RotateZ,
 	RotateScreen,
+	Other
+};
+enum class miGizmoUVMode
+{
+	NoTransform,
+	LeftTop,
+	Top,
+	RightTop,
+	Left,
+	Right,
+	LeftBottom,
+	Bottom,
+	RightBottom,
+	Center
 };
 
 // Each viewport have something like camera + when you create object like a plane

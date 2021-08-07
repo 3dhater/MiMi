@@ -49,6 +49,8 @@ class miEditableObject : public miSceneObject
 
 	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected);
 
+	miArray<miListNode<miPolygon::_vertex_data>*> m_selectedUV;
+
 	friend class miApplication;
 	friend class miSDKImpl;
 	friend void editableObjectGUI_tgweldButton_onSelectSecond(miSceneObject* o, miVertex* v1, miVertex* v2);
@@ -164,7 +166,9 @@ public:
 	void PolygonExtrude();
 
 	void UpdateUVSelection(miEditMode, Aabb*);
+	virtual void UpdateUVAAABB(Aabb*) override;
 	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, Aabb*) override;
+	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
 	void RebuildUVModel();
 };
 

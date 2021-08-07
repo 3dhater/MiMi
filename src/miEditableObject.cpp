@@ -952,7 +952,6 @@ void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
 			m_visualObject_polygon->CreateNewGPUModels(mesh);
 			break;
 		}
-		m_visualObject_vertex->CreateNewGPUModelsUV(m_mesh);
 	}
 	else
 	{
@@ -962,6 +961,7 @@ void miEditableObject::RebuildVisualObjects(bool onlyEditMode) {
 			GetVisualObject(i)->CreateNewGPUModels(mesh);
 		}
 	}
+	m_visualObject_vertex->CreateNewGPUModelsUV(m_mesh);
 }
 
 void miEditableObject::OnSetEditMode(miEditMode em) {
@@ -1470,6 +1470,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 		return;
 
 	m_isUVSelected = false;
+	m_selectedUV.clear();
 
 	{
 		auto cp = m_mesh->m_first_polygon;
@@ -1507,6 +1508,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 				while (true)
 				{
 					cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+					m_selectedUV.push_back(cv);
 					aabb->add(v3f(cv->m_data.m_uv.x,0.f, cv->m_data.m_uv.y));
 					m_isUVSelected = true;
 
@@ -1535,6 +1537,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(vNode);
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -1542,6 +1545,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(vNode);
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -1553,6 +1557,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(vNode);
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -1560,6 +1565,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(vNode);
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -1587,6 +1593,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(vNode);
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -1604,10 +1611,23 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	}
 }
 
+void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
+	f32 v = 0.001f * w;
+	if (km == miKeyboardModifier::Alt)
+		v *= 0.01f;
+	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+	{
+		m_selectedUV.m_data[i]->m_data.m_uv.x += md.x * v;
+		m_selectedUV.m_data[i]->m_data.m_uv.y += md.y * v;
+	}
+}
+
 void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aabb* aabb) {
 	m_isUVSelected = false;
 
 	DeselectAll(g_app->m_editMode);
+	
+	m_selectedUV.clear();
 
 	if (km != miKeyboardModifier::Alt && km != miKeyboardModifier::Ctrl)
 	{
@@ -1651,6 +1671,7 @@ void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aab
 					else
 					{
 						cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+						m_selectedUV.push_back(cv);
 						m_isUVSelected = true;
 						aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
 					}
@@ -1674,5 +1695,29 @@ void miEditableObject::RebuildUVModel() {
 	{
 		auto vo = (miVisualObjectImpl*)GetVisualObject(i);
 		vo->CreateNewGPUModelsUV(m_mesh);
+	}
+}
+
+void miEditableObject::UpdateUVAAABB(Aabb* aabb) {
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if(cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+					aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
 	}
 }

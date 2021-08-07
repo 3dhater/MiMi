@@ -195,7 +195,7 @@ miApplication::miApplication() {
 	m_isEdgeMouseHover = false;
 	m_objectParametersMode = miObjectParametersMode::CommonParameters;
 	m_gizmoMode = miGizmoMode::NoTransform;
-	//m_isGizmoInput = false;
+	m_gizmoModeUV = miGizmoUVMode::NoTransform;
 	m_isGizmoMouseHover = false;
 	m_onImport_importer = 0;
 	m_gizmo = 0;
@@ -648,21 +648,21 @@ bool miApplication::Init(const char* videoDriver) {
 
 		switch ((miCursorType)i)
 		{
-		case miCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SelectObject: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case miCursorType::SelectVertex: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SelectObject: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::SelectVertex: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		default:break;
 		}
 
@@ -789,7 +789,7 @@ vidOk:
 	
 		yyMegaAllocator::Destroy(model);
 
-		m_UVPlaneTexture = yyCreateTextureFromFile("../../../010.tga");
+		m_UVPlaneTexture = yyCreateTextureFromFile("../res/UV.png");
 		m_UVPlaneTexture->Load();
 	}
 
@@ -1196,6 +1196,29 @@ void miApplication::_isObjectMouseHover() {
 }
 
 void miApplication::UpdateViewports() {
+	//if (m_isCursorInUVEditor)
+	{
+		if (m_gizmoModeUV != miGizmoUVMode::NoTransform)
+		{
+			if (m_inputContext->m_isLMBUp)
+			{
+				m_gizmoModeUV = miGizmoUVMode::NoTransform;
+				m_gizmoMode = miGizmoMode::NoTransform;
+				m_UVAabb.reset();
+				for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+				{
+					m_selectedObjects.m_data[i]->UpdateUVAAABB(&m_UVAabb);
+				}
+				return;
+			}
+
+			if (m_isCursorMove)
+			{
+				TransformUV();
+			}
+		}
+	}
+
 	if (m_isCursorInViewport)
 	{
 		if (m_inputContext->m_isRMBUp && m_gizmoMode == miGizmoMode::NoTransform)
@@ -2159,4 +2182,17 @@ void miApplication::SetEditorType(miEditorType t){
 	m_activeViewportLayout->ShowGUI();
 
 	m_activeViewportLayout->m_activeViewport->UpdateAspect();
+}
+
+void miApplication::TransformUV() 
+{
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		if (obj->m_isUVSelected)
+		{
+			obj->TransformUV(m_gizmoModeUV, m_keyboardModifier, m_inputContext->m_mouseDelta, m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionPlatform.w);
+			obj->RebuildVisualObjects(false);
+		}
+	}
 }
