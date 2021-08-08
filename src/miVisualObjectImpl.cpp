@@ -172,16 +172,18 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 			{
 
 				v4f color(1.f, 1.f, 0.f, 1.f);
+				f32 y = 0.f;
 				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
 				{
 					color.set(1.0f, 0.f, 0.f, 1.f);
+					y = 0.001f;
 				}
 
 				m_node_UV_CPU->m_ptrs.push_back(cv);
 				
 				vertex_ptr->Color = color;
 				vertex_ptr->Position.x = cv->m_data.m_uv.x;
-				vertex_ptr->Position.y = 0.f;
+				vertex_ptr->Position.y = y;
 				vertex_ptr->Position.z = cv->m_data.m_uv.y;
 				vertex_ptr++;
 

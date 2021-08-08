@@ -1209,6 +1209,8 @@ void miApplication::UpdateViewports() {
 				{
 					m_selectedObjects.m_data[i]->UpdateUVAAABB(&m_UVAabb);
 				}
+				m_viewportInMouseFocus = 0;
+				m_isViewportInFocus = false;
 				return;
 			}
 
@@ -1221,7 +1223,8 @@ void miApplication::UpdateViewports() {
 
 	if (m_isCursorInViewport)
 	{
-		if (m_inputContext->m_isRMBUp && m_gizmoMode == miGizmoMode::NoTransform)
+		if (m_inputContext->m_isRMBUp && m_gizmoMode == miGizmoMode::NoTransform
+			&& !m_isCursorInUVEditor)
 		{
 			miPopup* p = _getPopupInViewport();
 			ShowPopupAtCursor(p);
@@ -1238,14 +1241,33 @@ void miApplication::UpdateViewports() {
 						m_inputContext->m_cursorCoords.y - _size,
 						m_inputContext->m_cursorCoords.x + _size,
 						m_inputContext->m_cursorCoords.y + _size),
-					m_activeViewportLayout->m_activeViewport->m_currentRect,
-					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-				if (m_editMode == miEditMode::Vertex)
+					m_viewportUnderCursor->m_currentRect,
+					m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix);
+					//m_activeViewportLayout->m_activeViewport->m_currentRect,
+					//m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				if (m_gizmoModeUV != miGizmoUVMode::NoTransform)
 				{
-					_isObjectMouseHover();
-					if (m_cursorBehaviorMode != miCursorBehaviorMode::SelectVertex)
+					if (m_editMode == miEditMode::Vertex)
 					{
-						if (m_mouseHoverVertex)
+						_isObjectMouseHover();
+						if (m_cursorBehaviorMode != miCursorBehaviorMode::SelectVertex)
+						{
+							if (m_mouseHoverVertex)
+							{
+								yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+								m_cursors[(u32)miCursorType::Cross]->Activate();
+							}
+							else
+							{
+								yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+								m_cursors[(u32)miCursorType::Arrow]->Activate();
+							}
+						}
+					}
+					else if (m_editMode == miEditMode::Edge)
+					{
+						_isObjectMouseHover();
+						if (m_isEdgeMouseHover)
 						{
 							yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
 							m_cursors[(u32)miCursorType::Cross]->Activate();
@@ -1255,20 +1277,6 @@ void miApplication::UpdateViewports() {
 							yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
 							m_cursors[(u32)miCursorType::Arrow]->Activate();
 						}
-					}
-				}
-				else if (m_editMode == miEditMode::Edge)
-				{
-					_isObjectMouseHover();
-					if (m_isEdgeMouseHover)
-					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
-						m_cursors[(u32)miCursorType::Cross]->Activate();
-					}
-					else
-					{
-						yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
-						m_cursors[(u32)miCursorType::Arrow]->Activate();
 					}
 				}
 			}
@@ -1527,6 +1535,9 @@ void miApplication::UpdateViewports() {
 	//if(m_isCursorInGUI) printf("InGUI");
 	//m_isGizmoInput = false;
 
+//	if(m_viewportInMouseFocus)
+//		printf("%u\n", (u32)m_viewportInMouseFocus);
+
 	if (m_isCursorInWindow && !m_isCursorInGUI)
 	{
 		if (m_inputContext->m_isMMBDown || m_inputContext->m_isLMBDown)
@@ -1539,10 +1550,13 @@ void miApplication::UpdateViewports() {
 	if (m_inputContext->m_isLMBUp || m_inputContext->m_isMMBUp)
 	{
 		m_isViewportInFocus = false;
+		m_viewportInMouseFocus = 0;
 	}
 }
 
 bool miApplication::IsMouseFocusInUVEditor() {
+	if (!m_viewportInMouseFocus)
+		return false;
 	return m_viewportInMouseFocus->m_cameraType == miViewportCameraType::UV;
 }
 
@@ -2096,6 +2110,9 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 }
 
 void miApplication::DeleteSelected() {
+	if (m_isCursorInUVEditor || IsMouseFocusInUVEditor() || m_activeViewportLayout->m_activeViewport->m_cameraType == miViewportCameraType::UV)
+		return;
+
 	switch (m_editMode)
 	{
 	case miEditMode::Vertex:

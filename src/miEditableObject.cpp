@@ -617,6 +617,8 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		GetVisualObject(i)->CreateNewGPUModels(m_mesh);
 	}
+	this->UpdateUVSelection(em, &g_app->m_UVAabb);
+	this->RebuildUVModel();
 }
 
 void miEditableObject::DeletePolygon(miPolygon* _polygon) {
@@ -1625,7 +1627,8 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aabb* aabb) {
 	m_isUVSelected = false;
 
-	DeselectAll(g_app->m_editMode);
+	if(g_app->m_editMode != miEditMode::Object)
+		DeselectAll(g_app->m_editMode);
 	
 	m_selectedUV.clear();
 

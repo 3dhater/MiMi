@@ -275,9 +275,9 @@ void miApplication::UpdateSelectionAabb() {
 }
 
 void miApplication::_onSelect() {
+	m_UVAabb.reset();
 	if (IsMouseFocusInUVEditor())
 	{
-		m_UVAabb.reset();
 
 		if (m_isSelectByRectangle)
 		{
@@ -298,6 +298,7 @@ void miApplication::_onSelect() {
 		{
 			m_selectedObjects.m_data[i]->SelectUV(m_selectionFrust, m_keyboardModifier, &m_UVAabb);
 		}
+		printf("a\n");
 		return;
 	}
 
