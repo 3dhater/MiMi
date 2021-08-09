@@ -1612,11 +1612,44 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	}
 }
 
-void miEditableObject::TransformUVCancel(const Aabb& currAabb, const v4f& aabbCenterOnClick) {
-	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+void miEditableObject::TransformUVCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {
+	switch (gm)
 	{
-		m_selectedUV.m_data[i]->m_data.m_uv.x -= g_app->m_UVAabbMoveOffset.x;
-		m_selectedUV.m_data[i]->m_data.m_uv.y -= g_app->m_UVAabbMoveOffset.y;
+	case miGizmoUVMode::NoTransform:
+		break;
+	case miGizmoUVMode::LeftTop:
+	case miGizmoUVMode::RightTop:
+	case miGizmoUVMode::LeftBottom:
+	case miGizmoUVMode::RightBottom:
+		break;
+	case miGizmoUVMode::Top:
+	case miGizmoUVMode::Left:
+	case miGizmoUVMode::Right:
+	case miGizmoUVMode::Bottom: {
+		f32 a = -g_app->m_UVAngle;
+		auto s = std::sin(a);
+		auto c = std::cos(a);
+		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+		{
+			auto x = m_selectedUV.m_data[i]->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
+			auto y = m_selectedUV.m_data[i]->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x = x * c - y * s;
+			m_selectedUV.m_data[i]->m_data.m_uv.y = x * s + y * c;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
+			m_selectedUV.m_data[i]->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
+		}
+	}break;
+	case miGizmoUVMode::Center:
+		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+		{
+			m_selectedUV.m_data[i]->m_data.m_uv.x -= g_app->m_UVAabbMoveOffset.x;
+			m_selectedUV.m_data[i]->m_data.m_uv.y -= g_app->m_UVAabbMoveOffset.y;
+		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -1626,13 +1659,11 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 	case miGizmoUVMode::NoTransform:
 		break;
 	case miGizmoUVMode::LeftTop:
-		break;
 	case miGizmoUVMode::RightTop:
-		break;
 	case miGizmoUVMode::LeftBottom:
-		break;
-	case miGizmoUVMode::RightBottom:
-		break;
+	case miGizmoUVMode::RightBottom:{
+
+	}break;
 	case miGizmoUVMode::Top:
 	case miGizmoUVMode::Left:
 	case miGizmoUVMode::Right:
@@ -1658,6 +1689,7 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 			m_selectedUV.m_data[i]->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
 		}
 
+		g_app->m_UVAngle += a;
 	}break;
 	case miGizmoUVMode::Center:
 	{

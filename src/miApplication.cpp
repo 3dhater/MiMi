@@ -1199,6 +1199,7 @@ void miApplication::_isObjectMouseHover() {
 void miApplication::OnGizmoUVClick() {
 	m_UVAabb.center(m_UVAabbCenterOnClick);
 	m_UVAabbMoveOffset.set(0.f);
+	m_UVAngle = 0.f;
 }
 
 void miApplication::UpdateViewports() {
@@ -2255,7 +2256,7 @@ void miApplication::TransformUVCancel() {
 		auto obj = m_selectedObjects.m_data[i];
 		if (obj->m_isUVSelected)
 		{
-			obj->TransformUVCancel(m_UVAabb, m_UVAabbCenterOnClick);
+			obj->TransformUVCancel(m_gizmoModeUV, m_UVAabb, m_UVAabbCenterOnClick);
 			obj->RebuildVisualObjects(false);
 		}
 	}
