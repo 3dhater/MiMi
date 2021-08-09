@@ -220,6 +220,7 @@ public:
 	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) {}
 	virtual void UpdateUVAAABB(Aabb*) {}
 	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
+	virtual void TransformUVCancel(const Aabb& currAabb, const v4f& aabbCenterOnClick) {}
 
 
 	// select object

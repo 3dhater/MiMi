@@ -1195,13 +1195,24 @@ void miApplication::_isObjectMouseHover() {
 	}
 }
 
+void miApplication::OnGizmoUVClick() {
+	m_UVAabb.center(m_UVAabbCenterOnClick);
+	m_UVAabbMoveOffset.set(0.f);
+}
+
 void miApplication::UpdateViewports() {
 	//if (m_isCursorInUVEditor)
 	{
 		if (m_gizmoModeUV != miGizmoUVMode::NoTransform)
 		{
-			if (m_inputContext->m_isLMBUp)
+			if (m_inputContext->m_isLMBUp || m_inputContext->m_isRMBUp)
 			{
+				if (m_inputContext->m_isRMBUp)
+				{
+					TransformUVCancel();
+				}
+				m_UVAabbMoveOffset.set(0.f);
+
 				m_gizmoModeUV = miGizmoUVMode::NoTransform;
 				m_gizmoMode = miGizmoMode::NoTransform;
 				m_UVAabb.reset();
@@ -1213,8 +1224,7 @@ void miApplication::UpdateViewports() {
 				m_isViewportInFocus = false;
 				return;
 			}
-
-			if (m_isCursorMove)
+			if (m_isCursorMove && !m_inputContext->m_isRMBUp)
 			{
 				TransformUV();
 			}
@@ -2224,13 +2234,30 @@ void miApplication::SetEditorType(miEditorType t){
 		m_activeViewportLayout = m_UVViewport;
 		if(!isSame)
 			m_UVViewport->m_viewports.m_data[1]->Copy(prev3DViewport->m_activeViewport);
+		m_activeViewportLayout->m_activeViewport = m_UVViewport->m_viewports.m_data[0];
 		break;
 	default:
 		break;
 	}
 	m_activeViewportLayout->ShowGUI();
+	for (u32 i = 0; i < m_activeViewportLayout->m_viewports.size(); ++i)
+	{
+		m_activeViewportLayout->m_viewports.m_data[i]->OnWindowSize();
+	}
+	m_2d->UpdateClip();
+}
 
-	m_activeViewportLayout->m_activeViewport->UpdateAspect();
+void miApplication::TransformUVCancel() {
+
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		if (obj->m_isUVSelected)
+		{
+			obj->TransformUVCancel(m_UVAabb, m_UVAabbCenterOnClick);
+			obj->RebuildVisualObjects(false);
+		}
+	}
 }
 
 void miApplication::TransformUV() 

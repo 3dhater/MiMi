@@ -1612,15 +1612,27 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	}
 }
 
+void miEditableObject::TransformUVCancel(const Aabb& currAabb, const v4f& aabbCenterOnClick) {
+	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+	{
+		m_selectedUV.m_data[i]->m_data.m_uv.x -= g_app->m_UVAabbMoveOffset.x;
+		m_selectedUV.m_data[i]->m_data.m_uv.y -= g_app->m_UVAabbMoveOffset.y;
+	}
+}
+
 void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
 	f32 v = 0.001f * w;
 	if (km == miKeyboardModifier::Alt)
 		v *= 0.01f;
+	auto X = md.x * v;
+	auto Y = md.y * v;
 	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 	{
-		m_selectedUV.m_data[i]->m_data.m_uv.x += md.x * v;
-		m_selectedUV.m_data[i]->m_data.m_uv.y += md.y * v;
+		m_selectedUV.m_data[i]->m_data.m_uv.x += X;
+		m_selectedUV.m_data[i]->m_data.m_uv.y += Y;
 	}
+	g_app->m_UVAabbMoveOffset.x += X;
+	g_app->m_UVAabbMoveOffset.y += Y;
 }
 
 void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, miEditMode em, Aabb* aabb) {

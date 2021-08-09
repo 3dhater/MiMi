@@ -362,8 +362,11 @@ public:
 	void CallPluginGUIOnCancel();
 
 	Aabb m_UVAabb;
+	v4f m_UVAabbCenterOnClick;
+	v4f m_UVAabbMoveOffset;
 	void TransformUV();
-
+	void TransformUVCancel();
+	void OnGizmoUVClick();
 
 	friend class miEditableObject;
 	friend class miGizmo;
