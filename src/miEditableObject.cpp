@@ -1621,18 +1621,62 @@ void miEditableObject::TransformUVCancel(const Aabb& currAabb, const v4f& aabbCe
 }
 
 void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
-	f32 v = 0.001f * w;
-	if (km == miKeyboardModifier::Alt)
-		v *= 0.01f;
-	auto X = md.x * v;
-	auto Y = md.y * v;
-	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+	switch (gm)
 	{
-		m_selectedUV.m_data[i]->m_data.m_uv.x += X;
-		m_selectedUV.m_data[i]->m_data.m_uv.y += Y;
+	case miGizmoUVMode::NoTransform:
+		break;
+	case miGizmoUVMode::LeftTop:
+		break;
+	case miGizmoUVMode::RightTop:
+		break;
+	case miGizmoUVMode::LeftBottom:
+		break;
+	case miGizmoUVMode::RightBottom:
+		break;
+	case miGizmoUVMode::Top:
+	case miGizmoUVMode::Left:
+	case miGizmoUVMode::Right:
+	case miGizmoUVMode::Bottom: {
+		f32 v = 0.001f * w;
+		if (km == miKeyboardModifier::Alt)
+			v *= 0.01f;
+		auto a = md.x * v;
+
+		auto s = std::sin(a);
+		auto c = std::cos(a);
+		//printf("a:%f s:%f  c:%f\n", a,  s, c);
+
+		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+		{
+			auto x = m_selectedUV.m_data[i]->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
+			auto y = m_selectedUV.m_data[i]->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x = x * c - y * s;
+			m_selectedUV.m_data[i]->m_data.m_uv.y = x * s + y * c;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
+			m_selectedUV.m_data[i]->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
+		}
+
+	}break;
+	case miGizmoUVMode::Center:
+	{
+		f32 v = 0.001f * w;
+		if (km == miKeyboardModifier::Alt)
+			v *= 0.01f;
+		auto X = md.x * v;
+		auto Y = md.y * v;
+		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+		{
+			m_selectedUV.m_data[i]->m_data.m_uv.x += X;
+			m_selectedUV.m_data[i]->m_data.m_uv.y += Y;
+		}
+		g_app->m_UVAabbMoveOffset.x += X;
+		g_app->m_UVAabbMoveOffset.y += Y;
+	}break;
+	default:
+		break;
 	}
-	g_app->m_UVAabbMoveOffset.x += X;
-	g_app->m_UVAabbMoveOffset.y += Y;
 }
 
 void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, miEditMode em, Aabb* aabb) {

@@ -96,6 +96,7 @@ enum class miCursorType : u32
 
 	SelectObject,
 	SelectVertex,
+	Rotate,
 	_count
 };
 

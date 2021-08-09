@@ -517,7 +517,7 @@ void miViewport::OnDrawUV()
 
 		if (g_app->m_selectionFrust->PointInFrust(p1))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::LeftTop;
@@ -526,7 +526,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p2))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::RightTop;
@@ -535,7 +535,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p3))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::LeftBottom;
@@ -544,7 +544,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p4))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::RightBottom;
@@ -553,7 +553,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p1_2))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::Top;
@@ -562,7 +562,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p1_3))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::Left;
@@ -571,7 +571,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p3_4))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::Bottom;
@@ -580,7 +580,7 @@ void miViewport::OnDrawUV()
 		}
 		else if (g_app->m_selectionFrust->PointInFrust(p2_4))
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SelectVertex]);
+			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
 			if (g_app->m_inputContext->m_isLMBDown)
 			{
 				g_app->m_gizmoModeUV = miGizmoUVMode::Right;

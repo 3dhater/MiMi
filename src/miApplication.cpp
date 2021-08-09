@@ -663,6 +663,7 @@ bool miApplication::Init(const char* videoDriver) {
 		case miCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case miCursorType::SelectObject: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case miCursorType::SelectVertex: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case miCursorType::Rotate: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/cursors/rotate.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		default:break;
 		}
 
