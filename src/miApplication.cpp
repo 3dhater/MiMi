@@ -2071,6 +2071,7 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 		m_GUIManager->m_button_objectCommonParams->m_isChecked = true;
 		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
 		m_GUIManager->m_button_materials->m_isChecked = false;
+		m_GUIManager->m_button_UV->m_isChecked = false;
 
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(true);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(true);
@@ -2078,11 +2079,15 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 
 		m_GUIManager->m_gui_drawGroup_materials->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_materials->SetInput(false);
+
+		m_GUIManager->m_gui_drawGroup_UV->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_UV->SetInput(false);
 		break;
 	case miObjectParametersMode::ObjectParameters:
 		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
 		m_GUIManager->m_button_objectObjectParams->m_isChecked = true;
 		m_GUIManager->m_button_materials->m_isChecked = false;
+		m_GUIManager->m_button_UV->m_isChecked = false;
 
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
@@ -2090,11 +2095,15 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 
 		m_GUIManager->m_gui_drawGroup_materials->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_materials->SetInput(false);
+
+		m_GUIManager->m_gui_drawGroup_UV->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_UV->SetInput(false);
 		break;
 	case miObjectParametersMode::Materials:
 		m_GUIManager->m_button_materials->m_isChecked = true;
 		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
 		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
+		m_GUIManager->m_button_UV->m_isChecked = false;
 
 		m_GUIManager->m_gui_drawGroup_materials->SetDraw(true);
 		m_GUIManager->m_gui_drawGroup_materials->SetInput(true);
@@ -2102,6 +2111,25 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 
 		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
 		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
+
+		m_GUIManager->m_gui_drawGroup_UV->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_UV->SetInput(false);
+		break;
+	case miObjectParametersMode::UV:
+		m_GUIManager->m_button_materials->m_isChecked = false;
+		m_GUIManager->m_button_objectCommonParams->m_isChecked = false;
+		m_GUIManager->m_button_objectObjectParams->m_isChecked = false;
+		m_GUIManager->m_button_UV->m_isChecked = true;
+
+		m_GUIManager->m_gui_drawGroup_materials->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_materials->SetInput(false);
+		showPluginGui(false);
+
+		m_GUIManager->m_gui_drawGroup_commonParams->SetDraw(false);
+		m_GUIManager->m_gui_drawGroup_commonParams->SetInput(false);
+
+		m_GUIManager->m_gui_drawGroup_UV->SetDraw(true);
+		m_GUIManager->m_gui_drawGroup_UV->SetInput(true);
 		break;
 	default:
 		YY_PRINT_FAILED;
@@ -2173,6 +2201,8 @@ void miApplication::SetEditorType(miEditorType t){
 	static miViewportLayout* prev3DViewport = 0;
 	static auto last = m_editorType;
 
+	bool isSame = m_editorType == t;
+
 	if (last == miEditorType::_3D)
 	{
 		prev3DViewport = m_activeViewportLayout;
@@ -2192,7 +2222,8 @@ void miApplication::SetEditorType(miEditorType t){
 	case miEditorType::UV:
 		printf("Editor Type: UV\n");
 		m_activeViewportLayout = m_UVViewport;
-		m_UVViewport->m_viewports.m_data[1]->Copy(prev3DViewport->m_activeViewport);
+		if(!isSame)
+			m_UVViewport->m_viewports.m_data[1]->Copy(prev3DViewport->m_activeViewport);
 		break;
 	default:
 		break;

@@ -104,6 +104,7 @@ public:
 	yyGUIButton*  m_button_objectCommonParams;
 	yyGUIButton*  m_button_objectObjectParams;
 	yyGUIButton*  m_button_materials;
+	yyGUIButton*  m_button_UV;
 	
 	yyGUIGroup*   m_gui_group_commonParams;
 	yyGUIDrawGroup* m_gui_drawGroup_commonParams;
@@ -131,6 +132,9 @@ public:
 	yyGUIComboBox* m_editorTypeCombo;
 	yyGUIComboBoxItem* m_editorTypeComboItem_3D;
 	yyGUIComboBoxItem* m_editorTypeComboItem_UV;
+	
+	yyGUIDrawGroup* m_gui_drawGroup_UV;
+	yyGUIGroup*   m_gui_group_UV;
 };
 
 #endif

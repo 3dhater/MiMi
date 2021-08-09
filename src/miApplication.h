@@ -73,7 +73,8 @@ enum class miObjectParametersMode
 {
 	CommonParameters,
 	ObjectParameters,
-	Materials
+	Materials,
+	UV
 };
 
 

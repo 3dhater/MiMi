@@ -81,6 +81,9 @@ void gui_buttonObjectCommonParams_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonObjectObjectParams_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::ObjectParameters);
 }
+void gui_buttonUV_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->SetObjectParametersMode(miObjectParametersMode::UV);
+}
 void gui_buttonMaterials_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::Materials);
 }
@@ -89,6 +92,10 @@ void gui_buttonMaterialsAdd_onRelease(yyGUIElement* elem, s32 m_id) {
 }
 void gui_buttonMaterialsDelete_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteSelectedMaterial();
+}
+void gui_buttonUvOpenEditor_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_app->SetEditorType(miEditorType::UV);
+	g_guiManager->m_editorTypeCombo->SelectItem(g_guiManager->m_editorTypeComboItem_UV);
 }
 void gui_buttonMaterialsAssign_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->AssignSelectedMaterial();
@@ -305,6 +312,7 @@ miGUIManager::miGUIManager(){
 	m_gui_group_commonParams_range_PositionZ = 0;
 
 	m_button_materials = 0;
+	m_button_UV = 0;
 
 	m_isMainMenuInCursor = false;
 	m_isMainMenuActive = false;
@@ -683,6 +691,27 @@ miGUIManager::miGUIManager(){
 		m_mainMenu_Y += h;
 	}
 
+	//m_button_UV
+	{
+		v4f uvregion1(72.f, 120.f, 95.f, 143.f);
+		f32 w = (f32)(uvregion1.z - uvregion1.x);
+		f32 h = (f32)(uvregion1.w - uvregion1.y);
+		m_button_UV = yyGUICreateButton(v4f(
+			window->m_creationSize.x - miViewportRightIndent,
+			m_mainMenu_Y,
+			window->m_creationSize.x - miViewportRightIndent + w,
+			m_mainMenu_Y + h
+		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		m_button_UV->m_align = yyGUIElement::AlignRightTop;
+		m_button_UV->m_onClick = gui_buttonUV_onClick;
+		m_button_UV->m_useBackground = true;
+		m_button_UV->m_isAnimated = true;
+		m_button_UV->m_useAsCheckbox = true;
+		m_button_UV->m_buttonGroup = m_buttonGroup_rightSide;
+		m_buttonGroup_rightSide->m_buttons.push_back(m_button_objectObjectParams);
+		m_mainMenu_Y += h;
+	}
+
 	// COMMON PARAMS
 	auto y = miViewportTopIndent + topIndent;
 	m_gui_drawGroup_commonParams = yyGUICreateDrawGroup();
@@ -801,27 +830,27 @@ miGUIManager::miGUIManager(){
 			addButton->m_bgColor.set(0.5f);
 			addButton->m_bgColorHover.set(0.65f);
 			addButton->m_bgColorPress.set(0.35f);
-			addButton->m_textColor.set(0.95f);
-			addButton->m_textColorHover.set(1.f);
-			addButton->m_textColorPress.set(0.6f);
-			m_gui_group_materials->AddElement(addButton);
+addButton->m_textColor.set(0.95f);
+addButton->m_textColorHover.set(1.f);
+addButton->m_textColorPress.set(0.6f);
+m_gui_group_materials->AddElement(addButton);
 		}
 
 		{
-			x += groupRect.z - groupRect.x - 40.f;
-			auto deleteButton = yyGUICreateButton(
-				v4f(x, y, x + 40.f, y + addButtonY),
-				0, -1, m_gui_drawGroup_materials, 0);
-			deleteButton->SetText(L"Delete", m_fontDefault, false);
-			deleteButton->m_isAnimated = true;
-			deleteButton->m_onRelease = gui_buttonMaterialsDelete_onRelease;
-			deleteButton->m_bgColor = ColorDarkRed;
-			deleteButton->m_bgColorHover.set(0.65f);
-			deleteButton->m_bgColorPress.set(0.35f);
-			deleteButton->m_textColor.set(0.95f);
-			deleteButton->m_textColorHover.set(1.f);
-			deleteButton->m_textColorPress.set(0.6f);
-			m_gui_group_materials->AddElement(deleteButton);
+		x += groupRect.z - groupRect.x - 40.f;
+		auto deleteButton = yyGUICreateButton(
+			v4f(x, y, x + 40.f, y + addButtonY),
+			0, -1, m_gui_drawGroup_materials, 0);
+		deleteButton->SetText(L"Delete", m_fontDefault, false);
+		deleteButton->m_isAnimated = true;
+		deleteButton->m_onRelease = gui_buttonMaterialsDelete_onRelease;
+		deleteButton->m_bgColor = ColorDarkRed;
+		deleteButton->m_bgColorHover.set(0.65f);
+		deleteButton->m_bgColorPress.set(0.35f);
+		deleteButton->m_textColor.set(0.95f);
+		deleteButton->m_textColorHover.set(1.f);
+		deleteButton->m_textColorPress.set(0.6f);
+		m_gui_group_materials->AddElement(deleteButton);
 		}
 
 		{
@@ -899,7 +928,56 @@ miGUIManager::miGUIManager(){
 			loadImageButton->m_textColorPress.set(0.6f);
 			m_gui_group_materials->AddElement(loadImageButton);
 		}
+	}
 
+	// UV
+	{
+		//m_gui_drawGroup_UV
+		v4f groupRect = v4f(
+			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize,
+			miViewportTopIndent + topIndent,
+			window->m_creationSize.x,
+			window->m_creationSize.y);
+
+		m_gui_drawGroup_UV = yyGUICreateDrawGroup();
+		m_gui_drawGroup_UV->SetDraw(false);
+		m_gui_drawGroup_UV->SetInput(false);
+
+		auto currDrawGroup = m_gui_drawGroup_UV;
+
+		m_gui_group_UV = yyGUICreateGroup(
+			groupRect,
+			-1, currDrawGroup);
+		m_gui_group_UV->m_align = m_gui_group_UV->AlignRightTop;
+		f32 y = 0.f;
+		f32 x = 0;
+		{
+			auto t = yyGUICreateText(v2f(x, y),
+				m_fontDefault, L"UV Editor:", currDrawGroup);
+			t->IgnoreInput(true);
+			m_gui_group_UV->AddElement(t);
+			y += m_fontDefault->m_maxHeight;
+		}
+
+		f32 openEditorButtonY = 20.f;
+		{
+			x += 10.f; ;
+			auto openEditorButton = yyGUICreateButton(
+				v4f(x, y, groupRect.z - groupRect.x - 10.f, y + openEditorButtonY),
+				0, -1, currDrawGroup, 0);
+			openEditorButton->m_bgColor.set(0.5f);
+			openEditorButton->m_bgColorHover.set(0.65f);
+			openEditorButton->m_bgColorPress.set(0.35f);
+			openEditorButton->m_textColor.set(0.95f);
+			openEditorButton->m_textColorHover.set(1.f);
+			openEditorButton->m_textColorPress.set(0.6f);
+			openEditorButton->SetText(L"Open UV editor", m_fontDefault, false);
+			openEditorButton->m_isAnimated = true;
+			openEditorButton->m_onRelease = gui_buttonUvOpenEditor_onRelease;
+			m_gui_group_UV->AddElement(openEditorButton);
+		}
+
+		y += openEditorButtonY;
 	}
 }
 
