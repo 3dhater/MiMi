@@ -363,6 +363,7 @@ public:
 	void CallPluginGUIOnCancel();
 
 	Aabb m_UVAabb;
+	Aabb m_UVAabbOnClick;
 	v4f m_UVAabbCenterOnClick;
 	v4f m_UVAabbMoveOffset;
 	f32 m_UVAngle;

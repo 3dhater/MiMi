@@ -298,6 +298,7 @@ void miApplication::_onSelect() {
 		{
 			m_selectedObjects.m_data[i]->SelectUV(m_selectionFrust, m_keyboardModifier, m_editMode, &m_UVAabb);
 		}
+		m_UVAabbOnClick = m_UVAabb;
 		return;
 	}
 

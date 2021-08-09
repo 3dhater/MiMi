@@ -448,11 +448,13 @@ void miViewport::OnDrawUV()
 		f32 indent = 0.018f * zoom;
 
 		//m_UVAabbMoveOffset
+		v4f aabbMin = g_app->m_UVAabbOnClick.m_min;
+		v4f aabbMax = g_app->m_UVAabbOnClick.m_max;
 
-		auto p1 = v4f(g_app->m_UVAabb.m_min.x - indent, 0.f, g_app->m_UVAabb.m_min.z - indent, 0.f); // LT
-		auto p2 = v4f(g_app->m_UVAabb.m_max.x + indent, 0.f, g_app->m_UVAabb.m_min.z - indent, 0.f); // RT
-		auto p3 = v4f(g_app->m_UVAabb.m_min.x - indent, 0.f, g_app->m_UVAabb.m_max.z + indent, 0.f); // LB
-		auto p4 = v4f(g_app->m_UVAabb.m_max.x + indent, 0.f, g_app->m_UVAabb.m_max.z + indent, 0.f); // RB
+		auto p1 = v4f(aabbMin.x - indent, 0.f, aabbMin.z - indent, 0.f); // LT
+		auto p2 = v4f(aabbMax.x + indent, 0.f, aabbMin.z - indent, 0.f); // RT
+		auto p3 = v4f(aabbMin.x - indent, 0.f, aabbMax.z + indent, 0.f); // LB
+		auto p4 = v4f(aabbMax.x + indent, 0.f, aabbMax.z + indent, 0.f); // RB
 
 		auto p1_2 = (p1 + p2) * 0.5f; // Top
 		auto p1_3 = (p1 + p3) * 0.5f; // Left
@@ -460,60 +462,71 @@ void miViewport::OnDrawUV()
 		auto p2_4 = (p2 + p4) * 0.5f; // Right
 		auto pCenter = (p1 + p4) * 0.5f;
 
+		auto dp1 = v4f(g_app->m_UVAabb.m_min.x - indent, 0.f, g_app->m_UVAabb.m_min.z - indent, 0.f); // LT
+		auto dp2 = v4f(g_app->m_UVAabb.m_max.x + indent, 0.f, g_app->m_UVAabb.m_min.z - indent, 0.f); // RT
+		auto dp3 = v4f(g_app->m_UVAabb.m_min.x - indent, 0.f, g_app->m_UVAabb.m_max.z + indent, 0.f); // LB
+		auto dp4 = v4f(g_app->m_UVAabb.m_max.x + indent, 0.f, g_app->m_UVAabb.m_max.z + indent, 0.f); // RB
+
+		auto dp1_2 = (dp1 + dp2) * 0.5f; // Top
+		auto dp1_3 = (dp1 + dp3) * 0.5f; // Left
+		auto dp3_4 = (dp3 + dp4) * 0.5f; // Bottom
+		auto dp2_4 = (dp2 + dp4) * 0.5f; // Right
+		auto dpCenter = (dp1 + dp4) * 0.5f;
+
 		v4f moveOffset(g_app->m_UVAabbMoveOffset.x, 0.f, g_app->m_UVAabbMoveOffset.y, 0.f);
 
-		m_gpu->DrawLine3D(p1 + moveOffset, p2 + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1 + moveOffset, p3 + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 + moveOffset, dp2 + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 + moveOffset, dp3 + moveOffset, ColorRed);
 	
-		m_gpu->DrawLine3D(p3 + moveOffset, p4 + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2 + moveOffset, p4 + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3 + moveOffset, dp4 + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2 + moveOffset, dp4 + moveOffset, ColorRed);
 
 
 		f32 cornersSize = 0.003f * zoom;
-		m_gpu->DrawLine3D(p1 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p1 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp1 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p1_2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p1_2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp1_2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp2 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p1_3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p1_3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p1_3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p1_3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_3 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_3 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp1_3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp1_3 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp1_3 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p3_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p3_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p3_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p3_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp3_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp3_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp3_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(p2_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, p2_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(p2_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, p2_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2_4 - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2_4 + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dp2_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dp2_4 + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dp2_4 + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		m_gpu->DrawLine3D(pCenter - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, pCenter + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(pCenter - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, pCenter + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(pCenter + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, pCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
-		m_gpu->DrawLine3D(pCenter + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, pCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dpCenter - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dpCenter + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dpCenter - v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dpCenter + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dpCenter + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dpCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
+		m_gpu->DrawLine3D(dpCenter + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dpCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
 		if (g_app->m_selectionFrust->PointInFrust(p1))
 		{

@@ -1662,7 +1662,67 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 	case miGizmoUVMode::RightTop:
 	case miGizmoUVMode::LeftBottom:
 	case miGizmoUVMode::RightBottom:{
+		f32 v = 0.001f * w;
+		if (km == miKeyboardModifier::Alt)
+			v *= 0.01f;
 
+		f32 mDeltaX = md.x;
+		f32 mDeltaY = md.y;
+
+		if (gm == miGizmoUVMode::LeftBottom)
+		{
+			mDeltaX = -md.x;
+		}
+		else if (gm == miGizmoUVMode::RightTop)
+		{
+			mDeltaY = -md.y;
+		}
+		else if (gm == miGizmoUVMode::LeftTop)
+		{
+			mDeltaX = -md.x;
+			mDeltaY = -md.y;
+		}
+
+		auto X = mDeltaX * v;
+		auto Y = mDeltaY * v;
+
+		v2f off;
+		if (gm == miGizmoUVMode::RightBottom)
+		{
+			off.x = g_app->m_UVAabbOnClick.m_min.x;
+			off.y = g_app->m_UVAabbOnClick.m_min.z;
+		}
+		else if (gm == miGizmoUVMode::LeftBottom)
+		{
+			off.x = g_app->m_UVAabbOnClick.m_max.x;
+			off.y = g_app->m_UVAabbOnClick.m_min.z;
+		}
+		else if (gm == miGizmoUVMode::RightTop)
+		{
+			off.x = g_app->m_UVAabbOnClick.m_min.x;
+			off.y = g_app->m_UVAabbOnClick.m_max.z;
+		}
+		else if (gm == miGizmoUVMode::LeftTop)
+		{
+			off.x = g_app->m_UVAabbOnClick.m_max.x;
+			off.y = g_app->m_UVAabbOnClick.m_max.z;
+		}
+
+		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+		{
+			m_selectedUV.m_data[i]->m_data.m_uv.x -= off.x;
+			m_selectedUV.m_data[i]->m_data.m_uv.y -= off.y;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x *= 1.0f + X;
+			m_selectedUV.m_data[i]->m_data.m_uv.y *= 1.0f + Y;
+
+			m_selectedUV.m_data[i]->m_data.m_uv.x += off.x;
+			m_selectedUV.m_data[i]->m_data.m_uv.y += off.y;
+		}
+		//g_app->m_UVAabbMoveOffset.x += X;
+		//g_app->m_UVAabbMoveOffset.y += Y;
+		g_app->m_UVAabb.reset();
+		this->UpdateUVAAABB(&g_app->m_UVAabb);
 	}break;
 	case miGizmoUVMode::Top:
 	case miGizmoUVMode::Left:

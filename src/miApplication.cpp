@@ -1197,6 +1197,7 @@ void miApplication::_isObjectMouseHover() {
 }
 
 void miApplication::OnGizmoUVClick() {
+	m_UVAabbOnClick = m_UVAabb;
 	m_UVAabb.center(m_UVAabbCenterOnClick);
 	m_UVAabbMoveOffset.set(0.f);
 	m_UVAngle = 0.f;
@@ -1222,6 +1223,7 @@ void miApplication::UpdateViewports() {
 				{
 					m_selectedObjects.m_data[i]->UpdateUVAAABB(&m_UVAabb);
 				}
+				m_UVAabbOnClick = m_UVAabb;
 				m_viewportInMouseFocus = 0;
 				m_isViewportInFocus = false;
 				return;
@@ -2260,6 +2262,7 @@ void miApplication::TransformUVCancel() {
 			obj->RebuildVisualObjects(false);
 		}
 	}
+	m_UVAabbOnClick = m_UVAabb;
 }
 
 void miApplication::TransformUV() 
