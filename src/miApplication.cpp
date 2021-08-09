@@ -2192,6 +2192,7 @@ void miApplication::SetEditorType(miEditorType t){
 	case miEditorType::UV:
 		printf("Editor Type: UV\n");
 		m_activeViewportLayout = m_UVViewport;
+		m_UVViewport->m_viewports.m_data[1]->Copy(prev3DViewport->m_activeViewport);
 		break;
 	default:
 		break;

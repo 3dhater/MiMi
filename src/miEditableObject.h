@@ -154,8 +154,9 @@ public:
 	void PolygonExtrude();
 
 	void UpdateUVSelection(miEditMode, Aabb*);
+	void _updateUVSelectionArray(Aabb*);
 	virtual void UpdateUVAAABB(Aabb*) override;
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, Aabb*) override;
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) override;
 	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
 	void RebuildUVModel();
 };

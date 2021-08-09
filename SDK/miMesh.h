@@ -73,7 +73,7 @@ struct miEdge
 	bool IsSelected(){return (m_flags & flag_isSelected) == flag_isSelected;}
 	void Select() { m_flags |= flag_isSelected; }
 	void Deselect() { if(m_flags & flag_isSelected) m_flags ^= flag_isSelected;}
-
+	
 	void CopyData(miEdge* other) {
 		m_flags = other->m_flags;
 	}
@@ -161,13 +161,23 @@ struct miPolygon
 	void Select() { m_flags |= flag_isSelected; }
 	void Deselect() { if (m_flags & flag_isSelected) m_flags ^= flag_isSelected; }
 
-	//miListNode3<miVertex*, v2f, v3f>* FindVertex(miVertex* v) {
+	void SelectUVs() {
+		auto curV = m_verts.m_head;
+		auto lastV = curV->m_left;
+		while (true)
+		{
+			curV->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+			if (curV == lastV)
+				break;
+			curV = curV->m_right;
+		}
+	}
+
 	miListNode<_vertex_data>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
 		auto lastV = curV->m_left;
 		while (true)
 		{
-			//if (curV->m_data1 == v)
 			if (curV->m_data.m_vertex == v)
 				break;
 			if (curV == lastV)
@@ -183,9 +193,7 @@ struct miPolygon
 		auto vertex_2 = vertex_3->m_right;
 		while (true)
 		{
-			//auto a = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
 			auto a = vertex_2->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
-			//auto b = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
 			auto b = vertex_3->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
 
 			v3f n;

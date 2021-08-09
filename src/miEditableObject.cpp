@@ -1409,12 +1409,67 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 	importeHelper.m_meshBuilder->m_mesh = 0;
 }
 
+void miEditableObject::_updateUVSelectionArray(Aabb* aabb) {
+	m_selectedUV.clear();
+	m_isUVSelected = false;
+	/*{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					cv->m_data.m_flags ^= miPolygon::_vertex_data::flag_isSelected;
+				}
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}*/
+
+	auto cp = m_mesh->m_first_polygon;
+	auto lp = cp->m_left;
+	while (true)
+	{
+		auto cv = cp->m_verts.m_head;
+		auto lv = cv->m_left;
+		while (true)
+		{
+			if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+			{
+				m_selectedUV.push_back(cv);
+				aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
+				m_isUVSelected = true;
+			}
+
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+		}
+
+		if (cp == lp)
+			break;
+		cp = cp->m_right;
+	}
+}
+
 void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	if (g_app->m_editorType != miEditorType::UV)
 		return;
 
 	m_isUVSelected = false;
 	m_selectedUV.clear();
+
+	if (!m_mesh->m_first_polygon)
+		return;
 
 	{
 		auto cp = m_mesh->m_first_polygon;
@@ -1568,13 +1623,13 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 	}
 }
 
-void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aabb* aabb) {
+void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, miEditMode em, Aabb* aabb) {
 	m_isUVSelected = false;
 
 	if(g_app->m_editMode != miEditMode::Object)
 		DeselectAll(g_app->m_editMode);
 	
-	m_selectedUV.clear();
+	//m_selectedUV.clear();
 
 	if (km != miKeyboardModifier::Alt && km != miKeyboardModifier::Ctrl)
 	{
@@ -1598,6 +1653,7 @@ void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aab
 		}
 	}
 
+	
 	{
 		auto cp = m_mesh->m_first_polygon;
 		auto lp = cp->m_left;
@@ -1618,8 +1674,8 @@ void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aab
 					else
 					{
 						cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(cv);
-						m_isUVSelected = true;
+	//					m_selectedUV.push_back(cv);
+	//					m_isUVSelected = true;
 						aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
 					}
 				}
@@ -1633,6 +1689,91 @@ void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, Aab
 			cp = cp->m_right;
 		}
 	}
+
+	if (em == miEditMode::Polygon)
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto vertex_1 = cp->m_verts.m_head;
+			auto vertex_3 = vertex_1->m_right;
+			auto vertex_2 = vertex_3->m_right;
+			while (true) {
+				if (sf->LineInFrust(v4f(vertex_1->m_data.m_uv.x, 0.f, vertex_1->m_data.m_uv.y, 0.f), v4f(vertex_2->m_data.m_uv.x, 0.f, vertex_2->m_data.m_uv.y, 0.f)))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (sf->LineInFrust(v4f(vertex_1->m_data.m_uv.x, 0.f, vertex_1->m_data.m_uv.y, 0.f), v4f(vertex_3->m_data.m_uv.x, 0.f, vertex_3->m_data.m_uv.y, 0.f)))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (sf->LineInFrust(v4f(vertex_2->m_data.m_uv.x, 0.f, vertex_2->m_data.m_uv.y, 0.f), v4f(vertex_3->m_data.m_uv.x, 0.f, vertex_3->m_data.m_uv.y, 0.f)))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+
+				miTriangle tri;
+				tri.v1.set(vertex_1->m_data.m_uv.x, 0.f, vertex_1->m_data.m_uv.y, 0.f);
+				tri.v2.set(vertex_2->m_data.m_uv.x, 0.f, vertex_2->m_data.m_uv.y, 0.f);
+				tri.v3.set(vertex_3->m_data.m_uv.x, 0.f, vertex_3->m_data.m_uv.y, 0.f);
+				tri.update();
+
+				f32 T, U, V, W;
+				T = U = V = W = 0.f;
+				if (tri.rayTest_MT(sf->m_data.m_ray1, true, T, U, V, W))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (tri.rayTest_MT(sf->m_data.m_ray2, true, T, U, V, W))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (tri.rayTest_MT(sf->m_data.m_ray3, true, T, U, V, W))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (tri.rayTest_MT(sf->m_data.m_ray4, true, T, U, V, W))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+				if (tri.rayTest_MT(sf->m_data.m_ray5, true, T, U, V, W))
+				{
+					cp->Select();
+					cp->SelectUVs();
+					break;
+				}
+
+				vertex_2 = vertex_2->m_right;
+				vertex_3 = vertex_3->m_right;
+				if (vertex_2 == vertex_1)
+					break;
+			}
+
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+
+		OnSelect(em);
+		g_app->UpdateSelectionAabb();
+	}
+	_updateUVSelectionArray(aabb);
+	RebuildVisualObjects(true);
 	RebuildUVModel();
 }
 

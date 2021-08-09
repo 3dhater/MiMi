@@ -788,14 +788,20 @@ void miVisualObjectImpl::Draw(bool uv) {
 
 		if (uv)
 		{
-			auto W = Mat4();
-			auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
-			yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
-			yySetMatrix(yyMatrixType::World, &W);
+			if (m_node_UV_GPU)
+			{
+				if (m_node_UV_GPU->m_modelGPU)
+				{
+					auto W = Mat4();
+					auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
+					yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+					yySetMatrix(yyMatrixType::World, &W);
 
-			g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, defTexture0);
-			g_app->m_gpu->Draw();
+					g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+					g_app->m_gpu->SetTexture(0, defTexture0);
+					g_app->m_gpu->Draw();
+				}
+			}
 		}
 		else
 		{
@@ -815,14 +821,20 @@ void miVisualObjectImpl::Draw(bool uv) {
 	{
 		if (uv)
 		{
-			auto W = Mat4();
-			auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
-			yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
-			yySetMatrix(yyMatrixType::World, &W);
+			if (m_node_UV_GPU)
+			{
+				if (m_node_UV_GPU->m_modelGPU)
+				{
+					auto W = Mat4();
+					auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
+					yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+					yySetMatrix(yyMatrixType::World, &W);
 
-			g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
-			g_app->m_gpu->SetTexture(0, defTexture0);
-			g_app->m_gpu->Draw();
+					g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+					g_app->m_gpu->SetTexture(0, defTexture0);
+					g_app->m_gpu->Draw();
+				}
+			}
 		}
 		else
 		{

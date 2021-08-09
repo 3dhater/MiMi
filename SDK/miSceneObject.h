@@ -217,7 +217,7 @@ public:
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);
 	}
 
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, Aabb*) {}
+	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) {}
 	virtual void UpdateUVAAABB(Aabb*) {}
 	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
 
