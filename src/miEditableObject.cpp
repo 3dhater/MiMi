@@ -467,6 +467,7 @@ void miEditableObject::_destroyMesh() {
 void miEditableObject::OnDrawUV() {
 	if (m_visualObject_vertex) m_visualObject_vertex->Draw(true);
 	if (m_visualObject_edge) m_visualObject_edge->Draw(true);
+	if (m_visualObject_polygon) m_visualObject_polygon->Draw(true);
 }
 
 void miEditableObject::OnDraw(miViewportDrawMode dm, miEditMode em, float dt) {
@@ -611,6 +612,8 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 		DeletePolygon(polygonsForDelete[i]);
 	}
 	this->_updateModel(true, true);
+
+	m_mesh->UpdateCounts();
 
 	auto voc = GetVisualObjectCount();
 	for (int i = 0; i < voc; ++i)
@@ -1177,7 +1180,7 @@ void miEditableObject::VertexConnect() {
 	mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 
 	RebuildVisualObjects(false);
-	UpdateCounts();
+	m_mesh->UpdateCounts();
 }
 
 void miEditableObject::VertexBreak() {
@@ -1254,7 +1257,7 @@ void miEditableObject::VertexBreak() {
 	m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	_updateVertsForTransformArray(miEditMode::Vertex);
 	RebuildVisualObjects(false);
-	UpdateCounts();
+	m_mesh->UpdateCounts();
 	g_app->_callVisualObjectOnSelect();
 }
 
@@ -1336,68 +1339,7 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 	g_app->UpdateSelectionAabb();
 	g_app->_updateIsVertexEdgePolygonSelected();
 
-	UpdateCounts();
-}
-
-void miEditableObject::UpdateCounts() {
-	m_vertexCount = 0;
-	m_edgeCount = 0;
-	m_polygonCount = 0;
-	{
-		auto c = m_mesh->m_first_vertex;
-		if (c)
-		{
-			auto l = c->m_left;
-			while (true)
-			{
-				++m_vertexCount;
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-	}
-	{
-		auto c = m_mesh->m_first_edge;
-		if (c)
-		{
-			auto l = c->m_left;
-			while (true)
-			{
-				++m_edgeCount;
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-	}
-	{
-		auto c = m_mesh->m_first_polygon;
-		if (c)
-		{
-			auto l = c->m_left;
-			while (true)
-			{
-				++m_polygonCount;
-				if (c == l)
-					break;
-				c = c->m_right;
-			}
-		}
-	}
-	//printf("V: %u E: %u P: %u\n", m_vertexCount, m_edgeCount, m_polygonCount);
-}
-
-u32 miEditableObject::GetVertexCount() {
-	return m_vertexCount;
-}
-
-u32 miEditableObject::GetEdgeCount() {
-	return m_edgeCount;
-}
-
-u32 miEditableObject::GetPolygonCount() {
-	return m_polygonCount;
+	m_mesh->UpdateCounts();
 }
 
 void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected) {
@@ -1524,6 +1466,8 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 				break;
 			cp = cp->m_right;
 		}
+
+//		this->RebuildUVModel();
 	}
 	else if (em == miEditMode::Edge)
 	{

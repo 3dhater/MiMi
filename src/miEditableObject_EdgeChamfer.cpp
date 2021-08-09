@@ -105,10 +105,10 @@ void editableObjectGUI_edgeChamferButton_onUncheck(s32 id) {
 void miEditableObject::OnEdgeChamfer() {
 	m_isEdgeChamfer = true;
 
-	this->UpdateCounts();
+	m_mesh->UpdateCounts();
 
 	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() * 6, this->GetEdgeCount() * 6, this->GetVertexCount() * 6);
+	CreateTMPModelWithPoolAllocator(m_mesh->m_polygonCount * 6, m_mesh->m_edgeCount * 6, m_mesh->m_vertexCount * 6);
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 
 	miBinarySearchTree<miVertex*> deleteVertices;

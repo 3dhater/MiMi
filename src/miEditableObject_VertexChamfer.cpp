@@ -114,7 +114,7 @@ void miEditableObject::OnVertexChamfer() {
 	// for poolAllocator
 	if (!m_isVertexChamfer)
 	{
-		this->UpdateCounts();
+		m_mesh->UpdateCounts();
 
 		pc = 0;
 		ec = 0;
@@ -164,7 +164,7 @@ void miEditableObject::OnVertexChamfer() {
 	m_isVertexChamfer = true;
 
 	DestroyTMPModelWithPoolAllocator();
-	CreateTMPModelWithPoolAllocator(this->GetPolygonCount() + pc, this->GetEdgeCount() + ec, this->GetVertexCount() + vc);
+	CreateTMPModelWithPoolAllocator(m_mesh->m_polygonCount + pc, m_mesh->m_edgeCount + ec, m_mesh->m_vertexCount + vc);
 	auto mesh = m_meshBuilderTmpModelPool->m_mesh;
 	
 	struct helpStruct

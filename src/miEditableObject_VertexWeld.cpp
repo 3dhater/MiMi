@@ -80,7 +80,7 @@ void editableObjectGUI_weldButton_onCheck(s32 id) {
 	g_app->m_sdk->SetSelectObjectCallbacks(editableObjectGUI_weldButton_onSelect);
 
 	auto object = (miEditableObject*)g_app->m_selectedObjects.m_data[0];
-	object->UpdateCounts();
+	object->m_mesh->UpdateCounts();
 	object->OnWeld(true);
 }
 
@@ -108,7 +108,7 @@ void miEditableObject::OnWeld(bool createNewTMPModel) {
 	if (createNewTMPModel)
 	{
 		DestroyTMPModelWithPoolAllocator();
-		CreateTMPModelWithPoolAllocator(GetPolygonCount(), GetEdgeCount(), GetVertexCount());
+		CreateTMPModelWithPoolAllocator(m_mesh->m_polygonCount, m_mesh->m_edgeCount, m_mesh->m_vertexCount);
 	}
 	
 

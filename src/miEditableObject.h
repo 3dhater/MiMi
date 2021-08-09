@@ -10,9 +10,6 @@ class miEditableObject : public miSceneObject
 	miVisualObject* m_visualObject_vertex;
 	miVisualObject* m_visualObject_edge;
 
-	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
-	miMesh* m_mesh;
-	
 	void _destroyMesh();
 
 	void _selectVertex(miKeyboardModifier km, miSelectionFrust* sf);
@@ -38,12 +35,6 @@ class miEditableObject : public miSceneObject
 
 	yyArraySimple<miPair<miVertex*,v3f>> m_vertsForTransform;
 	void _updateVertsForTransformArray(miEditMode em);
-
-	
-
-	u32 m_vertexCount;
-	u32 m_edgeCount;
-	u32 m_polygonCount;
 
 	void _updateModel(bool onlyEdge = false, bool updateCounts = true);
 
@@ -116,6 +107,8 @@ public:
 	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
+	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
+	miMesh* m_mesh;
 
 	// always update rebuild edges after this
 	void DeletePolygon(miPolygon*);
@@ -126,11 +119,6 @@ public:
 	void VertexMoveTo(miVertex* v1, miVertex* v2);
 
 	void AttachObject(miEditableObject*);
-
-	void UpdateCounts();
-	u32 GetVertexCount();
-	u32 GetEdgeCount();
-	u32 GetPolygonCount();
 
 	bool m_isWeld;
 	f32 m_weldValue;

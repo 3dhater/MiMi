@@ -281,7 +281,7 @@ void miEditableObject::_updateModel(bool onlyEdge, bool updateCounts) {
 	RebuildVisualObjects(false);
 
 	if(updateCounts)
-		UpdateCounts();
+		m_mesh->UpdateCounts();
 }
 
 bool editableObjectGUI_movetoButton_onIsGoodVertex(miSceneObject* o, miVertex* v) {

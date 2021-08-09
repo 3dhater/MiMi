@@ -637,11 +637,79 @@ struct miMesh
 		m_first_edge = 0;
 		m_first_vertex = 0;
 		m_skeleton = 0;
+		
+		m_vertexCount = 0;
+		m_edgeCount = 0;
+		m_polygonCount = 0;
+		m_uvCount = 0;
 	}
 	miPolygon* m_first_polygon;
 	miEdge* m_first_edge;
 	miVertex* m_first_vertex;
 	miSkeleton* m_skeleton;
+
+	u32 m_vertexCount;
+	u32 m_edgeCount;
+	u32 m_polygonCount;
+	u32 m_uvCount;
+
+	void UpdateCounts() {
+		m_vertexCount = 0;
+		m_edgeCount = 0;
+		m_polygonCount = 0;
+		m_uvCount = 0;
+		{
+			auto c = m_first_vertex;
+			if (c)
+			{
+				auto l = c->m_left;
+				while (true)
+				{
+					++m_vertexCount;
+					if (c == l)
+						break;
+					c = c->m_right;
+				}
+			}
+		}
+		{
+			auto c = m_first_edge;
+			if (c)
+			{
+				auto l = c->m_left;
+				while (true)
+				{
+					++m_edgeCount;
+					if (c == l)
+						break;
+					c = c->m_right;
+				}
+			}
+		}
+		{
+			auto c = m_first_polygon;
+			if (c)
+			{
+				auto l = c->m_left;
+				while (true)
+				{
+					++m_polygonCount;
+					auto cv = c->m_verts.m_head;
+					auto lv = cv->m_left;
+					while (true)
+					{
+						++m_uvCount;
+						if (cv == lv)
+							break;
+						cv = cv->m_right;
+					}
+					if (c == l)
+						break;
+					c = c->m_right;
+				}
+			}
+		}
+	}
 
 	// must be for each polygon.
 	// array contain first miUVChannel* for each channel
@@ -663,8 +731,6 @@ struct miMesh
 			auto next_vertex = current_vertex->m_right;
 			auto last_vertex = current_vertex->m_left;
 			while (true) {
-				/*miVertex* v1 = current_vertex->m_data1;
-				miVertex* v2 = next_vertex->m_data1;*/
 				miVertex* v1 = current_vertex->m_data.m_vertex;
 				miVertex* v2 = next_vertex->m_data.m_vertex;
 
@@ -672,8 +738,6 @@ struct miMesh
 				//  будет на первом месте.
 				if (v2 < v1)
 				{
-					/*v1 = next_vertex->m_data1;
-					v2 = current_vertex->m_data1;*/
 					v1 = next_vertex->m_data.m_vertex;
 					v2 = current_vertex->m_data.m_vertex;
 				}
@@ -1035,7 +1099,6 @@ struct miMeshBuilder
 				v = next;
 			}
 		}
-		//new(m_mesh)miMesh();
 		miDestroy(m_mesh);
 		m_mesh = 0;
 	}
@@ -1108,11 +1171,6 @@ struct miMeshBuilder
 					newVertex = m_allocatorVertex->Allocate();
 					new(newVertex)miVertex();
 					newVertex->m_position = positions[i].m_first;
-					//newVertex->m_tCoords = tCoords[i];
-					
-					/*newVertex->m_normal[0] = normals[i].x;
-					newVertex->m_normal[1] = normals[i].y;
-					newVertex->m_normal[2] = normals[i].z;*/
 
 					m_weldMap[m_vertsMapHash] = newVertex;
 					m_mesh->_add_vertex_to_list(newVertex);
@@ -1127,11 +1185,6 @@ struct miMeshBuilder
 				newVertex = m_allocatorVertex->Allocate();
 				new(newVertex)miVertex();
 				newVertex->m_position = positions[i].m_first;
-				//newVertex->m_tCoords = tCoords[i];
-
-				/*newVertex->m_normal[0] = normals[i].x;
-				newVertex->m_normal[1] = normals[i].y;
-				newVertex->m_normal[2] = normals[i].z;*/
 
 				m_mesh->_add_vertex_to_list(newVertex);
 			}

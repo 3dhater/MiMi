@@ -62,7 +62,7 @@ class miVisualObjectImpl : public miVisualObject
 	// only points and lines
 	model_node_GPU* m_node_UV_GPU;
 	model_node_UV_CPU* m_node_UV_CPU;
-	//void _createSoftwareModel_polys_UV();
+	void _createSoftwareModel_polys_UV();
 	void _createSoftwareModel_edges_UV();
 	void _createSoftwareModel_verts_UV();
 
