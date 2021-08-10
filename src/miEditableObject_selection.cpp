@@ -967,6 +967,7 @@ bool miEditableObject::IsPolygonSelected() {
 void miEditableObject::OnSelect(miEditMode em) {
 	_updateVertsForTransformArray(em);
 	UpdateUVSelection(em, &g_app->m_UVAabb);
+	g_app->m_UVAabbOnClick = g_app->m_UVAabb;
 	RebuildVisualObjects(true);
 }
 

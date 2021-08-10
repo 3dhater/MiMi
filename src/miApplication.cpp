@@ -1259,7 +1259,7 @@ void miApplication::UpdateViewports() {
 					m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix);
 					//m_activeViewportLayout->m_activeViewport->m_currentRect,
 					//m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
-				if (m_gizmoModeUV != miGizmoUVMode::NoTransform)
+				if (m_isCursorInViewport && !m_isCursorInUVEditor)
 				{
 					if (m_editMode == miEditMode::Vertex)
 					{
