@@ -709,6 +709,7 @@ void miEditableObject::OnEdgeChamfer() {
 			m_meshBuilderTmpModelPool->m_allocatorVertex->Deallocate(v);
 		}
 	}
+	mesh->UpdateCounts();
 	_updateModel();
 }
 
@@ -718,7 +719,8 @@ void miEditableObject::OnEdgeChamferApply() {
 	m_isEdgeChamfer = false;
 
 	_createMeshFromTMPMesh_meshBuilder(true, false);
-	
+	m_mesh->UpdateCounts();
+
 	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel();
 }

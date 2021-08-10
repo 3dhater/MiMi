@@ -234,6 +234,7 @@ void miEditableObject::OnWeldApply() {
 			currentPolygon = nextPolygon;
 		}
 	}
+	m_mesh->UpdateCounts();
 	_updateModel(false, true);
 
 	_destroyMesh();
@@ -528,6 +529,7 @@ void miEditableObject::OnWeldApply() {
 		}
 	}
 
+	m_mesh->UpdateCounts();
 
 	_updateModel(false);
 	DeselectAll(g_app->m_editMode);

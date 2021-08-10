@@ -64,6 +64,7 @@ void miEditableObject::PolygonDuplicate() {
 		newPolygons.m_data[i]->m_flags |= miPolygon::flag_isSelected;
 	}
 
+	m_mesh->UpdateCounts();
 	_updateModel();
 	this->OnSelect(g_app->m_editMode);
 	this->UpdateAabb();

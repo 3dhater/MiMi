@@ -176,6 +176,7 @@ void miEditableObject::PolygonExtrude() {
 		m_mesh->_remove_vertex_from_list(v);
 	}
 
+	m_mesh->UpdateCounts();
 	_updateModel();
 	this->OnSelect(g_app->m_editMode);
 	g_app->_callVisualObjectOnSelect();

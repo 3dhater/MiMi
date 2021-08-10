@@ -203,6 +203,7 @@ end:;
 	if (success)
 	{
 		auto mesh = m_meshBuilderTmpModelPool ? m_meshBuilderTmpModelPool->m_mesh : m_mesh;
+		//mesh->UpdateCounts();
 
 		auto l = v1->m_left;
 		auto r = v1->m_right;

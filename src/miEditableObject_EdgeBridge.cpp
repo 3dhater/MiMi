@@ -473,6 +473,7 @@ void miEditableObject::EdgeBridge()
 			goto begin_creating;
 		}
 	}
+	m_mesh->UpdateCounts();
 
 	DeselectAll(g_app->m_editMode);
 	_updateModel();

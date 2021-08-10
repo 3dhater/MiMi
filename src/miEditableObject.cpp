@@ -611,10 +611,8 @@ void miEditableObject::DeleteSelectedObjects(miEditMode em) {
 	{
 		DeletePolygon(polygonsForDelete[i]);
 	}
-	this->_updateModel(true, true);
-
 	m_mesh->UpdateCounts();
-
+	this->_updateModel(true, true);
 	auto voc = GetVisualObjectCount();
 	for (int i = 0; i < voc; ++i)
 	{
@@ -1179,8 +1177,8 @@ void miEditableObject::VertexConnect() {
 	mesh->_delete_edges(m_allocatorEdge);
 	mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 
-	RebuildVisualObjects(false);
 	m_mesh->UpdateCounts();
+	RebuildVisualObjects(false);
 }
 
 void miEditableObject::VertexBreak() {
@@ -1256,8 +1254,8 @@ void miEditableObject::VertexBreak() {
 	m_mesh->_delete_edges(m_allocatorEdge);
 	m_mesh->CreateEdges(m_allocatorPolygon, m_allocatorEdge, m_allocatorVertex);
 	_updateVertsForTransformArray(miEditMode::Vertex);
-	RebuildVisualObjects(false);
 	m_mesh->UpdateCounts();
+	RebuildVisualObjects(false);
 	g_app->_callVisualObjectOnSelect();
 }
 
@@ -1330,6 +1328,7 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 		auto vo = GetVisualObject(i);
 		vo->UpdateAabb();
 	}
+	m_mesh->UpdateCounts();
 	RebuildVisualObjects(false);
 	UpdateAabb();
 
@@ -1339,7 +1338,6 @@ void miEditableObject::AttachObject(miEditableObject* otherObject) {
 	g_app->UpdateSelectionAabb();
 	g_app->_updateIsVertexEdgePolygonSelected();
 
-	m_mesh->UpdateCounts();
 }
 
 void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected) {

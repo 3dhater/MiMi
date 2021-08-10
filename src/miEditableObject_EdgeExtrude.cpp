@@ -138,6 +138,7 @@ void miEditableObject::EdgeExtrude()
 
 	if (needUpdate)
 	{
+		m_mesh->UpdateCounts();
 		DeselectAll(g_app->m_editMode);
 		_updateModel();
 		for (u32 i = 0; i < newEdgesVertices.m_size; ++i)

@@ -179,6 +179,7 @@ void miEditableObject::EdgeConnect()
 	{
 		VertexConnect();
 		DeselectAll(g_app->m_editMode);
+		m_mesh->UpdateCounts();
 		_updateModel();
 
 		// select new edges
