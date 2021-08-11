@@ -155,10 +155,11 @@ public:
 
 	void UpdateUVSelection(miEditMode, Aabb*);
 	void _updateUVSelectionArray(Aabb*);
-	virtual void UpdateUVAAABB(Aabb*) override;
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) override;
-	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
-	virtual void TransformUVCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) override;
+	virtual void UVUpdateAAABB(Aabb*) override;
+	virtual void UVSelect(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) override;
+	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
+	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) override;
+	virtual void UVMakePlanar(bool useScreenPlane) override;
 	void RebuildUVModel();
 };
 

@@ -1610,7 +1610,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	}
 }
 
-void miEditableObject::TransformUVCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {
+void miEditableObject::UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {
 	switch (gm)
 	{
 	case miGizmoUVMode::NoTransform:
@@ -1651,7 +1651,7 @@ void miEditableObject::TransformUVCancel(miGizmoUVMode gm, const Aabb& currAabb,
 	}
 }
 
-void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
+void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
 	switch (gm)
 	{
 	case miGizmoUVMode::NoTransform:
@@ -1720,7 +1720,7 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 		//g_app->m_UVAabbMoveOffset.x += X;
 		//g_app->m_UVAabbMoveOffset.y += Y;
 		g_app->m_UVAabb.reset();
-		this->UpdateUVAAABB(&g_app->m_UVAabb);
+		this->UVUpdateAAABB(&g_app->m_UVAabb);
 	}break;
 	case miGizmoUVMode::Top:
 	case miGizmoUVMode::Left:
@@ -1769,7 +1769,7 @@ void miEditableObject::TransformUV(miGizmoUVMode gm, miKeyboardModifier km, cons
 	}
 }
 
-void miEditableObject::SelectUV(miSelectionFrust* sf, miKeyboardModifier km, miEditMode em, Aabb* aabb) {
+void miEditableObject::UVSelect(miSelectionFrust* sf, miKeyboardModifier km, miEditMode em, Aabb* aabb) {
 	m_isUVSelected = false;
 
 	if(g_app->m_editMode != miEditMode::Object)
@@ -1932,7 +1932,7 @@ void miEditableObject::RebuildUVModel() {
 	}
 }
 
-void miEditableObject::UpdateUVAAABB(Aabb* aabb) {
+void miEditableObject::UVUpdateAAABB(Aabb* aabb) {
 	{
 		auto cp = m_mesh->m_first_polygon;
 		auto lp = cp->m_left;
@@ -1944,6 +1944,165 @@ void miEditableObject::UpdateUVAAABB(Aabb* aabb) {
 			{
 				if(cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
 					aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+}
+
+void miEditableObject::UVMakePlanar(bool useScreenPlane) {
+	Mat4 VP;
+	Aabb aabb3d;
+	{
+		v3f point;
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					point += cv->m_data.m_normal;
+					aabb3d.add(cv->m_data.m_vertex->m_position);
+				}
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			
+
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+		point.normalize2();
+
+		if (useScreenPlane)
+		{
+			Mat4 V = g_app->m_activeViewportLayout->m_viewports[1]->m_activeCamera->m_viewMatrix;
+			Mat4 P = g_app->m_activeViewportLayout->m_viewports[1]->m_activeCamera->m_projectionMatrix;
+			VP = P * V;
+		}
+		else
+		{
+			Mat4 V;
+			Mat4 P;
+			math::makeLookAtRHMatrix(V, point, v4f(), v4f(0.f, 1.f, 0.f, 0.f));
+			math::makeOrthoRHMatrix(P, 800.f, 600.f, -1000.f, 1000.f);
+			VP = P * V;
+		}
+	}
+
+	v4f center3d;
+	aabb3d.center(center3d);
+	Aabb aabb2d;
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					v4f point = cv->m_data.m_vertex->m_position - center3d;
+					point.w = 1.f;
+					point = math::mul(point, VP);
+					
+					cv->m_data.m_uv.x = point.x / point.w;
+					cv->m_data.m_uv.y = -point.y / point.w;
+
+					aabb2d.add(v3f(cv->m_data.m_uv.x, cv->m_data.m_uv.y, 0.f));
+				}
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
+
+	// move uv
+	// min.x to 0.f
+	{
+		f32 minX = aabb2d.m_min.x;
+		f32 minY = aabb2d.m_min.y;
+		//printf("minX: %f\n", minX);
+		//printf("minY: %f\n", minY);
+		aabb2d.reset();
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					cv->m_data.m_uv.x -= minX;
+					cv->m_data.m_uv.y -= minY;
+					aabb2d.add(v3f(cv->m_data.m_uv.x, cv->m_data.m_uv.y, 0.f));
+				}
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+		
+	}
+
+	// now fit
+	f32 multX = 1.f;
+	f32 multY = 1.f;
+	if (aabb2d.m_max.x > 0.f)
+		multX = 1.f / aabb2d.m_max.x;
+	if (aabb2d.m_max.y > 0.f)
+		multY = 1.f / aabb2d.m_max.y;
+
+	{
+		auto cp = m_mesh->m_first_polygon;
+		auto lp = cp->m_left;
+		while (true)
+		{
+			auto cv = cp->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				{
+					//cv->m_data.m_uv.x *= multX;
+					//cv->m_data.m_uv.y *= multY;
+
+					if (multX < multY)
+					{
+						cv->m_data.m_uv.x *= multX;
+						cv->m_data.m_uv.y *= multX;
+					}
+					else
+					{
+						cv->m_data.m_uv.x *= multY;
+						cv->m_data.m_uv.y *= multY;
+					}
+				}
 
 				if (cv == lv)
 					break;

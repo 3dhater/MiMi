@@ -217,10 +217,11 @@ public:
 		m_aabbTransformed.transform(&m_aabb, &m, &m_globalPosition);
 	}
 
-	virtual void SelectUV(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) {}
-	virtual void UpdateUVAAABB(Aabb*) {}
-	virtual void TransformUV(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
-	virtual void TransformUVCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {}
+	virtual void UVSelect(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) {}
+	virtual void UVUpdateAAABB(Aabb*) {}
+	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
+	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {}
+	virtual void UVMakePlanar(bool useScreenPlane) {};
 
 
 	// select object

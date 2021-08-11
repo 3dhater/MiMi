@@ -367,9 +367,10 @@ public:
 	v4f m_UVAabbCenterOnClick;
 	v4f m_UVAabbMoveOffset;
 	f32 m_UVAngle;
-	void TransformUV();
-	void TransformUVCancel();
 	void OnGizmoUVClick();
+	void UVTransform();
+	void UVTransformCancel();
+	void UvMakePlanar(bool useScreenPlane);
 
 	friend class miEditableObject;
 	friend class miGizmo;

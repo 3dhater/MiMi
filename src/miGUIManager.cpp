@@ -93,6 +93,12 @@ void gui_buttonMaterialsAdd_onRelease(yyGUIElement* elem, s32 m_id) {
 void gui_buttonMaterialsDelete_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteSelectedMaterial();
 }
+void gui_buttonUvMakePlanar_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_app->UvMakePlanar(false);
+}
+void gui_buttonUvMakePlanarScreen_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_app->UvMakePlanar(true);
+}
 void gui_buttonUvOpenEditor_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_app->SetEditorType(miEditorType::UV);
 	g_guiManager->m_editorTypeCombo->SelectItem(g_guiManager->m_editorTypeComboItem_UV);
@@ -959,11 +965,11 @@ m_gui_group_materials->AddElement(addButton);
 			y += m_fontDefault->m_maxHeight;
 		}
 
-		f32 openEditorButtonY = 20.f;
+		f32 btnSzY = 20.f;
 		{
 			x += 10.f; ;
 			auto openEditorButton = yyGUICreateButton(
-				v4f(x, y, groupRect.z - groupRect.x - 10.f, y + openEditorButtonY),
+				v4f(x, y, groupRect.z - groupRect.x - 10.f, y + btnSzY),
 				0, -1, currDrawGroup, 0);
 			openEditorButton->m_bgColor.set(0.5f);
 			openEditorButton->m_bgColorHover.set(0.65f);
@@ -977,7 +983,43 @@ m_gui_group_materials->AddElement(addButton);
 			m_gui_group_UV->AddElement(openEditorButton);
 		}
 
-		y += openEditorButtonY;
+		y += btnSzY + 20.f;
+
+		btnSzY = 15.f;
+		{
+			auto btn = yyGUICreateButton(
+				v4f(x, y, groupRect.z - groupRect.x - 10.f, y + btnSzY),
+				0, -1, currDrawGroup, 0);
+			btn->m_bgColor.set(0.5f);
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			btn->SetText(L"Make planar", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonUvMakePlanar_onRelease;
+			m_gui_group_UV->AddElement(btn);
+		}
+		y += btnSzY + 3.f;
+
+		btnSzY = 15.f;
+		{
+			auto btn = yyGUICreateButton(
+				v4f(x, y, groupRect.z - groupRect.x - 10.f, y + btnSzY),
+				0, -1, currDrawGroup, 0);
+			btn->m_bgColor.set(0.5f);
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			btn->SetText(L"Make planar (screen)", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonUvMakePlanarScreen_onRelease;
+			m_gui_group_UV->AddElement(btn);
+		}
+		y += btnSzY;
 	}
 }
 

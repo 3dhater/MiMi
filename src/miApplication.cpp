@@ -1196,13 +1196,6 @@ void miApplication::_isObjectMouseHover() {
 	}
 }
 
-void miApplication::OnGizmoUVClick() {
-	m_UVAabbOnClick = m_UVAabb;
-	m_UVAabb.center(m_UVAabbCenterOnClick);
-	m_UVAabbMoveOffset.set(0.f);
-	m_UVAngle = 0.f;
-}
-
 void miApplication::UpdateViewports() {
 	//if (m_isCursorInUVEditor)
 	{
@@ -1212,7 +1205,7 @@ void miApplication::UpdateViewports() {
 			{
 				if (m_inputContext->m_isRMBUp)
 				{
-					TransformUVCancel();
+					UVTransformCancel();
 				}
 				m_UVAabbMoveOffset.set(0.f);
 
@@ -1221,7 +1214,7 @@ void miApplication::UpdateViewports() {
 				m_UVAabb.reset();
 				for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 				{
-					m_selectedObjects.m_data[i]->UpdateUVAAABB(&m_UVAabb);
+					m_selectedObjects.m_data[i]->UVUpdateAAABB(&m_UVAabb);
 				}
 				m_UVAabbOnClick = m_UVAabb;
 				m_viewportInMouseFocus = 0;
@@ -1230,7 +1223,7 @@ void miApplication::UpdateViewports() {
 			}
 			if (m_isCursorMove && !m_inputContext->m_isRMBUp)
 			{
-				TransformUV();
+				UVTransform();
 			}
 		}
 	}
@@ -1566,12 +1559,6 @@ void miApplication::UpdateViewports() {
 		m_isViewportInFocus = false;
 		m_viewportInMouseFocus = 0;
 	}
-}
-
-bool miApplication::IsMouseFocusInUVEditor() {
-	if (!m_viewportInMouseFocus)
-		return false;
-	return m_viewportInMouseFocus->m_cameraType == miViewportCameraType::UV;
 }
 
 void miApplication::DrawViewports() {
@@ -2249,31 +2236,4 @@ void miApplication::SetEditorType(miEditorType t){
 		m_activeViewportLayout->m_viewports.m_data[i]->OnWindowSize();
 	}
 	m_2d->UpdateClip();
-}
-
-void miApplication::TransformUVCancel() {
-
-	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-	{
-		auto obj = m_selectedObjects.m_data[i];
-		if (obj->m_isUVSelected)
-		{
-			obj->TransformUVCancel(m_gizmoModeUV, m_UVAabb, m_UVAabbCenterOnClick);
-			obj->RebuildVisualObjects(false);
-		}
-	}
-	m_UVAabbOnClick = m_UVAabb;
-}
-
-void miApplication::TransformUV() 
-{
-	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
-	{
-		auto obj = m_selectedObjects.m_data[i];
-		if (obj->m_isUVSelected)
-		{
-			obj->TransformUV(m_gizmoModeUV, m_keyboardModifier, m_inputContext->m_mouseDelta, m_activeViewportLayout->m_activeViewport->m_activeCamera->m_positionPlatform.w);
-			obj->RebuildVisualObjects(false);
-		}
-	}
 }

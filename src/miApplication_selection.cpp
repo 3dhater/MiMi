@@ -296,7 +296,7 @@ void miApplication::_onSelect() {
 
 		for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 		{
-			m_selectedObjects.m_data[i]->SelectUV(m_selectionFrust, m_keyboardModifier, m_editMode, &m_UVAabb);
+			m_selectedObjects.m_data[i]->UVSelect(m_selectionFrust, m_keyboardModifier, m_editMode, &m_UVAabb);
 		}
 		m_UVAabbOnClick = m_UVAabb;
 		return;
