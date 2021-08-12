@@ -371,6 +371,7 @@ public:
 	void UVTransform();
 	void UVTransformCancel();
 	void UvMakePlanar(bool useScreenPlane);
+	void UvFlattenMapping();
 
 	friend class miEditableObject;
 	friend class miGizmo;

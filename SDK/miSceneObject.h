@@ -222,6 +222,7 @@ public:
 	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
 	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {}
 	virtual void UVMakePlanar(bool useScreenPlane) {};
+	virtual void UvFlattenMapping() {};
 
 
 	// select object

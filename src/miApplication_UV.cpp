@@ -59,3 +59,18 @@ void miApplication::UvMakePlanar(bool useScreenPlane) {
 	}
 	m_UVAabbOnClick = m_UVAabb;
 }
+
+void miApplication::UvFlattenMapping() {
+	m_UVAabb.reset();
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		if (obj->m_isUVSelected)
+		{
+			obj->UvFlattenMapping();
+			obj->UVUpdateAAABB(&m_UVAabb);
+			obj->RebuildVisualObjects(false);
+		}
+	}
+	m_UVAabbOnClick = m_UVAabb;
+}

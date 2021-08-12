@@ -172,6 +172,18 @@ struct miPolygon
 			curV = curV->m_right;
 		}
 	}
+	void DeselectUVs() {
+		auto curV = m_verts.m_head;
+		auto lastV = curV->m_left;
+		while (true)
+		{
+			if(curV->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				curV->m_data.m_flags ^= miPolygon::_vertex_data::flag_isSelected;
+			if (curV == lastV)
+				break;
+			curV = curV->m_right;
+		}
+	}
 
 	miListNode<_vertex_data>* FindVertex(miVertex* v) {
 		auto curV = m_verts.m_head;
@@ -216,15 +228,12 @@ struct miPolygon
 	void CalculateNormal() {
 		{
 			auto vertex_1 = m_verts.m_head;
-			//vertex_1->m_data3.set(0.f);
 			vertex_1->m_data.m_normal.set(0.f);
 
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				//vertex_2->m_data3.set(0.f);
 				vertex_2->m_data.m_normal.set(0.f);
-				//vertex_3->m_data3.set(0.f);
 				vertex_3->m_data.m_normal.set(0.f);
 				// ===============================
 				vertex_2 = vertex_2->m_right;
@@ -239,16 +248,11 @@ struct miPolygon
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				//auto e1 = vertex_2->m_data1->m_position - vertex_1->m_data1->m_position;
 				auto e1 = vertex_2->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
-				//auto e2 = vertex_3->m_data1->m_position - vertex_1->m_data1->m_position;
 				auto e2 = vertex_3->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
 				auto n = e1.cross(e2);
-				//vertex_1->m_data3 -= n;
 				vertex_1->m_data.m_normal -= n;
-				//vertex_2->m_data3 -= n;
 				vertex_2->m_data.m_normal -= n;
-				//vertex_3->m_data3 -= n;
 				vertex_3->m_data.m_normal -= n;
 
 				// ===============================
@@ -261,15 +265,12 @@ struct miPolygon
 		}
 		{
 			auto vertex_1 = m_verts.m_head;
-			//vertex_1->m_data3.normalize2();
 			vertex_1->m_data.m_normal.normalize2();
 
 			auto vertex_3 = vertex_1->m_right;
 			auto vertex_2 = vertex_3->m_right;
 			while (true) {
-				//vertex_2->m_data3.normalize2();
 				vertex_2->m_data.m_normal.normalize2();
-				//vertex_3->m_data3.normalize2();
 				vertex_3->m_data.m_normal.normalize2();
 				// ===============================
 				vertex_2 = vertex_2->m_right;
@@ -288,7 +289,6 @@ struct miPolygon
 		auto lastV = curV->m_left;
 		while (true)
 		{
-			//n += curV->m_data3;
 			n += curV->m_data.m_normal;
 			if (curV == lastV)
 				break;
@@ -296,6 +296,29 @@ struct miPolygon
 		}
 		n.normalize2();
 		return n;
+	}
+
+	v3f GetFaceNormalCalculateNew()
+	{
+		v3f _n;
+		auto vertex_1 = m_verts.m_head;
+		auto vertex_3 = vertex_1->m_right;
+		auto vertex_2 = vertex_3->m_right;
+		while (true) {
+			auto e1 = vertex_2->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
+			auto e2 = vertex_3->m_data.m_vertex->m_position - vertex_1->m_data.m_vertex->m_position;
+			auto n = e1.cross(e2);
+			_n -= n;
+
+			// ===============================
+			vertex_2 = vertex_2->m_right;
+			vertex_3 = vertex_3->m_right;
+
+			if (vertex_2 == vertex_1)
+				break;
+		}
+		_n.normalize2();
+		return _n;
 	}
 
 	void Flip() {

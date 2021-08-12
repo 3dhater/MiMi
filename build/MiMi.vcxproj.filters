@@ -39,6 +39,7 @@
     <ClCompile Include="..\src\miEditableObject_PolygonDuplicate.cpp" />
     <ClCompile Include="..\src\miEditableObject_PolygonExtrude.cpp" />
     <ClCompile Include="..\src\miApplication_UV.cpp" />
+    <ClCompile Include="..\src\miEditableObject_UV.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miGUIManager.h" />

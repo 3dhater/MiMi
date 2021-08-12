@@ -160,6 +160,7 @@ public:
 	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
 	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) override;
 	virtual void UVMakePlanar(bool useScreenPlane) override;
+	virtual void UvFlattenMapping() override;
 	void RebuildUVModel();
 };
 

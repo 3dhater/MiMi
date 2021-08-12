@@ -43,6 +43,7 @@
     <ClCompile Include="..\src\miEditableObject_PolygonDuplicate.cpp" />
     <ClCompile Include="..\src\miEditableObject_PolygonExtrude.cpp" />
     <ClCompile Include="..\src\miEditableObject_Selection.cpp" />
+    <ClCompile Include="..\src\miEditableObject_UV.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexChamfer.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexTargetWeld.cpp" />
     <ClCompile Include="..\src\miEditableObject_VertexWeld.cpp" />

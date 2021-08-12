@@ -97,6 +97,27 @@ public:
 			xz - wy, yz + wx, 1.0f - (xx + yy));
 	}
 
+	void setRotation(const v3f& dir, const v3f& up = v3f(0.f, 1.f, 0.f))
+	{
+		v3f xaxis = up.cross(dir);
+		xaxis.normalize2();
+
+		v3f yaxis = dir.cross(xaxis);
+		yaxis.normalize2();
+
+		m_data[0].x = xaxis.x;
+		m_data[0].y = yaxis.x;
+		m_data[0].z = dir.x;
+
+		m_data[1].x = xaxis.y;
+		m_data[1].y = yaxis.y;
+		m_data[1].z = dir.y;
+
+		m_data[2].x = xaxis.z;
+		m_data[2].y = yaxis.z;
+		m_data[2].z = dir.z;
+	}
+
 	f32 * getPtr(){ return reinterpret_cast<f32*>(&m_data); }
 	f32 * getPtrConst()const{ return (f32*)&m_data; }
 		
