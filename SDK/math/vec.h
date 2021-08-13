@@ -113,6 +113,15 @@ struct v2f
 	f32 distance(const v2f& from)const { return v2f(x - from.x, y - from.y).length(); }
 	f32 length()const { return std::sqrt(lengthSqrt()); }
 	f32 lengthSqrt()const { return(x*x) + (y*y); }
+	f32	dot()const { return (x*x) + (y*y); }
+	void	normalize2()
+	{
+		f32 len = std::sqrt(dot());
+		if (len > 0)
+			len = 1.0f / len;
+		x *= len; y *= len;
+	}
+	v2f operator*(f32 v)const { v2f r; r.x = x * v; r.y = y * v; return r; }
 };
 
 struct v3i

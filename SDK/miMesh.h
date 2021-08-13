@@ -121,7 +121,10 @@ struct miPolygon
 	}
 
 	unsigned char m_flags;
-	enum { flag_isSelected = 1, };
+	enum { 
+		flag_isSelected = BIT(0),
+		flag_User1 = BIT(1),
+	};
 
 	void CopyData(miPolygon* other) {
 		m_flags = other->m_flags;

@@ -149,6 +149,8 @@ void window_callbackOnCommand(s32 commandID) {
 void window_onActivate(yyWindow* window) {
 	g_app->m_isViewportInFocus = false;
 	g_app->m_inputContext->m_isMMBHold = false;
+	g_app->m_inputContext->m_isLMBHold = false;
+	g_app->m_inputContext->m_isRMBHold = false;
 	g_app->m_isSelectByRectangle = false;
 }
 

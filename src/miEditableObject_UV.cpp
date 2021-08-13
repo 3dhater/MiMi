@@ -792,70 +792,195 @@ void miEditableObject::UVMakePlanar(bool useScreenPlane) {
 }
 
 void miEditableObject::UvFlattenMapping() {
-	//Mat4 VP;
-	Mat4 V;
 	{
-		v3f n;
 		auto cp = m_mesh->m_first_polygon;
 		auto lp = cp->m_left;
 		while (true)
 		{
-			bool good = false;
+			if (cp->m_flags & miPolygon::flag_User1)
+				cp->m_flags ^= miPolygon::flag_User1;
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
+		}
+	}
 
-			Aabb aabb3d;
-			auto cv = cp->m_verts.m_head;
-			auto lv = cv->m_left;
+
+	// find groups
+	struct polygon_group
+	{
+		miArray<miPolygon*> m_polygons;
+		Aabb m_aabbUV;
+	};
+	miArray<polygon_group*> groups;
+	groups.reserve(0x1000);
+	{
+	beginGroup:;
+		polygon_group* currGroup = 0;
+		{
+			f32 angleDot = 0.3f;
+
+			auto cp = m_mesh->m_first_polygon;
+			auto lp = cp->m_left;
 			while (true)
 			{
-				if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
+				if ((cp->m_flags & miPolygon::flag_User1) == 0)
 				{
-					//point += cv->m_data.m_normal;
-					aabb3d.add(cv->m_data.m_vertex->m_position);
-					good = true;
+					if (cp->IsSelected())
+					{
+						cp->m_flags |= miPolygon::flag_User1;
+
+						if (!currGroup)
+						{
+							currGroup = new polygon_group;
+							currGroup->m_polygons.reserve(0x1000);
+							groups.push_back(currGroup);
+						}
+
+						currGroup->m_polygons.push_back(cp);
+
+						u32 index = 0;
+					beginPolygon:;
+						bool good = false;
+						for (u32 sz = currGroup->m_polygons.m_size; index < sz; index++)
+						{
+							auto p = currGroup->m_polygons.m_data[index];
+							auto n1 = p->GetFaceNormalCalculateNew();
+
+							auto cv = p->m_verts.m_head;
+							auto lv = cv->m_left;
+							while (true)
+							{
+								auto cvp = cv->m_data.m_vertex->m_polygons.m_head;
+								auto lvp = cvp->m_left;
+								while (true)
+								{
+									if ((cvp->m_data->m_flags & miPolygon::flag_User1) == 0)
+									{
+										if (cvp->m_data->IsSelected())
+										{
+											auto n2 = cvp->m_data->GetFaceNormalCalculateNew();
+											if (n1.dot(n2) > angleDot)
+											{
+												good = true;
+
+												// check all normals 
+												for (u32 i2 = 0; i2 < currGroup->m_polygons.m_size; ++i2)
+												{
+													auto p2 = currGroup->m_polygons.m_data[i2];
+													auto norm = p2->GetFaceNormalCalculateNew();
+													if (norm.dot(n2) < angleDot)
+													{
+														good = false;
+														break;
+													}
+												}
+
+												if (good)
+												{
+													cvp->m_data->m_flags |= miPolygon::flag_User1;
+													currGroup->m_polygons.push_back(cvp->m_data);
+												}
+											}
+										}
+									}
+									if (cvp == lvp)
+										break;
+									cvp = cvp->m_right;
+								}
+
+								if (cv == lv)
+									break;
+								cv = cv->m_right;
+							}
+						}
+						if (good)
+						{
+							goto beginPolygon;
+						}
+						else
+						{
+							goto beginGroup;
+						}
+					}
 				}
-				if (cv == lv)
+
+				if (cp == lp)
 					break;
-				cv = cv->m_right;
+				cp = cp->m_right;
 			}
+		}
+	}
 
-			if (good)
+	{
+		//printf("Groups: %u\n", groups.m_size);
+		for (u32 i = 0; i < groups.m_size; ++i)
+		{
+			auto g = groups.m_data[i];
+
+			v3f n;
+			for(u32 i = 0; i < g->m_polygons.m_size; ++i)
 			{
-				v4f center3d;
-				aabb3d.center(center3d);
-				n = cp->GetFaceNormalCalculateNew();
-				n.normalize2();
-				if (n.x == 0.f) n.x = 0.0001f;
-				if (n.y == 0.f) n.y = 0.0001f;
-				if (n.z == 0.f) n.z = 0.0001f;
+				auto cp = g->m_polygons.m_data[i];
 
-				math::makeLookAtRHMatrix(V, v4f(), n, v4f(0.f, 1.f, 0.f, 0.f));
+				n += cp->GetFaceNormalCalculateNew();
+			}
+			
+			n.normalize2();
+			if (n.x == 0.f) n.x = 0.0001f;
+			if (n.y == 0.f) n.y = 0.0001f;
+			if (n.z == 0.f) n.z = 0.0001f;
+			Mat4 V;
+			v3f up = v4f(0.f, 1.f, 0.f, 0.f);
+			math::makeLookAtRHMatrix(V, v4f(), n, up);
 
-				cv = cp->m_verts.m_head;
-				lv = cv->m_left;
+			for (u32 i = 0; i < g->m_polygons.m_size; ++i)
+			{
+				auto cp = g->m_polygons.m_data[i];
+				
+				auto cv = cp->m_verts.m_head;
+				auto lv = cv->m_left;
 				while (true)
 				{
-					if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
-					{
-						v4f point2 = cv->m_data.m_vertex->m_position;
-						point2 = math::mul(point2 - center3d, V) + center3d;
+					v4f point2 = cv->m_data.m_vertex->m_position;
+					point2 = math::mul(point2, V);
 
-						cv->m_data.m_uv.x = point2.x;
-						cv->m_data.m_uv.y = point2.y;
+					cv->m_data.m_uv.x = point2.x;
+					cv->m_data.m_uv.y = -point2.y;
 
+					g->m_aabbUV.add(v3f(cv->m_data.m_uv.x, cv->m_data.m_uv.y, 0.f));
 
-
-
-					}
 					if (cv == lv)
 						break;
 					cv = cv->m_right;
 				}
 			}
 
-			if (cp == lp)
-				break;
-			cp = cp->m_right;
+			delete g;
 		}
+	}
 
+	// sort
+	struct _pred
+	{
+		bool operator() (polygon_group* a, polygon_group* b) const
+		{
+			v4f ae;
+			v4f be;
+			a->m_aabbUV.extent(ae);
+			b->m_aabbUV.extent(be);
+
+			f32 aarea = ae.x * ae.z;
+			f32 barea = be.x * be.z;
+
+			return aarea > barea;
+		}
+	};
+	groups.sort_insertion(_pred());
+	Aabb aabbAll;
+	for (u32 i = 0; i < groups.m_size; ++i)
+	{
+		auto g = groups.m_data[i];
+		g->
 	}
 }
