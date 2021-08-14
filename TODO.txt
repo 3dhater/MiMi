@@ -1,3 +1,5 @@
+- keyboard shortcuts in UV
+- UV gizmo must work only in UV / editor gizmo must work only in editor viewport
 - fix Edge chamfer
 - Sorting
 - P element

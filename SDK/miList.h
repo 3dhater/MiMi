@@ -237,8 +237,10 @@ public:
 	}
 	
 	void erase(miListNode<_type>* node) {
-		node->m_left->m_right = node->m_right;
-		node->m_right->m_left = node->m_left;
+		auto l = node->m_left;
+		auto r = node->m_right;
+		l->m_right = r;
+		r->m_left = l;
 		node->~miListNode();
 		miFree(node);
 		if (node == m_head)

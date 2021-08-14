@@ -454,6 +454,7 @@ void miEditableObject::OnVertexChamfer() {
 		removeVertFromPolygon.m_data[i].m_p->m_verts.erase_first(removeVertFromPolygon.m_data[i].m_v);
 	}
 
+	mesh->UpdateCounts();
 	_updateModel();
 }
 
@@ -463,7 +464,8 @@ void miEditableObject::OnVertexChamferApply() {
 	m_isVertexChamfer = false;
 
 	_createMeshFromTMPMesh_meshBuilder(true, false);
-	
+	m_mesh->UpdateCounts();
+
 	this->DestroyTMPModelWithPoolAllocator();
 	_updateModel();
 }

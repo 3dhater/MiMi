@@ -811,6 +811,7 @@ void miEditableObject::UvFlattenMapping() {
 	{
 		miArray<miPolygon*> m_polygons;
 		Aabb m_aabbUV;
+		Aabb m_aabbUV_new;
 	};
 	miArray<polygon_group*> groups;
 	groups.reserve(0x1000);
@@ -912,6 +913,9 @@ void miEditableObject::UvFlattenMapping() {
 		}
 	}
 
+	if (!groups.m_size)
+		return;
+
 	{
 		//printf("Groups: %u\n", groups.m_size);
 		for (u32 i = 0; i < groups.m_size; ++i)
@@ -919,13 +923,13 @@ void miEditableObject::UvFlattenMapping() {
 			auto g = groups.m_data[i];
 
 			v3f n;
-			for(u32 i = 0; i < g->m_polygons.m_size; ++i)
+			for (u32 i = 0; i < g->m_polygons.m_size; ++i)
 			{
 				auto cp = g->m_polygons.m_data[i];
 
 				n += cp->GetFaceNormalCalculateNew();
 			}
-			
+
 			n.normalize2();
 			if (n.x == 0.f) n.x = 0.0001f;
 			if (n.y == 0.f) n.y = 0.0001f;
@@ -937,7 +941,7 @@ void miEditableObject::UvFlattenMapping() {
 			for (u32 i = 0; i < g->m_polygons.m_size; ++i)
 			{
 				auto cp = g->m_polygons.m_data[i];
-				
+
 				auto cv = cp->m_verts.m_head;
 				auto lv = cv->m_left;
 				while (true)
@@ -949,6 +953,7 @@ void miEditableObject::UvFlattenMapping() {
 					cv->m_data.m_uv.y = -point2.y;
 
 					g->m_aabbUV.add(v3f(cv->m_data.m_uv.x, cv->m_data.m_uv.y, 0.f));
+					g->m_aabbUV_new.add(v3f(cv->m_data.m_uv.x, cv->m_data.m_uv.y, 0.f));
 
 					if (cv == lv)
 						break;
@@ -956,7 +961,6 @@ void miEditableObject::UvFlattenMapping() {
 				}
 			}
 
-			delete g;
 		}
 	}
 
@@ -970,17 +974,247 @@ void miEditableObject::UvFlattenMapping() {
 			a->m_aabbUV.extent(ae);
 			b->m_aabbUV.extent(be);
 
-			f32 aarea = ae.x * ae.z;
-			f32 barea = be.x * be.z;
+			f32 aarea = ae.x * ae.y;
+			f32 barea = be.x * be.y;
 
-			return aarea > barea;
+			return aarea < barea;
 		}
 	};
 	groups.sort_insertion(_pred());
+
 	Aabb aabbAll;
+	f32 spacing = 0.02f;
+
+	miList<v2f> points; // where to place this group
 	for (u32 i = 0; i < groups.m_size; ++i)
 	{
 		auto g = groups.m_data[i];
-		g->
+		v2f where;
+
+		bool addNewPoints = true;
+		if (i == 0)
+		{
+			//	g->m_aabbUV_new.m_max -= g->m_aabbUV_new.m_min;
+			//	g->m_aabbUV_new.m_min -= g->m_aabbUV_new.m_min;
+		}
+		else
+		{
+			// I have points where to place group.
+			// point is new m_min (left top corner).
+			// I need that point, 
+			//  1. that not make aabbAll larger
+			//  2. if all points make aabbAll larger
+			//     then that point, that make aabbAll more like square
+
+			auto cp = points.m_head;
+			if (cp)
+			{
+				bool found_1 = false;
+				bool found_2 = false;  // I need first good result for this
+				v2f where_1; // not make larger
+				v2f where_2; // make larger
+				auto lp = cp->m_left;
+				miListNode<v2f>* eraseNode = 0;
+				Aabb newAabb;
+				while (true)
+				{
+					newAabb = g->m_aabbUV_new;
+
+					newAabb.m_max -= newAabb.m_min;
+					newAabb.m_min -= newAabb.m_min;
+
+					newAabb.m_min.x += cp->m_data.x;
+					newAabb.m_min.y += cp->m_data.y;
+					newAabb.m_max.x += cp->m_data.x;
+					newAabb.m_max.y += cp->m_data.y;
+					/*printf("CP: %f %f\n", cp->m_data.x, cp->m_data.y);
+					printf("NEW AABB MIN: %f %f\n", newAabb.m_min.x, newAabb.m_min.y);
+					printf("NEW AABB MAX: %f %f\n", newAabb.m_max.x, newAabb.m_max.y);
+					printf("ALL AABB MIN: %f %f\n", aabbAll.m_min.x, aabbAll.m_min.y);
+					printf("ALL AABB MAX: %f %f\n", aabbAll.m_max.x, aabbAll.m_max.y);*/
+					if (newAabb.m_max.x > aabbAll.m_max.x
+						|| newAabb.m_max.y > aabbAll.m_max.y)
+					{
+						if (!found_2)
+						{
+							if (aabbAll.m_max.x > aabbAll.m_max.y)
+							{
+								if (newAabb.m_max.y >= aabbAll.m_max.y)
+								{
+									found_2 = true;
+									where_2 = cp->m_data;
+									eraseNode = cp;
+								}
+							}
+							else
+							{
+								if (newAabb.m_max.x >= aabbAll.m_max.x)
+								{
+									found_2 = true;
+									where_2 = cp->m_data;
+									eraseNode = cp;
+								}
+							}
+						}
+					}
+					else
+					{
+						found_1 = true;
+						where_1 = cp->m_data;
+						eraseNode = cp;
+						break;
+					}
+
+					if (cp == lp)
+						break;
+					cp = cp->m_right;
+				}
+
+				if (found_1)
+				{
+					where = where_1;
+				}
+				else
+				{
+					where = where_2;
+				}
+				points.erase_first(where);
+
+				// check if newAabb intersect other AABBs
+				f32 intersectionOffset = 0.f;
+				for (u32 i2 = 0; i2 < i; ++i2)
+				{
+
+					auto g2 = groups.m_data[i2];
+					if (
+						(newAabb.m_min.x <= g2->m_aabbUV_new.m_max.x && newAabb.m_max.x >= g2->m_aabbUV_new.m_min.x)
+						&&
+						(newAabb.m_min.y <= g2->m_aabbUV_new.m_max.y && newAabb.m_max.y >= g2->m_aabbUV_new.m_min.y)
+						)
+					{
+						//f32 iox = g2->m_aabbUV_new.m_max.x - newAabb.m_min.x;
+						f32 ioy = g2->m_aabbUV_new.m_max.y - newAabb.m_min.y;
+						//	printf("Intersect [%f %f] !!!\n", iox,ioy);
+						if (ioy > intersectionOffset)
+							intersectionOffset = ioy;
+					}
+				}
+				where.y += intersectionOffset;
+			}
+		}
+
+		g->m_aabbUV_new.m_max -= g->m_aabbUV_new.m_min;
+		g->m_aabbUV_new.m_min -= g->m_aabbUV_new.m_min;
+
+		g->m_aabbUV_new.m_min.x += where.x - spacing;
+		g->m_aabbUV_new.m_min.y += where.y - spacing;
+		g->m_aabbUV_new.m_max.x += where.x + spacing;
+		g->m_aabbUV_new.m_max.y += where.y + spacing;
+		//printf("WHERE:  %f %f\n", where.x, where.y);
+		aabbAll.add(g->m_aabbUV_new);
+
+		if (addNewPoints)
+		{
+			v2f point1, point2;
+			point1.set(g->m_aabbUV_new.m_max.x + spacing, g->m_aabbUV_new.m_min.y);
+			point2.set(g->m_aabbUV_new.m_min.x, g->m_aabbUV_new.m_max.y + spacing);
+			//	printf("P1:  %f %f\n", point1.x, point1.y);
+			//	printf("P2:  %f %f\n\n", point2.x, point2.y);
+
+			points.push_back(point1);
+			points.push_back(point2);
+		}
+	}
+
+	// everything with spacing. I need to move everything. Make only positive numbers
+	{
+		f32 x = aabbAll.m_min.x;
+		f32 y = aabbAll.m_min.y;
+		aabbAll.m_min.x -= x;
+		aabbAll.m_min.y -= y;
+		for (u32 i = 0; i < groups.m_size; ++i)
+		{
+			auto g = groups.m_data[i];
+			if (x < 0.f)
+			{
+				g->m_aabbUV_new.m_min.x -= x;
+				g->m_aabbUV_new.m_max.x -= x;
+			}
+
+			if (y < 0.f)
+			{
+				g->m_aabbUV_new.m_min.y -= y;
+				g->m_aabbUV_new.m_max.y -= y;
+			}
+		}
+	}
+
+	for (u32 i = 0; i < groups.m_size; ++i)
+	{
+		auto g = groups.m_data[i];
+		v3f vector = g->m_aabbUV_new.m_min - g->m_aabbUV.m_min;
+
+		for (u32 i2 = 0; i2 < g->m_polygons.m_size; ++i2)
+		{
+			auto p = g->m_polygons.m_data[i2];
+			auto cv = p->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				cv->m_data.m_uv.x += vector.x;
+				cv->m_data.m_uv.y += vector.y;
+
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+		}
+	}
+
+	bool fit = true;
+	if (fit)
+	{
+		f32 multX = 1.f;
+		f32 multY = 1.f;
+		if (aabbAll.m_max.x > 0.f)
+			multX = 1.f / aabbAll.m_max.x;
+		if (aabbAll.m_max.y > 0.f)
+			multY = 1.f / aabbAll.m_max.y;
+
+		for (u32 i = 0; i < groups.m_size; ++i)
+		{
+			auto g = groups.m_data[i];
+			v3f vector = g->m_aabbUV_new.m_min - g->m_aabbUV.m_min;
+
+			for (u32 i2 = 0; i2 < g->m_polygons.m_size; ++i2)
+			{
+				auto p = g->m_polygons.m_data[i2];
+				auto cv = p->m_verts.m_head;
+				auto lv = cv->m_left;
+				while (true)
+				{
+					if (multX < multY)
+					{
+						cv->m_data.m_uv.x *= multX;
+						cv->m_data.m_uv.y *= multX;
+					}
+					else
+					{
+						cv->m_data.m_uv.x *= multY;
+						cv->m_data.m_uv.y *= multY;
+					}
+
+					if (cv == lv)
+						break;
+					cv = cv->m_right;
+				}
+			}
+		}
+	}
+
+	for (u32 i = 0; i < groups.m_size; ++i)
+	{
+		auto g = groups.m_data[i];
+		delete g;
 	}
 }
