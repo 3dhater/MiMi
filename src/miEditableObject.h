@@ -40,7 +40,8 @@ class miEditableObject : public miSceneObject
 
 	void _createMeshFromTMPMesh_meshBuilder(bool saveSelection, bool weldSelected);
 
-	miArray<miListNode<miPolygon::_vertex_data>*> m_selectedUV;
+	miArray<miPair<miListNode<miPolygon::_vertex_data>*, v2f>> m_selectedUV;
+	v2f m_UVScale;
 
 	friend class miApplication;
 	friend class miSDKImpl;
@@ -159,6 +160,7 @@ public:
 	virtual void UVSelect(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) override;
 	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
 	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) override;
+	virtual void UVTransformAccept() override;
 	virtual void UVMakePlanar(bool useScreenPlane) override;
 	virtual void UvFlattenMapping() override;
 	void RebuildUVModel();

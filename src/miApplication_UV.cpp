@@ -18,8 +18,16 @@ bool miApplication::IsMouseFocusInUVEditor() {
 	return m_viewportInMouseFocus->m_cameraType == miViewportCameraType::UV;
 }
 
-void miApplication::UVTransformCancel() {
+void miApplication::UVTransformAccept() {
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		if (obj->m_isUVSelected)
+			obj->UVTransformAccept();
+	}
+}
 
+void miApplication::UVTransformCancel() {
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
 	{
 		auto obj = m_selectedObjects.m_data[i];

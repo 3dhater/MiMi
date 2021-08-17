@@ -371,6 +371,7 @@ public:
 	void OnGizmoUVClick();
 	void UVTransform();
 	void UVTransformCancel();
+	void UVTransformAccept();
 	void UvMakePlanar(bool useScreenPlane);
 	void UvFlattenMapping();
 

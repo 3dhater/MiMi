@@ -1208,6 +1208,10 @@ void miApplication::UpdateViewports() {
 				{
 					UVTransformCancel();
 				}
+				else if (m_inputContext->m_isLMBUp)
+				{
+					UVTransformAccept();
+				}
 				m_UVAabbMoveOffset.set(0.f);
 
 				m_gizmoModeUV = miGizmoUVMode::NoTransform;

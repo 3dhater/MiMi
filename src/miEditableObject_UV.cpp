@@ -50,7 +50,7 @@ void miEditableObject::_updateUVSelectionArray(Aabb* aabb) {
 		{
 			if (cv->m_data.m_flags & miPolygon::_vertex_data::flag_isSelected)
 			{
-				m_selectedUV.push_back(cv);
+				m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(cv, cv->m_data.m_uv));
 				aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
 				m_isUVSelected = true;
 			}
@@ -112,7 +112,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 				while (true)
 				{
 					cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-					m_selectedUV.push_back(cv);
+					m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(cv, cv->m_data.m_uv));
 					aabb->add(v3f(cv->m_data.m_uv.x,0.f, cv->m_data.m_uv.y));
 					m_isUVSelected = true;
 
@@ -143,7 +143,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(vNode);
+						m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(vNode, vNode->m_data.m_uv));
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -151,7 +151,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(vNode);
+						m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(vNode, vNode->m_data.m_uv));
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -163,7 +163,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(vNode);
+						m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(vNode, vNode->m_data.m_uv));
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -171,7 +171,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(vNode);
+						m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(vNode, vNode->m_data.m_uv));
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -199,7 +199,7 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 					if (vNode)
 					{
 						vNode->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
-						m_selectedUV.push_back(vNode);
+						m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(vNode, vNode->m_data.m_uv));
 						aabb->add(v3f(vNode->m_data.m_uv.x, 0.f, vNode->m_data.m_uv.y));
 						m_isUVSelected = true;
 					}
@@ -215,6 +215,16 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 			cv = cv->m_right;
 		}
 	}
+	m_UVScale.set(1.f, 1.f);
+}
+
+void miEditableObject::UVTransformAccept() {
+	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
+	{
+		m_selectedUV.m_data[i].m_second.x = m_selectedUV.m_data[i].m_first->m_data.m_uv.x;
+		m_selectedUV.m_data[i].m_second.y = m_selectedUV.m_data[i].m_first->m_data.m_uv.y;
+	}
+	m_UVScale.set(1.f, 1.f);
 }
 
 void miEditableObject::UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {
@@ -236,21 +246,21 @@ void miEditableObject::UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb,
 		auto c = std::cos(a);
 		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 		{
-			auto x = m_selectedUV.m_data[i]->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
-			auto y = m_selectedUV.m_data[i]->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
+			auto x = m_selectedUV.m_data[i].m_first->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
+			auto y = m_selectedUV.m_data[i].m_first->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x = x * c - y * s;
-			m_selectedUV.m_data[i]->m_data.m_uv.y = x * s + y * c;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x = x * c - y * s;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y = x * s + y * c;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
-			m_selectedUV.m_data[i]->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
 		}
 	}break;
 	case miGizmoUVMode::Center:
 		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 		{
-			m_selectedUV.m_data[i]->m_data.m_uv.x -= g_app->m_UVAabbMoveOffset.x;
-			m_selectedUV.m_data[i]->m_data.m_uv.y -= g_app->m_UVAabbMoveOffset.y;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x -= g_app->m_UVAabbMoveOffset.x;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y -= g_app->m_UVAabbMoveOffset.y;
 		}
 		break;
 	default:
@@ -288,8 +298,12 @@ void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, cons
 			mDeltaY = -md.y;
 		}
 
-		auto X = mDeltaX * v;
-		auto Y = mDeltaY * v;
+		//auto X = mDeltaX * v;
+		//auto Y = mDeltaY * v;
+		
+		m_UVScale.x += mDeltaX * v;
+		m_UVScale.y += mDeltaY * v;
+
 
 		v2f off;
 		if (gm == miGizmoUVMode::RightBottom)
@@ -315,14 +329,14 @@ void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, cons
 
 		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 		{
-			m_selectedUV.m_data[i]->m_data.m_uv.x -= off.x;
-			m_selectedUV.m_data[i]->m_data.m_uv.y -= off.y;
+			//m_selectedUV.m_data[i].m_first->m_data.m_uv.x -= off.x;
+			//m_selectedUV.m_data[i].m_first->m_data.m_uv.y -= off.y;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x *= 1.0f + X;
-			m_selectedUV.m_data[i]->m_data.m_uv.y *= 1.0f + Y;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x = (m_selectedUV.m_data[i].m_second.x - off.x) * m_UVScale.x;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y = (m_selectedUV.m_data[i].m_second.y - off.y) * m_UVScale.y;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x += off.x;
-			m_selectedUV.m_data[i]->m_data.m_uv.y += off.y;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x += off.x;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y += off.y;
 		}
 		//g_app->m_UVAabbMoveOffset.x += X;
 		//g_app->m_UVAabbMoveOffset.y += Y;
@@ -344,14 +358,14 @@ void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, cons
 
 		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 		{
-			auto x = m_selectedUV.m_data[i]->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
-			auto y = m_selectedUV.m_data[i]->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
+			auto x = m_selectedUV.m_data[i].m_first->m_data.m_uv.x - g_app->m_UVAabbCenterOnClick.x;
+			auto y = m_selectedUV.m_data[i].m_first->m_data.m_uv.y - g_app->m_UVAabbCenterOnClick.z;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x = x * c - y * s;
-			m_selectedUV.m_data[i]->m_data.m_uv.y = x * s + y * c;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x = x * c - y * s;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y = x * s + y * c;
 
-			m_selectedUV.m_data[i]->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
-			m_selectedUV.m_data[i]->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x += g_app->m_UVAabbCenterOnClick.x;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y += g_app->m_UVAabbCenterOnClick.z;
 		}
 
 		g_app->m_UVAngle += a;
@@ -365,8 +379,8 @@ void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, cons
 		auto Y = md.y * v;
 		for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 		{
-			m_selectedUV.m_data[i]->m_data.m_uv.x += X;
-			m_selectedUV.m_data[i]->m_data.m_uv.y += Y;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.x += X;
+			m_selectedUV.m_data[i].m_first->m_data.m_uv.y += Y;
 		}
 		g_app->m_UVAabbMoveOffset.x += X;
 		g_app->m_UVAabbMoveOffset.y += Y;
