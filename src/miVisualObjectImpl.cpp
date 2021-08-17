@@ -2,7 +2,7 @@
 #include "miApplication.h"
 #include "miVisualObjectImpl.h"
 
-#include "yy_model.h"
+#include "yy_mesh.h"
 
 extern miApplication * g_app;
 
@@ -75,18 +75,18 @@ void miVisualObjectImpl::_createSoftwareModel_polys_UV() {
 	}
 	if (!vCount)
 		return;
-	m_node_UV_CPU = new miVisualObjectImpl::model_node_UV_CPU;
-	m_node_UV_CPU->m_modelCPU = yyMegaAllocator::CreateModel();
-	m_node_UV_CPU->m_modelCPU->m_indexType = yyMeshIndexType::u32;
+	m_node_UV_CPU = new miVisualObjectImpl::mesh_node_UV_CPU;
+	m_node_UV_CPU->m_meshCPU = yyCreate<yyMesh>();
+	m_node_UV_CPU->m_meshCPU->m_indexType = yyMeshIndexType::u32;
 
-	m_node_UV_CPU->m_modelCPU->m_vertexType = yyVertexType::Model;
-	m_node_UV_CPU->m_modelCPU->m_stride = sizeof(yyVertexTriangle);
-	m_node_UV_CPU->m_modelCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_modelCPU->m_stride * vCount);
-	yyVertexTriangle* vertex_ptr = (yyVertexTriangle*)m_node_UV_CPU->m_modelCPU->m_vertices;
+	m_node_UV_CPU->m_meshCPU->m_vertexType = yyMeshVertexType::Triangle;
+	m_node_UV_CPU->m_meshCPU->m_stride = sizeof(yyVertexTriangle);
+	m_node_UV_CPU->m_meshCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_meshCPU->m_stride * vCount);
+	yyVertexTriangle* vertex_ptr = (yyVertexTriangle*)m_node_UV_CPU->m_meshCPU->m_vertices;
 
-	m_node_UV_CPU->m_modelCPU->m_indices = (u8*)yyMemAlloc(sizeof(u32) * iCount);
+	m_node_UV_CPU->m_meshCPU->m_indices = (u8*)yyMemAlloc(sizeof(u32) * iCount);
 
-	u32 * inds_ptr = (u32*)m_node_UV_CPU->m_modelCPU->m_indices;
+	u32 * inds_ptr = (u32*)m_node_UV_CPU->m_meshCPU->m_indices;
 	u32 index = 0;
 
 	auto c = m_mesh->m_first_polygon;
@@ -134,8 +134,8 @@ void miVisualObjectImpl::_createSoftwareModel_polys_UV() {
 					vertex_2 = vertex_2->m_right;
 					vertex_3 = vertex_3->m_right;
 
-					m_node_UV_CPU->m_modelCPU->m_vCount += 3;
-					m_node_UV_CPU->m_modelCPU->m_iCount += 3;
+					m_node_UV_CPU->m_meshCPU->m_vCount += 3;
+					m_node_UV_CPU->m_meshCPU->m_iCount += 3;
 					
 					if (vertex_2 == vertex_1)
 						break;
@@ -157,18 +157,18 @@ void miVisualObjectImpl::_createSoftwareModel_edges_UV() {
 		m_mesh->UpdateCounts();
 	u32 vCount = m_mesh->m_uvCount;
 
-	m_node_UV_CPU = new miVisualObjectImpl::model_node_UV_CPU;
-	m_node_UV_CPU->m_modelCPU = yyMegaAllocator::CreateModel();
-	m_node_UV_CPU->m_modelCPU->m_indexType = yyMeshIndexType::u32;
+	m_node_UV_CPU = new miVisualObjectImpl::mesh_node_UV_CPU;
+	m_node_UV_CPU->m_meshCPU = yyCreate<yyMesh>();
+	m_node_UV_CPU->m_meshCPU->m_indexType = yyMeshIndexType::u32;
 
-	m_node_UV_CPU->m_modelCPU->m_vertexType = yyVertexType::LineModel;
-	m_node_UV_CPU->m_modelCPU->m_stride = sizeof(yyVertexLine);
-	m_node_UV_CPU->m_modelCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_modelCPU->m_stride * vCount * 2);
-	yyVertexLine* vertex_ptr = (yyVertexLine*)m_node_UV_CPU->m_modelCPU->m_vertices;
+	m_node_UV_CPU->m_meshCPU->m_vertexType = yyMeshVertexType::Line;
+	m_node_UV_CPU->m_meshCPU->m_stride = sizeof(yyVertexLine);
+	m_node_UV_CPU->m_meshCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_meshCPU->m_stride * vCount * 2);
+	yyVertexLine* vertex_ptr = (yyVertexLine*)m_node_UV_CPU->m_meshCPU->m_vertices;
 	
-	m_node_UV_CPU->m_modelCPU->m_indices = (u8*)yyMemAlloc(sizeof(u32) * vCount * 2);
+	m_node_UV_CPU->m_meshCPU->m_indices = (u8*)yyMemAlloc(sizeof(u32) * vCount * 2);
 
-	u32 * inds_ptr = (u32*)m_node_UV_CPU->m_modelCPU->m_indices;
+	u32 * inds_ptr = (u32*)m_node_UV_CPU->m_meshCPU->m_indices;
 	u32 index = 0;
 
 	{
@@ -206,8 +206,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges_UV() {
 				vertex_ptr->Position.z = nv->m_data.m_uv.y;
 				vertex_ptr++;
 
-				m_node_UV_CPU->m_modelCPU->m_vCount += 2;
-				m_node_UV_CPU->m_modelCPU->m_iCount += 2;
+				m_node_UV_CPU->m_meshCPU->m_vCount += 2;
+				m_node_UV_CPU->m_meshCPU->m_iCount += 2;
 
 				if (cv == lv)
 					break;
@@ -228,14 +228,14 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 	u32 vCount = m_mesh->m_uvCount;
 	//printf("Create UV model\n");
 
-	m_node_UV_CPU = new miVisualObjectImpl::model_node_UV_CPU;
-	m_node_UV_CPU->m_modelCPU = yyMegaAllocator::CreateModel();
-	m_node_UV_CPU->m_modelCPU->m_indexType = yyMeshIndexType::u32;
+	m_node_UV_CPU = new miVisualObjectImpl::mesh_node_UV_CPU;
+	m_node_UV_CPU->m_meshCPU = yyCreate<yyMesh>();
+	m_node_UV_CPU->m_meshCPU->m_indexType = yyMeshIndexType::u32;
 
-	m_node_UV_CPU->m_modelCPU->m_vertexType = yyVertexType::Point;
-	m_node_UV_CPU->m_modelCPU->m_stride = sizeof(yyVertexPoint);
-	m_node_UV_CPU->m_modelCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_modelCPU->m_stride * vCount);
-	yyVertexPoint* vertex_ptr = (yyVertexPoint*)m_node_UV_CPU->m_modelCPU->m_vertices;
+	m_node_UV_CPU->m_meshCPU->m_vertexType = yyMeshVertexType::Point;
+	m_node_UV_CPU->m_meshCPU->m_stride = sizeof(yyVertexPoint);
+	m_node_UV_CPU->m_meshCPU->m_vertices = (u8*)yyMemAlloc(m_node_UV_CPU->m_meshCPU->m_stride * vCount);
+	yyVertexPoint* vertex_ptr = (yyVertexPoint*)m_node_UV_CPU->m_meshCPU->m_vertices;
 	m_node_UV_CPU->m_ptrs.reserve(vCount);
 
 	{
@@ -264,8 +264,8 @@ void miVisualObjectImpl::_createSoftwareModel_verts_UV() {
 				vertex_ptr->Position.z = cv->m_data.m_uv.y;
 				vertex_ptr++;
 
-				m_node_UV_CPU->m_modelCPU->m_vCount++;
-				m_node_UV_CPU->m_modelCPU->m_iCount++;
+				m_node_UV_CPU->m_meshCPU->m_vCount++;
+				m_node_UV_CPU->m_meshCPU->m_iCount++;
 
 				if (cv == lv)
 					break;
@@ -284,8 +284,8 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 
 	const s32 pointLimit = 200;
 	s32 pointCount = 0;
-	yyModel* softwareModel = 0;
-	miVisualObjectImpl::model_node_CPU * _modelNode = 0;
+	yyMesh* softwareMesh = 0;
+	miVisualObjectImpl::mesh_node_CPU * _meshNode = 0;
 	yyVertexPoint* vertex_ptr = 0;
 	yyVertexAnimatedPoint* vertexAnimated_ptr = 0;
 
@@ -302,29 +302,29 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 
 		if (pointCount == 0)
 		{
-			softwareModel = yyMegaAllocator::CreateModel();
-			softwareModel->m_indexType = yyMeshIndexType::u16;
+			softwareMesh = yyCreate<yyMesh>();
+			softwareMesh->m_indexType = yyMeshIndexType::u16;
 
 			if (m_mesh->m_skeleton)
 			{
-				softwareModel->m_vertexType = yyVertexType::AnimatedPoint;
-				softwareModel->m_stride = sizeof(yyVertexAnimatedPoint);
-				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 4 * pointLimit);
-				vertexAnimated_ptr = (yyVertexAnimatedPoint*)softwareModel->m_vertices;
+				softwareMesh->m_vertexType = yyMeshVertexType::AnimatedPoint;
+				softwareMesh->m_stride = sizeof(yyVertexAnimatedPoint);
+				softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 4 * pointLimit);
+				vertexAnimated_ptr = (yyVertexAnimatedPoint*)softwareMesh->m_vertices;
 			}
 			else
 			{
-				softwareModel->m_vertexType = yyVertexType::Point;
-				softwareModel->m_stride = sizeof(yyVertexPoint);
-				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 4 * pointLimit);
-				vertex_ptr = (yyVertexPoint*)softwareModel->m_vertices;
+				softwareMesh->m_vertexType = yyMeshVertexType::Point;
+				softwareMesh->m_stride = sizeof(yyVertexPoint);
+				softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 4 * pointLimit);
+				vertex_ptr = (yyVertexPoint*)softwareMesh->m_vertices;
 			}
 
-			_modelNode = new miVisualObjectImpl::model_node_CPU;
-			_modelNode->m_ptrs.reserve(0xffff);
-			_modelNode->m_modelCPU = softwareModel;
+			_meshNode = new miVisualObjectImpl::mesh_node_CPU;
+			_meshNode->m_ptrs.reserve(0xffff);
+			_meshNode->m_meshCPU = softwareMesh;
 
-			m_nodes_CPU.push_back(_modelNode);
+			m_nodes_CPU.push_back(_meshNode);
 		}
 
 		auto vpos = current_vertex->m_position;
@@ -332,21 +332,21 @@ void miVisualObjectImpl::_createSoftwareModel_verts() {
 
 		if (m_mesh->m_skeleton)
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertexAnimated_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = vpos;
 			vertexAnimated_ptr++;
 		}
 		else
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertex_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_vertex, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = vpos;
 			vertex_ptr++;
 		}
 
-		_modelNode->m_modelCPU->m_vCount++;
-		_modelNode->m_modelCPU->m_iCount++;
+		_meshNode->m_meshCPU->m_vCount++;
+		_meshNode->m_meshCPU->m_iCount++;
 
 
 		++pointCount;
@@ -364,9 +364,9 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 	const s32 lineLimit = 400;
 	s32 lineCount = 0;
-	yyModel* softwareModel = 0;
+	yyMesh* softwareMesh = 0;
 
-	miVisualObjectImpl::model_node_CPU * _modelNode = 0;
+	miVisualObjectImpl::mesh_node_CPU * _meshNode = 0;
 
 	yyVertexLine* vertex_ptr = 0;
 	yyVertexAnimatedLine* vertexAnimated_ptr = 0;
@@ -388,40 +388,40 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		if (lineCount == 0)
 		{
-			softwareModel = yyMegaAllocator::CreateModel();
-			softwareModel->m_indexType = yyMeshIndexType::u16;
+			softwareMesh = yyCreate<yyMesh>();
+			softwareMesh->m_indexType = yyMeshIndexType::u16;
 
 			if (m_mesh->m_skeleton)
 			{
-				softwareModel->m_vertexType = yyVertexType::AnimatedLineModel;
-				softwareModel->m_stride = sizeof(yyVertexAnimatedLine);
-				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 2 * lineLimit);
-				softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 2 * lineLimit);
-				vertexAnimated_ptr = (yyVertexAnimatedLine*)softwareModel->m_vertices;
+				softwareMesh->m_vertexType = yyMeshVertexType::AnimatedLine;
+				softwareMesh->m_stride = sizeof(yyVertexAnimatedLine);
+				softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 2 * lineLimit);
+				softwareMesh->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 2 * lineLimit);
+				vertexAnimated_ptr = (yyVertexAnimatedLine*)softwareMesh->m_vertices;
 			}
 			else
 			{
-				softwareModel->m_vertexType = yyVertexType::LineModel;
-				softwareModel->m_stride = sizeof(yyVertexLine);
-				softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 2 * lineLimit);
-				softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 2 * lineLimit);
-				vertex_ptr = (yyVertexLine*)softwareModel->m_vertices;
+				softwareMesh->m_vertexType = yyMeshVertexType::Line;
+				softwareMesh->m_stride = sizeof(yyVertexLine);
+				softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 2 * lineLimit);
+				softwareMesh->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 2 * lineLimit);
+				vertex_ptr = (yyVertexLine*)softwareMesh->m_vertices;
 			}
 
-			inds_ptr = (u16*)softwareModel->m_indices;
+			inds_ptr = (u16*)softwareMesh->m_indices;
 
-			_modelNode = new miVisualObjectImpl::model_node_CPU;
-			_modelNode->m_ptrs.reserve(0xffff);
-			_modelNode->m_modelCPU = softwareModel;
+			_meshNode = new miVisualObjectImpl::mesh_node_CPU;
+			_meshNode->m_ptrs.reserve(0xffff);
+			_meshNode->m_meshCPU = softwareMesh;
 
-			m_nodes_CPU.push_back(_modelNode);
+			m_nodes_CPU.push_back(_meshNode);
 
 			index = 0;
 		}
 
 		if (m_mesh->m_skeleton)
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertexAnimated_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex1->m_position;
 			vertexAnimated_ptr->Normal = v3f();
@@ -429,7 +429,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertex_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex1, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex1->m_position;
 			vertex_ptr->Normal = v3f();
@@ -441,7 +441,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 
 		if (m_mesh->m_skeleton)
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertexAnimated_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertexAnimated_ptr));
 			vertexAnimated_ptr->Color = color;
 			vertexAnimated_ptr->Position = current_edge->m_vertex2->m_position;
 			vertexAnimated_ptr->Normal = v3f();
@@ -449,7 +449,7 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		}
 		else
 		{
-			_modelNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertex_ptr));
+			_meshNode->m_ptrs.push_back(miPair<void*, void*>(current_edge->m_vertex2, vertex_ptr));
 			vertex_ptr->Color = color;
 			vertex_ptr->Position = current_edge->m_vertex2->m_position;
 			vertex_ptr->Normal = v3f();
@@ -459,8 +459,8 @@ void miVisualObjectImpl::_createSoftwareModel_edges() {
 		++index;
 		++inds_ptr;
 
-		_modelNode->m_modelCPU->m_vCount += 2;
-		_modelNode->m_modelCPU->m_iCount += 2;
+		_meshNode->m_meshCPU->m_vCount += 2;
+		_meshNode->m_meshCPU->m_iCount += 2;
 
 		++lineCount;
 		if (lineCount == lineLimit)
@@ -478,9 +478,9 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 	const s32 triLimit = 5000;
 	s32 triangleCount = 0;
-	yyModel* softwareModel = 0;
+	yyMesh* softwareMesh = 0;
 
-	miVisualObjectImpl::model_node_CPU * _modelNode = 0;
+	miVisualObjectImpl::mesh_node_CPU * _meshNode = 0;
 
 	yyVertexTriangle* vertexModel_ptr = 0;
 	yyVertexAnimatedTriangle* vertexAnimatedModel_ptr = 0;
@@ -505,40 +505,40 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 		while (true) {
 			if (triangleCount == 0)
 			{
-				softwareModel = yyMegaAllocator::CreateModel();
-				softwareModel->m_indexType = yyMeshIndexType::u16;
+				softwareMesh = yyCreate<yyMesh>();
+				softwareMesh->m_indexType = yyMeshIndexType::u16;
 
 				if (m_mesh->m_skeleton)
 				{
-					softwareModel->m_vertexType = yyVertexType::AnimatedModel;
-					softwareModel->m_stride = sizeof(yyVertexAnimatedTriangle);
-					softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 3 * triLimit);
-					softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 3 * triLimit);
-					vertexAnimatedModel_ptr = (yyVertexAnimatedTriangle*)softwareModel->m_vertices;
+					softwareMesh->m_vertexType = yyMeshVertexType::AnimatedTriangle;
+					softwareMesh->m_stride = sizeof(yyVertexAnimatedTriangle);
+					softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 3 * triLimit);
+					softwareMesh->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 3 * triLimit);
+					vertexAnimatedModel_ptr = (yyVertexAnimatedTriangle*)softwareMesh->m_vertices;
 				}
 				else
 				{
-					softwareModel->m_vertexType = yyVertexType::Model;
-					softwareModel->m_stride = sizeof(yyVertexTriangle);
-					softwareModel->m_vertices = (u8*)yyMemAlloc(softwareModel->m_stride * 3 * triLimit);
-					softwareModel->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 3* triLimit);
-					vertexModel_ptr = (yyVertexTriangle*)softwareModel->m_vertices;
+					softwareMesh->m_vertexType = yyMeshVertexType::Triangle;
+					softwareMesh->m_stride = sizeof(yyVertexTriangle);
+					softwareMesh->m_vertices = (u8*)yyMemAlloc(softwareMesh->m_stride * 3 * triLimit);
+					softwareMesh->m_indices = (u8*)yyMemAlloc(sizeof(u16) * 3* triLimit);
+					vertexModel_ptr = (yyVertexTriangle*)softwareMesh->m_vertices;
 				}
 
-				inds_ptr = (u16*)softwareModel->m_indices;
+				inds_ptr = (u16*)softwareMesh->m_indices;
 
-				_modelNode = new miVisualObjectImpl::model_node_CPU;
-				_modelNode->m_ptrs.reserve(0xffff);
-				_modelNode->m_modelCPU = softwareModel;
+				_meshNode = new miVisualObjectImpl::mesh_node_CPU;
+				_meshNode->m_ptrs.reserve(0xffff);
+				_meshNode->m_meshCPU = softwareMesh;
 
-				m_nodes_CPU.push_back(_modelNode);
+				m_nodes_CPU.push_back(_meshNode);
 
 				index = 0;
 			}
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data.m_vertex, vertexAnimatedModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data.m_vertex, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_1->m_data.m_vertex->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_1->m_data.m_uv;
@@ -547,7 +547,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data.m_vertex, vertexModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_1->m_data.m_vertex, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_1->m_data.m_vertex->m_position;
 				vertexModel_ptr->TCoords = vertex_1->m_data.m_uv;
@@ -563,7 +563,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data.m_vertex, vertexAnimatedModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data.m_vertex, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_2->m_data.m_vertex->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_2->m_data.m_uv;
@@ -572,7 +572,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data.m_vertex, vertexModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_2->m_data.m_vertex, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_2->m_data.m_vertex->m_position;
 				vertexModel_ptr->TCoords = vertex_2->m_data.m_uv;
@@ -586,7 +586,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 
 			if (m_mesh->m_skeleton)
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data.m_vertex, vertexAnimatedModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data.m_vertex, vertexAnimatedModel_ptr));
 				vertexAnimatedModel_ptr->Color = color;
 				vertexAnimatedModel_ptr->Position = vertex_3->m_data.m_vertex->m_position;
 				vertexAnimatedModel_ptr->TCoords = vertex_3->m_data.m_uv;
@@ -595,7 +595,7 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			}
 			else
 			{
-				_modelNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data.m_vertex, vertexModel_ptr));
+				_meshNode->m_ptrs.push_back(miPair<void*, void*>(vertex_3->m_data.m_vertex, vertexModel_ptr));
 				vertexModel_ptr->Color = color;
 				vertexModel_ptr->Position = vertex_3->m_data.m_vertex->m_position;
 				vertexModel_ptr->TCoords = vertex_3->m_data.m_uv;
@@ -607,8 +607,8 @@ void miVisualObjectImpl::_createSoftwareModel_polys() {
 			++index;
 			++inds_ptr;
 
-			_modelNode->m_modelCPU->m_vCount += 3;
-			_modelNode->m_modelCPU->m_iCount += 3;
+			_meshNode->m_meshCPU->m_vCount += 3;
+			_meshNode->m_meshCPU->m_iCount += 3;
 
 			++triangleCount;
 			if (triangleCount == triLimit)
@@ -648,9 +648,10 @@ void miVisualObjectImpl::CreateNewGPUModelsUV(miMesh* m) {
 
 	if (m_node_UV_CPU)
 	{
-		m_node_UV_GPU = new miVisualObjectImpl::model_node_GPU;
-		m_node_UV_GPU->m_modelGPU = yyCreateModel(m_node_UV_CPU->m_modelCPU);
-		m_node_UV_GPU->m_modelGPU->Load();
+		m_node_UV_GPU = new miVisualObjectImpl::mesh_node_GPU;
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = m_node_UV_CPU->m_meshCPU;
+		m_node_UV_GPU->m_meshGPU = yyCreateGPUMesh(&mi);
 	}
 }
 
@@ -676,9 +677,10 @@ void miVisualObjectImpl::CreateNewGPUModels(miMesh* mesh) {
 	for (u32 i = 0, sz = m_nodes_CPU.size(); i < sz; ++i)
 	{
 		auto node = m_nodes_CPU[i];
-		auto _modelNode = new miVisualObjectImpl::model_node_GPU;
-		_modelNode->m_modelGPU = yyCreateModel(node->m_modelCPU);
-		_modelNode->m_modelGPU->Load();
+		auto _modelNode = new miVisualObjectImpl::mesh_node_GPU;
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = node->m_meshCPU;
+		_modelNode->m_meshGPU = yyCreateGPUMesh(&mi);
 		m_nodes_GPU.push_back(_modelNode);
 	}
 	UpdateAabb();
@@ -772,8 +774,8 @@ void miVisualObjectImpl::Draw(bool uv) {
 
 	yyMaterial* curPolygonMaterial = &default_polygon_material;
 
-	static yyResource * defTexture0 = yyGetDefaultTexture();
-	yyResource * texture_0 = defTexture0;
+	static yyGPUTexture * defTexture0 = yyGetDefaultTexture();
+	yyGPUTexture * texture_0 = defTexture0;
 
 	static yyMaterial wireframe_model_material;
 	static Mat4 Vi;
@@ -790,14 +792,14 @@ void miVisualObjectImpl::Draw(bool uv) {
 		{
 			if (m_node_UV_GPU)
 			{
-				if (m_node_UV_GPU->m_modelGPU)
+				if (m_node_UV_GPU->m_meshGPU)
 				{
 					auto W = Mat4();
 					auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
 					yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 					yySetMatrix(yyMatrixType::World, &W);
 
-					g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+					g_app->m_gpu->SetMesh(m_node_UV_GPU->m_meshGPU);
 					g_app->m_gpu->SetTexture(0, defTexture0);
 					g_app->m_gpu->Draw();
 				}
@@ -811,7 +813,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 
 				yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 				yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-				g_app->m_gpu->SetModel(node->m_modelGPU);
+				g_app->m_gpu->SetMesh(node->m_meshGPU);
 				g_app->m_gpu->SetTexture(0, defTexture0);
 				g_app->m_gpu->Draw();
 			}
@@ -823,14 +825,14 @@ void miVisualObjectImpl::Draw(bool uv) {
 		{
 			if (m_node_UV_GPU)
 			{
-				if (m_node_UV_GPU->m_modelGPU)
+				if (m_node_UV_GPU->m_meshGPU)
 				{
 					auto W = Mat4();
 					auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
 					yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 					yySetMatrix(yyMatrixType::World, &W);
 
-					g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+					g_app->m_gpu->SetMesh(m_node_UV_GPU->m_meshGPU);
 					g_app->m_gpu->SetTexture(0, defTexture0);
 					g_app->m_gpu->Draw();
 				}
@@ -859,7 +861,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 
 				yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 				yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-				g_app->m_gpu->SetModel(node->m_modelGPU);
+				g_app->m_gpu->SetMesh(node->m_meshGPU);
 				g_app->m_gpu->SetTexture(0, defTexture0);
 				g_app->m_gpu->Draw();
 			}
@@ -874,7 +876,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 			default_polygon_material.m_type = yyMaterialType::Simple;
 			if (m_node_UV_GPU)
 			{
-				if (m_node_UV_GPU->m_modelGPU)
+				if (m_node_UV_GPU->m_meshGPU)
 				{
 					auto W = Mat4();
 					auto WVP = camera->m_projectionMatrix* camera->m_viewMatrix * W;
@@ -887,7 +889,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 					default_polygon_material.m_baseColor.m_data[3] = 0.3f;
 					yySetMaterial(&default_polygon_material);
 
-					g_app->m_gpu->SetModel(m_node_UV_GPU->m_modelGPU);
+					g_app->m_gpu->SetMesh(m_node_UV_GPU->m_meshGPU);
 					g_app->m_gpu->SetTexture(0, yyGetDefaultTexture());
 					g_app->m_gpu->Draw();
 				}
@@ -907,7 +909,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 					curPolygonMaterial->m_baseColor.m_data[3] = m_parentSceneObject->m_material->m_first->m_baseColor.w;
 
 					if (m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture)
-						texture_0 = (yyResource*)m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture;
+						texture_0 = (yyGPUTexture*)m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture;
 				}
 			}
 			g_app->m_gpu->SetTexture(0, texture_0);
@@ -918,7 +920,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 
 				yySetMatrix(yyMatrixType::WorldViewProjection, &m_parentSceneObject->m_worldViewProjection);
 				yySetMatrix(yyMatrixType::World, &m_parentSceneObject->m_worldMatrix);
-				g_app->m_gpu->SetModel(node->m_modelGPU);
+				g_app->m_gpu->SetMesh(node->m_meshGPU);
 
 				if (g_app->m_currentViewportDraw->m_drawMode == miViewportDrawMode::Wireframe)
 				{
@@ -1083,8 +1085,8 @@ void miVisualObjectImpl::OnTransform() {
 				}
 			}
 
-			gpu_node->m_modelGPU->Unload();
-			gpu_node->m_modelGPU->Load();
+			gpu_node->m_meshGPU->Unload();
+			gpu_node->m_meshGPU->Reload();
 		}
 		break;
 	case miVisualObjectType::Edge:
@@ -1110,8 +1112,8 @@ void miVisualObjectImpl::OnTransform() {
 				}
 			}
 
-			gpu_node->m_modelGPU->Unload();
-			gpu_node->m_modelGPU->Load();
+			gpu_node->m_meshGPU->Unload();
+			gpu_node->m_meshGPU->Reload();
 		}
 		break;
 	case miVisualObjectType::Polygon:
@@ -1137,8 +1139,8 @@ void miVisualObjectImpl::OnTransform() {
 				}
 			}
 
-			gpu_node->m_modelGPU->Unload();
-			gpu_node->m_modelGPU->Load();
+			gpu_node->m_meshGPU->Unload();
+			gpu_node->m_meshGPU->Reload();
 		}
 		break;
 	default:

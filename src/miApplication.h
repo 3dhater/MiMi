@@ -5,6 +5,7 @@
 #include "yy_window.h"
 #include "yy_input.h"
 #include "yy_material.h"
+#include "yy_mesh.h"
 #include "math\math.h"
 
 #include "../SDK/miSDK.h"
@@ -127,31 +128,31 @@ class miApplication
 	miGUIManager* m_GUIManager;
 	miShortcutManager* m_shortcutManager;
 
-	yyResource* m_gridModel_perspective1;
-	yyResource* m_gridModel_perspective2;
-	yyResource* m_gridModel_top1;
-	yyResource* m_gridModel_top2;
-	yyResource* m_gridModel_top1_10;
-	yyResource* m_gridModel_top2_10;
-	yyResource* m_gridModel_top1_100;
-	yyResource* m_gridModel_top2_100;
-	yyResource* m_gridModel_front1;
-	yyResource* m_gridModel_front2;
-	yyResource* m_gridModel_front1_10;
-	yyResource* m_gridModel_front2_10;
-	yyResource* m_gridModel_front1_100;
-	yyResource* m_gridModel_front2_100;
-	yyResource* m_gridModel_left1;
-	yyResource* m_gridModel_left2;
-	yyResource* m_gridModel_left1_10;
-	yyResource* m_gridModel_left2_10;
-	yyResource* m_gridModel_left1_100;
-	yyResource* m_gridModel_left2_100;
+	yyGPUMesh* m_gridModel_perspective1;
+	yyGPUMesh* m_gridModel_perspective2;
+	yyGPUMesh* m_gridModel_top1;
+	yyGPUMesh* m_gridModel_top2;
+	yyGPUMesh* m_gridModel_top1_10;
+	yyGPUMesh* m_gridModel_top2_10;
+	yyGPUMesh* m_gridModel_top1_100;
+	yyGPUMesh* m_gridModel_top2_100;
+	yyGPUMesh* m_gridModel_front1;
+	yyGPUMesh* m_gridModel_front2;
+	yyGPUMesh* m_gridModel_front1_10;
+	yyGPUMesh* m_gridModel_front2_10;
+	yyGPUMesh* m_gridModel_front1_100;
+	yyGPUMesh* m_gridModel_front2_100;
+	yyGPUMesh* m_gridModel_left1;
+	yyGPUMesh* m_gridModel_left2;
+	yyGPUMesh* m_gridModel_left1_10;
+	yyGPUMesh* m_gridModel_left2_10;
+	yyGPUMesh* m_gridModel_left1_100;
+	yyGPUMesh* m_gridModel_left2_100;
 	yyMaterial m_gridModelMaterial;
 	void _initGrid();
 
-	yyResource* m_transparentTexture;
-	yyResource* m_blackTexture;
+	yyGPUTexture* m_transparentTexture;
+	yyGPUTexture* m_blackTexture;
 
 
 	yyColor m_color_windowClearColor;
@@ -251,8 +252,8 @@ class miApplication
 
 	bool _isDoNotSelect();
 
-	yyResource* m_UVPlaneModel;
-	yyResource* m_UVPlaneTexture;
+	yyGPUMesh* m_UVPlaneModel;
+	yyGPUTexture* m_UVPlaneTexture;
 
 public:
 	miApplication();

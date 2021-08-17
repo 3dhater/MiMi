@@ -20,25 +20,25 @@ public:
 	yyMaterial m_commonMaterial;
 	yyMaterial m_pivotModelMaterial;
 
-	yyResource* m_pivotModel;
+	yyGPUMesh* m_pivotModel;
 	
-	yyResource* m_rotateX;
-	yyResource* m_rotateY;
-	yyResource* m_rotateZ;
-	yyResource* m_rotateScreen;
+	yyGPUMesh* m_rotateX;
+	yyGPUMesh* m_rotateY;
+	yyGPUMesh* m_rotateZ;
+	yyGPUMesh* m_rotateScreen;
 	yySprite*   m_rotateSprite;
 
-	yyResource* m_X;
-	yyResource* m_Y;
-	yyResource* m_Z;
+	yyGPUMesh* m_X;
+	yyGPUMesh* m_Y;
+	yyGPUMesh* m_Z;
 
-	yyResource* m_HeadMoveX;
-	yyResource* m_HeadMoveY;
-	yyResource* m_HeadMoveZ;
+	yyGPUMesh* m_HeadMoveX;
+	yyGPUMesh* m_HeadMoveY;
+	yyGPUMesh* m_HeadMoveZ;
 
-	yyResource* m_HeadScaleX;
-	yyResource* m_HeadScaleY;
-	yyResource* m_HeadScaleZ;
+	yyGPUMesh* m_HeadScaleX;
+	yyGPUMesh* m_HeadScaleY;
+	yyGPUMesh* m_HeadScaleZ;
 
 	Aabb m_XAabb;
 	Aabb m_YAabb;
@@ -82,17 +82,17 @@ public:
 	bool m_isRotationHoverZ;
 	bool m_isRotationHoverScreen;
 
-	yyResource* m_XZ;
+	yyGPUMesh* m_XZ;
 	Aabb m_XZAabb;
 	Aabb m_XZAabbMod;
 	bool m_isDrawAabbXZ;
 
-	yyResource* m_XY;
+	yyGPUMesh* m_XY;
 	Aabb m_XYAabb;
 	Aabb m_XYAabbMod;
 	bool m_isDrawAabbXY;
 
-	yyResource* m_ZY;
+	yyGPUMesh* m_ZY;
 	Aabb m_ZYAabb;
 	Aabb m_ZYAabbMod;
 	bool m_isDrawAabbZY;

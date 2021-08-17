@@ -3,47 +3,47 @@
 
 class miVisualObjectImpl : public miVisualObject
 {
-	struct model_node_GPU {
-		model_node_GPU() {
-			m_modelGPU = 0;
+	struct mesh_node_GPU {
+		mesh_node_GPU() {
+			m_meshGPU = 0;
 		}
-		~model_node_GPU() {
-			if (m_modelGPU)
-				yyMegaAllocator::Destroy(m_modelGPU);
+		~mesh_node_GPU() {
+			if (m_meshGPU)
+				yyDestroy(m_meshGPU);
 		}
-		yyResource* m_modelGPU;
+		yyGPUMesh* m_meshGPU;
 	};
-	struct model_node_CPU {
-		model_node_CPU() {
-			m_modelCPU = 0;
+	struct mesh_node_CPU {
+		mesh_node_CPU() {
+			m_meshCPU = 0;
 		}
-		~model_node_CPU() {
-			if (m_modelCPU)
-				yyMegaAllocator::Destroy(m_modelCPU);
+		~mesh_node_CPU() {
+			if (m_meshCPU)
+				yyDestroy(m_meshCPU);
 		}
-		yyModel* m_modelCPU;
+		yyMesh* m_meshCPU;
 
 		// miVertex, yyVertex___
 		yyArraySimple<miPair<void*,void*>> m_ptrs;
 	};
 
-	struct model_node_UV_CPU {
-		model_node_UV_CPU() {
-			m_modelCPU = 0;
+	struct mesh_node_UV_CPU {
+		mesh_node_UV_CPU() {
+			m_meshCPU = 0;
 		}
-		~model_node_UV_CPU() {
-			if (m_modelCPU)
-				yyMegaAllocator::Destroy(m_modelCPU);
+		~mesh_node_UV_CPU() {
+			if (m_meshCPU)
+				yyDestroy(m_meshCPU);
 		}
-		yyModel* m_modelCPU;
+		yyMesh* m_meshCPU;
 
 		yyArraySimple<void*> m_ptrs;
 	};
 	
 	//yyResource* m_texture;
 
-	yyArray<model_node_GPU*> m_nodes_GPU;
-	yyArray<model_node_CPU*> m_nodes_CPU;
+	yyArray<mesh_node_GPU*> m_nodes_GPU;
+	yyArray<mesh_node_CPU*> m_nodes_CPU;
 	yyArraySimple<u32> m_nodesForUpdate; // index array
 
 	void _destroy();
@@ -60,8 +60,8 @@ class miVisualObjectImpl : public miVisualObject
 	miVisualObjectType m_type;
 
 	// only points and lines
-	model_node_GPU* m_node_UV_GPU;
-	model_node_UV_CPU* m_node_UV_CPU;
+	mesh_node_GPU* m_node_UV_GPU;
+	mesh_node_UV_CPU* m_node_UV_CPU;
 	void _createSoftwareModel_polys_UV();
 	void _createSoftwareModel_edges_UV();
 	void _createSoftwareModel_verts_UV();

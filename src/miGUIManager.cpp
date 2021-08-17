@@ -1361,8 +1361,7 @@ void miGUIManager::LoadNewImageForMaterial() {
 							yyStringA s;
 							s = map->m_texturePath.data();
 							map->m_GPUTexture = yyGetTextureFromCache(s.data());
-							m_gui_pictureBox_map->m_texture = (yyResource*)map->m_GPUTexture;
-							m_gui_pictureBox_map->m_texture->Load();
+							m_gui_pictureBox_map->m_texture = (yyGPUTexture*)map->m_GPUTexture;
 						}
 						yyDestroy(path);
 					}
@@ -1389,7 +1388,7 @@ void miGUIManager::UpdateMaterialMapPictureBox() {
 				{
 					auto * map = &mat->m_maps[o];
 					if(map->m_GPUTexture)
-						m_gui_pictureBox_map->m_texture = (yyResource*)map->m_GPUTexture;
+						m_gui_pictureBox_map->m_texture = (yyGPUTexture*)map->m_GPUTexture;
 					return;
 				}
 			}

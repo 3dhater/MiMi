@@ -9,6 +9,7 @@
 - drag n drop texture
 - line for d3d11
 - shaders
+- проследить за текстурами в материалах
 
 ...
 

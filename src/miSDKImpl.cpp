@@ -5,6 +5,8 @@
 #include "miPluginGUIImpl.h"
 #include "miEditableObject.h"
 
+#include <yy_fs.h>
+
 extern miApplication * g_app;
 
 

@@ -12,7 +12,8 @@
 #include "miVisualObjectImpl.h"
 #include "yy_color.h"
 #include "yy_gui.h"
-#include "yy_model.h"
+#include "yy_mesh.h"
+#include "yy_fs.h"
 
 #include <map>
 #include <ctime>
@@ -282,16 +283,8 @@ miApplication::~miApplication() {
 		for (u32 o = 0; o < miMaterialMaxMaps; ++o) {
 			if (m->m_first->m_maps[o].m_GPUTexture)
 			{
-				auto r = (yyResource*)m->m_first->m_maps[o].m_GPUTexture;
-				if (r->IsLoaded())
-				{
-					r->Unload();
-					if (!r->IsLoaded())
-					{
-						yyDeleteTexture(r, true);
-						m->m_first->m_maps[o].m_GPUTexture = 0;
-					}
-				}
+				auto r = (yyGPUTexture*)m->m_first->m_maps[o].m_GPUTexture;
+				yyDestroy(r);
 			}
 		}
 		miDestroy(m->m_first);
@@ -322,26 +315,26 @@ miApplication::~miApplication() {
 	}
 	if (m_UVViewport)
 		delete m_UVViewport;
-	if (m_gridModel_left1) yyMegaAllocator::Destroy(m_gridModel_left1);
-	if (m_gridModel_left2) yyMegaAllocator::Destroy(m_gridModel_left2);
-	if (m_gridModel_left1_10) yyMegaAllocator::Destroy(m_gridModel_left1_10);
-	if (m_gridModel_left2_10) yyMegaAllocator::Destroy(m_gridModel_left2_10);
-	if (m_gridModel_left1_100) yyMegaAllocator::Destroy(m_gridModel_left1_100);
-	if (m_gridModel_left2_100) yyMegaAllocator::Destroy(m_gridModel_left2_100);
-	if (m_gridModel_front1) yyMegaAllocator::Destroy(m_gridModel_front1);
-	if (m_gridModel_front2) yyMegaAllocator::Destroy(m_gridModel_front2);
-	if (m_gridModel_front1_10) yyMegaAllocator::Destroy(m_gridModel_front1_10);
-	if (m_gridModel_front2_10) yyMegaAllocator::Destroy(m_gridModel_front2_10);
-	if (m_gridModel_front1_100) yyMegaAllocator::Destroy(m_gridModel_front1_100);
-	if (m_gridModel_front2_100) yyMegaAllocator::Destroy(m_gridModel_front2_100);
-	if (m_gridModel_top1) yyMegaAllocator::Destroy(m_gridModel_top1);
-	if (m_gridModel_top2) yyMegaAllocator::Destroy(m_gridModel_top2);
-	if (m_gridModel_top1_10) yyMegaAllocator::Destroy(m_gridModel_top1_10);
-	if (m_gridModel_top2_10) yyMegaAllocator::Destroy(m_gridModel_top2_10);
-	if (m_gridModel_top1_100) yyMegaAllocator::Destroy(m_gridModel_top1_100);
-	if (m_gridModel_top2_100) yyMegaAllocator::Destroy(m_gridModel_top2_100);
-	if (m_gridModel_perspective1) yyMegaAllocator::Destroy(m_gridModel_perspective1);
-	if (m_gridModel_perspective2) yyMegaAllocator::Destroy(m_gridModel_perspective2);
+	if (m_gridModel_left1) yyDestroy(m_gridModel_left1);
+	if (m_gridModel_left2) yyDestroy(m_gridModel_left2);
+	if (m_gridModel_left1_10) yyDestroy(m_gridModel_left1_10);
+	if (m_gridModel_left2_10) yyDestroy(m_gridModel_left2_10);
+	if (m_gridModel_left1_100) yyDestroy(m_gridModel_left1_100);
+	if (m_gridModel_left2_100) yyDestroy(m_gridModel_left2_100);
+	if (m_gridModel_front1) yyDestroy(m_gridModel_front1);
+	if (m_gridModel_front2) yyDestroy(m_gridModel_front2);
+	if (m_gridModel_front1_10) yyDestroy(m_gridModel_front1_10);
+	if (m_gridModel_front2_10) yyDestroy(m_gridModel_front2_10);
+	if (m_gridModel_front1_100) yyDestroy(m_gridModel_front1_100);
+	if (m_gridModel_front2_100) yyDestroy(m_gridModel_front2_100);
+	if (m_gridModel_top1) yyDestroy(m_gridModel_top1);
+	if (m_gridModel_top2) yyDestroy(m_gridModel_top2);
+	if (m_gridModel_top1_10) yyDestroy(m_gridModel_top1_10);
+	if (m_gridModel_top2_10) yyDestroy(m_gridModel_top2_10);
+	if (m_gridModel_top1_100) yyDestroy(m_gridModel_top1_100);
+	if (m_gridModel_top2_100) yyDestroy(m_gridModel_top2_100);
+	if (m_gridModel_perspective1) yyDestroy(m_gridModel_perspective1);
+	if (m_gridModel_perspective2) yyDestroy(m_gridModel_perspective2);
 	if (m_shortcutManager) delete m_shortcutManager;
 	if (m_GUIManager) delete m_GUIManager;
 	if (m_window) yyDestroy(m_window);
@@ -719,10 +712,16 @@ vidOk:
 	m_gpu = yyGetVideoDriverAPI();
 	m_gpu->GetDepthRange(&m_gpuDepthRange);
 	m_gpu->UseVSync(true);
-	yySetDefaultTexture(yyGetTextureFromCache("../res/gui/white.dds"));
+
+	auto deftex = yyGetTextureFromCache("../res/gui/white.dds");
+	yySetDefaultTexture(deftex);
+	deftex->m_debug = 1;
 
 	m_blackTexture = yyGetTextureFromCache("../res/gui/black.dds");
+	m_blackTexture->m_debug = 2;
+
 	m_transparentTexture = yyGetTextureFromCache("../res/gui/tr.dds");
+	m_transparentTexture->m_debug = 3;
 
 	m_color_viewportBorder = ColorDarkGray;
 
@@ -748,15 +747,15 @@ vidOk:
 
 
 	{
-		auto model = yyMegaAllocator::CreateModel();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_iCount = 6;
-		model->m_indexType = yyMeshIndexType::u16;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+		auto mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_iCount = 6;
+		mesh->m_indexType = yyMeshIndexType::u16;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 4;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
 		
-		yyVertexTriangle* vPtr = (yyVertexTriangle*)model->m_vertices;
+		yyVertexTriangle* vPtr = (yyVertexTriangle*)mesh->m_vertices;
 		vPtr[0].Normal.set(0.f, 1.f, 0.f);
 		vPtr[0].Position.set(0.f, 0.f, 0.f);
 		vPtr[0].TCoords.set(0.f, 0.f);
@@ -778,8 +777,8 @@ vidOk:
 		vPtr[2].Color.set(0.f);
 		vPtr[3].Color.set(0.f);
 
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
-		u16* iPtr = (u16*)model->m_indices;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
+		u16* iPtr = (u16*)mesh->m_indices;
 		iPtr[0] = 0;
 		iPtr[1] = 1;
 		iPtr[2] = 2;
@@ -787,13 +786,13 @@ vidOk:
 		iPtr[4] = 2;
 		iPtr[5] = 3;
 
-		m_UVPlaneModel = yyCreateModel(model);
-		m_UVPlaneModel->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_UVPlaneModel = yyCreateGPUMesh(&mi);
 	
-		yyMegaAllocator::Destroy(model);
+		yyDestroy(mesh);
 
 		m_UVPlaneTexture = yyCreateTextureFromFile("../res/UV.png");
-		m_UVPlaneTexture->Load();
 	}
 
 	yyGUIRebuild();

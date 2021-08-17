@@ -3,30 +3,29 @@
 #include "miViewport.h"
 #include "yy_color.h"
 #include "yy_gui.h"
-#include "yy_model.h"
 
 void miApplication::_initGrid() {
-	auto _get_model = [&](s32 linesNum)->yyModel*{
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = linesNum * 2;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = linesNum * 2;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
-		return model;
+	auto _get_mesh = [&](s32 linesNum)->yyMesh*{
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = linesNum * 2;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = linesNum * 2;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
+		return mesh;
 	};
 
 	yyColor colorBase(180, 180, 180, 255);
 	v4f colorRed(1.f, 0.f, 0.f, 1.f);
 	v4f colorGreen(0.f, 1.f, 0.f, 1.f);
 
-	auto _build = [&](yyModel* model, f32 minimum, s32 linesNum, f32 step,
+	auto _build = [&](yyMesh* mesh, f32 minimum, s32 linesNum, f32 step,
 		const yyColor& half1Color, const yyColor& half2Color, const yyColor& specColor1, const yyColor& specColor2, s32 specColorIndex,
 		miViewportCameraType ct
 		) 
 	{
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		f32 pos = minimum;
 
 		const s32 halfNum = linesNum / 2;
@@ -120,8 +119,8 @@ void miApplication::_initGrid() {
 			pos += step;
 		}
 
-		u16* index = (u16*)model->m_indices;
-		for (u32 i = 0; i < model->m_iCount; ++i)
+		u16* index = (u16*)mesh->m_indices;
+		for (u32 i = 0; i < mesh->m_iCount; ++i)
 		{
 			*index = (u16)i;
 			index++;
@@ -130,144 +129,226 @@ void miApplication::_initGrid() {
 
 	{
 		const s32 linesNum = 22;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -5.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 5, miViewportCameraType::Perspective);
-		m_gridModel_perspective1 = yyCreateModel(model);
-		m_gridModel_perspective1->Load();
+		_build(mesh, -5.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 5, miViewportCameraType::Perspective);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_perspective1 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -5.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 5, miViewportCameraType::Perspective);
-		m_gridModel_perspective2 = yyCreateModel(model);
-		m_gridModel_perspective2->Load();
+		_build(mesh, -5.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 5, miViewportCameraType::Perspective);
 
-		yyDestroy(model);
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_perspective2 = yyCreateGPUMesh(&mi);
+		}
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1 = yyCreateModel(model);
-		m_gridModel_top1->Load();
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top1 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2 = yyCreateModel(model);
-		m_gridModel_top2->Load();
-
-		yyDestroy(model);
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top2 = yyCreateGPUMesh(&mi);
+		}
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1_10 = yyCreateModel(model);
-		m_gridModel_top1_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top1_10 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2_10 = yyCreateModel(model);
-		m_gridModel_top2_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top2_10 = yyCreateGPUMesh(&mi);
+		}
 
-		yyDestroy(model);
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
-		m_gridModel_top1_100 = yyCreateModel(model);
-		m_gridModel_top1_100->Load();
+		auto mesh = _get_mesh(linesNum);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorLime, ColorRed, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top1_100 = yyCreateGPUMesh(&mi);
+		}
+
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
-		m_gridModel_top2_100 = yyCreateModel(model);
-		m_gridModel_top2_100->Load();
-		yyDestroy(model);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Top);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_top2_100 = yyCreateGPUMesh(&mi);
+		}
+
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1 = yyCreateModel(model);
-		m_gridModel_front1->Load();
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
+
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front1 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2 = yyCreateModel(model);
-		m_gridModel_front2->Load();
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
 
-		yyDestroy(model);
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front2 = yyCreateGPUMesh(&mi);
+		}
+
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1_10 = yyCreateModel(model);
-		m_gridModel_front1_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front1_10 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2_10 = yyCreateModel(model);
-		m_gridModel_front2_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
 
-		yyDestroy(model);
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front2_10 = yyCreateGPUMesh(&mi);
+		}
+
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
-		m_gridModel_front1_100 = yyCreateModel(model);
-		m_gridModel_front1_100->Load();
+		auto mesh = _get_mesh(linesNum);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorRed, 251, miViewportCameraType::Front);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front1_100 = yyCreateGPUMesh(&mi);
+		}
+
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
-		m_gridModel_front2_100 = yyCreateModel(model);
-		m_gridModel_front2_100->Load();
-		yyDestroy(model);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Front);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_front2_100 = yyCreateGPUMesh(&mi);
+		}
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1 = yyCreateModel(model);
-		m_gridModel_left1->Load();
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left1 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2 = yyCreateModel(model);
-		m_gridModel_left2->Load();
+		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left2 = yyCreateGPUMesh(&mi);
+		}
 
-		yyDestroy(model);
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
+		auto mesh = _get_mesh(linesNum);
 
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1_10 = yyCreateModel(model);
-		m_gridModel_left1_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left1_10 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2_10 = yyCreateModel(model);
-		m_gridModel_left2_10->Load();
+		_build(mesh, -2510.f, linesNum, 10.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left2_10 = yyCreateGPUMesh(&mi);
+		}
 
-		yyDestroy(model);
+		yyDestroy(mesh);
 	}
 	{
 		const s32 linesNum = 1002;
-		auto model = _get_model(linesNum);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
-		m_gridModel_left1_100 = yyCreateModel(model);
-		m_gridModel_left1_100->Load();
+		auto mesh = _get_mesh(linesNum);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, ColorBlue, ColorLime, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left1_100 = yyCreateGPUMesh(&mi);
+		}
 
 		colorBase = yyColor(150, 150, 150, 255);
-		_build(model, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
-		m_gridModel_left2_100 = yyCreateModel(model);
-		m_gridModel_left1_100->Load();
-		yyDestroy(model);
+		_build(mesh, -25100.f, linesNum, 100.f, colorBase, colorBase, colorBase, colorBase, 251, miViewportCameraType::Left);
+		
+		{
+			yyGPUMeshInfo mi;
+			mi.m_meshPtr = mesh;
+			m_gridModel_left2_100 = yyCreateGPUMesh(&mi);
+		}
+
+		yyDestroy(mesh);
 	}
 }

@@ -1,5 +1,5 @@
 ﻿#include "yy.h"
-#include "yy_model.h"
+#include "yy_mesh.h"
 #include "miApplication.h"
 #include "miSDK.h"
 #include "miSDKImpl.h"
@@ -10,7 +10,8 @@
 
 extern miApplication * g_app;
 
-miGizmo::miGizmo() {
+miGizmo::miGizmo() 
+{
 	m_var_rotate_snap = 0.f;
 	m_gizmo_arrow_body_size = 0.125f;
 	m_gizmo_head_size = 0.01f;
@@ -21,7 +22,8 @@ miGizmo::miGizmo() {
 	m_gizmo_rot_sz_mn = 0.01;
 	m_gizmo_rot_sz_mx = 0.01;
 
-	m_rotateSprite = yyCreateSprite(v4f(0.f, 0.f, 1.f, 1.f), yyGetTextureFromCache("../res/gui/tr.dds"), 8);
+	auto trtex = yyGetTextureFromCache("../res/gui/tr.dds");
+	m_rotateSprite = yyCreateSprite(v4f(0.f, 0.f, 1.f, 1.f), trtex, 8);
 	m_rotateSprite->m_useAsBillboard = true;
 
 	m_isRotationHoverX = false;
@@ -58,15 +60,15 @@ miGizmo::miGizmo() {
 	
 	{
 		
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 6;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 4;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 6;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = ColorWhite.getV4f();
 		vertex++;
@@ -79,7 +81,7 @@ miGizmo::miGizmo() {
 		vertex->Position.set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = ColorWhite.getV4f();
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 0; index++;
@@ -87,19 +89,20 @@ miGizmo::miGizmo() {
 		*index = 0; index++;
 		*index = 3; index++;
 
-		m_pivotModel = yyCreateModel(model);
-		m_pivotModel->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_pivotModel = yyCreateGPUMesh(&mi);
 	}
 	{ //
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 2;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 2;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 2;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 2;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = m_color_x.getV4f();
 		m_XAabb.add(vertex->Position);
@@ -110,27 +113,28 @@ miGizmo::miGizmo() {
 		m_XAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_X = yyCreateModel(model);
-		m_X->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_X = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_XAabb.m_min -= v4f(0.f, sz, sz, 0.f);
 		m_XAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 	{
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 2;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 2;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 2;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 2;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = m_color_y.getV4f();
 		m_YAabb.add(vertex->Position);
@@ -141,27 +145,28 @@ miGizmo::miGizmo() {
 		m_YAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_Y = yyCreateModel(model);
-		m_Y->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_Y = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_YAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
 		m_YAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
 	{
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 2;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 2;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 2;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 2;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		vertex->Position.set(0.f, 0.f, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_ZAabb.add(vertex->Position);
@@ -172,27 +177,28 @@ miGizmo::miGizmo() {
 		m_ZAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 
-		m_Z = yyCreateModel(model);
-		m_Z->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_Z = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_ZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
 		m_ZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
 	{
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 5;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 12;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 5;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 12;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(m_gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = m_color_x.getV4f();
 		m_HeadXAabb.add(vertex->Position);
@@ -218,7 +224,7 @@ miGizmo::miGizmo() {
 		m_HeadXAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -232,23 +238,24 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadMoveX = yyCreateModel(model);
-		m_HeadMoveX->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadMoveX = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadXAabb.m_min -= v4f(0.f, sz, sz, 0.f);
 		m_HeadXAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 	{// Scale X
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 8;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 30;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 8;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 30;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex[0].Position.set(m_gizmo_arrow_body_size, -m_gizmo_head_size, -m_gizmo_head_size);
 		vertex[1].Position.set(m_gizmo_arrow_body_size, -m_gizmo_head_size, m_gizmo_head_size);
 		vertex[2].Position.set(m_gizmo_arrow_body_size, m_gizmo_head_size, m_gizmo_head_size);
@@ -263,7 +270,7 @@ miGizmo::miGizmo() {
 			m_HeadScaleXAabb.add(vertex[i].Position);
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		index[0] = 0;
 		index[1] = 1;
 		index[2] = 2;
@@ -299,23 +306,24 @@ miGizmo::miGizmo() {
 		index[28] = 6;
 		index[29] = 2;
 
-		m_HeadScaleX = yyCreateModel(model);
-		m_HeadScaleX->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadScaleX = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadScaleXAabb.m_min -= v4f(sz, sz, sz, 0.f);
 		m_HeadScaleXAabb.m_max += v4f(sz, sz, sz, 0.f);
 	}
 	{// Head Scale Y
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 8;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 30;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 8;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 30;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex[0].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size , -m_gizmo_head_size);
 		vertex[1].Position.set(-m_gizmo_head_size, m_gizmo_arrow_body_size, m_gizmo_head_size);
 		vertex[2].Position.set(m_gizmo_head_size, m_gizmo_arrow_body_size, m_gizmo_head_size);
@@ -330,7 +338,7 @@ miGizmo::miGizmo() {
 			m_HeadScaleYAabb.add(vertex[i].Position);
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		index[0] = 0;
 		index[1] = 1;
 		index[2] = 2;
@@ -366,23 +374,24 @@ miGizmo::miGizmo() {
 		index[28] = 6;
 		index[29] = 2;
 
-		m_HeadScaleY = yyCreateModel(model);
-		m_HeadScaleY->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadScaleY = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadScaleYAabb.m_min -= v4f(sz, sz, sz, 0.f);
 		m_HeadScaleYAabb.m_max += v4f(sz, sz, sz, 0.f);
 	}
 	{// Scale Z
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 8;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 30;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 8;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 30;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex[0].Position.set(-m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size);
 		vertex[1].Position.set(-m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size);
 		vertex[2].Position.set(m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size);
@@ -397,7 +406,7 @@ miGizmo::miGizmo() {
 			m_HeadScaleZAabb.add(vertex[i].Position);
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		index[0] = 0;
 		index[1] = 1;
 		index[2] = 2;
@@ -433,23 +442,24 @@ miGizmo::miGizmo() {
 		index[28] = 6;
 		index[29] = 2;
 
-		m_HeadScaleZ = yyCreateModel(model);
-		m_HeadScaleZ->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadScaleZ = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadScaleZAabb.m_min -= v4f(sz, sz, sz, 0.f);
 		m_HeadScaleZAabb.m_max += v4f(sz, sz, sz, 0.f);
 	}
 	{// Head Move Y
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 5;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 12;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 5;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 12;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(0.f, m_gizmo_arrow_body_size, 0.f);
 		vertex->Color = m_color_y.getV4f();
 		m_HeadYAabb.add(vertex->Position);
@@ -475,7 +485,7 @@ miGizmo::miGizmo() {
 		m_HeadYAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -489,23 +499,24 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadMoveY = yyCreateModel(model);
-		m_HeadMoveY->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadMoveY = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadYAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
 		m_HeadYAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
 	{// Head Move Z
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 5;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 12;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 5;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 12;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = m_color_z.getV4f();
 		m_HeadZAabb.add(vertex->Position);
@@ -531,7 +542,7 @@ miGizmo::miGizmo() {
 		m_HeadZAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -545,24 +556,25 @@ miGizmo::miGizmo() {
 		*index = 4; index++;
 		*index = 1; index++;
 
-		m_HeadMoveZ = yyCreateModel(model);
-		m_HeadMoveZ->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_HeadMoveZ = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_HeadZAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
 		m_HeadZAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
 	{// XZ
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 6;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 4;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 6;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
 		f32 xzsz = m_gizmo_arrow_body_size * 0.5f;
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(xzsz - m_gizmo_2pl_sz, 0.f, xzsz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_y.getV4f();
 		m_XZAabb.add(vertex->Position);
@@ -583,7 +595,7 @@ miGizmo::miGizmo() {
 		m_XZAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -591,24 +603,25 @@ miGizmo::miGizmo() {
 		*index = 2; index++;
 		*index = 3; index++;
 
-		m_XZ = yyCreateModel(model);
-		m_XZ->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_XZ = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_XZAabb.m_min -= v4f(sz, 0.f, sz, 0.f);
 		m_XZAabb.m_max += v4f(sz, 0.f, sz, 0.f);
 	}
 	{// XY
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 6;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 4;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 6;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
 		f32 xysz = m_gizmo_arrow_body_size * 0.5f;
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(xysz - m_gizmo_2pl_sz, xysz - m_gizmo_2pl_sz, 0.f);
 		vertex->Color = m_color_z.getV4f();
 		m_XYAabb.add(vertex->Position);
@@ -629,7 +642,7 @@ miGizmo::miGizmo() {
 		m_XYAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -637,24 +650,25 @@ miGizmo::miGizmo() {
 		*index = 2; index++;
 		*index = 3; index++;
 
-		m_XY = yyCreateModel(model);
-		m_XY->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_XY = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_XYAabb.m_min -= v4f(sz, sz, 0.f, 0.f);
 		m_XYAabb.m_max += v4f(sz, sz, 0.f, 0.f);
 	}
 	{// ZY
-		yyModel * model = yyCreate<yyModel>();
-		model->m_vertexType = yyVertexType::Model;
-		model->m_stride = sizeof(yyVertexTriangle);
-		model->m_vCount = 4;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 6;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_vertexType = yyMeshVertexType::Triangle;
+		mesh->m_stride = sizeof(yyVertexTriangle);
+		mesh->m_vCount = 4;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 6;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
 		f32 zysz = m_gizmo_arrow_body_size * 0.5f;
-		auto vertex = (yyVertexTriangle*)model->m_vertices;
+		auto vertex = (yyVertexTriangle*)mesh->m_vertices;
 		vertex->Position.set(0.f, zysz - m_gizmo_2pl_sz, zysz - m_gizmo_2pl_sz);
 		vertex->Color = m_color_x.getV4f();
 		m_ZYAabb.add(vertex->Position);
@@ -675,7 +689,7 @@ miGizmo::miGizmo() {
 		m_ZYAabb.add(vertex->Position);
 		vertex++;
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		*index = 0; index++;
 		*index = 1; index++;
 		*index = 2; index++;
@@ -683,23 +697,24 @@ miGizmo::miGizmo() {
 		*index = 2; index++;
 		*index = 3; index++;
 
-		m_ZY = yyCreateModel(model);
-		m_ZY->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_ZY = yyCreateGPUMesh(&mi);
 
 		f32 sz = 0.0025;
 		m_ZYAabb.m_min -= v4f(0.f, sz, sz, 0.f);
 		m_ZYAabb.m_max += v4f(0.f, sz, sz, 0.f);
 	}
 	{ // rotate X
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 36;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 72;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 36;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 72;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 		
 		for (int i = 0; i < 36; ++i)
 		{
@@ -709,7 +724,7 @@ miGizmo::miGizmo() {
 			vertex[i].Color = ColorWhite.getV4f();
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		for (s32 i = 0, ind = 0; i < 72; i += 2)
 		{
 			index[i] = (u16)ind++;
@@ -718,19 +733,20 @@ miGizmo::miGizmo() {
 				index[i + 1] = 0;
 		}
 
-		m_rotateX = yyCreateModel(model);
-		m_rotateX->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_rotateX = yyCreateGPUMesh(&mi);
 	}
 	{ // rotate Y
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 36;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 72;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 36;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 72;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 
 		for (int i = 0; i < 36; ++i)
 		{
@@ -740,7 +756,7 @@ miGizmo::miGizmo() {
 			vertex[i].Color = ColorWhite.getV4f();
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		for (s32 i = 0, ind = 0; i < 72; i += 2)
 		{
 			index[i] = (u16)ind++;
@@ -749,19 +765,20 @@ miGizmo::miGizmo() {
 				index[i + 1] = 0;
 		}
 
-		m_rotateY = yyCreateModel(model);
-		m_rotateY->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_rotateY = yyCreateGPUMesh(&mi);
 	}
 	{ // rotate Z
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 36;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 72;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 36;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 72;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 
 		for (int i = 0; i < 36; ++i)
 		{
@@ -771,7 +788,7 @@ miGizmo::miGizmo() {
 			vertex[i].Color = ColorWhite.getV4f();
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		for (s32 i = 0, ind = 0; i < 72; i += 2)
 		{
 			index[i] = (u16)ind++;
@@ -780,19 +797,20 @@ miGizmo::miGizmo() {
 				index[i + 1] = 0;
 		}
 
-		m_rotateZ = yyCreateModel(model);
-		m_rotateZ->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_rotateZ = yyCreateGPUMesh(&mi);
 	}
 	{ // rotate screen
-		yyModel * model = yyCreate<yyModel>();
-		model->m_stride = sizeof(yyVertexLine);
-		model->m_vertexType = yyVertexType::LineModel;
-		model->m_vCount = 36;
-		model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
-		model->m_iCount = 72;
-		model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+		yyMesh * mesh = yyCreate<yyMesh>();
+		mesh->m_stride = sizeof(yyVertexLine);
+		mesh->m_vertexType = yyMeshVertexType::Line;
+		mesh->m_vCount = 36;
+		mesh->m_vertices = (u8*)yyMemAlloc(mesh->m_vCount * mesh->m_stride);
+		mesh->m_iCount = 72;
+		mesh->m_indices = (u8*)yyMemAlloc(mesh->m_iCount * sizeof(u16));
 
-		auto vertex = (yyVertexLine*)model->m_vertices;
+		auto vertex = (yyVertexLine*)mesh->m_vertices;
 
 		for (int i = 0; i < 36; ++i)
 		{
@@ -802,7 +820,7 @@ miGizmo::miGizmo() {
 			vertex[i].Color = ColorWhite.getV4f();
 		}
 
-		u16* index = (u16*)model->m_indices;
+		u16* index = (u16*)mesh->m_indices;
 		for (s32 i = 0, ind = 0; i < 72; i += 2)
 		{
 			index[i] = (u16)ind++;
@@ -811,30 +829,35 @@ miGizmo::miGizmo() {
 				index[i + 1] = 0;
 		}
 
-		m_rotateScreen = yyCreateModel(model);
-		m_rotateScreen->Load();
+		yyGPUMeshInfo mi;
+		mi.m_meshPtr = mesh;
+		m_rotateScreen = yyCreateGPUMesh(&mi);
 	}
 }
 
 miGizmo::~miGizmo() {
-	if (m_rotateSprite) yyDestroy(m_rotateSprite);
-	if (m_pivotModel) yyMegaAllocator::Destroy(m_pivotModel);
-	if (m_Y) yyMegaAllocator::Destroy(m_Y);
-	if (m_X) yyMegaAllocator::Destroy(m_X);
-	if (m_Z) yyMegaAllocator::Destroy(m_Z);
-	if (m_HeadMoveX) yyMegaAllocator::Destroy(m_HeadMoveX);
-	if (m_HeadMoveY) yyMegaAllocator::Destroy(m_HeadMoveY);
-	if (m_HeadMoveZ) yyMegaAllocator::Destroy(m_HeadMoveZ);
-	if (m_HeadScaleX) yyMegaAllocator::Destroy(m_HeadScaleX);
-	if (m_HeadScaleY) yyMegaAllocator::Destroy(m_HeadScaleY);
-	if (m_HeadScaleZ) yyMegaAllocator::Destroy(m_HeadScaleZ);
-	if (m_XZ) yyMegaAllocator::Destroy(m_XZ);
-	if (m_XY) yyMegaAllocator::Destroy(m_XY);
-	if (m_ZY) yyMegaAllocator::Destroy(m_ZY);
-	if (m_rotateX) yyMegaAllocator::Destroy(m_rotateX);
-	if (m_rotateY) yyMegaAllocator::Destroy(m_rotateY);
-	if (m_rotateZ) yyMegaAllocator::Destroy(m_rotateZ);
-	if (m_rotateScreen) yyMegaAllocator::Destroy(m_rotateScreen);
+	if (m_rotateSprite)
+	{
+		m_rotateSprite->DropTexture();
+		yyDestroy(m_rotateSprite);
+	}
+	if (m_pivotModel) yyDestroy(m_pivotModel);
+	if (m_Y) yyDestroy(m_Y);
+	if (m_X) yyDestroy(m_X);
+	if (m_Z) yyDestroy(m_Z);
+	if (m_HeadMoveX) yyDestroy(m_HeadMoveX);
+	if (m_HeadMoveY) yyDestroy(m_HeadMoveY);
+	if (m_HeadMoveZ) yyDestroy(m_HeadMoveZ);
+	if (m_HeadScaleX) yyDestroy(m_HeadScaleX);
+	if (m_HeadScaleY) yyDestroy(m_HeadScaleY);
+	if (m_HeadScaleZ) yyDestroy(m_HeadScaleZ);
+	if (m_XZ) yyDestroy(m_XZ);
+	if (m_XY) yyDestroy(m_XY);
+	if (m_ZY) yyDestroy(m_ZY);
+	if (m_rotateX) yyDestroy(m_rotateX);
+	if (m_rotateY) yyDestroy(m_rotateY);
+	if (m_rotateZ) yyDestroy(m_rotateZ);
+	if (m_rotateScreen) yyDestroy(m_rotateScreen);
 }
 
 void miGizmo::Draw(miViewport* vp) {
@@ -857,51 +880,51 @@ void miGizmo::Draw(miViewport* vp) {
 	default:
 	case miTransformMode::NoTransform:
 		yySetMaterial(&m_pivotModelMaterial);
-		g_app->m_gpu->SetModel(m_pivotModel);
+		g_app->m_gpu->SetMesh(m_pivotModel);
 		g_app->m_gpu->Draw();
 		break;
 	case miTransformMode::Move:
-		g_app->m_gpu->SetModel(m_X);
+		g_app->m_gpu->SetMesh(m_X);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbX)
 			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_Y);
+		g_app->m_gpu->SetMesh(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
 			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f(), m_var_move);
 		
-		g_app->m_gpu->SetModel(m_Z);
+		g_app->m_gpu->SetMesh(m_Z);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZ)
 			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadMoveX);
+		g_app->m_gpu->SetMesh(m_HeadMoveX);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadX)
 			g_app->DrawAabb(m_HeadXAabbMod, m_color_x.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadMoveY);
+		g_app->m_gpu->SetMesh(m_HeadMoveY);
 		g_app->m_gpu->Draw();
 		if(m_isDrawAabbHeadY)
 			g_app->DrawAabb(m_HeadYAabbMod, m_color_y.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadMoveZ);
+		g_app->m_gpu->SetMesh(m_HeadMoveZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbHeadZ)
 			g_app->DrawAabb(m_HeadZAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_XZ);
+		g_app->m_gpu->SetMesh(m_XZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXZ)
 			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_XY);
+		g_app->m_gpu->SetMesh(m_XY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXY)
 			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_ZY);
+		g_app->m_gpu->SetMesh(m_ZY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
 			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f(), m_var_move);
@@ -923,48 +946,48 @@ void miGizmo::Draw(miViewport* vp) {
 
 		break;
 	case miTransformMode::Scale:
-		g_app->m_gpu->SetModel(m_X);
+		g_app->m_gpu->SetMesh(m_X);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbX)
 			g_app->DrawAabb(m_XAabbMod, m_color_x.getV4f(), m_var_move);
 
 		yySetMaterial(&m_commonMaterial);
-		g_app->m_gpu->SetModel(m_Y);
+		g_app->m_gpu->SetMesh(m_Y);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbY)
 			g_app->DrawAabb(m_YAabbMod, m_color_y.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_Z);
+		g_app->m_gpu->SetMesh(m_Z);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZ)
 			g_app->DrawAabb(m_ZAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadScaleX);
+		g_app->m_gpu->SetMesh(m_HeadScaleX);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadX)
 			g_app->DrawAabb(m_HeadScaleXAabbMod, m_color_x.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadScaleY);
+		g_app->m_gpu->SetMesh(m_HeadScaleY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadY)
 			g_app->DrawAabb(m_HeadScaleYAabbMod, m_color_y.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_HeadScaleZ);
+		g_app->m_gpu->SetMesh(m_HeadScaleZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbScaleHeadZ)
 			g_app->DrawAabb(m_HeadScaleZAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_XZ);
+		g_app->m_gpu->SetMesh(m_XZ);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXZ)
 			g_app->DrawAabb(m_XZAabbMod, m_color_y.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_XY);
+		g_app->m_gpu->SetMesh(m_XY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbXY)
 			g_app->DrawAabb(m_XYAabbMod, m_color_z.getV4f(), m_var_move);
 
-		g_app->m_gpu->SetModel(m_ZY);
+		g_app->m_gpu->SetMesh(m_ZY);
 		g_app->m_gpu->Draw();
 		if (m_isDrawAabbZY)
 			g_app->DrawAabb(m_ZYAabbMod, m_color_x.getV4f(), m_var_move);
@@ -1000,21 +1023,21 @@ void miGizmo::Draw(miViewport* vp) {
 		yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 		g_app->m_gpu->DrawSprite(m_rotateSprite);
 		m_isRotationHoverScreen ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = ColorWhite;
-		g_app->m_gpu->SetModel(m_rotateScreen);
+		g_app->m_gpu->SetMesh(m_rotateScreen);
 		g_app->m_gpu->Draw();
 		yySetMatrix(yyMatrixType::WorldViewProjection, oldWVP);
 	}
 	
 		m_isRotationHoverX ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_x;
-		g_app->m_gpu->SetModel(m_rotateX);
+		g_app->m_gpu->SetMesh(m_rotateX);
 		g_app->m_gpu->Draw();
 
 		m_isRotationHoverY ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_y;
-		g_app->m_gpu->SetModel(m_rotateY);
+		g_app->m_gpu->SetMesh(m_rotateY);
 		g_app->m_gpu->Draw();
 		
 		m_isRotationHoverZ ? m_commonMaterial.m_baseColor = ColorYellow : m_commonMaterial.m_baseColor = m_color_z;
-		g_app->m_gpu->SetModel(m_rotateZ);
+		g_app->m_gpu->SetMesh(m_rotateZ);
 		g_app->m_gpu->Draw();
 
 

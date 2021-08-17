@@ -8,7 +8,7 @@
 * [x]  plugins
 * [x]  import model
 * [x]  edit model
-* [ ]  edit UV
-* [ ]  export model
+* [x]  edit UV
+* [ ]  export model, save/load scene
 
 future tasks in TODO.txt
