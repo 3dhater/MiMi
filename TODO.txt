@@ -1,4 +1,3 @@
--  / editor gizmo must work only in editor viewport
 - проследить за текстурами в материалах
 - Sorting on selection
 - force draw without lines (F3)

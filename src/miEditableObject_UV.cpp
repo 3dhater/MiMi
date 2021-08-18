@@ -847,6 +847,7 @@ void miEditableObject::UVMakePlanar(bool useScreenPlane) {
 			cp = cp->m_right;
 		}
 	}
+	UVTransformAccept();
 }
 
 void miEditableObject::UvFlattenMapping() {
@@ -1275,4 +1276,6 @@ void miEditableObject::UvFlattenMapping() {
 		auto g = groups.m_data[i];
 		delete g;
 	}
+
+	UVTransformAccept();
 }

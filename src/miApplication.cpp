@@ -1317,7 +1317,7 @@ void miApplication::UpdateViewports() {
 		}
 	}
 
-	if (m_isViewportInFocus && (_isDoNotSelect() == false))
+	if (m_isViewportInFocus && (_isDoNotSelect() == false) )
 	{
 		if (m_inputContext->m_isLMBUp)
 		{			
@@ -1334,7 +1334,7 @@ void miApplication::UpdateViewports() {
 			}
 		}
 
-		if (m_gizmoMode != miGizmoMode::NoTransform)
+		if (m_gizmoMode != miGizmoMode::NoTransform && m_activeViewportLayout->m_activeViewport->m_viewportType == miViewportType::Scene)
 		{
 			if (m_inputContext->m_isRMBUp || m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
 			{
