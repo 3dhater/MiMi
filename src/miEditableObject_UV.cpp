@@ -338,8 +338,14 @@ void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, cons
 		//auto X = mDeltaX * v;
 		//auto Y = mDeltaY * v;
 		
-		m_UVScale.x += mDeltaX * v;
-		m_UVScale.y += mDeltaY * v;
+		f32 aabbX = g_app->m_UVAabbOnClick.m_max.x - g_app->m_UVAabbOnClick.m_min.x;
+		f32 aabbY = g_app->m_UVAabbOnClick.m_max.z - g_app->m_UVAabbOnClick.m_min.z;
+		
+		if (aabbX) aabbX = 1.f / aabbX;
+		if (aabbY) aabbY = 1.f / aabbY;
+
+		m_UVScale.x += mDeltaX * v * aabbX;
+		m_UVScale.y += mDeltaY * v * aabbY;
 
 
 		v2f off;

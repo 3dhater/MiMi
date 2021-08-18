@@ -338,6 +338,7 @@ void miApplication::_initEditableObjectGUI() {
 }
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
+	m_UVScale.set(1.f, 1.f);
 	m_addPolygonsWhenVertexChamfer = true;
 	m_vertexChamferValue = 0.1f;
 	m_isWeld = false;
