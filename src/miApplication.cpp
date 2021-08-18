@@ -1231,6 +1231,8 @@ void miApplication::UpdateViewports() {
 				else if (m_inputContext->m_isLMBUp)
 				{
 					UVTransformAccept();
+					yySetCursor(yyCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+					m_cursors[(u32)miCursorType::Arrow]->Activate();
 				}
 				m_UVAabbMoveOffset.set(0.f);
 

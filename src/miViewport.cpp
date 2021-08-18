@@ -516,91 +516,95 @@ void miViewport::OnDrawUV()
 		m_gpu->DrawLine3D(dpCenter + v4f(-cornersSize, 0.f, cornersSize, 0.f) + moveOffset, dpCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 		m_gpu->DrawLine3D(dpCenter + v4f(cornersSize, 0.f, -cornersSize, 0.f) + moveOffset, dpCenter + v4f(cornersSize, 0.f, cornersSize, 0.f) + moveOffset, ColorRed);
 
-		if (g_app->m_selectionFrust->PointInFrust(p1))
+		if (g_app->m_viewportUnderCursor == this)
 		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
-			if (g_app->m_inputContext->m_isLMBDown)
+
+			if (g_app->m_selectionFrust->PointInFrust(p1))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::LeftTop;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::LeftTop;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p2))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p2))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::RightTop;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::RightTop;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p3))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p3))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::LeftBottom;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNESW]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::LeftBottom;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p4))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p4))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::RightBottom;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::SizeNWSE]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::RightBottom;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p1_2))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p1_2))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::Top;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::Top;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p1_3))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p1_3))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::Left;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::Left;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p3_4))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p3_4))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::Bottom;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::Bottom;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(p2_4))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(p2_4))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::Right;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Rotate]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::Right;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else if (g_app->m_selectionFrust->PointInFrust(pCenter))
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Size]);
-			if (g_app->m_inputContext->m_isLMBDown)
+			else if (g_app->m_selectionFrust->PointInFrust(pCenter))
 			{
-				g_app->m_gizmoModeUV = miGizmoUVMode::Center;
-				g_app->OnGizmoUVClick();
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Size]);
+				if (g_app->m_inputContext->m_isLMBDown && g_app->m_activeViewportLayout->m_activeViewport == this)
+				{
+					g_app->m_gizmoModeUV = miGizmoUVMode::Center;
+					g_app->OnGizmoUVClick();
+				}
 			}
-		}
-		else
-		{
-			yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Arrow]);
-			g_app->m_gizmoModeUV = miGizmoUVMode::NoTransform;
+			else
+			{
+				yySetCursor(yyCursorType::Arrow, g_app->m_cursors[(u32)miCursorType::Arrow]);
+				g_app->m_gizmoModeUV = miGizmoUVMode::NoTransform;
+			}
 		}
 
 		if (g_app->m_gizmoModeUV != miGizmoUVMode::NoTransform)

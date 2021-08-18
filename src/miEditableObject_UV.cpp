@@ -302,6 +302,7 @@ void miEditableObject::UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb,
 	default:
 		break;
 	}
+	m_UVScale.set(1.f, 1.f);
 }
 
 void miEditableObject::UVTransform(miGizmoUVMode gm, miKeyboardModifier km, const v2f& md, f32 w) {
@@ -643,6 +644,7 @@ void miEditableObject::UVSelect(miSelectionFrust* sf, miKeyboardModifier km, miE
 	_updateUVSelectionArray(aabb);
 	RebuildVisualObjects(true);
 	RebuildUVModel();
+	m_UVScale.set(1.f, 1.f);
 }
 
 void miEditableObject::RebuildUVModel() {
