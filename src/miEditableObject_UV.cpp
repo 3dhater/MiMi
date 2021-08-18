@@ -218,6 +218,42 @@ void miEditableObject::UpdateUVSelection(miEditMode em, Aabb* aabb) {
 	m_UVScale.set(1.f, 1.f);
 }
 
+void miEditableObject::UVSelectAll(miEditMode em, Aabb* aabb) {
+	m_selectedUV.clear();
+
+	auto cp = m_mesh->m_first_polygon;
+	auto lp = cp->m_left;
+	while (true)
+	{
+		auto cv = cp->m_verts.m_head;
+		auto lv = cv->m_left;
+		while (true)
+		{
+			cv->m_data.m_flags |= miPolygon::_vertex_data::flag_isSelected;
+			m_selectedUV.push_back(miPair<miListNode<miPolygon::_vertex_data>*, v2f>(cv, cv->m_data.m_uv));
+			aabb->add(v3f(cv->m_data.m_uv.x, 0.f, cv->m_data.m_uv.y));
+			m_isUVSelected = true;
+
+			if (cv == lv)
+				break;
+			cv = cv->m_right;
+		}
+
+		if (em == miEditMode::Polygon)
+			cp->Select();
+
+		if (cp == lp)
+			break;
+		cp = cp->m_right;
+	}
+	
+	_updateUVSelectionArray(aabb);
+	RebuildUVModel();
+	RebuildVisualObjects(true);
+
+	m_UVScale.set(1.f, 1.f);
+}
+
 void miEditableObject::UVTransformAccept() {
 	for (u32 i = 0; i < m_selectedUV.m_size; ++i)
 	{

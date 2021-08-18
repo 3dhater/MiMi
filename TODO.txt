@@ -1,15 +1,15 @@
-- keyboard shortcuts in UV
+- viewport type
 - UV gizmo must work only in UV / editor gizmo must work only in editor viewport
+- проследить за текстурами в материалах
+- Sorting on selection
+- force draw without lines (F3)
+- line for d3d11
 - fix Edge chamfer
-- Sorting
 - P element
 - reference
 - mirror
-- force draw without lines (F3)
 - drag n drop texture
-- line for d3d11
 - shaders
-- проследить за текстурами в материалах
 
 ...
 

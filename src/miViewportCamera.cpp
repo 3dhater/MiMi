@@ -103,11 +103,6 @@ void miViewportCamera::Update() {
 }
 
 void miViewportCamera::MoveToSelection() {
-	if (m_type == miViewportCameraType::UV)
-	{
-		Reset();
-		return;
-	}
 	if (!g_app->m_selectionAabb.isEmpty())
 	{
 		m_positionPlatform = g_app->m_selectionAabb_center;
@@ -159,10 +154,6 @@ void miViewportCamera::Reset() {
 	case miViewportCameraType::Top:
 		m_rotationPlatform = v3f();
 		break;
-	case miViewportCameraType::UV:
-		m_rotationPlatform = v3f();
-		m_positionPlatform = v4f(0.5f, 0.f, 0.5f, 1.5f);
-		break;
 	}
 
 	Rotate(0, 0);
@@ -189,8 +180,6 @@ void miViewportCamera::PanMove() {
 }
 
 void miViewportCamera::Rotate(f32 x, f32 y) {
-	if (m_type == miViewportCameraType::UV) return;
-
 	const f32 speed = 0.69f * g_app->m_dt;
 	m_rotationPlatform.x += y * speed;
 	m_rotationPlatform.y += x * speed;
@@ -226,7 +215,6 @@ void miViewportCamera::Zoom() {
 }
 
 void miViewportCamera::ChangeFOV() {
-	if (m_type == miViewportCameraType::UV) return;
 	m_fov += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
 	if (m_fov < 0.01f)
 		m_fov = 0.01f;
@@ -236,6 +224,5 @@ void miViewportCamera::ChangeFOV() {
 }
 
 void miViewportCamera::RotateZ() {
-	if (m_type == miViewportCameraType::UV) return;
 	m_rotationPlatform.z += g_app->m_inputContext->m_mouseDelta.x * g_app->m_dt;
 }

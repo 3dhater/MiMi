@@ -10,7 +10,8 @@
 extern miApplication * g_app;
 extern Mat4 g_emptyMatrix;
 
-miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
+miViewport::miViewport(miViewportType vt, miViewportCameraType vct, const v4f& rect1_0){
+	m_viewportType = vt;
 	m_creationRect = rect1_0;
 	m_isDrawAabbs = false;
 	m_isOnLeftBorder = false;
@@ -36,7 +37,6 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 
 	m_camera[Camera_Perspective] = new miViewportCamera(this, miViewportCameraType::Perspective);
 	m_camera[Camera_Top] = new miViewportCamera(this, miViewportCameraType::Top);
-	m_camera[Camera_UV] = new miViewportCamera(this, miViewportCameraType::UV);
 	m_camera[Camera_Bottom] = new miViewportCamera(this, miViewportCameraType::Bottom);
 	m_camera[Camera_Front] = new miViewportCamera(this, miViewportCameraType::Front);
 	m_camera[Camera_Back] = new miViewportCamera(this, miViewportCameraType::Back);
@@ -54,9 +54,6 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 		break;
 	case miViewportCameraType::Right:
 		m_activeCamera = m_camera[Camera_Right];
-		break;
-	case miViewportCameraType::UV:
-		m_activeCamera = m_camera[Camera_UV];
 		break;
 	case miViewportCameraType::Top:
 		m_activeCamera = m_camera[Camera_Top];
@@ -77,7 +74,6 @@ miViewport::miViewport(miViewportCameraType vct, const v4f& rect1_0){
 	{
 	case miViewportCameraType::Perspective:
 	case miViewportCameraType::Top:
-	case miViewportCameraType::UV:
 		m_rayTestTiangles[0].v1 = v4f(-999999.f, 0.f, -999999.f, 0.f);
 		m_rayTestTiangles[0].v2 = v4f(-999999.f, 0.f, 999999.f, 0.f);
 		m_rayTestTiangles[0].v3 = v4f(999999.f,0.f, 999999.f, 0.f);
@@ -192,9 +188,8 @@ void miViewport::Init() {
 		vpNamePosX += miViewportLeftIndent;*/
 
 
-	if (m_cameraType != miViewportCameraType::UV)
+	if (m_viewportType == miViewportType::Scene)
 	{
-
 		m_gui_text_vpName = yyGUICreateText(v2f(vpNamePosX, 2.f), g_app->m_GUIManager->GetFont(miGUIManager::Font::Default),
 			L"T", 0);
 		m_gui_text_vpName->m_align = m_gui_text_vpName->AlignLeftTop;
@@ -256,12 +251,6 @@ void miViewport::SetViewportName(const wchar_t* name) {
 }
 
 void miViewport::SetCameraType(miViewportCameraType ct) {
-	if (m_cameraType == miViewportCameraType::UV)
-	{
-		m_activeCamera = m_camera[Camera_UV];
-		return;
-	}
-
 	m_cameraType = ct;
 	switch (ct)
 	{
@@ -304,7 +293,6 @@ void miViewport::SetCameraType(miViewportCameraType ct) {
 		m_activeCamera = m_camera[Camera_Right];
 		break;
 	case miViewportCameraType::Top:
-	case miViewportCameraType::UV:
 		m_activeCamera = m_camera[Camera_Top];
 		break;
 	case miViewportCameraType::Bottom:
@@ -642,7 +630,7 @@ void miViewport::OnDraw() {
 	//g_app->m_currentViewportDrawCamera = m_activeCamera;
 	g_app->m_currentViewportDraw = this;
 
-	if (m_cameraType == miViewportCameraType::UV)
+	if (m_viewportType == miViewportType::UV)
 	{
 		OnDrawUV();
 	}
@@ -806,7 +794,6 @@ v4f miViewport::GetCursorRayHitPosition(const v2f& cursorPosition) {
 		{
 		default:
 		case miViewportCameraType::Top:
-		case miViewportCameraType::UV:
 		case miViewportCameraType::Perspective:
 			// another way
 			if (!m_rayTestTiangles[0].rayTest_MT(ray, true, T, U, V, W))
@@ -984,4 +971,31 @@ void miViewport::_drawSelectedObjectFrame() {
 		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
 		m_gpu->DrawLine3D(v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), v4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 	}
+}
+
+
+void miViewport::PanMove() {
+	m_activeCamera->PanMove();
+}
+
+void miViewport::Rotate(f32 x, f32 y) {
+	if (m_viewportType != miViewportType::Scene)
+		return;
+	m_activeCamera->Rotate(x, y);
+}
+
+void miViewport::RotateZ() {
+	if (m_viewportType != miViewportType::Scene)
+		return;
+	m_activeCamera->RotateZ();
+}
+
+void miViewport::Zoom() {
+	m_activeCamera->Zoom();
+}
+
+void miViewport::ChangeFOV() {
+	if (m_viewportType != miViewportType::Scene)
+		return;
+	m_activeCamera->ChangeFOV();
 }

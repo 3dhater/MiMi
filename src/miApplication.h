@@ -259,7 +259,6 @@ public:
 	miApplication();
 	~miApplication();
 
-	bool IsMouseFocusInUVEditor();
 	void SelectAll();
 	void DeselectAll();
 	void InvertSelection();
@@ -299,7 +298,8 @@ public:
 	bool Init(const char* videoDriver);
 	void MainLoop();
 	void UpdateViewports();
-	void ProcessShortcuts();
+	void ProcessShortcuts3D();
+	void ProcessShortcutsUV();
 	void DrawViewports();
 	yyWindow* GetWindowMain();
 
@@ -327,7 +327,8 @@ public:
 	void CommandViewportToggleAABB(miViewport* vp);
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
-	
+	void CommandUVSelectAll();
+
 	miVertex * m_mouseHoverVertex;
 	miSceneObject* m_mouseHoverVertexObject;
 

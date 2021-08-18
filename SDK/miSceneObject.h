@@ -218,6 +218,7 @@ public:
 	}
 
 	virtual void UVSelect(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) {}
+	virtual void UVSelectAll(miEditMode, Aabb*) {}
 	virtual void UVUpdateAAABB(Aabb*) {}
 	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32 cameraW) {}
 	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) {}

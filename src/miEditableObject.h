@@ -158,6 +158,7 @@ public:
 	void _updateUVSelectionArray(Aabb*);
 	virtual void UVUpdateAAABB(Aabb*) override;
 	virtual void UVSelect(miSelectionFrust*, miKeyboardModifier, miEditMode, Aabb*) override;
+	virtual void UVSelectAll(miEditMode, Aabb*) override;
 	virtual void UVTransform(miGizmoUVMode, miKeyboardModifier, const v2f&, f32) override;
 	virtual void UVTransformCancel(miGizmoUVMode gm, const Aabb& currAabb, const v4f& aabbCenterOnClick) override;
 	virtual void UVTransformAccept() override;

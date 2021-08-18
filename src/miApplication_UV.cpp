@@ -12,10 +12,14 @@ void miApplication::OnGizmoUVClick() {
 	m_UVAngle = 0.f;
 }
 
-bool miApplication::IsMouseFocusInUVEditor() {
-	if (!m_viewportInMouseFocus)
-		return false;
-	return m_viewportInMouseFocus->m_cameraType == miViewportCameraType::UV;
+void miApplication::CommandUVSelectAll() {
+	m_UVAabb.reset();
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		obj->UVSelectAll(m_editMode, &m_UVAabb);
+	}
+	m_UVAabbOnClick = m_UVAabb;
 }
 
 void miApplication::UVTransformAccept() {

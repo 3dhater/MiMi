@@ -7,7 +7,7 @@
 
 struct miViewport
 {
-	miViewport(miViewportCameraType vct, const v4f& rect1_0);
+	miViewport(miViewportType vt, miViewportCameraType vct, const v4f& rect1_0);
 	~miViewport();
 
 	void Init();
@@ -28,7 +28,6 @@ struct miViewport
 	enum {
 		Camera_Perspective = 0,
 		Camera_Top,
-		Camera_UV,
 		Camera_Bottom,
 		Camera_Front,
 		Camera_Back,
@@ -39,6 +38,8 @@ struct miViewport
 
 	miViewportCamera* m_camera[Camera_count_];
 	miViewportCamera* m_activeCamera;
+
+	miViewportType m_viewportType;
 
 	miViewportCameraType m_cameraType;
 	void SetCameraType(miViewportCameraType);
@@ -79,6 +80,12 @@ struct miViewport
 	void ToggleDrawAABB();
 
 	v4f GetCursorRayHitPosition(const v2f& cursorPosition);
+
+	void PanMove();
+	void Rotate(f32 x, f32 y);
+	void RotateZ();
+	void Zoom();
+	void ChangeFOV();
 };
 
 struct miViewportLayout
@@ -107,8 +114,8 @@ struct miViewportLayout
 		}
 	}
 
-	void Add(const v4f& rect, miViewportCameraType vct) {
-		miViewport* newViewport = new miViewport(vct, rect);
+	void Add(const v4f& rect, miViewportCameraType vct, miViewportType vt) {
+		miViewport* newViewport = new miViewport(vt, vct, rect);
 		//newViewport->m_creationRect = rect;
 		//newViewport->Init();
 

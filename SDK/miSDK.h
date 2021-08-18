@@ -105,10 +105,15 @@ enum class miViewportCameraType : u32 {
 	Left,
 	Right,
 	Top,
-	UV, // Top
+	//UV, // Top
 	Bottom,
 	Front,
 	Back
+};
+
+enum class miViewportType : u32 {
+	Scene,
+	UV
 };
 
 // Help structure

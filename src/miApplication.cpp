@@ -476,20 +476,20 @@ void miApplication::_initViewports() {
 			YY_PRINT_FAILED;
 			break;
 		case miViewportLayout_Full:
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, 1.f, 1.f), miViewportCameraType::Perspective, miViewportType::Scene);
 			break;
 		case miViewportLayout_Standart: {
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top);
-			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left);
-			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front);
-			m_viewportLayouts[i]->Add(v4f(midX, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.f, midX, 0.5f), miViewportCameraType::Top, miViewportType::Scene);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.f, 1.0f, 0.5f), miViewportCameraType::Left, miViewportType::Scene);
+			m_viewportLayouts[i]->Add(v4f(0.f, 0.5f, midX, 1.0f), miViewportCameraType::Front, miViewportType::Scene);
+			m_viewportLayouts[i]->Add(v4f(midX, 0.5f, 1.0f, 1.0f), miViewportCameraType::Perspective, miViewportType::Scene);
 		}break;
 		}
 	}
 
 	m_UVViewport = new miViewportLayout;
-	m_UVViewport->Add(v4f(0.f, 0.f, midX, 1.f), miViewportCameraType::UV);
-	m_UVViewport->Add(v4f(midX, 0.f, 1.f, 1.f), miViewportCameraType::Perspective);
+	m_UVViewport->Add(v4f(0.f, 0.f, midX, 1.f), miViewportCameraType::Top, miViewportType::UV);
+	m_UVViewport->Add(v4f(midX, 0.f, 1.f, 1.f), miViewportCameraType::Perspective, miViewportType::Scene);
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
 	m_activeViewportLayout->ShowGUI();
@@ -1001,7 +1001,7 @@ void miApplication::MainLoop() {
 		
 			if (m_pluginActive  /*&& (m_activeViewportLayout->m_activeViewport == old_active_viewport)*/)
 			{
-				if (m_viewportUnderCursor->m_cameraType != miViewportCameraType::UV)
+				if (m_viewportUnderCursor->m_viewportType == miViewportType::Scene)
 				{
 					bool isCancel = m_inputContext->IsKeyHit(yyKey::K_ESCAPE);
 					if (!isCancel) isCancel = m_inputContext->m_isRMBUp;
@@ -1056,8 +1056,17 @@ void miApplication::MainLoop() {
 
 			m_gpu->SwapBuffers();
 			
-			if(!m_isGUIInputFocus)
-				ProcessShortcuts();
+			if (!m_isGUIInputFocus)
+			{
+				if (m_activeViewportLayout->m_activeViewport->m_viewportType == miViewportType::UV)
+				{
+					ProcessShortcutsUV();
+				}
+				else
+				{
+					ProcessShortcuts3D();
+				}
+			}
 		}
 		}
 		m_gizmo->OnEndFrame();
@@ -1095,7 +1104,18 @@ void miApplication::CallPluginGUIOnCancel() {
 		m_sdk->m_pickObject_onCancel();
 }
 
-void miApplication::ProcessShortcuts() {
+void miApplication::ProcessShortcutsUV() {
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::UV_selectAll)) this->CommandUVSelectAll();
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_NoTransform)) this->CommandTransformModeSet(miTransformMode::NoTransform);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Move)) this->CommandTransformModeSet(miTransformMode::Move);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Scale)) this->CommandTransformModeSet(miTransformMode::Scale);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::transfromMode_Rotate)) this->CommandTransformModeSet(miTransformMode::Rotate);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Vertex)) this->ToggleEditMode(miEditMode::Vertex);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Edge)) this->ToggleEditMode(miEditMode::Edge);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
+}
+
+void miApplication::ProcessShortcuts3D() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraReset)) this->CommandCameraReset(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraMoveToSelection)) this->CommandCameraMoveToSelection(m_activeViewportLayout->m_activeViewport);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_viewPerspective)) this->CommandViewportChangeView(m_activeViewportLayout->m_activeViewport, miViewportCameraType::Perspective);
@@ -1416,7 +1436,7 @@ void miApplication::UpdateViewports() {
 				m_viewportUnderCursor = viewport;
 
 				m_isCursorInUVEditor = false;
-				if (viewport->m_cameraType == miViewportCameraType::UV)
+				if (viewport->m_viewportType == miViewportType::UV)
 				{
 					m_isCursorInUVEditor = true;
 				}
@@ -1517,29 +1537,29 @@ void miApplication::UpdateViewports() {
 			switch (m_keyboardModifier)
 			{
 			default:
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->PanMove();
+				m_activeViewportLayout->m_activeViewport->PanMove();
 				break;
 			case miKeyboardModifier::Alt:
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(m_inputContext->m_mouseDelta.x, m_inputContext->m_mouseDelta.y);
+				m_activeViewportLayout->m_activeViewport->Rotate(m_inputContext->m_mouseDelta.x, m_inputContext->m_mouseDelta.y);
 				break;
 			case miKeyboardModifier::CtrlAlt:
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->ChangeFOV();
+				m_activeViewportLayout->m_activeViewport->ChangeFOV();
 				break;
 			case miKeyboardModifier::ShiftCtrlAlt:
-				m_activeViewportLayout->m_activeViewport->m_activeCamera->RotateZ();
+				m_activeViewportLayout->m_activeViewport->RotateZ();
 				break;
 			}
 		}
 	}
 
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_4))
-		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(-5.f, 0.f);
+		m_activeViewportLayout->m_activeViewport->Rotate(-5.f, 0.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_6))
-		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(5.f, 0.f);
+		m_activeViewportLayout->m_activeViewport->Rotate(5.f, 0.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_2))
-		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, -5.f);
+		m_activeViewportLayout->m_activeViewport->Rotate(0.f, -5.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_8))
-		m_activeViewportLayout->m_activeViewport->m_activeCamera->Rotate(0.f, 5.f);
+		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 5.f);
 	if (m_inputContext->IsKeyHit(yyKey::K_NUM_5))
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
@@ -1698,6 +1718,7 @@ void miApplication::CommandTransformModeSet(miTransformMode m) {
 	this->SetTransformMode(m, false);
 	m_GUIManager->UpdateTransformModeButtons();
 }
+
 void miApplication::DeleteObject(miSceneObject* obj) {
 	RemoveObjectFromScene(obj);
 	obj->~miSceneObject();
@@ -2144,7 +2165,7 @@ void miApplication::SetObjectParametersMode(miObjectParametersMode opm) {
 }
 
 void miApplication::DeleteSelected() {
-	if (m_isCursorInUVEditor || IsMouseFocusInUVEditor() || m_activeViewportLayout->m_activeViewport->m_cameraType == miViewportCameraType::UV)
+	if (m_isCursorInUVEditor || m_activeViewportLayout->m_activeViewport->m_viewportType == miViewportType::UV)
 		return;
 
 	switch (m_editMode)

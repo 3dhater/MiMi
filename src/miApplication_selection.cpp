@@ -276,7 +276,7 @@ void miApplication::UpdateSelectionAabb() {
 
 void miApplication::_onSelect() {
 	m_UVAabb.reset();
-	if (IsMouseFocusInUVEditor())
+	if (m_viewportInMouseFocus->m_viewportType == miViewportType::UV)
 	{
 
 		if (m_isSelectByRectangle)

@@ -29,6 +29,7 @@ enum class miShortcutCommandType : u32 {
 	editMode_Vertex,
 	editMode_Edge,
 	editMode_Polygon,
+	UV_selectAll,
 
 	count
 };

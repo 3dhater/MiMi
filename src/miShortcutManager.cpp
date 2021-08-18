@@ -31,6 +31,7 @@ miShortcutManager::miShortcutManager() {
 	SetCommand(miShortcutCommandType::editMode_Vertex, L"editMode_Vertex", miKeyboardModifier::None, yyKey::K_1);
 	SetCommand(miShortcutCommandType::editMode_Edge, L"editMode_Edge", miKeyboardModifier::None, yyKey::K_2);
 	SetCommand(miShortcutCommandType::editMode_Polygon, L"editMode_Polygon", miKeyboardModifier::None, yyKey::K_3);
+	SetCommand(miShortcutCommandType::UV_selectAll, L"UV_selectAll", miKeyboardModifier::Ctrl, yyKey::K_A);
 }
 
 miShortcutManager::~miShortcutManager() {
