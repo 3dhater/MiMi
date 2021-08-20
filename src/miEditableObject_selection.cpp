@@ -335,11 +335,15 @@ void miEditableObject::_selectEdge(miKeyboardModifier km, miSelectionFrust* sf) 
 			bool operator() (miEdge* a, miEdge* b) const {
 				auto camera = g_app->GetActiveCamera();
 				
-				auto center = a->m_vertex1->m_position + b->m_vertex1->m_position;
-				center *= 0.5f;
-				center += *o->GetGlobalPosition();
+				auto center1 = a->m_vertex1->m_position + a->m_vertex2->m_position;
+				center1 *= 0.5f;
+				center1 += *o->GetGlobalPosition();
 
-				return center.distance(camera->m_positionCamera) > center.distance(camera->m_positionCamera);
+				auto center2 = b->m_vertex1->m_position + b->m_vertex2->m_position;
+				center2 *= 0.5f;
+				center2 += *o->GetGlobalPosition();
+
+				return center1.distance(camera->m_positionCamera) > center2.distance(camera->m_positionCamera);
 			}
 		};
 		edges_in_frust.sort_insertion(_pred());
