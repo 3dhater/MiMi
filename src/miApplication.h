@@ -360,6 +360,8 @@ public:
 
 	yyArraySimple<miPair<miMaterial*, u8>*> m_materials;
 	miMaterial* CreateMaterial();
+	yyGPUTexture* MaterialGetTexture(const wchar_t*);
+	void MaterialDeleteTexture(yyGPUTexture*);
 
 	miSDKImpl* m_sdk;
 	void CallPluginGUIOnCancel();
@@ -375,6 +377,8 @@ public:
 	void UVTransformAccept();
 	void UvMakePlanar(bool useScreenPlane);
 	void UvFlattenMapping();
+
+
 
 	friend class miEditableObject;
 	friend class miGizmo;

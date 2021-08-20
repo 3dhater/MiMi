@@ -271,34 +271,22 @@ miApplication::miApplication() {
 }
 
 miApplication::~miApplication() {
+	if (m_gizmo) 
+		delete m_gizmo;
 
-	if (m_gizmo) delete m_gizmo;
 	for (u32 i = 0; i < (u32)miCursorType::_count; ++i)
 	{
 		if (m_cursors[i])delete m_cursors[i];
 	}
 
-	for(u32 i = 0; i < m_materials.m_size; ++i){
-		auto & m = m_materials.m_data[i];
-		for (u32 o = 0; o < miMaterialMaxMaps; ++o) {
-			if (m->m_first->m_maps[o].m_GPUTexture)
-			{
-				auto r = (yyGPUTexture*)m->m_first->m_maps[o].m_GPUTexture;
-				yyDestroy(r);
-			}
-		}
-		miDestroy(m->m_first);
-		delete m;
-	}
-
 	if (m_rootObject)
-	{
 		DestroyAllSceneObjects(m_rootObject);
-	}
+
 	for (s32 i = 0, sz = m_pluginGuiAll.size(); i < sz; ++i)
 	{
 		miDestroy(m_pluginGuiAll[i]);
 	}
+
 	for (s32 i = 0; i < m_plugins.size(); ++i)
 	{
 		m_plugins[i]->~miPlugin();
@@ -340,6 +328,15 @@ miApplication::~miApplication() {
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
 	if (m_inputContext) yyDestroy(m_inputContext);
+}
+
+void miApplication::MaterialDeleteTexture(yyGPUTexture* t) {
+	assert(t);
+	t->Release();
+}
+
+yyGPUTexture* miApplication::MaterialGetTexture(const wchar_t* fn) {
+	return yyGetTexture(fn);
 }
 
 miMaterial* miApplication::CreateMaterial() {
@@ -713,14 +710,14 @@ vidOk:
 	m_gpu->GetDepthRange(&m_gpuDepthRange);
 	m_gpu->UseVSync(true);
 
-	auto deftex = yyGetTextureFromCache("../res/gui/white.dds");
+	auto deftex = yyGetTexture(L"../res/gui/white.dds");
 	yySetDefaultTexture(deftex);
 	deftex->m_debug = 1;
 
-	m_blackTexture = yyGetTextureFromCache("../res/gui/black.dds");
+	m_blackTexture = yyGetTexture(L"../res/gui/black.dds");
 	m_blackTexture->m_debug = 2;
 
-	m_transparentTexture = yyGetTextureFromCache("../res/gui/tr.dds");
+	m_transparentTexture = yyGetTexture(L"../res/gui/tr.dds");
 	m_transparentTexture->m_debug = 3;
 
 	m_color_viewportBorder = ColorDarkGray;
@@ -792,7 +789,7 @@ vidOk:
 	
 		yyDestroy(mesh);
 
-		m_UVPlaneTexture = yyCreateTextureFromFile("../res/UV.png");
+		m_UVPlaneTexture = yyCreateTextureFromFile(L"../res/UV.png");
 	}
 
 	yyGUIRebuild();

@@ -1,4 +1,3 @@
-- проследить за текстурами в материалах
 - Sorting on selection
 - force draw without lines (F3)
 - line for d3d11

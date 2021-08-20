@@ -208,10 +208,10 @@ void miViewport::Init() {
 
 		v4f region(0.f, 72.f, 16.f, 88.f);
 		m_gui_button_resetCamera = yyGUICreateButton(v4f(buttonPositionX, 2.f, buttonPositionX + buttonWidth, 19.f),
-			yyGetTextureFromCache("../res/gui/icons.png"), m_index, 0, &region);
+			yyGetTexture(L"../res/gui/icons.png"), m_index, 0, &region);
 		m_gui_button_resetCamera->m_isAnimated = true;
 		region.set(24.f, 72.f, 40.f, 88.f);
-		m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &region);
+		m_gui_button_resetCamera->SetMouseHoverTexture(yyGetTexture(L"../res/gui/icons.png"), &region);
 		m_gui_group->AddElement(m_gui_button_resetCamera);
 		m_gui_button_resetCamera->SetOpacity(0.19f, 0);
 		m_gui_button_resetCamera->SetOpacity(0.19f, 1);

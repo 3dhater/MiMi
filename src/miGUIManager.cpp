@@ -112,6 +112,9 @@ void gui_buttonMaterialsAssign_onRelease(yyGUIElement* elem, s32 m_id) {
 void gui_buttonMaterialsLoadImage_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->LoadNewImageForMaterial();
 }
+void gui_buttonMaterialsDeleteImage_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->DeleteImageFromMaterial();
+}
 void gui_lbMaterials_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
 	g_guiManager->UpdateMaterialMapPictureBox();
 }
@@ -344,7 +347,7 @@ miGUIManager::miGUIManager(){
 	//m_mainMenu_group->m_onMouseLeave = gui_mainMenu_groupOnMouseLeave;
 	
 	m_mainMenu_backgroundPB = yyGUICreatePictureBox(v4f(0.f, 0.f, (f32)window->m_creationSize.x, (f32)window->m_creationSize.y),
-		yyGetTextureFromCache("../res/gui/black.dds"), -1, m_mainMenu_drawGroup, 0);
+		yyGetTexture(L"../res/gui/black.dds"), -1, m_mainMenu_drawGroup, 0);
 	m_mainMenu_backgroundPB->IgnoreInput(true);
 	m_mainMenu_backgroundPB->m_color.m_data[3] = 0.f;
 	//m_mainMenu_backgroundPB->SetVisible(false);
@@ -354,7 +357,7 @@ miGUIManager::miGUIManager(){
 
 	g_guiWindowBackgroundPBRect = v4f(24.f, 0.f, (f32)(window->m_creationSize.x - 100), (f32)(window->m_creationSize.y - 100));
 	m_mainMenu_windowBackgroundPB = yyGUICreatePictureBox(g_guiWindowBackgroundPBRect,
-		yyGetTextureFromCache("../res/gui/white.dds"), -1, m_mainMenu_drawGroup, 0);;
+		yyGetTexture(L"../res/gui/white.dds"), -1, m_mainMenu_drawGroup, 0);;
 	m_mainMenu_windowBackgroundPB->m_color.set(0.43f);
 	m_mainMenu_windowBackgroundPB->m_color.m_data[3] = 0.f;
 	//m_mainMenu_windowBackgroundPB->SetVisible(false);
@@ -472,7 +475,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_selectByName->m_useBackground = true;
 		m_button_selectByName->m_isAnimated = true;
 		m_mainMenu_Y += h;
@@ -486,7 +489,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeNoTransform->m_onClick = gui_buttonTransformModeNoTransform_onClick;
 		m_button_transformModeNoTransform->m_useBackground = true;
 		m_button_transformModeNoTransform->m_isAnimated = true;
@@ -505,7 +508,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeMove->m_onClick = gui_buttonTransformModeMove_onClick;
 		m_button_transformModeMove->m_useBackground = true;
 		m_button_transformModeMove->m_isAnimated = true;
@@ -523,7 +526,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeScale->m_onClick = gui_buttonTransformModeScale_onClick;
 		m_button_transformModeScale->m_useBackground = true;
 		m_button_transformModeScale->m_isAnimated = true;
@@ -541,7 +544,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeRotate->m_onClick = gui_buttonTransformModeRotate_onClick;
 		m_button_transformModeRotate->m_useBackground = true;
 		m_button_transformModeRotate->m_isAnimated = true;
@@ -559,7 +562,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeScaleLocal->m_onClick = gui_buttonTransformModeScaleLocal_onClick;
 		m_button_transformModeScaleLocal->m_useBackground = true;
 		m_button_transformModeScaleLocal->m_isAnimated = true;
@@ -577,7 +580,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_transformModeRotateLocal->m_onClick = gui_buttonTransformModeRotateLocal_onClick;
 		m_button_transformModeRotateLocal->m_useBackground = true;
 		m_button_transformModeRotateLocal->m_isAnimated = true;
@@ -595,7 +598,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), 0, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), 0, 0, &uvregion1);
 		m_button_editModeVertex->m_onClick = gui_buttonEditModeVertex_onClick;
 		m_button_editModeVertex->m_useBackground = true;
 		m_button_editModeVertex->m_isAnimated = true;
@@ -612,7 +615,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), 1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), 1, 0, &uvregion1);
 		m_button_editModeEdge->m_onClick = gui_buttonEditModeVertex_onClick;
 		m_button_editModeEdge->m_useBackground = true;
 		m_button_editModeEdge->m_isAnimated = true;
@@ -629,7 +632,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), 2, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), 2, 0, &uvregion1);
 		m_button_editModePolygon->m_onClick = gui_buttonEditModeVertex_onClick;
 		m_button_editModePolygon->m_useBackground = true;
 		m_button_editModePolygon->m_isAnimated = true;
@@ -650,7 +653,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			window->m_creationSize.x - miViewportRightIndent + w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_objectCommonParams->m_align = yyGUIElement::AlignRightTop;
 		m_button_objectCommonParams->m_onClick = gui_buttonObjectCommonParams_onClick;
 		m_button_objectCommonParams->m_useBackground = true;
@@ -670,7 +673,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			window->m_creationSize.x - miViewportRightIndent + w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_objectObjectParams->m_align = yyGUIElement::AlignRightTop;
 		m_button_objectObjectParams->m_onClick = gui_buttonObjectObjectParams_onClick;
 		m_button_objectObjectParams->m_useBackground = true;
@@ -689,7 +692,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			window->m_creationSize.x - miViewportRightIndent + w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_materials->m_align = yyGUIElement::AlignRightTop;
 		m_button_materials->m_onClick = gui_buttonMaterials_onClick;
 		m_button_materials->m_useBackground = true;
@@ -710,7 +713,7 @@ miGUIManager::miGUIManager(){
 			m_mainMenu_Y,
 			window->m_creationSize.x - miViewportRightIndent + w,
 			m_mainMenu_Y + h
-		), yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &uvregion1);
+		), yyGetTexture(L"../res/gui/icons.png"), -1, 0, &uvregion1);
 		m_button_UV->m_align = yyGUIElement::AlignRightTop;
 		m_button_UV->m_onClick = gui_buttonUV_onClick;
 		m_button_UV->m_useBackground = true;
@@ -846,20 +849,20 @@ m_gui_group_materials->AddElement(addButton);
 		}
 
 		{
-		x += groupRect.z - groupRect.x - 40.f;
-		auto deleteButton = yyGUICreateButton(
-			v4f(x, y, x + 40.f, y + addButtonY),
-			0, -1, m_gui_drawGroup_materials, 0);
-		deleteButton->SetText(L"Delete", m_fontDefault, false);
-		deleteButton->m_isAnimated = true;
-		deleteButton->m_onRelease = gui_buttonMaterialsDelete_onRelease;
-		deleteButton->m_bgColor = ColorDarkRed;
-		deleteButton->m_bgColorHover.set(0.65f);
-		deleteButton->m_bgColorPress.set(0.35f);
-		deleteButton->m_textColor.set(0.95f);
-		deleteButton->m_textColorHover.set(1.f);
-		deleteButton->m_textColorPress.set(0.6f);
-		m_gui_group_materials->AddElement(deleteButton);
+			x += groupRect.z - groupRect.x - 40.f;
+			auto deleteButton = yyGUICreateButton(
+				v4f(x, y, x + 40.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			deleteButton->SetText(L"Delete", m_fontDefault, false);
+			deleteButton->m_isAnimated = true;
+			deleteButton->m_onRelease = gui_buttonMaterialsDelete_onRelease;
+			deleteButton->m_bgColor = ColorDarkRed;
+			deleteButton->m_bgColorHover.set(0.65f);
+			deleteButton->m_bgColorPress.set(0.35f);
+			deleteButton->m_textColor.set(0.95f);
+			deleteButton->m_textColorHover.set(1.f);
+			deleteButton->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(deleteButton);
 		}
 
 		{
@@ -923,22 +926,39 @@ m_gui_group_materials->AddElement(addButton);
 			y += pbSize;
 		}
 		{
-			auto loadImageButton = yyGUICreateButton(
+			auto btn = yyGUICreateButton(
 				v4f(x, y, x + 80.f, y + addButtonY),
 				0, -1, m_gui_drawGroup_materials, 0);
-			loadImageButton->SetText(L"Load Image", m_fontDefault, false);
-			loadImageButton->m_isAnimated = true;
-			loadImageButton->m_onRelease = gui_buttonMaterialsLoadImage_onRelease;
-			loadImageButton->m_bgColor.set(0.5f);
-			loadImageButton->m_bgColorHover.set(0.65f);
-			loadImageButton->m_bgColorPress.set(0.35f);
-			loadImageButton->m_textColor.set(0.95f);
-			loadImageButton->m_textColorHover.set(1.f);
-			loadImageButton->m_textColorPress.set(0.6f);
-			m_gui_group_materials->AddElement(loadImageButton);
+			btn->SetText(L"Load Image", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonMaterialsLoadImage_onRelease;
+			btn->m_bgColor.set(0.5f);
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(btn);
+		}
+
+		{
+			x += groupRect.z - groupRect.x - 40.f;
+			auto btn = yyGUICreateButton(
+				v4f(x, y, x + 40.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			btn->SetText(L"Delete", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonMaterialsDeleteImage_onRelease;
+			btn->m_bgColor = ColorDarkRed;
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(btn);
 		}
 	}
-
+	
 	// UV
 	{
 		//m_gui_drawGroup_UV
@@ -1141,10 +1161,10 @@ miGUIMainMenuMenuGroup* miGUIManager::_addMainMenuItem(const wchar_t* text,
 	m_mainMenu_Y += h;
 
 	auto newButton = yyGUICreateButton(buildRect,
-		yyGetTextureFromCache("../res/gui/icons.png"), -1, 0, &reg);
+		yyGetTexture(L"../res/gui/icons.png"), -1, 0, &reg);
 	newButton->m_id = id;
 	reg = uvregion2;
-	newButton->SetMouseHoverTexture(yyGetTextureFromCache("../res/gui/icons.png"), &reg);
+	newButton->SetMouseHoverTexture(yyGetTexture(L"../res/gui/icons.png"), &reg);
 	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 0);
 	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 1);
 	//newButton->SetOpacity(g_guiButtonMinimumOpacity, 2);
@@ -1306,6 +1326,39 @@ void miGUIManager::AssignSelectedMaterial() {
 	}
 }
 
+void miGUIManager::DeleteImageFromMaterial() {
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
+			{
+				auto pair = g_app->m_materials.m_data[o];
+				if (mat == pair->m_first)
+				{
+					for (u32 k = 0; k < m_gui_listbox_maps->GetItemsCount(); ++k)
+					{
+						auto item2 = m_gui_listbox_maps->GetItem(k);
+						if (item2->IsSelected())
+						{
+							if (pair->m_first->m_maps[k].m_GPUTexture)
+							{
+								g_app->MaterialDeleteTexture((yyGPUTexture*)pair->m_first->m_maps[k].m_GPUTexture);
+								pair->m_first->m_maps[k].m_GPUTexture = 0;
+							}
+							break;
+						}
+					}
+				}
+			}
+			break;
+		}
+	}
+	UpdateMaterialMapPictureBox();
+}
+
 void miGUIManager::DeleteSelectedMaterial() {
 	yyGUIListBoxItem* lastItem = 0;
 	yyGUIListBoxItem* nextItem = 0;
@@ -1322,7 +1375,19 @@ void miGUIManager::DeleteSelectedMaterial() {
 			{
 				auto pair = g_app->m_materials.m_data[o];
 				if (mat == pair->m_first)
+				{
 					pair->m_second = 0;
+
+					// delete all textures 
+					for (u32 k = 0; k < m_gui_listbox_maps->GetItemsCount(); ++k)
+					{
+						if (pair->m_first->m_maps[k].m_GPUTexture)
+						{
+							g_app->MaterialDeleteTexture((yyGPUTexture*)pair->m_first->m_maps[k].m_GPUTexture);
+							pair->m_first->m_maps[k].m_GPUTexture = 0;
+						}
+					}
+				}
 			}
 
 			m_gui_listbox_materials->DeleteItem(item);
@@ -1358,9 +1423,10 @@ void miGUIManager::LoadNewImageForMaterial() {
 						auto * map = &mat->m_maps[o];
 						map->m_texturePath = path->data();
 						{
-							yyStringA s;
-							s = map->m_texturePath.data();
-							map->m_GPUTexture = yyGetTextureFromCache(s.data());
+							if(map->m_GPUTexture)
+								g_app->MaterialDeleteTexture((yyGPUTexture*)map->m_GPUTexture);
+
+							map->m_GPUTexture = g_app->MaterialGetTexture(map->m_texturePath.data());
 							m_gui_pictureBox_map->m_texture = (yyGPUTexture*)map->m_GPUTexture;
 						}
 						yyDestroy(path);

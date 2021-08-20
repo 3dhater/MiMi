@@ -127,6 +127,7 @@ public:
 	void DeleteSelectedMaterial();
 	void AssignSelectedMaterial();
 	void LoadNewImageForMaterial();
+	void DeleteImageFromMaterial();
 	void UpdateMaterialMapPictureBox();
 
 	yyGUIComboBox* m_editorTypeCombo;

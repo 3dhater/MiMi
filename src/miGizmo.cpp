@@ -22,7 +22,7 @@ miGizmo::miGizmo()
 	m_gizmo_rot_sz_mn = 0.01;
 	m_gizmo_rot_sz_mx = 0.01;
 
-	auto trtex = yyGetTextureFromCache("../res/gui/tr.dds");
+	auto trtex = yyGetTexture(L"../res/gui/tr.dds");
 	m_rotateSprite = yyCreateSprite(v4f(0.f, 0.f, 1.f, 1.f), trtex, 8);
 	m_rotateSprite->m_useAsBillboard = true;
 
