@@ -149,6 +149,9 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 						ea.m_data[o]->m_flags ^= miEdge::flag_isSelected;
 				}
 			}
+
+
+
 		}break;
 		case miEditMode::Polygon: {
 			yyArraySimple<miPolygon*> pa;
@@ -208,6 +211,9 @@ void editableObjectGUI_selectButtons_onClick(s32 id) {
 			break;
 		}
 	}
+
+	g_app->_selectObject_onSelect();
+
 	o->OnSelect(em);
 	g_app->UpdateSelectionAabb();
 }
@@ -1124,6 +1130,7 @@ begin:;
 	if (needUpdate)
 	{
 		o->OnSelect(g_app->GetEditMode());
+		g_app->_selectObject_onSelect();
 		g_app->UpdateSelectionAabb();
 		g_app->_callVisualObjectOnSelect();
 	}
@@ -1211,6 +1218,7 @@ begin:;
 	if (needUpdate)
 	{
 		o->OnSelect(g_app->GetEditMode());
+		g_app->_selectObject_onSelect();
 		g_app->UpdateSelectionAabb();
 		g_app->_callVisualObjectOnSelect();
 	}
@@ -1316,6 +1324,7 @@ begin:;
 	if (needUpdate)
 	{
 		o->OnSelect(g_app->GetEditMode());
+		g_app->_selectObject_onSelect();
 		g_app->UpdateSelectionAabb();
 		g_app->_callVisualObjectOnSelect();
 	}

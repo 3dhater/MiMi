@@ -2035,6 +2035,7 @@ void miApplication::SetEditMode(miEditMode m) {
 	}
 	_updateIsVertexEdgePolygonSelected();
 	this->UpdateSelectionAabb();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 void miApplication::SetTransformMode(miTransformMode m, bool local) {
 	m_isLocalTransform = local;

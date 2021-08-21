@@ -1,13 +1,15 @@
-- ввод позиции
-- force draw without lines (F3)
-- line for d3d11
 - fix Edge chamfer
+- OBJ importer/exporter
+- save UV template
+- Clone object
 - P element
-- reference
-- mirror
 - drag n drop texture
 - shaders
-
+- reference
+- mirror
+- FBX import/export
+- save file
+- shortcuts for select loop/ring, for edit commands...
 ...
 
 - fix edge bridge

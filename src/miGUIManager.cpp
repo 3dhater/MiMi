@@ -1276,6 +1276,7 @@ void miGUIManager::UpdateTransformModeButtons() {
 }
 
 void miGUIManager::SetCommonParamsRangePosition() {
+	//printf("SET\n");
 	m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_default_value_float;
 	m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_default_value_float;
 	m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_default_value_float;

@@ -522,17 +522,21 @@ void miApplication::_onSelect() {
 	OnSelect();
 }
 
-void miApplication::OnSelect() {
-	if (m_isCursorInUVEditor) return;
+void miApplication::_selectObject_onSelect() {
 	if (m_sdk->m_selectObject_onSelect)
 		m_sdk->m_selectObject_onSelect(m_editMode);
+}
+
+void miApplication::OnSelect() {
+	if (m_isCursorInUVEditor) return;
+	_selectObject_onSelect();
 
 	UpdateSelectedObjectsArray();
 	_updateIsVertexEdgePolygonSelected();
 	_callVisualObjectOnSelect();
 	
 	UpdateSelectionAabb();
-	//m_GUIManager->SetCommonParamsRangePosition();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_updateIsVertexEdgePolygonSelected() {

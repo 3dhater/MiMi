@@ -101,7 +101,7 @@ void miApplication::_transformObjects_move(miSceneObject* o) {
 
 	o->UpdateTransform();
 	UpdateSceneAabb();
-	m_GUIManager->SetCommonParamsRangePosition();
+	//m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::_transformObjects_scale(miSceneObject* o) {

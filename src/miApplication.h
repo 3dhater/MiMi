@@ -363,7 +363,6 @@ public:
 	yyGPUTexture* MaterialGetTexture(const wchar_t*);
 	void MaterialDeleteTexture(yyGPUTexture*);
 
-	miSDKImpl* m_sdk;
 	void CallPluginGUIOnCancel();
 
 	Aabb m_UVAabb;
@@ -378,7 +377,8 @@ public:
 	void UvMakePlanar(bool useScreenPlane);
 	void UvFlattenMapping();
 
-
+	miSDKImpl* m_sdk;
+	void _selectObject_onSelect();
 
 	friend class miEditableObject;
 	friend class miGizmo;

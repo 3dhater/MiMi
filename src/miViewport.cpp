@@ -703,6 +703,8 @@ void miViewport::ToggleDrawAABB() {
 }
 
 void miViewport::_drawScene() {
+	auto dm = m_drawMode;
+
 	for (u32 i = 0; i < m_visibleObjects.m_size; ++i)
 	{
 		auto object = m_visibleObjects.m_data[i];
@@ -713,7 +715,9 @@ void miViewport::_drawScene() {
 		object->OnUpdate(g_app->m_dt);
 		
 		m_gpu->UseDepth(true);
-		object->OnDraw(m_drawMode, g_app->m_editMode, g_app->m_dt);
+
+
+		object->OnDraw(dm, g_app->m_editMode, g_app->m_dt);
 		
 		if (object->IsSelected())
 		{
