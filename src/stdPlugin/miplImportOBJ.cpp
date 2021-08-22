@@ -6,8 +6,6 @@
 
 extern miSDK* g_sdk;
 
-
-
 enum class OBJFaceType
 {
 	p,
@@ -60,18 +58,12 @@ bool g_ImportOBJ_triangulate = false;
 
 void miplStd_ImportOBJ_Tiangulate_onClick(bool isChecked) {
 	g_ImportOBJ_triangulate = isChecked;
-	/*if (isChecked)
-	{
-	}
-	else
-	{
-	}*/
 }
 
 void miplStd_initGuiForImportOBJ(miPluginGUI* gui) {
 	float X = 0.f;
 	float Y = 0.f;
-	gui->AddText(v2f(X, Y), L"Import parameters: ", 0, 0);
+	gui->AddText(v2f(X, Y), L"Import OBJ parameters: ", 0, 0);
 
 	Y += 15.f;
 

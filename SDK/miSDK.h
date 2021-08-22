@@ -327,11 +327,13 @@ public:
 	// register new object for popup when you press `Add` button
 	virtual void RegisterNewObject(miPlugin*, unsigned int id, const wchar_t* category, const wchar_t* objectName) = 0;
 	
+	// id - unique ID inside plugin
 	// title - L"Wavefront OBJ"
 	// extensions - L"obj"
-	// gui - some GUI elements for import 
+	// gui - some GUI elements for import/export
 	//  for multiple 'extensions' it must be like this "obj dae fbx"
 	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) = 0;
+	virtual void RegisterExporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) = 0;
 
 	virtual void GetRayFromScreen(yyRay* ray, const v2f& coords, const v4f& viewportRect, const Mat4& VPInvert) = 0;
 

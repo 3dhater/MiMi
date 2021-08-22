@@ -30,6 +30,10 @@ miSDKImpl::~miSDKImpl() {
 	{
 		delete m_importers[i];
 	}
+	for (u16 i = 0, sz = m_exporters.size(); i < sz; ++i)
+	{
+		delete m_exporters[i];
+	}
 }
 
 miPluginGUI* miSDKImpl::CreatePluginGUI(miPluginGUIType t) {
@@ -147,6 +151,31 @@ void miSDKImpl::RegisterNewObject(
 	//g_app->m_pluginCommandID.Add(id, miPluginCommandIDMapNode(plugin, id, objectID));
 
 	//return id;
+}
+
+void miSDKImpl::RegisterExporter(
+	miPlugin* plugin,
+	unsigned int importerID,
+	const wchar_t* title,
+	const wchar_t* extensions,
+	miPluginGUI* gui)
+{
+	assert(plugin);
+	assert(title);
+	assert(extensions);
+
+	unsigned int id = g_app->m_miCommandID_for_plugins_count;
+	++g_app->m_miCommandID_for_plugins_count;
+
+	miImporter* imp = new miImporter;
+	imp->m_gui = gui;
+	imp->m_title = title;
+	imp->m_plugin = plugin;
+	imp->m_importerID = importerID;
+	imp->m_popupIndex = id + miCommandID_for_plugins;
+
+	util::stringGetWords(&imp->m_extensions, yyStringW(extensions));
+	m_exporters.push_back(imp);
 }
 
 void miSDKImpl::RegisterImporter(

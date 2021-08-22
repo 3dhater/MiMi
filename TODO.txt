@@ -1,4 +1,6 @@
 - OBJ importer/exporter
+- jpeg and other
+- OBJ materials import/export
 - save UV template
 - Clone object
 - P element

@@ -65,6 +65,7 @@ class miSDKImpl : public miSDK
 	miObjectCategory* _getObjectCategory(const wchar_t* category);
 	
 	yyArraySmall<miImporter*> m_importers;
+	yyArraySmall<miImporter*> m_exporters;
 	yyArraySimple<miPair<miVertex*, miSceneObject*>> m_vertsForSelect;
 	yyArraySimple<miPair<miEdge*, miSceneObject*>> m_edgesForSelect;
 	yyArraySimple<miPair<miPair<miPolygon*, f32>, miSceneObject*>> m_polygonsForSelect;
@@ -97,8 +98,9 @@ public:
 
 	virtual void UpdateSceneAabb();
 
-	virtual void RegisterNewObject(miPlugin* plugin, unsigned int objectID, const wchar_t* category, const wchar_t* objectName);
-	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui);
+	virtual void RegisterNewObject(miPlugin* plugin, unsigned int objectID, const wchar_t* category, const wchar_t* objectName) override;
+	virtual void RegisterImporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) override;
+	virtual void RegisterExporter(miPlugin*, unsigned int id, const wchar_t* title, const wchar_t* extensions, miPluginGUI* gui) override;
 
 	virtual void GetRayFromScreen(yyRay* ray, const v2f& coords, const v4f& viewportRect, const Mat4& VPInvert);
 

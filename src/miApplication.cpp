@@ -127,6 +127,16 @@ void window_callbackOnCommand(s32 commandID) {
 				return;
 			}
 		}
+		for (u16 i = 0, sz = g_app->m_sdk->m_exporters.size(); i < sz; ++i)
+		{
+			auto exp = g_app->m_sdk->m_exporters[i];
+			if (commandID == exp->m_popupIndex)
+			{
+				g_app->OnExport(exp);
+				return;
+			}
+		}
+
 		/*miPluginCommandIDMapNode mapNode;
 		if (g_app->m_pluginCommandID.Get(commandID - miCommandID_for_plugins, mapNode)) {
 			mapNode.m_plugin->OnCreateObject(mapNode.m_objectID);
@@ -201,6 +211,7 @@ miApplication::miApplication() {
 	m_gizmoModeUV = miGizmoUVMode::NoTransform;
 	m_isGizmoMouseHover = false;
 	m_onImport_importer = 0;
+	m_onExport_exporter = 0;
 	m_gizmo = 0;
 	m_isGUIInputFocus = false;
 	m_currentViewportDraw = 0;
@@ -544,8 +555,13 @@ void miApplication::_initPopups() {
 	for (u16 i = 0, sz = m_sdk->m_importers.size(); i < sz; ++i)
 	{
 		auto imp = m_sdk->m_importers[i];
-		
 		m_popup_Importers.AddItem(imp->m_title.data(), imp->m_popupIndex, 0);
+	}
+
+	for (u16 i = 0, sz = m_sdk->m_exporters.size(); i < sz; ++i)
+	{
+		auto exp = m_sdk->m_exporters[i];
+		m_popup_Exporters.AddItem(exp->m_title.data(), exp->m_popupIndex, 0);
 	}
 
 }
@@ -1933,7 +1949,7 @@ void miApplication::OnImport_openDialog() {
 	auto path = yyOpenFileDialog("Import model", "Import", extensions.data(), title.data());
 	if (path)
 	{
-		m_onImport_importer->m_plugin->OnImport((const wchar_t*)path->data(), m_onImport_importer->m_importerID);
+		m_onImport_importer->m_plugin->OnImportExport((const wchar_t*)path->data(), m_onImport_importer->m_importerID);
 		yyDestroy(path);
 	}
 }
@@ -1946,6 +1962,32 @@ void miApplication::OnImport(miImporter* importer) {
 	else
 	{
 		OnImport_openDialog();
+	}
+}
+
+void miApplication::OnExport_openDialog() {
+	yyStringA title;
+	title = m_onExport_exporter->m_title.data();
+
+	yyStringA extension;
+	extension = m_onExport_exporter->m_extensions.at(0).data();
+
+	auto path = yySaveFileDialog("Export model", "Export", extension.data());
+	if (path)
+	{
+		m_onExport_exporter->m_plugin->OnImportExport((const wchar_t*)path->data(), m_onExport_exporter->m_importerID);
+		yyDestroy(path);
+	}
+}
+void miApplication::OnExport(miImporter* exporter) {
+	m_onExport_exporter = exporter;
+	if (exporter->m_gui)
+	{
+		m_GUIManager->ShowExportMenu(exporter->m_gui);
+	}
+	else
+	{
+		OnExport_openDialog();
 	}
 }
 

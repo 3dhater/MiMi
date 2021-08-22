@@ -31,6 +31,7 @@
     <ClInclude Include="..\..\src\stdPlugin\miplStd.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\stdPlugin\miplExportOBJ.cpp" />
     <ClCompile Include="..\..\src\stdPlugin\miplImportOBJ.cpp" />
     <ClCompile Include="..\..\src\stdPlugin\miplPolygonObjectPlane.cpp" />
     <ClCompile Include="..\..\src\stdPlugin\miplStd.cpp" />

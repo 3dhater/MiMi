@@ -8,6 +8,7 @@ static bool g_isCreated = false;
 
 void miplStd_initGuiForPlane(miPluginGUI*);
 void miplStd_initGuiForImportOBJ(miPluginGUI*);
+void miplStd_initGuiForExportOBJ(miPluginGUI*);
 
 miSDK* g_sdk = 0;
 
@@ -27,6 +28,7 @@ miplStd::miplStd() {
 	m_newObjectPtr = 0;
 	m_gui_for_plane = 0;
 	m_gui_for_importOBJ = 0;
+	m_gui_for_exportOBJ = 0;
 }
 
 miplStd::~miplStd() {
@@ -68,6 +70,7 @@ bool miplStd::IsDebug() {
 const unsigned int g_ObjectID_Plane = 0;
 
 const unsigned int g_ImporterID_OBJ = 0;
+const unsigned int g_ExporterID_OBJ = 1;
 
 int miplStd::CheckVersion() {
 	return MI_SDK_VERSION;
@@ -93,6 +96,10 @@ void miplStd::Init(miSDK* sdk){
 	m_gui_for_importOBJ = sdk->CreatePluginGUI(miPluginGUIType::ImportExportParams);
 	miplStd_initGuiForImportOBJ(m_gui_for_importOBJ);
 	sdk->RegisterImporter(this, g_ImporterID_OBJ, L"OBJ", L"obj", m_gui_for_importOBJ);
+	
+	m_gui_for_exportOBJ = sdk->CreatePluginGUI(miPluginGUIType::ImportExportParams);
+	miplStd_initGuiForExportOBJ(m_gui_for_exportOBJ);
+	sdk->RegisterExporter(this, g_ExporterID_OBJ, L"OBJ", L"obj", m_gui_for_exportOBJ);
 }
 
 void miplStd::OnLMBDown(miSelectionFrust*, bool isCursorInGUI) {
@@ -156,11 +163,14 @@ void miplStd::OnCreateObject(unsigned int objectId){
 	}
 }
 
-void miplStd::OnImport(const wchar_t* fileName, unsigned int id) {
+void miplStd::OnImportExport(const wchar_t* fileName, unsigned int id) {
 	switch (id)
 	{
 	case g_ImporterID_OBJ:
 		miplStd_ImportOBJ(fileName);
+		break;
+	case g_ExporterID_OBJ:
+		miplStd_ExportOBJ(fileName);
 		break;
 	default:
 		break;

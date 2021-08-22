@@ -2,6 +2,7 @@
 #define _MIPL_STD_H_
 
 void miplStd_ImportOBJ(const wchar_t* fileName);
+void miplStd_ExportOBJ(const wchar_t* fileName);
 
 class miplStd : public miPlugin
 {
@@ -13,6 +14,7 @@ class miplStd : public miPlugin
 
 	miPluginGUI* m_gui_for_plane;
 	miPluginGUI* m_gui_for_importOBJ;
+	miPluginGUI* m_gui_for_exportOBJ;
 
 public:
 	miplStd();
@@ -34,7 +36,7 @@ public:
 	virtual void OnCancel(miSelectionFrust*, bool isCursorInGUI) override;
 	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) override;
 
-	virtual void OnImport(const wchar_t* fileName, unsigned int id) override;
+	virtual void OnImportExport(const wchar_t* fileName, unsigned int id) override;
 	virtual void OnShiftGizmo(miGizmoMode, miEditMode, miSceneObject*) override;
 
 	miSDK* m_sdk;

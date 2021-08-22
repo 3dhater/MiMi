@@ -69,6 +69,7 @@ public:
 	void HideMenu();
 
 	void ShowImportMenu(miPluginGUI* gui);
+	void ShowExportMenu(miPluginGUI* gui);
 
 	friend struct miGUIMainMenuMenuGroup;
 	bool m_isMainMenuInCursor;
@@ -82,9 +83,11 @@ public:
 	
 	yyGUIButton*  m_button_add;
 	yyGUIButton*  m_button_import;
+	yyGUIButton*  m_button_export;
 	yyGUITextInput* m_textInput_rename;
 	
 	yyGUIButton*  m_button_importWindow_import;
+	yyGUIButton*  m_button_exportWindow_export;
 	
 	yyGUIButton*  m_button_selectByName;
 

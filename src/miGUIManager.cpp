@@ -292,6 +292,9 @@ void gui_addButton_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_Importers);
 }
+void gui_exportButton_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->ShowPopupAtCursor(&g_app->m_popup_Exporters);
+}
 
 miGUIManager::miGUIManager(){
 	m_editorTypeCombo = 0;
@@ -302,10 +305,12 @@ miGUIManager::miGUIManager(){
 	m_mainMenu_Y = 0.f;
 	m_button_selectByName = 0;
 	m_button_importWindow_import = 0;
+	m_button_exportWindow_export = 0;
 	m_selectedMenuItemID = -1;
 	m_hoveredMenuItemID = -1;
 	m_activePluginGUI = 0;
 	m_button_import = 0;
+	m_button_export = 0;
 	m_button_add = 0;
 	m_textInput_rename = 0;
 	m_button_transformModeNoTransform = 0;
@@ -405,6 +410,27 @@ miGUIManager::miGUIManager(){
 		m_button_import->m_isAnimated = true;
 		m_button_import->m_onClick = gui_importButton_onClick;
 	}
+	X += button_import_size;
+
+	f32 button_export_size = 55.f;
+	m_button_export = yyGUICreateButton(v4f(
+		X,
+		0.f,
+		X + button_export_size,
+		miViewportTopIndent
+	), 0, -1, 0, 0);
+	if (m_button_export)
+	{
+		m_button_export->SetText(L"Export", m_fontDefault, false);
+		m_button_export->SetColor(g_app->m_color_windowClearColor, 0);
+		m_button_export->SetColor(ColorDarkGrey, 1);
+		m_button_export->SetColor(ColorGrey, 2);
+		m_button_export->m_textColor = ColorWhite;
+		m_button_export->m_textColorHover = ColorWhite;
+		m_button_export->m_textColorPress = ColorWhite;
+		m_button_export->m_isAnimated = true;
+		m_button_export->m_onClick = gui_exportButton_onClick;
+	}
 
 	X += button_import_size;
 	m_editorTypeCombo = yyGUICreateComboBox(v2f(X, 0.f), 50.f, m_fontDefault, 0);
@@ -421,9 +447,6 @@ miGUIManager::miGUIManager(){
 		g_guiWindowBackgroundPBRect.w
 	), 0, -1, m_mainMenu_drawGroup, 0);
 	m_button_importWindow_import->SetText(L"Import", m_fontDefault, false);
-	//m_button_importWindow_import->SetColor(yyColor(0.3f, 0.3f, 0.9f, 1.f), 0);
-	//m_button_importWindow_import->SetColor(yyColor(0.4f, 0.4f, 0.9f, 1.f), 1);
-	//m_button_importWindow_import->SetColor(yyColor(0.2f, 0.2f, 0.9f, 1.f), 2);
 	m_button_importWindow_import->m_textColor.set(0.9f);
 	m_button_importWindow_import->m_textColorHover.set(1.0f);
 	m_button_importWindow_import->m_textColorPress.set(0.6f);
@@ -432,6 +455,22 @@ miGUIManager::miGUIManager(){
 	m_button_importWindow_import->m_bgColor = yyColor(0.3f, 0.3f, 0.9f, 1.f);
 	m_button_importWindow_import->m_bgColorHover = yyColor(0.4f, 0.4f, 0.9f, 1.f);
 	m_button_importWindow_import->m_bgColorPress = yyColor(0.2f, 0.2f, 0.9f, 1.f);
+
+	m_button_exportWindow_export = yyGUICreateButton(v4f(
+		g_guiWindowBackgroundPBRect.x,
+		g_guiWindowBackgroundPBRect.w - 30.f,
+		g_guiWindowBackgroundPBRect.x + 130.f,
+		g_guiWindowBackgroundPBRect.w
+	), 0, -1, m_mainMenu_drawGroup, 0);
+	m_button_exportWindow_export->SetText(L"Export", m_fontDefault, false);
+	m_button_exportWindow_export->m_textColor.set(0.9f);
+	m_button_exportWindow_export->m_textColorHover.set(1.0f);
+	m_button_exportWindow_export->m_textColorPress.set(0.6f);
+	m_button_exportWindow_export->m_isAnimated = true;
+	m_button_exportWindow_export->SetVisible(false);
+	m_button_exportWindow_export->m_bgColor = yyColor(0.3f, 0.3f, 0.9f, 1.f);
+	m_button_exportWindow_export->m_bgColorHover = yyColor(0.4f, 0.4f, 0.9f, 1.f);
+	m_button_exportWindow_export->m_bgColorPress = yyColor(0.2f, 0.2f, 0.9f, 1.f);
 
 
 	m_textInput_rename = yyGUICreateTextInput(
@@ -1095,6 +1134,7 @@ void miGUIManager::HideMenu() {
 		m_activePluginGUI->Show(false);
 		m_activePluginGUI = 0;
 		m_button_importWindow_import->SetVisible(false);
+		m_button_exportWindow_export->SetVisible(false);
 	}
 	
 	m_mainMenu_drawGroup->SetDraw(false);
@@ -1238,6 +1278,23 @@ yyGUIFont* miGUIManager::GetFont(miGUIManager::Font f) {
 void miGUIManager_button_importWindow_import_onClick(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->HideMenu();
 	g_app->OnImport_openDialog();
+}
+
+void miGUIManager_button_exportWindow_export_onClick(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->HideMenu();
+	g_app->OnExport_openDialog();
+}
+
+void miGUIManager::ShowExportMenu(miPluginGUI* gui) {
+	m_mainMenu_backgroundPB->m_onDraw = gui_mainMenu_backgroundPB_onDraw_show;
+	m_mainMenu_drawGroup->SetDraw(true);
+	m_mainMenu_drawGroup->SetInput(true);
+	m_mainMenu_drawGroup->MoveFront();
+	m_button_exportWindow_export->SetVisible(true);
+	m_button_exportWindow_export->m_onRelease = miGUIManager_button_exportWindow_export_onClick;
+
+	m_activePluginGUI = (miPluginGUIImpl*)gui;
+	m_activePluginGUI->Show(true);
 }
 
 void miGUIManager::ShowImportMenu(miPluginGUI* gui) {
@@ -1418,7 +1475,9 @@ void miGUIManager::LoadNewImageForMaterial() {
 			{
 				if (m_gui_listbox_maps->GetItem(o)->IsSelected())
 				{
-					auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
+					yyStringA supportedExtensions;
+					yyGetImageExtensions(&supportedExtensions);
+					auto path = yyOpenFileDialog("Texture file", "Select", supportedExtensions.data(), "Supported files");
 					if (path)
 					{
 						auto * map = &mat->m_maps[o];
@@ -1428,7 +1487,8 @@ void miGUIManager::LoadNewImageForMaterial() {
 								g_app->MaterialDeleteTexture((yyGPUTexture*)map->m_GPUTexture);
 
 							map->m_GPUTexture = g_app->MaterialGetTexture(map->m_texturePath.data());
-							m_gui_pictureBox_map->m_texture = (yyGPUTexture*)map->m_GPUTexture;
+							m_gui_pictureBox_map->SetTexture((yyGPUTexture*)map->m_GPUTexture);
+							m_gui_pictureBox_map->Rebuild();
 						}
 						yyDestroy(path);
 					}

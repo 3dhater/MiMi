@@ -310,6 +310,7 @@ public:
 	miPopup m_popup_ViewportParameters;
 	miPopup m_popup_NewObject;
 	miPopup m_popup_Importers;
+	miPopup m_popup_Exporters;
 	//miPopup m_popup_InViewport;
 	void ShowPopupAtCursor(miPopup* popup);
 
@@ -344,6 +345,10 @@ public:
 	miImporter* m_onImport_importer;
 	void OnImport(miImporter* importer);
 	void OnImport_openDialog();
+	
+	miImporter* m_onExport_exporter;
+	void OnExport(miImporter* exporter);
+	void OnExport_openDialog();
 
 	void ToggleEditMode(miEditMode);
 	void SetEditMode(miEditMode);
