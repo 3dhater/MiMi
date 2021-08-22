@@ -66,6 +66,8 @@ struct v4f
 		out.y = (z * a.x) - (x * a.z);
 		out.z = (x * a.y) - (y * a.x);
 	}
+	void cross2(const v4f& a, v3f& out)const;
+
 	f32 lengthSqrt()const { return(x*x) + (y*y) + (z*z); }
 	f32 length()const { return std::sqrt(lengthSqrt()); }
 	f32 distance(const v4f& from)const { return v4f(x - from.x, y - from.y, z - from.z, 1.f).length(); }
@@ -209,6 +211,12 @@ YY_FORCE_INLINE void v3f::add(const v4f& v) {
 	this->z += v.z;
 }
 
+
+YY_FORCE_INLINE void v4f::cross2(const v4f& a, v3f& out)const {
+	out.x = (y * a.z) - (z * a.y);
+	out.y = (z * a.x) - (x * a.z);
+	out.z = (x * a.y) - (y * a.x);
+}
 
 
 #endif

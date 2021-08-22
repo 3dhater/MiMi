@@ -1,4 +1,3 @@
-- fix Edge chamfer
 - OBJ importer/exporter
 - save UV template
 - Clone object
@@ -10,6 +9,7 @@
 - FBX import/export
 - save file
 - shortcuts for select loop/ring, for edit commands...
+- MinGW plugin
 ...
 
 - fix edge bridge

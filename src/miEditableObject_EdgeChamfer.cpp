@@ -497,7 +497,7 @@ void miEditableObject::OnEdgeChamfer() {
 			newPolygon->CalculateNormal();
 			mesh->_add_polygon_to_list(newPolygon);
 			newPolygon->FixOrder(0.1f);
-
+			
 			// Check normal. 
 			v3f edgeNormal;
 			if (hsp1.m_edge->m_polygon1)

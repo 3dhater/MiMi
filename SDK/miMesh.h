@@ -7,6 +7,183 @@
 struct miEdge;
 struct miPolygon;
 
+struct miTriangle
+{
+	miTriangle() {}
+	miTriangle(const v4f& _v1, const v4f& _v2, const v4f& _v3)
+		:
+		v1(_v1),
+		v2(_v2),
+		v3(_v3)
+	{
+		update();
+	}
+
+	miTriangle(const v3f& _v1, const v3f& _v2, const v3f& _v3)
+		:
+		v1(_v1),
+		v2(_v2),
+		v3(_v3)
+	{
+		update();
+	}
+
+	v4f v1;
+	v4f v2;
+	v4f v3;
+	//v4f faceNormal;
+	v4f normal1;
+	v4f normal2;
+	v4f normal3;
+	v4f e1;
+	v4f e2;
+	v4f t1;
+	v4f t2;
+	v4f t3;
+
+	void update()
+	{
+		e1 = v4f(v2.x - v1.x,
+			v2.y - v1.y,
+			v2.z - v1.z,
+			0.f);
+		e2 = v4f(v3.x - v1.x,
+			v3.y - v1.y,
+			v3.z - v1.z,
+			0.f);
+		//	e1.cross(e2, faceNormal);
+	}
+
+	void center(v4f& out)
+	{
+		out = (v1 + v2 + v3) * 0.3333333f;
+	}
+
+	bool rayTest_MT(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
+	{
+		v4f  pvec;
+		ray.m_direction.cross2(e2, pvec);
+		float det = e1.dot(pvec);
+
+		if (withBackFace)
+		{
+			if (std::fabs(det) < Epsilon)
+				return false;
+		}
+		else
+		{
+			if (det < Epsilon && det > -Epsilon)
+				return false;
+		}
+
+		v4f tvec(
+			ray.m_origin.x - v1.x,
+			ray.m_origin.y - v1.y,
+			ray.m_origin.z - v1.z,
+			0.f);
+
+		float inv_det = 1.f / det;
+		U = tvec.dot(pvec) * inv_det;
+
+		if (U < 0.f || U > 1.f)
+			return false;
+
+		v4f  qvec;
+		tvec.cross2(e1, qvec);
+		V = ray.m_direction.dot(qvec) * inv_det;
+
+		if (V < 0.f || U + V > 1.f)
+			return false;
+
+		T = e2.dot(qvec) * inv_det;
+
+		if (T < Epsilon) return false;
+
+		W = 1.f - U - V;
+		return true;
+	}
+
+	bool rayTest_Watertight(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
+	{
+		v1.w = 1.f;
+		v2.w = 1.f;
+		v3.w = 1.f;
+		const auto A = v2 - ray.m_origin;
+		const auto B = v3 - ray.m_origin;
+		const auto C = v1 - ray.m_origin;
+
+		const float Ax = A[ray.m_kx] - (ray.m_Sx * A[ray.m_kz]);
+		const float Ay = A[ray.m_ky] - (ray.m_Sy * A[ray.m_kz]);
+		const float Bx = B[ray.m_kx] - (ray.m_Sx * B[ray.m_kz]);
+		const float By = B[ray.m_ky] - (ray.m_Sy * B[ray.m_kz]);
+		const float Cx = C[ray.m_kx] - (ray.m_Sx * C[ray.m_kz]);
+		const float Cy = C[ray.m_ky] - (ray.m_Sy * C[ray.m_kz]);
+
+		U = (Cx * By) - (Cy * Bx);
+		V = (Ax * Cy) - (Ay * Cx);
+		W = (Bx * Ay) - (By * Ax);
+
+		if (U == 0.f || V == 0.f || W == 0.f)
+		{
+			double CxBy = (double)Cx * (double)By;
+			double CyBx = (double)Cy * (double)Bx;
+			U = (float)(CxBy - CyBx);
+
+			double AxCy = (double)Ax * (double)Cy;
+			double AyCx = (double)Ay * (double)Cx;
+			V = (float)(AxCy - AyCx);
+
+			double BxAy = (double)Bx * (double)Ay;
+			double ByAx = (double)By * (double)Ax;
+			W = (float)(BxAy - ByAx);
+		}
+
+		if (withBackFace)
+		{
+			if ((U<0.f || V<0.f || W < 0.f) &&
+				(U>0.f || V>0.f || W > 0.f))
+				return false;
+		}
+		else
+		{
+			if (U<0.f || V<0.f || W<0.f)
+				return false;
+		}
+
+		float det = U + V + W;
+
+		if (det == 0.f)
+			return false;
+
+		const float Az = ray.m_Sz * A[ray.m_kz];
+		const float Bz = ray.m_Sz * B[ray.m_kz];
+		const float Cz = ray.m_Sz * C[ray.m_kz];
+		const float Ts = (U*Az) + (V*Bz) + (W*Cz);
+
+		if (!withBackFace) // CULL
+		{
+			if (Ts < 0.f || Ts > Infinity *det)
+				return false;
+		}
+		else
+		{
+			if (det < 0.f && (Ts >= 0.f || Ts < Infinity * det))
+				return false;
+			else if (det > 0.f && (Ts <= 0.f || Ts > Infinity * det))
+				return false;
+		}
+
+		const float invDet = 1.f / det;
+		U = U*invDet;
+		V = V*invDet;
+		W = W*invDet;
+		T = Ts*invDet;
+		if (T < Epsilon)
+			return false;
+		return true;
+	}
+};
+
 #include "miPackOn.h"
 struct miVertex 
 {
@@ -343,15 +520,13 @@ struct miPolygon
 		if (num < 4)
 			return;
 
-		for (u32 i = 0; i < num; ++i)
+		for (u32 i = 0; i < num*4; ++i)
 		{
 			curV = m_verts.m_head;
 			lastV = curV->m_left;
 			while (true)
 			{
-				//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> current;
 				miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> current;
-				//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> prev;
 				miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> prev;
 
 				current.m_first = curV;
@@ -364,7 +539,6 @@ struct miPolygon
 				auto tgLast = tgCurr->m_left;
 				while (true)
 				{
-					//miPair<miListNode3<miVertex*, v2f, v3f>*, miListNode3<miVertex*, v2f, v3f>*> target;
 					miPair<miListNode<_vertex_data>*, miListNode<_vertex_data>*> target;
 					target.m_first = tgCurr;
 					target.m_second = tgCurr->m_right;
@@ -372,22 +546,82 @@ struct miPolygon
 					if (target.m_first == prev.m_first)
 						break;
 
-					yyRay r;
-					//r.m_origin = current.m_first->m_data1->m_position;
+					/*yyRay r;
 					r.m_origin = current.m_first->m_data.m_vertex->m_position;
-					//r.m_end = current.m_second->m_data1->m_position;
 					r.m_end = current.m_second->m_data.m_vertex->m_position;
 
-					//f32 d = r.distanceToLine(target.m_first->m_data1->m_position, target.m_second->m_data1->m_position);
 					f32 d = r.distanceToLine(target.m_first->m_data.m_vertex->m_position, target.m_second->m_data.m_vertex->m_position);
-					if (d < lineLineCollisionLen)
+					if (d < lineLineCollisionLen)*/
+					v3f normal;
+					miTriangle tri1;
+					miTriangle tri2;
 					{
-						//auto tmp = target.m_first->m_data1;
+						miTriangle tri3;
+						auto vertex = current.m_first;
+						
+						tri3.v1 = vertex->m_data.m_vertex->m_position;
+						vertex = vertex->m_right;
+
+						tri3.v2 = vertex->m_data.m_vertex->m_position;
+						vertex = vertex->m_right;
+
+						tri3.v3 = vertex->m_data.m_vertex->m_position;
+
+						tri3.update();
+						tri3.e1.cross2(tri3.e2, normal);
+						normal.normalize2();
+					}
+
+					tri1.v1 = current.m_first->m_data.m_vertex->m_position;
+					tri1.v2 = current.m_first->m_right->m_data.m_vertex->m_position;
+					tri1.v3 = current.m_first->m_data.m_vertex->m_position;
+
+					tri2.v1 = current.m_first->m_data.m_vertex->m_position;
+					tri2.v2 = current.m_first->m_right->m_data.m_vertex->m_position;
+					tri2.v3 = current.m_first->m_right->m_data.m_vertex->m_position;
+
+					//ip = m_origin + t * m_direction;
+					tri1.v1 = tri1.v1 + 1.f * normal;
+					tri1.v2 = tri1.v2 + 1.f * normal;
+					tri1.v3 = tri1.v3 + 1.f * -normal;
+
+					tri2.v1 = tri2.v1 + 1.f * -normal;
+					tri2.v2 = tri2.v2 + 1.f * -normal;
+					tri2.v3 = tri2.v3 + 1.f * normal;
+
+					//{ // scale
+					//	f32 sz = 100.f;
+					//	v4f center;
+					//	tri.center(center);
+
+					//	tri.v1 = ((tri.v1 - center) * sz) + center;
+					//	tri.v2 = ((tri.v2 - center) * sz) + center;
+					//	tri.v3 = ((tri.v3 - center) * sz) + center;
+					//}
+					tri1.update();
+					tri2.update();
+
+					yyRay r;
+					r.m_origin = target.m_first->m_data.m_vertex->m_position;
+					r.m_end = target.m_second->m_data.m_vertex->m_position;
+					r.update();
+
+					f32 T = 0.f;
+					f32 U = 0.f;
+					f32 V = 0.f;
+					f32 W = 0.f;
+
+					bool good = tri1.rayTest_MT(r, true, T, U, V, W);
+
+					if(!good)
+						good = tri2.rayTest_MT(r, true, T, U, V, W);
+
+					if(good)
+					{
 						auto tmp = target.m_first->m_data.m_vertex;
-						//target.m_first->m_data1 = current.m_second->m_data1;
 						target.m_first->m_data.m_vertex = current.m_second->m_data.m_vertex;
-						//current.m_second->m_data1 = tmp;
 						current.m_second->m_data.m_vertex = tmp;
+						goto end;
 					}
 
 					if (tgCurr == tgLast)
@@ -401,187 +635,13 @@ struct miPolygon
 					break;
 				curV = curV->m_right;
 			}
+		end:;
 		}
 	}
 };
 #include "miPackOff.h"
 
-struct miTriangle
-{
-	miTriangle() {}
-	miTriangle(const v4f& _v1, const v4f& _v2, const v4f& _v3)
-		:
-		v1(_v1),
-		v2(_v2),
-		v3(_v3)
-	{
-		update();
-	}
 
-	miTriangle(const v3f& _v1, const v3f& _v2, const v3f& _v3)
-		:
-		v1(_v1),
-		v2(_v2),
-		v3(_v3)
-	{
-		update();
-	}
-
-	v4f v1;
-	v4f v2;
-	v4f v3;
-	//v4f faceNormal;
-	v4f normal1;
-	v4f normal2;
-	v4f normal3;
-	v4f e1;
-	v4f e2;
-	v4f t1;
-	v4f t2;
-	v4f t3;
-
-	void update()
-	{
-		e1 = v4f(v2.x - v1.x,
-			v2.y - v1.y,
-			v2.z - v1.z,
-			0.f);
-		e2 = v4f(v3.x - v1.x,
-			v3.y - v1.y,
-			v3.z - v1.z,
-			0.f);
-		//	e1.cross(e2, faceNormal);
-	}
-
-	void center(v4f& out)
-	{
-		out = (v1 + v2 + v3) * 0.3333333f;
-	}
-
-	bool rayTest_MT(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
-	{
-		v4f  pvec;
-		ray.m_direction.cross2(e2, pvec);
-		float det = e1.dot(pvec);
-
-		if (withBackFace)
-		{
-			if (std::fabs(det) < Epsilon)
-				return false;
-		}
-		else
-		{
-			if (det < Epsilon && det > -Epsilon)
-				return false;
-		}
-
-		v4f tvec(
-			ray.m_origin.x - v1.x,
-			ray.m_origin.y - v1.y,
-			ray.m_origin.z - v1.z,
-			0.f);
-
-		float inv_det = 1.f / det;
-		U = tvec.dot(pvec) * inv_det;
-
-		if (U < 0.f || U > 1.f)
-			return false;
-
-		v4f  qvec;
-		tvec.cross2(e1, qvec);
-		V = ray.m_direction.dot(qvec) * inv_det;
-
-		if (V < 0.f || U + V > 1.f)
-			return false;
-
-		T = e2.dot(qvec) * inv_det;
-
-		if (T < Epsilon) return false;
-
-		W = 1.f - U - V;
-		return true;
-	}
-
-	bool rayTest_Watertight(const yyRay& ray, bool withBackFace, float& T, float& U, float& V, float& W)
-	{
-		v1.w = 1.f;
-		v2.w = 1.f;
-		v3.w = 1.f;
-		const auto A = v2 - ray.m_origin;
-		const auto B = v3 - ray.m_origin;
-		const auto C = v1 - ray.m_origin;
-
-		const float Ax = A[ray.m_kx] - (ray.m_Sx * A[ray.m_kz]);
-		const float Ay = A[ray.m_ky] - (ray.m_Sy * A[ray.m_kz]);
-		const float Bx = B[ray.m_kx] - (ray.m_Sx * B[ray.m_kz]);
-		const float By = B[ray.m_ky] - (ray.m_Sy * B[ray.m_kz]);
-		const float Cx = C[ray.m_kx] - (ray.m_Sx * C[ray.m_kz]);
-		const float Cy = C[ray.m_ky] - (ray.m_Sy * C[ray.m_kz]);
-
-		U = (Cx * By) - (Cy * Bx);
-		V = (Ax * Cy) - (Ay * Cx);
-		W = (Bx * Ay) - (By * Ax);
-
-		if (U == 0.f || V == 0.f || W == 0.f)
-		{
-			double CxBy = (double)Cx * (double)By;
-			double CyBx = (double)Cy * (double)Bx;
-			U = (float)(CxBy - CyBx);
-
-			double AxCy = (double)Ax * (double)Cy;
-			double AyCx = (double)Ay * (double)Cx;
-			V = (float)(AxCy - AyCx);
-
-			double BxAy = (double)Bx * (double)Ay;
-			double ByAx = (double)By * (double)Ax;
-			W = (float)(BxAy - ByAx);
-		}
-
-		if (withBackFace)
-		{
-			if ((U<0.f || V<0.f || W < 0.f) &&
-				(U>0.f || V>0.f || W > 0.f))
-				return false;
-		}
-		else
-		{
-			if (U<0.f || V<0.f || W<0.f)
-				return false;
-		}
-
-		float det = U + V + W;
-
-		if (det == 0.f)
-			return false;
-
-		const float Az = ray.m_Sz * A[ray.m_kz];
-		const float Bz = ray.m_Sz * B[ray.m_kz];
-		const float Cz = ray.m_Sz * C[ray.m_kz];
-		const float Ts = (U*Az) + (V*Bz) + (W*Cz);
-
-		if (!withBackFace) // CULL
-		{
-			if (Ts < 0.f || Ts > Infinity *det)
-				return false;
-		}
-		else
-		{
-			if (det < 0.f && (Ts >= 0.f || Ts < Infinity * det))
-				return false;
-			else if (det > 0.f && (Ts <= 0.f || Ts > Infinity * det))
-				return false;
-		}
-
-		const float invDet = 1.f / det;
-		U = U*invDet;
-		V = V*invDet;
-		W = W*invDet;
-		T = Ts*invDet;
-		if (T < Epsilon)
-			return false;
-		return true;
-	}
-};
 
 // create miPolygonCreator by yourself
 // use it when you create new model
