@@ -10,6 +10,7 @@
 - save file
 - shortcuts for select loop/ring, for edit commands...
 - MinGW plugin
+- новые иконки
 ...
 
 - fix edge bridge

@@ -1219,7 +1219,7 @@ struct miMeshBuilder
 		m_isBegin = false;
 		CreateEdges();
 	}
-	void AddPolygon(miPolygonCreator* pc,/* bool weld,*/ bool triangulate, bool genNormals) {
+	void AddPolygon(miPolygonCreator* pc, bool genNormals) {
 		auto polygonVertexCount = pc->Size();
 		if (polygonVertexCount < 3)
 			return;

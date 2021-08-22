@@ -1389,7 +1389,7 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 				cv = cv->m_right;
 			}
 
-			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, false, false);
+			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, false);
 
 			if (c == l)
 				break;

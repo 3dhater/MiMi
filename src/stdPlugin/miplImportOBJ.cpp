@@ -132,6 +132,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	std::string hash;
 
 	miSDKImporterHelper importeHelper;
+	miPolygonCreator triangulationPolygonCreator;
 
 	while (*ptr)
 	{
@@ -259,7 +260,26 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 				importeHelper.m_polygonCreator.Add(pcPos, weld, false, pcNorm, pcUV);
 			}
 
-			importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, g_ImportOBJ_triangulate, genNormals);
+			if (g_ImportOBJ_triangulate && importeHelper.m_polygonCreator.Size() > 3)
+			{
+				u32 triCount = importeHelper.m_polygonCreator.Size() - 2;
+				auto _positions = importeHelper.m_polygonCreator.GetPositions();
+				auto _normals = importeHelper.m_polygonCreator.GetNormals();
+				auto _tcoords = importeHelper.m_polygonCreator.GetTCoords();
+				for (u32 i = 0; i < triCount; ++i)
+				{
+					triangulationPolygonCreator.Clear();
+					triangulationPolygonCreator.Add(_positions[0].m_first, weld, false, _normals[0], _tcoords[0]);
+					triangulationPolygonCreator.Add(_positions[i+1].m_first, weld, false, _normals[i+1], _tcoords[i+1]);
+					triangulationPolygonCreator.Add(_positions[i+2].m_first, weld, false, _normals[i+2], _tcoords[i+2]);
+
+					importeHelper.m_meshBuilder->AddPolygon(&triangulationPolygonCreator, genNormals);
+				}
+			}
+			else
+			{
+				importeHelper.m_meshBuilder->AddPolygon(&importeHelper.m_polygonCreator, genNormals);
+			}
 		}break;
 		case 'o':
 		case 'g':

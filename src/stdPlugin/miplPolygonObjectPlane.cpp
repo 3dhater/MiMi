@@ -179,7 +179,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(0.f, 1.f, 0.f),
 					v2f(uv_begin_x + uv_segment_size_w, uv_begin_y));
 
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x += segment_size_w;
@@ -220,7 +220,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(0.f, -1.f, 0.f),
 					v2f(uv_begin_x, uv_begin_y));
 				
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x += segment_size_w;
@@ -261,7 +261,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(1.f, 0.f, 0.f),
 					v2f(uv_begin_y - uv_segment_size_h, uv_begin_x - uv_segment_size_w));				
 
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x += segment_size_w;
@@ -302,7 +302,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(-1.f, 0.f, 0.f),
 					v2f(uv_begin_y + uv_segment_size_h, uv_begin_x + uv_segment_size_w));
 
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x -= segment_size_w;
@@ -343,7 +343,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(0.f, 0.f, 1.f),
 					v2f(uv_begin_x + uv_segment_size_w, uv_begin_y - uv_segment_size_h));
 
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x += segment_size_w;
@@ -384,7 +384,7 @@ void miplPolygonObjectPlane_generate(
 					v3f(0.f, 0.f, -1.f),
 					v2f(uv_begin_y - uv_segment_size_h, uv_begin_x - uv_segment_size_w));
 
-				mb->AddPolygon(pc, false, false);
+				mb->AddPolygon(pc, false);
 				pc->Clear();
 
 				begin_x += segment_size_w;
