@@ -1,7 +1,8 @@
 - OBJ importer/exporter
-- jpeg and other
 - OBJ materials import/export
 - save UV template
+- picture in UV editor
+- extrude on ctrl+shift
 - Clone object
 - P element
 - drag n drop texture
@@ -13,6 +14,7 @@
 - shortcuts for select loop/ring, for edit commands...
 - MinGW plugin
 - новые иконки
+- Assimp plugin
 ...
 
 - fix edge bridge

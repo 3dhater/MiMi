@@ -1975,6 +1975,17 @@ void miApplication::OnExport_openDialog() {
 	auto path = yySaveFileDialog("Export model", "Export", extension.data());
 	if (path)
 	{
+		// need add extension to path if it without
+		yyString e = util::stringGetExtension(*path, false);
+		yyStringA ea;
+		ea += e.data();
+
+		if (ea != extension)
+		{
+			path->append(".");
+			path->append(extension.data());
+		}
+
 		m_onExport_exporter->m_plugin->OnImportExport((const wchar_t*)path->data(), m_onExport_exporter->m_importerID);
 		yyDestroy(path);
 	}

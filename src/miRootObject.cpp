@@ -3,7 +3,9 @@
 #include "miSDKImpl.h"
 #include "miRootObject.h"
 
-miRootObject::miRootObject(miSDK*, miPlugin*) {}
+miRootObject::miRootObject(miSDK*, miPlugin*) {
+	m_objectTypeName = "_root";
+}
 miRootObject::~miRootObject() {}
 
 void miRootObject::OnDraw(miViewportDrawMode, miEditMode, float dt) {}

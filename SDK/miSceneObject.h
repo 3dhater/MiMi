@@ -9,6 +9,14 @@ enum miSceneObjectFlag
 	miSceneObjectFlag_CanConvertToEditableObject = BIT(0)
 };
 
+enum class miSceneObjectType : u32 {
+
+	// Object that have mesh data, and this data can be saved to file (export)
+	MeshObject,
+
+	// some other object like rootObkect
+	Helper,
+};
 
 // base class for all scene objects
 // children classe must be implemented in plugins
@@ -52,6 +60,19 @@ protected:
 	// you can disable material for some objects who have polygonal visual objects
 	bool m_useMaterial;
 
+	miSceneObjectType m_objectType;
+
+	// m_objectType is not enough.
+	// It should be like this:
+	//  m_objectType = miSceneObjectType::MeshObject;
+	//  m_objectTypeName = "mesh_plane";
+	//  or m_objectTypeName = "mesh_sphere";
+	//  or m_objectTypeName = "editable_mesh";
+	//  m_objectType = miSceneObjectType::Helper;
+	//  m_objectTypeName = "_root";
+	miString m_objectTypeName;
+
+
 	friend class miApplication;
 	friend class miGizmo;
 	friend struct miViewport;
@@ -68,9 +89,12 @@ public:
 		m_isSelected = false;
 		m_distanceToCamera = 0.f;
 		m_cursorIntersectionPointDistance = 0.f;
+		m_objectType = miSceneObjectType::Helper;
 	}
 	virtual ~miSceneObject() {}
 	
+	const miString& GetObjectTypeName() { return m_objectTypeName; }
+	miSceneObjectType GetObjectType() { return m_objectType; }
 	bool IsUVSelected() {return m_isUVSelected;}
 
 	/* correct only when

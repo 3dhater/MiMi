@@ -95,6 +95,7 @@ public:
 	virtual miEditMode GetEditMode();
 	virtual void SetEditMode(miEditMode) override;
 	virtual void SetTransformMode(miTransformMode) override;
+	virtual miSceneObject* GetRootObject() override;
 
 	virtual void UpdateSceneAabb();
 

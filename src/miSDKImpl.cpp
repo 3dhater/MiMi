@@ -583,3 +583,7 @@ void miSDKImpl::AddEdgeToSelection(miEdge* e, miSceneObject* o) {
 void miSDKImpl::AddPolygonToSelection(const miPair<miPolygon*,f32>& p, miSceneObject* o) {
 	m_polygonsForSelect.push_back(miPair<miPair<miPolygon*, f32>, miSceneObject*>(p, o));
 }
+
+miSceneObject* miSDKImpl::GetRootObject() {
+	return (miSceneObject*)g_app->m_rootObject;
+}

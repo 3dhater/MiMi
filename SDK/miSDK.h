@@ -318,6 +318,8 @@ public:
 	virtual v3f GetCursorPosition3D() = 0;
 	virtual v3f GetCursorPosition3DFirstClick() = 0;
 
+	virtual miSceneObject* GetRootObject() = 0;
+
 	virtual miEditMode GetEditMode() = 0;
 	virtual void SetEditMode(miEditMode) = 0;
 	virtual void SetTransformMode(miTransformMode) = 0;

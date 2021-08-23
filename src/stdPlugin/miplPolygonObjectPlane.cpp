@@ -443,6 +443,8 @@ void miplPolygonObjectPlane_generate(
 }
 
 miplPolygonObjectPlane::miplPolygonObjectPlane(miSDK* sdk, miPlugin* p) {
+	m_objectTypeName = "mesh_plane";
+
 	m_sdk = sdk;
 	m_plugin = p;
 	m_pluginImpl = (miplStd*)p;
