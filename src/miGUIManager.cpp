@@ -88,7 +88,7 @@ void gui_buttonMaterials_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetObjectParametersMode(miObjectParametersMode::Materials);
 }
 void gui_buttonMaterialsAdd_onRelease(yyGUIElement* elem, s32 m_id) {
-	g_app->CreateMaterial();
+	g_app->MaterialCreate();
 }
 void gui_buttonMaterialsDelete_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteSelectedMaterial();
@@ -115,8 +115,9 @@ void gui_buttonMaterialsLoadImage_onRelease(yyGUIElement* elem, s32 m_id) {
 void gui_buttonMaterialsDeleteImage_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteImageFromMaterial();
 }
-void gui_lbMaterials_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
+void gui_lbMaterials_onSelect(yyGUIListBox*, yyGUIListBoxItem* item) {
 	g_guiManager->UpdateMaterialMapPictureBox();
+	wprintf(L"%s\n", item->GetText());
 }
 void gui_lbMaps_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
 	g_guiManager->UpdateMaterialMapPictureBox();
@@ -127,7 +128,7 @@ bool gui_textInput_onChar(wchar_t c) {
 		return false;
 	return true;
 }
-void gui_textInput_onEnter(yyGUIElement* elem, s32 m_id) {
+void gui_rename_onEnter(yyGUIElement* elem, s32 m_id) {
 	yyGUITextInput* ti = (yyGUITextInput*)elem;
 	if (ti->m_textElement->m_text.size())
 	{
@@ -142,7 +143,7 @@ void gui_textInput_onEnter(yyGUIElement* elem, s32 m_id) {
 	}
 	g_app->UpdateSelectedObjectsArray();
 }
-void gui_textInput_onEscape(yyGUIElement* elem, s32 m_id) {
+void gui_rename_onEscape(yyGUIElement* elem, s32 m_id) {
 	yyGUITextInput* ti = (yyGUITextInput*)elem;
 	ti->DeleteAll();
 	g_app->UpdateSelectedObjectsArray();
@@ -294,6 +295,25 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 }
 void gui_exportButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_Exporters);
+}
+
+void gui_renameMaterial_onEnter(yyGUIElement* elem, s32 m_id) {
+	printf("OnEnter\n");
+	yyGUITextInput* ti = (yyGUITextInput*)elem;
+	if (ti->m_textElement->m_text.size())
+	{
+		for (u32 i = 0, sz = g_guiManager->m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+		{
+			auto item = g_guiManager->m_gui_listbox_materials->GetItem(i);
+			if (item->IsSelected())
+			{
+				miMaterial* mat = (miMaterial*)item->GetUserData();
+				g_app->MaterialRename(mat, ti->m_textElement->m_text.data());
+				item->SetText(mat->m_name.data());
+				break;
+			}
+		}
+	}
 }
 
 miGUIManager::miGUIManager(){
@@ -486,8 +506,8 @@ miGUIManager::miGUIManager(){
 	m_textInput_rename->m_align = m_textInput_rename->AlignRightTop;
 	m_textInput_rename->UseDefaultText(L"Object name", yyColor(0.813f));
 	m_textInput_rename->m_onCharacter = gui_textInput_onChar;
-	m_textInput_rename->m_onEnter = gui_textInput_onEnter;
-	m_textInput_rename->m_onEscape = gui_textInput_onEscape;
+	m_textInput_rename->m_onEnter = gui_rename_onEnter;
+	m_textInput_rename->m_onEscape = gui_rename_onEscape;
 	//m_textInput_rename->m_onClickLMB = gui_textInput_onLMB; // need other callback like onActivate
 	/*m_textInput->m_bgColor.set(1.f, 0.f, 0.f, 0.1f);
 	m_textInput->m_bgColorHover.set(0.f, 1.f, 0.f, 0.1f);
@@ -866,6 +886,7 @@ miGUIManager::miGUIManager(){
 				y + matLbSz),
 			m_fontDefault, m_gui_drawGroup_materials);
 		m_gui_listbox_materials->m_onSelect = gui_lbMaterials_onSelect;
+		m_gui_listbox_materials->m_onTextEnter = gui_renameMaterial_onEnter;
 		m_gui_group_materials->AddElement(m_gui_listbox_materials);
 		y += matLbSz;
 

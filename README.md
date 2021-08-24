@@ -2,11 +2,9 @@
 
 New 3D editor. Polygonal modeling.
 
-Import:
+Import/Export:
 
-* OBJ
-
-Export:
+* OBJ  I/E
 
 
 

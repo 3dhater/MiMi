@@ -364,9 +364,10 @@ public:
 	void OnSelect();
 
 	yyArraySimple<miPair<miMaterial*, u8>*> m_materials;
-	miMaterial* CreateMaterial();
+	miMaterial* MaterialCreate();
 	yyGPUTexture* MaterialGetTexture(const wchar_t*);
 	void MaterialDeleteTexture(yyGPUTexture*);
+	void MaterialRename(miMaterial* m, const wchar_t* newName);
 
 	void CallPluginGUIOnCancel();
 

@@ -341,6 +341,40 @@ miApplication::~miApplication() {
 	if (m_inputContext) yyDestroy(m_inputContext);
 }
 
+void miApplication::MaterialRename(miMaterial* m, const wchar_t* newName) {
+	auto _checkName = [](miApplication* app, const miString& name) ->bool
+	{
+		for (u32 i = 0; i < app->m_materials.m_size; ++i) 
+		{
+			if (app->m_materials.m_data[i]->m_first->m_name == name)
+				return false;
+		}
+		return true;
+	};
+
+	miString n;
+	n = newName;
+
+	if (_checkName(this, n))
+	{
+		m->m_name = n;
+		return;
+	}
+
+	for (u32 i = 0; i < 0xffffffff; ++i)
+	{
+		n = newName;
+		n += i;
+
+		if (_checkName(this, n))
+		{
+			m->m_name = n;
+			return;
+		}
+	}
+
+}
+
 void miApplication::MaterialDeleteTexture(yyGPUTexture* t) {
 	assert(t);
 	t->Release();
@@ -350,7 +384,7 @@ yyGPUTexture* miApplication::MaterialGetTexture(const wchar_t* fn) {
 	return yyGetTexture(fn);
 }
 
-miMaterial* miApplication::CreateMaterial() {
+miMaterial* miApplication::MaterialCreate() {
 	miMaterial* m = 0;
 
 	for (u32 i = 0; i < m_materials.m_size; ++i) {

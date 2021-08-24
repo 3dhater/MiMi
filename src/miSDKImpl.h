@@ -129,6 +129,9 @@ public:
 	virtual void SetPickVertexCallbacks(bool(*onIsGoodVertex)(miSceneObject*, miVertex*), void(*onSelectFirst)(miSceneObject* o, miVertex*),
 		void(*onSelectSecond)(miSceneObject* o, miVertex*, miVertex*), void(*onCancel)()) override;
 
+	virtual miMaterial* CreateMaterial(const wchar_t* name) override;
+	virtual miTexture GetTexture(const wchar_t*) override;
+
 	friend class miApplication;
 	friend void window_callbackOnCommand(s32 commandID);
 };

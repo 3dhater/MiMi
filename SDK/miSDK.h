@@ -217,8 +217,7 @@ enum class miKeyboardModifier : u32 {
 #include "miSelectionFrust.h"
 #include "miVisualObject.h"
 #include "miSceneObject.h"
-
-
+#include "miTexture.h"
 
 typedef void(*miCallback_onClickPopup)(u32 id);
 typedef void(miPlugin::*miCallback_onUpdate)();
@@ -311,6 +310,9 @@ public:
 	virtual miPluginGUI* CreatePluginGUI(miPluginGUIType) = 0;
 
 	virtual miVisualObject* CreateVisualObject(miSceneObject* parent, miVisualObjectType type) = 0;
+
+	virtual miMaterial* CreateMaterial(const wchar_t* name) = 0;
+	virtual miTexture  GetTexture(const wchar_t*) = 0;
 
 	virtual miViewportCameraType GetActiveViewportCameraType() = 0;
 

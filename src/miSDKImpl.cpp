@@ -633,3 +633,15 @@ void miSDKImpl::AddPolygonToSelection(const miPair<miPolygon*,f32>& p, miSceneOb
 miSceneObject* miSDKImpl::GetRootObject() {
 	return (miSceneObject*)g_app->m_rootObject;
 }
+
+miMaterial* miSDKImpl::CreateMaterial(const wchar_t* name) {
+	auto m = g_app->MaterialCreate();
+	g_app->MaterialRename(m, name);
+	return m;
+}
+
+miTexture miSDKImpl::GetTexture(const wchar_t* fn) {
+	miTexture t;
+	t.m_implementationPtr = g_app->MaterialGetTexture(fn);
+	return t;
+}
