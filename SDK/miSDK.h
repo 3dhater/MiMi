@@ -299,6 +299,9 @@ public:
 	}
 };
 
+
+
+
 class miSDK
 {
 public:

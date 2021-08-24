@@ -70,7 +70,7 @@ protected:
 	//  or m_objectTypeName = "editable_mesh";
 	//  m_objectType = miSceneObjectType::Helper;
 	//  m_objectTypeName = "_root";
-	miString m_objectTypeName;
+	miStringA m_objectTypeName;
 
 
 	friend class miApplication;
@@ -93,7 +93,7 @@ public:
 	}
 	virtual ~miSceneObject() {}
 	
-	const miString& GetObjectTypeName() { return m_objectTypeName; }
+	const miStringA& GetObjectTypeName() { return m_objectTypeName; }
 	miSceneObjectType GetObjectType() { return m_objectType; }
 	bool IsUVSelected() {return m_isUVSelected;}
 

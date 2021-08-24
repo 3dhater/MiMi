@@ -10,15 +10,15 @@ const size_t miString_wordSize = 16;
 
 // work with this only inside one module
 // application must change text through plugin
-class miString
+template<typename char_type>
+class miString_base
 {
-	typedef wchar_t char_type;
 	typedef char_type* pointer;
 	typedef const char_type* const_pointer;
 	typedef char_type& reference;
 	typedef const char_type&  const_reference;
-	typedef miString this_type;
-	typedef const miString& this_const_reference;
+	typedef miString_base this_type;
+	typedef const miString_base& this_const_reference;
 
 	pointer m_data;
 	size_t     m_allocated;
@@ -68,35 +68,35 @@ class miString
 public:
 	typedef char_type value_type;
 
-	miString()
+	miString_base()
 		:m_data(nullptr), m_allocated(miString_wordSize), m_size(0)
 	{
 		reallocate(m_allocated);
 	}
 
 	template<typename other_type>
-	miString(const other_type * str)
+	miString_base(const other_type * str)
 		: m_data(nullptr), m_allocated(miString_wordSize), m_size(0)
 	{
 		reallocate(m_allocated);
 		assign(str);
 	}
 
-	miString(this_const_reference str)
+	miString_base(this_const_reference str)
 		:  m_data(nullptr), m_allocated(miString_wordSize), m_size(0)
 	{
 		reallocate(m_allocated);
 		assign(str);
 	}
 
-	miString(this_type&& str)
+	miString_base(this_type&& str)
 		: m_data(nullptr), m_allocated(miString_wordSize), m_size(0)
 	{
 		reallocate(m_allocated);
 		assign(str);
 	}
 
-	miString(char_type c)
+	miString_base(char_type c)
 		:  m_data(nullptr), m_allocated(miString_wordSize), m_size(0)
 	{
 		size_t new_size = 1u;
@@ -106,7 +106,7 @@ public:
 		m_data[m_size] = static_cast<char_type>(0x0);
 	}
 
-	~miString(){
+	~miString_base(){
 		if (m_data)
 			miFree( m_data );
 	}
@@ -138,7 +138,7 @@ public:
 		size_t new_size = getlen(str) + m_size;
 
 		if ((new_size + 1u) > m_allocated)
-			reallocate((new_size + 1u) + miString_wordSize);
+			reallocate((new_size + 1u) + (1 + (u32)(m_size * 0.5f)));
 
 		copy(&m_data[m_size], str);
 
@@ -153,7 +153,7 @@ public:
 	void push_back(char_type c) {
 		size_t new_size = m_size + 1u;
 		if ((new_size + 1u) > m_allocated)
-			reallocate((new_size + 1u) + miString_wordSize);
+			reallocate((new_size + 1u) + (1 + (u32)(m_size * 0.5f)));
 		m_data[m_size] = c;
 		m_size = new_size;
 		m_data[m_size] = 0;
@@ -161,7 +161,7 @@ public:
 	void append(char_type c) {
 		size_t new_size = m_size + 1u;
 		if ((new_size + 1u) > m_allocated)
-			reallocate((new_size + 1u) + miString_wordSize);
+			reallocate((new_size + 1u) + (1 + (u32)(m_size * 0.5f)));
 		m_data[m_size] = c;
 		m_size = new_size;
 		m_data[m_size] = 0;
@@ -194,6 +194,11 @@ public:
 	void append(float c)	{
 		char buf[32u];
 		::std::sprintf(buf, "%.4f", c);
+		append(buf);
+	}
+	void append_float(float c) {
+		char buf[32u];
+		::std::sprintf(buf, "%.7f", c);
 		append(buf);
 	}
 
@@ -306,7 +311,7 @@ public:
 	void shrink_to_fit(){
 		if (m_size)
 		{
-			if (m_allocated > (m_size + miString_wordSize))
+			if (m_allocated > (m_size + (1 + (u32)(m_size * 0.5f))))
 			{
 				reallocate(m_size + 1u);
 				m_data[m_size] = static_cast<char_type>(0x0);
@@ -345,5 +350,8 @@ public:
 		return false;
 	}
 };
+
+typedef miString_base<wchar_t> miString;
+typedef miString_base<char> miStringA;
 
 #endif

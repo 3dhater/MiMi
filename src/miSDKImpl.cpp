@@ -9,7 +9,44 @@
 
 extern miApplication * g_app;
 
+template<typename _type>
+class ppTest
+{
+	struct _node
+	{
+		_node()
+		{
+			m_key = 0;
+			m_left = 0;
+			m_right = 0;
+		}
 
+		u8 m_key;
+		_type m_data;
+
+		_node* m_left;
+		_node* m_right;
+	};
+
+	void _insert(u8* ptr, const _type& data)
+	{
+		
+	}
+
+	_node * m_head;
+
+public:
+	ppTest() :m_head(0) {}
+	~ppTest() {}
+
+	void insert(const char* key, const _type& data) {
+		if (strlen(key) == 0)
+			return;
+
+		u8* ptr = (u8*)key.data();
+		_insert(ptr, data);
+	}
+};
 
 miSDKImpl::miSDKImpl() {
 	m_selectObject_onSelect = 0;
@@ -19,6 +56,15 @@ miSDKImpl::miSDKImpl() {
 	m_pickVertex_onIsGoodVertex = 0;
 	m_pickVertex_onSelectFirst = 0;
 	m_pickVertex_onSelectSecond = 0;
+
+	/*ppTest<int> test;
+	test.insert("1", 1);
+	test.insert("2", 2);
+	test.insert("3", 3);
+	test.insert("0", 0);
+	test.insert("12", 12);
+
+	printf("E\n");*/
 }
 
 miSDKImpl::~miSDKImpl() {

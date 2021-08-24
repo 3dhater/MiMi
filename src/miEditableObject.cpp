@@ -339,6 +339,7 @@ void miApplication::_initEditableObjectGUI() {
 
 miEditableObject::miEditableObject(miSDK* sdk, miPlugin*) {
 	m_objectTypeName = "editable_mesh";
+	m_objectType = miSceneObjectType::MeshObject;
 
 	m_UVScale.set(1.f, 1.f);
 	m_addPolygonsWhenVertexChamfer = true;

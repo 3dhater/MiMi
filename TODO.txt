@@ -1,10 +1,7 @@
-- OBJ importer/exporter
 - OBJ materials import/export
 - save UV template
 - picture in UV editor
 - extrude on ctrl+shift
-- Clone object
-- P element
 - drag n drop texture
 - shaders
 - reference
@@ -15,6 +12,8 @@
 - MinGW plugin
 - новые иконки
 - Assimp plugin
+- размер для плоскости
+- rename project Pipa3D
 ...
 
 - fix edge bridge
