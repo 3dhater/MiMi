@@ -109,7 +109,7 @@ public:
 
 	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name);
 	virtual void RemoveObjectFromScene(miSceneObject*);
-	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name);
+	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name, miMaterial* optionalMaterial);
 
 	virtual size_t FileSize(const char* fileName);
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) override;

@@ -300,13 +300,14 @@ size_t miSDKImpl::FileSize(const char* fileName) {
 	return yy_fs::file_size(fileName);
 }
 
-void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar_t* name) {
+void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar_t* name, miMaterial* optionalMaterial) {
 	wprintf(L"Hello %s\n", name);
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
 
 	this->AppendMesh(newObject->m_mesh, ih->m_meshBuilder->m_mesh);
 
+	g_app->MaterialAssign(optionalMaterial, newObject);
 	//newObject->m_meshBuilder = ih->m_meshBuilder;
 	newObject->m_visualObject_polygon->CreateNewGPUModels(newObject->m_mesh);
 	newObject->m_visualObject_vertex->CreateNewGPUModels(newObject->m_mesh);

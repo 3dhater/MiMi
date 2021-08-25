@@ -349,7 +349,7 @@ public:
 
 	virtual void AddObjectToScene(miSceneObject*, const wchar_t* name) = 0;
 	virtual void RemoveObjectFromScene(miSceneObject*) = 0; // only remove, not delete
-	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*,const wchar_t* name) = 0;
+	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*,const wchar_t* name, miMaterial* optionalMaterial) = 0;
 
 	virtual size_t FileSize(const char* fileName) = 0;
 

@@ -78,7 +78,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	std::wcsrtombs(&mbstr[0], &fileName, mbstr.size(), &state);
 	const char* fileNameA = &mbstr[0];
 
-	g_sdk->CreateMaterial(L"New material");
+	auto material = g_sdk->CreateMaterial(L"New material");
 
 	FILE* file = fopen(fileNameA, "rb");
 	auto file_size = (size_t)g_sdk->FileSize(fileNameA);
@@ -305,7 +305,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 				if (importeHelper.m_meshBuilder->m_isBegin)
 				{
 					importeHelper.m_meshBuilder->End();
-					g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data());
+					g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data(), material);
 					importeHelper.Drop();
 					importeHelper.Create();
 					importeHelper.m_meshBuilder->Begin();
@@ -322,7 +322,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	if (importeHelper.m_meshBuilder->m_isBegin)
 	{
 		importeHelper.m_meshBuilder->End();
-		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data());
+		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data(), material);
 		importeHelper.Drop();
 	}
 

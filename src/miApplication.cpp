@@ -355,24 +355,53 @@ void miApplication::MaterialRename(miMaterial* m, const wchar_t* newName) {
 	miString n;
 	n = newName;
 
+	bool good = false;
+
 	if (_checkName(this, n))
 	{
 		m->m_name = n;
-		return;
+		good = true;
 	}
 
-	for (u32 i = 0; i < 0xffffffff; ++i)
+	if (!good)
 	{
-		n = newName;
-		n += i;
-
-		if (_checkName(this, n))
+		for (u32 i = 0; i < 0xffffffff; ++i)
 		{
-			m->m_name = n;
-			return;
+			n = newName;
+			n += i;
+
+			if (_checkName(this, n))
+			{
+				m->m_name = n;
+				good = true;
+			}
 		}
 	}
 
+	if (good)
+	{
+		for (u32 i = 0, sz = m_GUIManager->m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+		{
+			auto item = m_GUIManager->m_gui_listbox_materials->GetItem(i);
+			miMaterial* _m = (miMaterial*)item->GetUserData();
+			if (_m == m)
+				item->SetText(n.data());
+		}
+	}
+}
+
+void miApplication::MaterialAssign(miMaterial* m, miSceneObject* object) {
+	if (!m)
+		return;
+	for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
+	{
+		auto pair = g_app->m_materials.m_data[o];
+		if (m == pair->m_first)
+		{
+			object->m_material = pair;
+			return;
+		}
+	}
 }
 
 void miApplication::MaterialDeleteTexture(yyGPUTexture* t) {

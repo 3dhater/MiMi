@@ -309,7 +309,7 @@ void gui_renameMaterial_onEnter(yyGUIElement* elem, s32 m_id) {
 			{
 				miMaterial* mat = (miMaterial*)item->GetUserData();
 				g_app->MaterialRename(mat, ti->m_textElement->m_text.data());
-				item->SetText(mat->m_name.data());
+				//item->SetText(mat->m_name.data());
 				break;
 			}
 		}
@@ -1388,17 +1388,10 @@ void miGUIManager::AssignSelectedMaterial() {
 		if (item->IsSelected())
 		{
 			miMaterial* mat = (miMaterial*)item->GetUserData();
-			for (u32 o = 0; o < g_app->m_materials.m_size; ++o)
+			
+			for (u32 o2 = 0; o2 < g_app->m_selectedObjects.m_size; ++o2)
 			{
-				auto pair = g_app->m_materials.m_data[o];
-				if (mat == pair->m_first)
-				{
-					for (u32 o2 = 0; o2 < g_app->m_selectedObjects.m_size; ++o2)
-					{
-						g_app->m_selectedObjects.m_data[o2]->m_material = pair;
-					}
-					return;
-				}
+				g_app->MaterialAssign(mat, g_app->m_selectedObjects.m_data[o2]);
 			}
 			break;
 		}
