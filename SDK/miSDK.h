@@ -352,6 +352,14 @@ public:
 	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*,const wchar_t* name, miMaterial* optionalMaterial) = 0;
 
 	virtual size_t FileSize(const char* fileName) = 0;
+	virtual size_t FileSize(const wchar_t* fileName) = 0;
+	virtual bool FileExist(const char* fileName) = 0;
+	virtual bool FileExist(const wchar_t* fileName) = 0;
+	virtual miString FileGetRelativePath(const char* fileName) = 0;
+	virtual miString FileGetRelativePath(const wchar_t* fileName) = 0;
+	
+	virtual miStringA StringWideToMultiByte(const wchar_t* wstr) = 0;
+
 
 	// only for miDefaultAllocator for this mesh
 	// obviously

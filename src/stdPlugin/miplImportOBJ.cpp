@@ -55,9 +55,13 @@ unsigned char * OBJReadFace(unsigned char * ptr, OBJFace& f, char * s);
 unsigned char * OBJReadWord(unsigned char * ptr, miString& str);
 
 bool g_ImportOBJ_triangulate = false;
+bool g_ImportOBJ_readMTL = true;
 
 void miplStd_ImportOBJ_Tiangulate_onClick(bool isChecked) {
 	g_ImportOBJ_triangulate = isChecked;
+}
+void miplStd_ImportOBJ_MTL_onClick(bool isChecked) {
+	g_ImportOBJ_readMTL = isChecked;
 }
 
 void miplStd_initGuiForImportOBJ(miPluginGUI* gui) {
@@ -66,22 +70,79 @@ void miplStd_initGuiForImportOBJ(miPluginGUI* gui) {
 	gui->AddText(v2f(X, Y), L"Import OBJ parameters: ", 0, 0);
 
 	Y += 15.f;
+	gui->AddCheckBox(v2f(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, g_ImportOBJ_triangulate, 0);
+	Y += 15.f;
+	gui->AddCheckBox(v2f(X, Y), L"Read Material", miplStd_ImportOBJ_MTL_onClick, g_ImportOBJ_readMTL, 0);
+}
 
-	gui->AddCheckBox(v2f(X,Y), L"Triangulate", miplStd_ImportOBJ_Tiangulate_onClick, false, 0);
+struct OBJMaterial
+{
+	OBJMaterial() {
+		m_specularExponent = 10.f;
+		m_opacity = 1.f;
+		m_transparency = 0.f;
+		m_refraction = 1.f;
+	}
+
+	miString m_name; // newmtl
+	v3f m_ambient;   // Ka
+	v3f m_diffuse;   // Kd
+	v3f m_specular;  // Ks
+	f32 m_specularExponent; // Ns
+	f32 m_opacity;    // d
+	f32 m_transparency; // Tr
+	f32 m_refraction;  // Ni
+	
+	miString m_map_diffuse; // map_Kd  
+	miString m_map_ambient; // map_Ka 
+	miString m_map_specular; // map_Ks   
+	miString m_map_specularHighlight; // map_Ns    
+	miString m_map_alpha; // map_d     
+	miString m_map_bump; // map_bump bump 
+	miString m_map_displacement; // disp 
+	miString m_map_reflection; // refl  
+};
+
+void miplStd_ImportOBJ_MTL(
+	miArray<OBJMaterial*>& materials, 
+	const char* obj_fileName,
+	const char* mtl_fileName
+	) 
+{
+	miStringA mtlPath = mtl_fileName;
+	auto relPath = g_sdk->FileGetRelativePath(obj_fileName);
+	
+	for (u32 i = 0, sz = relPath.size(); i < sz; ++i)
+	{
+		auto c = relPath.pop_back_return();
+		if (c == L'/' || c == L'\\')
+		{
+			relPath += c;
+			break;
+		}
+	}
+	relPath += mtl_fileName;
+	if (g_sdk->FileExist(relPath.data()))
+	{
+
+	}
 }
 
 void miplStd_ImportOBJ(const wchar_t* fileName) {
 	assert(fileName);
-	std::mbstate_t state = std::mbstate_t();
+	/*std::mbstate_t state = std::mbstate_t();
 	std::size_t len = 1 + std::wcsrtombs(nullptr, &fileName, 0, &state);
 	std::vector<char> mbstr(len);
 	std::wcsrtombs(&mbstr[0], &fileName, mbstr.size(), &state);
-	const char* fileNameA = &mbstr[0];
+	const char* fileNameA = &mbstr[0];*/
+	auto mbStr = g_sdk->StringWideToMultiByte(fileName);
 
-	auto material = g_sdk->CreateMaterial(L"New material");
+	miArray<OBJMaterial*> obj_materials;
+	
+	miMaterial* material = 0;// g_sdk->CreateMaterial(L"New material");
 
-	FILE* file = fopen(fileNameA, "rb");
-	auto file_size = (size_t)g_sdk->FileSize(fileNameA);
+	FILE* file = fopen(mbStr.data(), "rb");
+	auto file_size = (size_t)g_sdk->FileSize(mbStr.data());
 
 	std::vector<unsigned char> file_byte_array((unsigned int)file_size + 2);
 
@@ -132,14 +193,28 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	{
 		switch (*ptr)
 		{
-		case '#':
+		case 'm'://mtllib
+		{
+			miString mtlWord;
+			ptr = OBJReadWord(ptr, mtlWord);
+			//wprintf(L"WORD: %s\n", mtlWord.data());
+
+			if (mtlWord == "mtllib")
+			{
+				ptr = OBJReadWord(ptr, mtlWord);
+				//wprintf(L"MTL: %s\n", mtlWord.data());
+				miStringA stra;
+				stra = mtlWord.data();
+				miplStd_ImportOBJ_MTL(obj_materials, mbStr.data(), stra.data());
+			}
+		}break;
 		case 's':
 		case 'l':
 		case 'u'://usemtl
 		case 'c'://curv
-		case 'm'://mtllib
 		case 'p'://parm
 		case 'd'://deg
+		case '#':
 		case 'e'://end
 			ptr = OBJNextLine(ptr);
 			break;
@@ -327,6 +402,11 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	}
 
 	g_sdk->UpdateSceneAabb();
+
+	for (u32 i = 0; i < obj_materials.m_size; ++i)
+	{
+		delete obj_materials.m_data[i];
+	}
 }
 
 unsigned char * OBJNextLine(unsigned char * ptr)

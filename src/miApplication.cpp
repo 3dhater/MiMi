@@ -377,7 +377,7 @@ void miApplication::MaterialRename(miMaterial* m, const wchar_t* newName) {
 			}
 		}
 	}
-
+	
 	if (good)
 	{
 		for (u32 i = 0, sz = m_GUIManager->m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)

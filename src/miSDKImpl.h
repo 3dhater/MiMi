@@ -111,7 +111,15 @@ public:
 	virtual void RemoveObjectFromScene(miSceneObject*);
 	virtual void CreateSceneObjectFromHelper(miSDKImporterHelper*, const wchar_t* name, miMaterial* optionalMaterial);
 
-	virtual size_t FileSize(const char* fileName);
+	virtual size_t FileSize(const char* fileName) override;
+	virtual size_t FileSize(const wchar_t* fileName) override;
+	virtual bool FileExist(const char* fileName) override;
+	virtual bool FileExist(const wchar_t* fileName) override;
+	virtual miString FileGetRelativePath(const char* fileName) override;
+	virtual miString FileGetRelativePath(const wchar_t* fileName) override;
+
+	virtual miStringA StringWideToMultiByte(const wchar_t* wstr) override;
+
 	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) override;
 	virtual void AppendMesh(miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* mesh_with_miPoolAllocator, miMesh* other)override;
 

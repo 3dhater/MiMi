@@ -953,7 +953,7 @@ m_gui_group_materials->AddElement(addButton);
 			m_gui_group_materials->AddElement(t);
 			y += m_fontDefault->m_maxHeight;
 		}
-		f32 mapsLbSz = 50.f;
+		f32 mapsLbSz = 100.f;
 		m_gui_listbox_maps = yyGUICreateListBox(
 			v4f(
 				x,
@@ -971,6 +971,15 @@ m_gui_group_materials->AddElement(addButton);
 			s.clear();
 			s = L"Map";
 			s += i;
+			if (i == 0) s = L"Diffuse";
+			else if (i == 1) s = L"Normal/Bump";
+			else if (i == 2) s = L"Specular Highlight";
+			else if (i == 3) s = L"Specular Color";
+			else if (i == 4) s = L"Ambient Color";
+			else if (i == 5) s = L"Alpha";
+			else if (i == 6) s = L"Displacement";
+			else if (i == 7) s = L"Reflection";
+
 			m_gui_listbox_maps->AddItem(s.data());
 		}
 		{

@@ -299,6 +299,48 @@ void miSDKImpl::RemoveObjectFromScene(miSceneObject* o) {
 size_t miSDKImpl::FileSize(const char* fileName) {
 	return yy_fs::file_size(fileName);
 }
+size_t miSDKImpl::FileSize(const wchar_t* fileName) {
+	return yy_fs::file_size(fileName);
+}
+bool miSDKImpl::FileExist(const char* fileName) {
+	return yy_fs::exists(fileName);
+}
+bool miSDKImpl::FileExist(const wchar_t* fileName) {
+	return yy_fs::exists(fileName);
+}
+miString miSDKImpl::FileGetRelativePath(const char* fileName) {
+	miString s;
+	s = fileName;
+	auto p = yyGetRelativePath(s.data());
+	if (p)
+	{
+		s = p->data();
+		yyDestroy(p);
+	}
+	return s;
+}
+miString miSDKImpl::FileGetRelativePath(const wchar_t* fileName) {
+	miString s;
+	s = fileName;
+	auto p = yyGetRelativePath(s.data());
+	if (p)
+	{
+		s = p->data();
+		yyDestroy(p);
+	}
+	return s;
+}
+
+miStringA miSDKImpl::StringWideToMultiByte(const wchar_t* wstr) {
+	std::mbstate_t state = std::mbstate_t();
+	std::size_t len = 1 + std::wcsrtombs(nullptr, &wstr, 0, &state);
+	std::vector<char> mbstr(len);
+	std::wcsrtombs(&mbstr[0], &wstr, mbstr.size(), &state);
+
+	miStringA s;
+	s += &mbstr[0];
+	return s;
+}
 
 void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar_t* name, miMaterial* optionalMaterial) {
 	wprintf(L"Hello %s\n", name);
