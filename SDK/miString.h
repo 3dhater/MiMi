@@ -308,6 +308,33 @@ public:
 		return r;
 	}
 
+	void replace(char_type a, char_type b)
+	{
+		for (size_t i = 0; i < m_size; ++i)
+		{
+			if (m_data[i] == a)
+				m_data[i] = b;
+		}
+	}
+
+	void pop_back_before(char_type before_this) {
+		if (size())
+			pop_back();
+
+		if (size())
+		{
+			for (size_t i = size() - 1u; i >= 0u; --i)
+			{
+				if (m_data[i] == (char_type)before_this)
+					break;
+				else
+					pop_back();
+				if (!i)
+					break;
+			}
+		}
+	}
+
 	void shrink_to_fit(){
 		if (m_size)
 		{

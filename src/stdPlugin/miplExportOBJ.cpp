@@ -11,7 +11,7 @@ bool g_ExportOBJ_optimize = true;
 bool g_ExportOBJ_writeNormals = true;
 bool g_ExportOBJ_writeUVs = true;
 bool g_ExportOBJ_createMTL = true;
-bool g_ExportOBJ_onlySelected = true;
+bool g_ExportOBJ_onlySelected = false;
 u32 g_ExportOBJ_vIndex = 0;
 u32 g_ExportOBJ_vtIndex = 0;
 u32 g_ExportOBJ_vnIndex = 0;
@@ -147,7 +147,32 @@ public:
 			WriteNormal(normal, vn_str);
 	}
 
-	void WriteObject(FILE* file,miSceneObject* object)
+	void WriteMaterial(FILE* mtl_file, miMaterial* m)
+	{
+		fprintf(mtl_file, "\r\n");
+
+		miStringA astr;
+		astr += m->m_name.data();
+
+		fprintf(mtl_file, "newmtl %s\r\n", astr.data());
+		fprintf(mtl_file, "\tNs %.4f\r\n", m->m_specularExponent);
+		fprintf(mtl_file, "\tNi %.4f\r\n", m->m_refraction);
+		fprintf(mtl_file, "\td %.4f\r\n", m->m_opacity);
+		fprintf(mtl_file, "\tTr %.4f\r\n", 1.f - m->m_opacity);
+		fprintf(mtl_file, "\tKa %.4f %.4f %.4f\r\n", m->m_colorAmbient.x, m->m_colorAmbient.y, m->m_colorAmbient.z);
+		fprintf(mtl_file, "\tKd %.4f %.4f %.4f\r\n", m->m_colorDiffuse.x, m->m_colorDiffuse.y, m->m_colorDiffuse.z);
+		fprintf(mtl_file, "\tKs %.4f %.4f %.4f\r\n", m->m_colorSpecular.x, m->m_colorSpecular.y, m->m_colorSpecular.z);
+
+		if (m->m_maps[m->mapSlot_Diffuse].m_texturePath.size())
+		{
+			auto s = g_sdk->FileGetName(m->m_maps[m->mapSlot_Diffuse].m_texturePath.data());
+			astr = s.data();
+			fprintf(mtl_file, "\tmap_Kd %s\r\n", astr.data());
+
+		}
+	}
+
+	void WriteObject(FILE* file, FILE* mtl_file, miSceneObject* object)
 	{
 
 		auto objectType = object->GetObjectType();
@@ -165,6 +190,17 @@ public:
 				stra = object->GetName().data();
 				fprintf(file, "\r\no %s \r\n", stra.data());
 
+				if (g_ExportOBJ_createMTL && object->m_material)
+				{
+					if (object->m_material->m_first)
+					{
+						miStringA astr;
+						astr += object->m_material->m_first->m_name.c_str();
+						fprintf(file, "usemtl %s \r\n", astr.data());
+						WriteMaterial(mtl_file, object->m_material->m_first);
+					}
+				}
+
 				miStringA v_str;  v_str.reserve(0xffff);
 				miStringA vn_str;  vn_str.reserve(0xffff);
 				miStringA vt_str;  vt_str.reserve(0xffff);
@@ -177,7 +213,7 @@ public:
 
 				auto pivot = object->GetGlobalPosition();
 
-				for (u32 i = 0; i < meshCount; ++i)
+				for (s32 i = 0; i < meshCount; ++i)
 				{
 					auto mesh = object->GetMesh(i);
 
@@ -346,7 +382,7 @@ public:
 			auto l = c->m_left;
 			while (true)
 			{
-				WriteObject(file, c->m_data);
+				WriteObject(file, mtl_file, c->m_data);
 				if (c == l)
 					break;
 				c = c->m_right;
@@ -441,29 +477,51 @@ public:
 	std::map<std::string, u32> map_normal;
 };
 
-
-
-
-
 void miplStd_ExportOBJ(const wchar_t* fileName) {
 	//wprintf(L"Export: %s\n", fileName);
 	g_ExportOBJ_vIndex = 0;
 	g_ExportOBJ_vtIndex = 0;
 	g_ExportOBJ_vnIndex = 0;
 
-	std::mbstate_t state = std::mbstate_t();
-	std::size_t len = 1 + std::wcsrtombs(nullptr, &fileName, 0, &state);
-	std::vector<char> mbstr(len);
-	std::wcsrtombs(&mbstr[0], &fileName, mbstr.size(), &state);
-	const char* fileNameA = &mbstr[0];
+	auto mbStr = g_sdk->StringWideToMultiByte(fileName);
 
-	FILE* file = fopen(fileNameA, "wb");
+	FILE* file = fopen(mbStr.data(), "wb");
 
 	fprintf(file, "# Pipa3D Wavefront OBJ Exporter v1.0\r\n\r\n");
 
+	FILE* mtl_file = 0;
+	if (g_ExportOBJ_createMTL)
+	{
+		miString s = g_sdk->FileGetName(fileName);
+		while (true)
+		{
+			auto c = s.pop_back_return();
+			if (c == L'.')
+				break;
+
+			if (s.size() == 0)
+				break;
+		}
+		
+		miStringA astr;
+		astr += s.data();
+		fprintf(file, "mtllib %s.mtl \r\n", astr.data());
+
+		astr = mbStr;
+		astr.replace('\\', '/');
+		astr.pop_back_before('/');
+
+		astr += s.data();
+		astr += ".mtl";
+		mtl_file = fopen(astr.data(), "wb");
+		fprintf(mtl_file, "# Pipa3D Wavefront OBJ Exporter v1.0\r\n\r\n");
+	}
+
 	OBJWriter o;
 	
-	o.WriteObject(file, g_sdk->GetRootObject());
+	o.WriteObject(file, mtl_file, g_sdk->GetRootObject());
 
+	if (mtl_file)
+		fclose(mtl_file);
 	fclose(file);
 }

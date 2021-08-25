@@ -242,14 +242,25 @@ void miplStd_ImportOBJ_MTL(
 	}
 }
 
+OBJMaterial* OBJGetMaterial(
+	miArray<OBJMaterial*>& materials,
+	const miString& name
+	) 
+{
+	for (u32 i = 0; i < materials.m_size; ++i)
+	{
+		if (materials.m_data[i]->m_name == name)
+			return materials.m_data[i];
+	}
+	return 0;
+}
+
 void miplStd_ImportOBJ(const wchar_t* fileName) {
 	assert(fileName);
 	auto mbStr = g_sdk->StringWideToMultiByte(fileName);
 
 	miArray<OBJMaterial*> obj_materials;
 	
-	miMaterial* material = 0;// g_sdk->CreateMaterial(L"New material");
-
 	FILE* file = fopen(mbStr.data(), "rb");
 	auto file_size = (size_t)g_sdk->FileSize(mbStr.data());
 
@@ -298,28 +309,39 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	miSDKImporterHelper importeHelper;
 	miPolygonCreator triangulationPolygonCreator;
 
+	OBJMaterial* currMaterial = 0;
+
 	while (*ptr)
 	{
 		switch (*ptr)
 		{
 		case 'm'://mtllib
 		{
-			miString mtlWord;
-			ptr = OBJReadWord(ptr, mtlWord);
-			//wprintf(L"WORD: %s\n", mtlWord.data());
+			miString word;
+			ptr = OBJReadWord(ptr, word);
 
-			if (OBJStringEqual(mtlWord, "mtllib"))
+			if (OBJStringEqual(word, "mtllib"))
 			{
-				ptr = OBJReadWord(ptr, mtlWord);
+				ptr = OBJReadWord(ptr, word);
 				//wprintf(L"MTL: %s\n", mtlWord.data());
 				miStringA stra;
-				stra = mtlWord.data();
+				stra = word.data();
 				miplStd_ImportOBJ_MTL(obj_materials, mbStr.data(), stra.data());
+			}
+		}break;
+		case 'u'://usemtl
+		{
+			miString word;
+			ptr = OBJReadWord(ptr, word);
+
+			if (OBJStringEqual(word, "usemtl"))
+			{
+				ptr = OBJReadWord(ptr, word);
+				currMaterial = OBJGetMaterial(obj_materials, word);
 			}
 		}break;
 		case 's':
 		case 'l':
-		case 'u'://usemtl
 		case 'c'://curv
 		case 'p'://parm
 		case 'd'://deg
@@ -489,7 +511,14 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 				if (importeHelper.m_meshBuilder->m_isBegin)
 				{
 					importeHelper.m_meshBuilder->End();
-					g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data(), material);
+					miMaterial* m = 0;
+					if (currMaterial)
+					{
+						m = g_sdk->CreateMaterial(currMaterial->m_name.data());
+						if (currMaterial->m_map_diffuse.size())
+							m->m_maps[m->mapSlot_Diffuse].m_texturePath = currMaterial->m_map_diffuse;
+					}
+					g_sdk->CreateSceneObjectFromHelper(&importeHelper, prev_word.data(), m);
 					importeHelper.Drop();
 					importeHelper.Create();
 					importeHelper.m_meshBuilder->Begin();
@@ -506,7 +535,16 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 	if (importeHelper.m_meshBuilder->m_isBegin)
 	{
 		importeHelper.m_meshBuilder->End();
-		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data(), material);
+
+		miMaterial* m = 0;
+		if (currMaterial)
+		{
+			m = g_sdk->CreateMaterial(currMaterial->m_name.data());
+			if (currMaterial->m_map_diffuse.size())
+				m->m_maps[m->mapSlot_Diffuse].m_texturePath = currMaterial->m_map_diffuse;
+		}
+
+		g_sdk->CreateSceneObjectFromHelper(&importeHelper, curr_word.data(), m);
 		importeHelper.Drop();
 	}
 

@@ -342,6 +342,9 @@ miApplication::~miApplication() {
 }
 
 void miApplication::MaterialRename(miMaterial* m, const wchar_t* newName) {
+	if (m->m_name == newName)
+		return;
+
 	auto _checkName = [](miApplication* app, const miString& name) ->bool
 	{
 		for (u32 i = 0; i < app->m_materials.m_size; ++i) 
@@ -374,6 +377,7 @@ void miApplication::MaterialRename(miMaterial* m, const wchar_t* newName) {
 			{
 				m->m_name = n;
 				good = true;
+				break;
 			}
 		}
 	}

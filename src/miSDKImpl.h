@@ -117,6 +117,8 @@ public:
 	virtual bool FileExist(const wchar_t* fileName) override;
 	virtual miString FileGetRelativePath(const char* fileName) override;
 	virtual miString FileGetRelativePath(const wchar_t* fileName) override;
+	virtual miString FileGetName(const wchar_t* fileName) override;
+	virtual miString FileGetName(const char* fileName) override;
 
 	virtual miStringA StringWideToMultiByte(const wchar_t* wstr) override;
 

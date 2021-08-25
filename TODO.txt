@@ -1,4 +1,3 @@
-- OBJ materials import/export
 - save UV template
 - picture in UV editor
 - extrude on ctrl+shift

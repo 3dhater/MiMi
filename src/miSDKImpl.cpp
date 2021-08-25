@@ -342,14 +342,38 @@ miStringA miSDKImpl::StringWideToMultiByte(const wchar_t* wstr) {
 	return s;
 }
 
+miString miSDKImpl::FileGetName(const wchar_t* fileName) {
+	yy_fs::path p = fileName;
+	auto fn = p.filename();
+	return miString(fn.string_type.data());
+}
+miString miSDKImpl::FileGetName(const char* fileName) {
+	yy_fs::path p = fileName;
+	auto fn = p.filename();
+	return miString(fn.string_type.data());
+}
+
 void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar_t* name, miMaterial* optionalMaterial) {
 	wprintf(L"Hello %s\n", name);
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
-
+	
 	this->AppendMesh(newObject->m_mesh, ih->m_meshBuilder->m_mesh);
 
-	g_app->MaterialAssign(optionalMaterial, newObject);
+	if (optionalMaterial)
+	{
+		g_app->MaterialAssign(optionalMaterial, newObject);
+		for (u32 o = 0; o < miMaterialMaxMaps; ++o)
+		{
+			if (optionalMaterial->m_maps[o].m_texturePath.size())
+			{
+				optionalMaterial->m_maps[o].m_GPUTexture = g_app->MaterialGetTexture(optionalMaterial->m_maps[o].m_texturePath.data());
+			}
+		}
+	}
+
+	
+
 	//newObject->m_meshBuilder = ih->m_meshBuilder;
 	newObject->m_visualObject_polygon->CreateNewGPUModels(newObject->m_mesh);
 	newObject->m_visualObject_vertex->CreateNewGPUModels(newObject->m_mesh);

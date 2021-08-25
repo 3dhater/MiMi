@@ -357,6 +357,8 @@ public:
 	virtual bool FileExist(const wchar_t* fileName) = 0;
 	virtual miString FileGetRelativePath(const char* fileName) = 0;
 	virtual miString FileGetRelativePath(const wchar_t* fileName) = 0;
+	virtual miString FileGetName(const wchar_t* fileName) = 0;
+	virtual miString FileGetName(const char* fileName) = 0;
 	
 	virtual miStringA StringWideToMultiByte(const wchar_t* wstr) = 0;
 

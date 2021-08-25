@@ -903,10 +903,10 @@ void miVisualObjectImpl::Draw(bool uv) {
 			{
 				if (m_parentSceneObject->m_material->m_second == 1)
 				{
-					curPolygonMaterial->m_baseColor.m_data[0] = m_parentSceneObject->m_material->m_first->m_baseColor.x;
-					curPolygonMaterial->m_baseColor.m_data[1] = m_parentSceneObject->m_material->m_first->m_baseColor.y;
-					curPolygonMaterial->m_baseColor.m_data[2] = m_parentSceneObject->m_material->m_first->m_baseColor.z;
-					curPolygonMaterial->m_baseColor.m_data[3] = m_parentSceneObject->m_material->m_first->m_baseColor.w;
+					curPolygonMaterial->m_baseColor.m_data[0] = m_parentSceneObject->m_material->m_first->m_colorDiffuse.x;
+					curPolygonMaterial->m_baseColor.m_data[1] = m_parentSceneObject->m_material->m_first->m_colorDiffuse.y;
+					curPolygonMaterial->m_baseColor.m_data[2] = m_parentSceneObject->m_material->m_first->m_colorDiffuse.z;
+					curPolygonMaterial->m_baseColor.m_data[3] = m_parentSceneObject->m_material->m_first->m_colorDiffuse.w;
 
 					if (m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture)
 						texture_0 = (yyGPUTexture*)m_parentSceneObject->m_material->m_first->m_maps[0].m_GPUTexture;

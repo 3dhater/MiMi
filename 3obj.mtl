@@ -13,7 +13,7 @@ newmtl 02___Default
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
 	map_Ka E:\Code\MiMi\t2.png
-	map_Kd t2.png
+	map_Kd E:\Code\MiMi\t2.png
 
 newmtl 01___Default
 	Ns 10.0000

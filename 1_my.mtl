@@ -1,0 +1,12 @@
+# Pipa3D Wavefront OBJ Exporter v1.0
+
+
+newmtl Mat1
+	Ns 10.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 0.0000
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 1.0000 1.0000 1.0000
+	map_Kd t2.png

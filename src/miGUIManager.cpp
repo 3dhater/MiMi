@@ -974,14 +974,14 @@ m_gui_group_materials->AddElement(addButton);
 			s.clear();
 			s = L"Map";
 			s += i;
-			if (i == 0) s = L"Diffuse";
-			else if (i == 1) s = L"Normal/Bump";
-			else if (i == 2) s = L"Specular Highlight";
-			else if (i == 3) s = L"Specular Color";
-			else if (i == 4) s = L"Ambient Color";
-			else if (i == 5) s = L"Alpha";
-			else if (i == 6) s = L"Displacement";
-			else if (i == 7) s = L"Reflection";
+			if (i == miMaterial::mapSlot_Diffuse) s = L"Diffuse";
+			else if (i == miMaterial::mapSlot_Normal) s = L"Normal/Bump";
+			else if (i == miMaterial::mapSlot_SpecularHighlight) s = L"Specular Highlight";
+			else if (i == miMaterial::mapSlot_SpecularColor) s = L"Specular Color";
+			else if (i == miMaterial::mapSlot_AmbientColor) s = L"Ambient Color";
+			else if (i == miMaterial::mapSlot_Alpha) s = L"Alpha";
+			else if (i == miMaterial::mapSlot_Displacement) s = L"Displacement";
+			else if (i == miMaterial::mapSlot_Reflection) s = L"Reflection";
 
 			m_gui_listbox_maps->AddItem(s.data());
 		}
