@@ -383,6 +383,7 @@ public:
 	void UVTransformAccept();
 	void UvMakePlanar(bool useScreenPlane);
 	void UvFlattenMapping();
+	void UvSaveUVTemplate();
 
 	miSDKImpl* m_sdk;
 	void _selectObject_onSelect();

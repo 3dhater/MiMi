@@ -1,4 +1,3 @@
-- save UV template
 - picture in UV editor
 - extrude on ctrl+shift
 - drag n drop texture
@@ -13,6 +12,7 @@
 - Assimp plugin
 - размер для плоскости
 - rename project Pipa3D
+- documentation
 ...
 
 - fix edge bridge

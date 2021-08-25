@@ -140,6 +140,8 @@ public:
 	
 	yyGUIDrawGroup* m_gui_drawGroup_UV;
 	yyGUIGroup*   m_gui_group_UV;
+	
+	yyGUIComboBox* m_UVSaveTemplateSizeCombo;
 };
 
 #endif

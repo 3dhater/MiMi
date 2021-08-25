@@ -99,6 +99,9 @@ void gui_buttonUvMakePlanar_onRelease(yyGUIElement* elem, s32 m_id) {
 void gui_buttonUvFlatten_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_app->UvFlattenMapping();
 }
+void gui_buttonSaveUvTemplate_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_app->UvSaveUVTemplate();
+}
 void gui_buttonUvMakePlanarScreen_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_app->UvMakePlanar(true);
 }
@@ -1145,6 +1148,53 @@ m_gui_group_materials->AddElement(addButton);
 			btn->m_isAnimated = true;
 			btn->m_onRelease = gui_buttonUvFlatten_onRelease;
 			m_gui_group_UV->AddElement(btn);
+		}
+		y += btnSzY + 3.f;
+
+		y += 50.f;
+		btnSzY = 15.f;
+		{
+			f32 right = groupRect.z - groupRect.x - 80.f;
+			auto btn = yyGUICreateButton(
+				v4f(x, y, right, y + btnSzY),
+				0, -1, currDrawGroup, 0);
+			btn->m_bgColor.set(0.5f);
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			btn->SetText(L"Save UV template", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonSaveUvTemplate_onRelease;
+			m_gui_group_UV->AddElement(btn);
+
+			m_UVSaveTemplateSizeCombo = yyGUICreateComboBox(v2f(right, y), 80.f, m_fontDefault, currDrawGroup);
+			auto item = m_UVSaveTemplateSizeCombo->AddItem(L"64x64");
+			item->SetID(64);
+
+			item = m_UVSaveTemplateSizeCombo->AddItem(L"128x128");
+			item->SetID(128);
+
+			item = m_UVSaveTemplateSizeCombo->AddItem(L"256x256");
+			item->SetID(256);
+
+			item = m_UVSaveTemplateSizeCombo->AddItem(L"512x512");
+			item->SetID(512);
+
+			auto _1024 = m_UVSaveTemplateSizeCombo->AddItem(L"1024x1024");
+			_1024->SetID(1024);
+
+			item = m_UVSaveTemplateSizeCombo->AddItem(L"2048x2048");
+			item->SetID(2048);
+
+			item = m_UVSaveTemplateSizeCombo->AddItem(L"4096x4096");
+			item->SetID(4096);
+
+			m_UVSaveTemplateSizeCombo->SelectItem(_1024);
+
+			m_gui_group_UV->AddElement(m_UVSaveTemplateSizeCombo);
+
 		}
 		y += btnSzY + 3.f;
 	}
