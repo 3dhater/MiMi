@@ -53,6 +53,7 @@ unsigned char * OBJReadFloat(unsigned char * ptr, float& value);
 unsigned char * OBJReadVec3(unsigned char * ptr, v3f& vec3);
 unsigned char * OBJReadFace(unsigned char * ptr, OBJFace& f, char * s);
 unsigned char * OBJReadWord(unsigned char * ptr, miString& str);
+unsigned char * OBJReadLastWord(unsigned char * ptr, miString& str);
 
 bool g_ImportOBJ_triangulate = false;
 bool g_ImportOBJ_readMTL = true;
@@ -103,13 +104,27 @@ struct OBJMaterial
 	miString m_map_reflection; // refl  
 };
 
+bool OBJStringEqual(const miString& str, const char* c_Str)
+{
+	auto c_str_len = std::strlen(c_Str);
+	if (c_str_len != str.size())
+		return false;
+
+	for (size_t i = 0, sz = str.size(); i < sz; ++i)
+	{
+		if (str[i] != (miString::value_type)c_Str[i])
+			return false;
+	}
+
+	return true;
+}
+
 void miplStd_ImportOBJ_MTL(
 	miArray<OBJMaterial*>& materials, 
 	const char* obj_fileName,
 	const char* mtl_fileName
 	) 
 {
-	miStringA mtlPath = mtl_fileName;
 	auto relPath = g_sdk->FileGetRelativePath(obj_fileName);
 	
 	for (u32 i = 0, sz = relPath.size(); i < sz; ++i)
@@ -121,20 +136,114 @@ void miplStd_ImportOBJ_MTL(
 			break;
 		}
 	}
-	relPath += mtl_fileName;
-	if (g_sdk->FileExist(relPath.data()))
-	{
 
+	miString mtlPath = relPath;
+	mtlPath += mtl_fileName;
+
+	if (g_sdk->FileExist(mtlPath.data()))
+	{
+		auto mbStr = g_sdk->StringWideToMultiByte(mtlPath.data());
+
+		FILE* file = fopen(mbStr.data(), "rb");
+		auto file_size = (size_t)g_sdk->FileSize(mbStr.data());
+
+		std::vector<unsigned char> file_byte_array((unsigned int)file_size + 2);
+		unsigned char * ptr = file_byte_array.data();
+
+		fread(ptr, 1, file_size, file);
+		fclose(file);
+
+		ptr[(unsigned int)file_size] = ' ';
+		ptr[(unsigned int)file_size + 1] = 0;
+
+		OBJMaterial* curMaterial = 0;
+
+		while (*ptr)
+		{
+			switch (*ptr)
+			{
+			case '#':
+			case 'd':
+			case 'T':
+			case 'i':
+			case 'K':
+				ptr = OBJNextLine(ptr);
+				break;
+			case 'n':
+			{
+				miString mtlWord;
+				ptr = OBJReadWord(ptr, mtlWord);
+
+				if (OBJStringEqual(mtlWord, "newmtl"))
+				{
+					curMaterial = new OBJMaterial;
+					materials.push_back(curMaterial);
+
+					ptr = OBJReadWord(ptr, curMaterial->m_name);
+				}
+			}break;
+			case 'N':
+			{
+				miString word;
+				ptr = OBJReadWord(ptr, word);
+				if (OBJStringEqual(word, "Ns"))
+				{
+					ptr = OBJSkipSpaces(ptr);
+					ptr = OBJReadFloat(ptr, curMaterial->m_specularExponent);
+				}
+				else if (OBJStringEqual(word, "Ni"))
+				{
+					ptr = OBJSkipSpaces(ptr);
+					ptr = OBJReadFloat(ptr, curMaterial->m_refraction);
+				}
+				else
+					ptr = OBJNextLine(ptr);
+
+			}break;
+			case 'm':
+			{
+				miString word;
+				ptr = OBJReadWord(ptr, word);
+				if (OBJStringEqual(word, "map_Kd"))
+				{
+					ptr = OBJReadLastWord(ptr, word);
+					
+					miString mapPath = word;
+
+					if (!g_sdk->FileExist(mapPath.data()))
+					{
+						mapPath = relPath;
+						mapPath += word.data();
+
+						//if (g_sdk->FileExist(mapPath.data()))
+						//	printf("OK\n");
+					}
+
+					curMaterial->m_map_diffuse = mapPath;
+
+					/*ptr = OBJSkipSpaces(ptr);
+					if (*ptr == L'-')
+					{
+						ptr = OBJReadWord(ptr, word);
+						if (OBJStringEqual(word, "-bm"))
+						{
+
+						}
+					}*/
+				}
+				else
+					ptr = OBJNextLine(ptr);
+			}break;
+			default:
+				++ptr;
+				break;
+			}
+		}
 	}
 }
 
 void miplStd_ImportOBJ(const wchar_t* fileName) {
 	assert(fileName);
-	/*std::mbstate_t state = std::mbstate_t();
-	std::size_t len = 1 + std::wcsrtombs(nullptr, &fileName, 0, &state);
-	std::vector<char> mbstr(len);
-	std::wcsrtombs(&mbstr[0], &fileName, mbstr.size(), &state);
-	const char* fileNameA = &mbstr[0];*/
 	auto mbStr = g_sdk->StringWideToMultiByte(fileName);
 
 	miArray<OBJMaterial*> obj_materials;
@@ -199,7 +308,7 @@ void miplStd_ImportOBJ(const wchar_t* fileName) {
 			ptr = OBJReadWord(ptr, mtlWord);
 			//wprintf(L"WORD: %s\n", mtlWord.data());
 
-			if (mtlWord == "mtllib")
+			if (OBJStringEqual(mtlWord, "mtllib"))
 			{
 				ptr = OBJReadWord(ptr, mtlWord);
 				//wprintf(L"MTL: %s\n", mtlWord.data());
@@ -591,6 +700,25 @@ unsigned char * OBJReadWord(unsigned char * ptr, miString& str)
 			break;
 		str += (wchar_t)*ptr;
 		ptr++;
+	}
+	return ptr;
+}
+
+unsigned char * OBJReadLastWord(unsigned char * ptr, miString& str) {
+	while (true)
+	{
+		ptr = OBJSkipSpaces(ptr);
+		ptr = OBJReadWord(ptr, str);
+
+		ptr = OBJSkipSpaces(ptr);
+
+		if (*ptr == '\r' || *ptr == '\n')
+		{
+			break;
+		}
+
+		if (*ptr == 0)
+			break;
 	}
 	return ptr;
 }

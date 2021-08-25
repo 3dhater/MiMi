@@ -112,6 +112,9 @@ void gui_buttonMaterialsAssign_onRelease(yyGUIElement* elem, s32 m_id) {
 void gui_buttonMaterialsLoadImage_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->LoadNewImageForMaterial();
 }
+void gui_buttonMaterialsReloadImage_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_guiManager->ReloadMaterialImage();
+}
 void gui_buttonMaterialsDeleteImage_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_guiManager->DeleteImageFromMaterial();
 }
@@ -1009,7 +1012,21 @@ m_gui_group_materials->AddElement(addButton);
 			btn->m_textColorPress.set(0.6f);
 			m_gui_group_materials->AddElement(btn);
 		}
-
+		{
+			auto btn = yyGUICreateButton(
+				v4f(x+80.f, y, x + 160.f, y + addButtonY),
+				0, -1, m_gui_drawGroup_materials, 0);
+			btn->SetText(L"Reload", m_fontDefault, false);
+			btn->m_isAnimated = true;
+			btn->m_onRelease = gui_buttonMaterialsReloadImage_onRelease;
+			btn->m_bgColor.set(0.5f);
+			btn->m_bgColorHover.set(0.65f);
+			btn->m_bgColorPress.set(0.35f);
+			btn->m_textColor.set(0.95f);
+			btn->m_textColorHover.set(1.f);
+			btn->m_textColorPress.set(0.6f);
+			m_gui_group_materials->AddElement(btn);
+		}
 		{
 			x += groupRect.z - groupRect.x - 40.f;
 			auto btn = yyGUICreateButton(
@@ -1484,6 +1501,26 @@ void miGUIManager::DeleteSelectedMaterial() {
 		lastItem = item;
 	}
 	UpdateMaterialMapPictureBox();
+}
+
+void miGUIManager::ReloadMaterialImage() {
+	for (u32 i = 0, sz = m_gui_listbox_materials->GetItemsCount(); i < sz; ++i)
+	{
+		auto item = m_gui_listbox_materials->GetItem(i);
+		if (item->IsSelected())
+		{
+			miMaterial* mat = (miMaterial*)item->GetUserData();
+			for (u32 o = 0; o < miMaterialMaxMaps; ++o)
+			{
+				if (m_gui_listbox_maps->GetItem(o)->IsSelected())
+				{
+					((yyGPUTexture*)mat->m_maps[o].m_GPUTexture)->Unload();
+					((yyGPUTexture*)mat->m_maps[o].m_GPUTexture)->Reload();
+					return;
+				}
+			}
+		}
+	}
 }
 
 void miGUIManager::LoadNewImageForMaterial() {

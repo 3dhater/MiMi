@@ -130,6 +130,7 @@ public:
 	void DeleteSelectedMaterial();
 	void AssignSelectedMaterial();
 	void LoadNewImageForMaterial();
+	void ReloadMaterialImage();
 	void DeleteImageFromMaterial();
 	void UpdateMaterialMapPictureBox();
 
