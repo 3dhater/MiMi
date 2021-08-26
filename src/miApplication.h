@@ -53,6 +53,7 @@ struct miImporter;
 #define miCommandID_ConvertToEditableObject 17
 #define miCommandID_DeleteSelectedObjects 18
 #define miCommandID_ViewportToggleDrawAABB 19
+#define miCommandID_EditDuplicate 20
 #define miCommandID_for_plugins 100
 
 #define miEventId_ShowMainMenu 1
@@ -311,6 +312,7 @@ public:
 	miPopup m_popup_NewObject;
 	miPopup m_popup_Importers;
 	miPopup m_popup_Exporters;
+	miPopup m_popup_edit;
 	//miPopup m_popup_InViewport;
 	void ShowPopupAtCursor(miPopup* popup);
 

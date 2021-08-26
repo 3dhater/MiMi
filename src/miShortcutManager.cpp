@@ -32,6 +32,7 @@ miShortcutManager::miShortcutManager() {
 	SetCommand(miShortcutCommandType::editMode_Edge, L"editMode_Edge", miKeyboardModifier::None, yyKey::K_2);
 	SetCommand(miShortcutCommandType::editMode_Polygon, L"editMode_Polygon", miKeyboardModifier::None, yyKey::K_3);
 	SetCommand(miShortcutCommandType::UV_selectAll, L"UV_selectAll", miKeyboardModifier::Ctrl, yyKey::K_A);
+	SetCommand(miShortcutCommandType::edit_duplicate, L"edit_duplicate", miKeyboardModifier::None, yyKey::END);
 }
 
 miShortcutManager::~miShortcutManager() {

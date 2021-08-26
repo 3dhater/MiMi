@@ -302,6 +302,9 @@ void gui_importButton_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_exportButton_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->ShowPopupAtCursor(&g_app->m_popup_Exporters);
 }
+void gui_editButton_onClick(yyGUIElement* elem, s32 m_id) {
+	g_app->ShowPopupAtCursor(&g_app->m_popup_edit);
+}
 
 void gui_renameMaterial_onEnter(yyGUIElement* elem, s32 m_id) {
 	printf("OnEnter\n");
@@ -457,8 +460,29 @@ miGUIManager::miGUIManager(){
 		m_button_export->m_isAnimated = true;
 		m_button_export->m_onClick = gui_exportButton_onClick;
 	}
+	X += button_export_size;
 
-	X += button_import_size;
+	f32 button_edit_size = 30.f;
+	auto btnEdit = yyGUICreateButton(v4f(
+		X,
+		0.f,
+		X + button_edit_size,
+		miViewportTopIndent
+	), 0, -1, 0, 0);
+	if (btnEdit)
+	{
+		btnEdit->SetText(L"Edit", m_fontDefault, false);
+		btnEdit->SetColor(g_app->m_color_windowClearColor, 0);
+		btnEdit->SetColor(ColorDarkGrey, 1);
+		btnEdit->SetColor(ColorGrey, 2);
+		btnEdit->m_textColor = ColorWhite;
+		btnEdit->m_textColorHover = ColorWhite;
+		btnEdit->m_textColorPress = ColorWhite;
+		btnEdit->m_isAnimated = true;
+		btnEdit->m_onClick = gui_editButton_onClick;
+	}
+
+	X += button_edit_size;
 	m_editorTypeCombo = yyGUICreateComboBox(v2f(X, 0.f), 50.f, m_fontDefault, 0);
 	m_editorTypeComboItem_3D = m_editorTypeCombo->AddItem(L"3D");
 	m_editorTypeComboItem_UV = m_editorTypeCombo->AddItem(L"UV");

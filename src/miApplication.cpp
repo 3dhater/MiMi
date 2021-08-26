@@ -47,8 +47,8 @@ void miApplicationPlugin::OnClickGizmo(miKeyboardModifier km, miGizmoMode gm, mi
 				((miEditableObject*)o)->PolygonExtrude();
 		}break;
 		case miEditMode::Object: {
-			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-				printf("Clone object\n");
+			/*if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+				printf("Clone object\n");*/
 		}break;
 		default:
 			break;
@@ -543,6 +543,11 @@ void miApplication::DestroyAllSceneObjects(miSceneObject* o) {
 	miDestroy(o);
 }
 
+void UVCameraOnMoveToSelection(miViewportCamera* c) {
+	c->m_positionPlatform.x = 0.5f;
+	c->m_positionPlatform.z = 0.5f;
+	c->m_positionPlatform.w = 2.f;
+}
 void miApplication::_initViewports() {
 	const f32 midX = 0.4;
 	for (s32 i = 0; i < miViewportLayout_Count; ++i)
@@ -566,8 +571,10 @@ void miApplication::_initViewports() {
 	}
 
 	m_UVViewport = new miViewportLayout;
-	m_UVViewport->Add(v4f(0.f, 0.f, midX, 1.f), miViewportCameraType::Top, miViewportType::UV);
+	auto uvViewport = m_UVViewport->Add(v4f(0.f, 0.f, midX, 1.f), miViewportCameraType::Top, miViewportType::UV);
 	m_UVViewport->Add(v4f(midX, 0.f, 1.f, 1.f), miViewportCameraType::Perspective, miViewportType::Scene);
+	uvViewport->m_activeCamera->m_onMoveToSelection = UVCameraOnMoveToSelection;
+	uvViewport->m_activeCamera->m_onMoveToSelection(uvViewport->m_activeCamera);
 
 	m_activeViewportLayout = m_viewportLayouts[miViewportLayout_Standart];
 	m_activeViewportLayout->ShowGUI();
@@ -576,6 +583,8 @@ void miApplication::_initViewports() {
 }
 
 void miApplication::_initPopups() {
+
+	m_popup_edit.AddItem(L"Duplicate selected objects", miCommandID_EditDuplicate, m_shortcutManager->GetText(miShortcutCommandType::edit_duplicate));
 
 	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraReset));
 	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraMoveToSelection));
@@ -1196,6 +1205,7 @@ void miApplication::ProcessShortcutsUV() {
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Vertex)) this->ToggleEditMode(miEditMode::Vertex);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Edge)) this->ToggleEditMode(miEditMode::Edge);
 	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
+	if (m_shortcutManager->IsShortcutActive(miShortcutCommandType::viewport_cameraMoveToSelection)) this->CommandCameraMoveToSelection(m_activeViewportLayout->m_activeViewport);
 }
 
 void miApplication::ProcessShortcuts3D() {

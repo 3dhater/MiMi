@@ -114,15 +114,14 @@ struct miViewportLayout
 		}
 	}
 
-	void Add(const v4f& rect, miViewportCameraType vct, miViewportType vt) {
+	miViewport* Add(const v4f& rect, miViewportCameraType vct, miViewportType vt) {
 		miViewport* newViewport = new miViewport(vt, vct, rect);
-		//newViewport->m_creationRect = rect;
-		//newViewport->Init();
-
 		m_activeViewport = newViewport;
 		m_viewports.push_back(newViewport);
 		newViewport->m_index = m_viewports.size();
 		newViewport->HideGUI();
+
+		return newViewport;
 	}
 };
 

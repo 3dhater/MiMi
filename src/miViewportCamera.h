@@ -216,6 +216,8 @@ struct miViewportCamera
 	void ChangeFOV();
 
 	miCameraFrustum m_frust;
+
+	void(*m_onMoveToSelection)(miViewportCamera*);
 };
 
 #endif

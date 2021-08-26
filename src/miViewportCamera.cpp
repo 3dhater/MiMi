@@ -7,7 +7,9 @@ miViewportCamera::miViewportCamera(miViewport* vp, miViewportCameraType ct){
 	m_viewport = vp;
 	m_type = ct;
 	m_forceOrtho = false;
+	m_onMoveToSelection = 0;
 }
+
 
 miViewportCamera::~miViewportCamera(){}
 
@@ -103,6 +105,12 @@ void miViewportCamera::Update() {
 }
 
 void miViewportCamera::MoveToSelection() {
+	if (m_onMoveToSelection)
+	{
+		m_onMoveToSelection(this);
+		return;
+	}
+
 	if (!g_app->m_selectionAabb.isEmpty())
 	{
 		m_positionPlatform = g_app->m_selectionAabb_center;
@@ -122,7 +130,6 @@ void miViewportCamera::MoveToSelection() {
 	{
 		Reset();
 	}
-
 }
 
 void miViewportCamera::Reset() {
