@@ -53,7 +53,7 @@ public:
 	
 	// when hold shift and first click on gizmo
 	// will be called on each selected object
-	virtual void OnShiftGizmo(miGizmoMode, miEditMode, miSceneObject*) {}
+	virtual void OnClickGizmo(miKeyboardModifier, miGizmoMode, miEditMode, miSceneObject*) {}
 };
 
 #endif

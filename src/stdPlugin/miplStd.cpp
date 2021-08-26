@@ -177,7 +177,7 @@ void miplStd::OnImportExport(const wchar_t* fileName, unsigned int id) {
 	}
 }
 
-void miplStd::OnShiftGizmo(miGizmoMode gm, miEditMode em, miSceneObject* o) 
+void miplStd::OnClickGizmo(miKeyboardModifier km, miGizmoMode gm, miEditMode em, miSceneObject* o)
 {
 	if (o->GetPlugin() != this)
 		return;

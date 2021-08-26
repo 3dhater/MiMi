@@ -28,28 +28,31 @@ miApplicationPlugin::miApplicationPlugin() {
 miApplicationPlugin::~miApplicationPlugin() {}
 void miApplicationPlugin::Init(miSDK* sdk) {
 }
-void miApplicationPlugin::OnShiftGizmo(miGizmoMode gm, miEditMode em, miSceneObject* o) {
+void miApplicationPlugin::OnClickGizmo(miKeyboardModifier km, miGizmoMode gm, miEditMode em, miSceneObject* o) {
 	if (o->GetPlugin() != this)
 		return;
 
-	switch (em)
+	if (km == miKeyboardModifier::ShiftCtrl)
 	{
-	case miEditMode::Vertex:
-		break;
-	case miEditMode::Edge: {
-		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-			((miEditableObject*)o)->EdgeExtrude();
-	}break;
-	case miEditMode::Polygon:{
-		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-			((miEditableObject*)o)->PolygonExtrude();
-	}break;
-	case miEditMode::Object: {
-		if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-			printf("Clone object\n");
-	}break;
-	default:
-		break;
+		switch (em)
+		{
+		case miEditMode::Vertex:
+			break;
+		case miEditMode::Edge: {
+			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+				((miEditableObject*)o)->EdgeExtrude();
+		}break;
+		case miEditMode::Polygon: {
+			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+				((miEditableObject*)o)->PolygonExtrude();
+		}break;
+		case miEditMode::Object: {
+			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
+				printf("Clone object\n");
+		}break;
+		default:
+			break;
+		}
 	}
 }
 

@@ -1,5 +1,4 @@
-- picture in UV editor
-- extrude on ctrl+shift
+- clone object
 - drag n drop texture
 - shaders
 - reference
@@ -17,3 +16,7 @@
 
 - fix edge bridge
 - add polygon bridge
+
+- skeletal animation
+- new GUI lib
+- GUI windows with parameters

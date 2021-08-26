@@ -37,7 +37,7 @@ public:
 	virtual void OnUpdate(miSelectionFrust*, bool isCursorInGUI) override;
 
 	virtual void OnImportExport(const wchar_t* fileName, unsigned int id) override;
-	virtual void OnShiftGizmo(miGizmoMode, miEditMode, miSceneObject*) override;
+	virtual void OnClickGizmo(miKeyboardModifier, miGizmoMode, miEditMode, miSceneObject*) override;
 
 	miSDK* m_sdk;
 
