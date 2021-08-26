@@ -1,6 +1,4 @@
-- drag n drop texture
 - shaders
-- reference
 - mirror
 - FBX import/export
 - save file

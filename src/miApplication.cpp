@@ -128,6 +128,10 @@ void window_callbackOnCommand(s32 commandID) {
 	}
 }
 
+void window_onDropFiles(u32 num, u32 i, const wchar_t* t, f32 x, f32 y) {
+	g_app->OnDragNDropFiles(num, i, t, x, y);
+}
+
 void window_onActivate(yyWindow* window) {
 	g_app->m_isViewportInFocus = false;
 	g_app->m_inputContext->m_isMMBHold = false;
@@ -726,6 +730,13 @@ bool miApplication::Init(const char* videoDriver) {
 			yySetCursor((yyCursorType)i, m_cursors[i]);
 	}
 
+	{
+		yyStringA str;
+		yyGetImageExtensions(&str);
+
+		util::stringGetWords(&m_supportedImages, str);
+	}
+
 	m_window = yyCreate<yyWindow>();
 	u32 windowStyle = 0;
 	if (!m_window->init(800, 600, windowStyle))
@@ -733,7 +744,10 @@ bool miApplication::Init(const char* videoDriver) {
 		YY_PRINT_FAILED;
 		return false;
 	}
-	
+
+	//IDropTarget* dt = 0;
+	//RegisterDragDrop(m_window->m_hWnd, dt);
+
 	yySetMainWindow(m_window);
 	m_window->m_onCommand = window_callbackOnCommand;
 	m_window->m_onClose = window_onCLose;
@@ -741,6 +755,7 @@ bool miApplication::Init(const char* videoDriver) {
 	m_window->m_onMaximize = window_callbackOnSize;
 	m_window->m_onRestore = window_callbackOnSize;
 	m_window->m_onActivate = window_onActivate;
+	m_window->m_onDropFiles = window_onDropFiles;
 	ShowWindow(m_window->m_hWnd, SW_MAXIMIZE);
 
 	if (!yyInitVideoDriver(videoDriver, m_window))
@@ -918,16 +933,13 @@ void miApplication::MainLoop() {
 		}
 		m_isGUIInputFocus = yyGUIIsInputFocus();
 
+		
+
 		if (
 			//m_isCursorMove && 
 			m_isCursorInWindow && !m_isCursorInGUI && !m_isGUIInputFocus)
 		{
-			m_sdk->GetRayFromScreen(
-				&m_rayCursor, 
-				m_inputContext->m_cursorCoords,
-				m_viewportUnderCursor->m_currentRect,
-				m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix
-			);
+			_getRayFromCursor();			
 
 			if (m_gizmoMode == miGizmoMode::NoTransform
 				&& !m_inputContext->m_isMMBHold // camera move/rotate
@@ -935,7 +947,7 @@ void miApplication::MainLoop() {
 				&& m_isCursorMove
 				)
 			{
-				_get_objects_under_cursor();
+				_getObjectsUnderCursor();
 			}
 
 			if (m_cursorBehaviorMode == miCursorBehaviorMode::SelectObject
@@ -1206,8 +1218,11 @@ void miApplication::ProcessShortcuts3D() {
 }
 
 
-void miApplication::_get_objects_under_cursor() {
+void miApplication::_getObjectsUnderCursor() {
 	m_objectsUnderCursor.clear();
+	//printf("A %f %f %f : %f %f %f\n", m_rayCursor.m_origin.x, m_rayCursor.m_origin.y, m_rayCursor.m_origin.z,
+	//	m_rayCursor.m_end.x, m_rayCursor.m_end.y, m_rayCursor.m_end.z);
+
 	for (u32 i = 0; i < m_objectsOnScene.m_size; ++i)
 	{
 		auto o = m_objectsOnScene.m_data[i];
@@ -1218,7 +1233,7 @@ void miApplication::_get_objects_under_cursor() {
 			o->m_cursorIntersectionPointDistance = d;
 			o->m_cursorIntersectionPoint = ip;
 			m_objectsUnderCursor.push_back(o);
-			//wprintf(L"%s", o->GetName().data());
+	//		wprintf(L"%s\n", o->GetName().data());
 		}
 	}
 
@@ -2390,5 +2405,105 @@ void miApplication::CommandEditDiplicate() {
 		}
 		UpdateSelectedObjectsArray();
 		UpdateSelectionAabb();
+	}
+}
+
+void miApplication::OnDragNDropFiles(u32 num, u32 i, const wchar_t* fn, f32 x, f32 y) {
+	m_inputContext->m_cursorCoords.x = x;
+	m_inputContext->m_cursorCoords.y = y;
+	_getViewportUnderCursor();
+	_getRayFromCursor();
+	_getObjectsUnderCursor();
+
+	if (num != 1)
+		return;
+
+	yy_fs::path p;
+	p = fn;
+	auto ext = p.extension();
+
+	for (u32 i = 0; i < m_supportedImages.size(); ++i)
+	{
+		yyStringW wstr(L".");
+		wstr += m_supportedImages[i].data();
+
+		if (wstr == ext.string_type)
+		{
+			//wprintf(L"EXTENSION: %s\n", ext.string_type.data());
+			OnDragNDropFiles_assignNewMaterial(fn);
+			return;
+		}
+	}
+}
+
+void miApplication::OnDragNDropFiles_assignNewMaterial(const wchar_t* fn) {
+	if (!m_objectsUnderCursor.m_size)
+		return;
+
+	miString tp;
+	tp = fn;
+
+	miMaterial* m = 0;
+	
+	for (u32 i = 0; i < m_materials.m_size; ++i) 
+	{
+		auto  _m = m_materials.m_data[i];
+		if (_m->m_second == 1)
+		{
+			if (_m->m_first->m_flags & miMaterial::flag_dragNDrop)
+			{
+				if (_m->m_first->m_maps[miMaterial::mapSlot_Diffuse].m_texturePath == tp)
+				{
+					m = _m->m_first;
+					break;
+				}
+			}
+		}
+	}
+
+	if (!m)
+	{
+		m = MaterialCreate();
+		MaterialRename(m, L"Material");
+		m->m_flags |= m->flag_dragNDrop;
+		m->m_maps[m->mapSlot_Diffuse].m_texturePath = fn;
+	}
+
+	MaterialAssign(m, m_objectsUnderCursor.m_data[0]);
+	for (u32 o = 0; o < miMaterialMaxMaps; ++o)
+	{
+		if (m->m_maps[o].m_texturePath.size())
+			m->m_maps[o].m_GPUTexture = g_app->MaterialGetTexture(m->m_maps[o].m_texturePath.data());
+	}
+	
+	//wprintf(L"SELECT : %s\n", m_objectsUnderCursor.m_data[0]->m_name.data());
+//	m_objectsUnderCursor.m_data[0]->m_isSelected = true;
+//	UpdateSelectedObjectsArray();
+//	UpdateSelectionAabb();
+}
+
+void miApplication::_getRayFromCursor() {
+	m_sdk->GetRayFromScreen(
+		&m_rayCursor,
+		m_inputContext->m_cursorCoords,
+		m_viewportUnderCursor->m_currentRect,
+		m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix
+	);
+}
+
+void miApplication::_getViewportUnderCursor() {
+	for (u16 i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+	{
+		auto viewport = m_activeViewportLayout->m_viewports[i];
+
+		viewport->m_isCursorInRect =
+			math::pointInRect(m_inputContext->m_cursorCoords.x, m_inputContext->m_cursorCoords.y,
+				viewport->m_currentRect);
+
+		if (viewport->m_isCursorInRect)
+		{
+			m_viewportUnderCursor = viewport;
+			return;
+		}
 	}
 }

@@ -12,6 +12,10 @@
 #include "../SDK/miVisualObject.h"
 #include "../SDK/miSceneObject.h"
 
+#ifdef MI_PLATFORM_WINDOWS
+//#include <Ole2.h>
+#endif
+
 class miEditableObject;
 class miPluginGUIImpl;
 class miGUIManager;
@@ -216,7 +220,7 @@ class miApplication
 	yyRay m_rayCursor;
 	yyArraySimple<miSceneObject*> m_objectsUnderCursor;
 	//void _get_objects_under_cursor_(miSceneObject*);
-	void _get_objects_under_cursor();
+	void _getObjectsUnderCursor();
 	void _update_selected_objects_array(miSceneObject*);
 
 	miPluginGUIImpl * m_currentPluginGUI;
@@ -239,6 +243,8 @@ class miApplication
 
 	yyGPUMesh* m_UVPlaneModel;
 	yyGPUTexture* m_UVPlaneTexture;
+
+	std::vector<yyStringA> m_supportedImages;
 
 public:
 	miApplication();
@@ -380,6 +386,12 @@ public:
 
 	miSDKImpl* m_sdk;
 	void _selectObject_onSelect();
+
+	void _getRayFromCursor();
+	void _getViewportUnderCursor();
+
+	void OnDragNDropFiles(u32 num, u32 i, const wchar_t*, f32 x, f32 y);
+	void OnDragNDropFiles_assignNewMaterial(const wchar_t* fn);
 
 	friend class miEditableObject;
 	friend class miGizmo;

@@ -1649,7 +1649,7 @@ void miGUIManager::UpdateMaterialMapPictureBox() {
 				{
 					auto * map = &mat->m_maps[o];
 					if(map->m_GPUTexture)
-						m_gui_pictureBox_map->m_texture = (yyGPUTexture*)map->m_GPUTexture;
+						m_gui_pictureBox_map->SetTexture((yyGPUTexture*)map->m_GPUTexture);
 					return;
 				}
 			}

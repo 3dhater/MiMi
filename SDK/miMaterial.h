@@ -7,6 +7,7 @@ class miSceneObject;
 struct miMaterial
 {
 	miMaterial(){
+		m_flags = 0;
 		m_colorDiffuse.set(1.f);
 		m_colorAmbient.set(0.f);
 		m_colorSpecular.set(1.f);
@@ -50,6 +51,11 @@ struct miMaterial
 	f32 m_specularExponent;
 	f32 m_refraction;
 	f32 m_opacity;
+
+	enum {
+		flag_dragNDrop = BIT(0)
+	};
+	u32 m_flags;
 };
 
 #endif

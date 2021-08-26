@@ -677,7 +677,7 @@ void miViewport::OnDraw() {
 		}
 	}
 	
-	//m_gpu->DrawLine3D(g_app->m_rayCursor.m_origin, g_app->m_rayCursor.m_end, ColorWhite);
+//	m_gpu->DrawLine3D(g_app->m_rayCursor.m_origin, g_app->m_rayCursor.m_end, ColorWhite);
 
 	/*m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[0], g_app->m_selectionFrust->m_data.m_left[1], ColorWhite);
 	m_gpu->DrawLine3D(g_app->m_selectionFrust->m_data.m_left[1], g_app->m_selectionFrust->m_data.m_left[2], ColorWhite);
