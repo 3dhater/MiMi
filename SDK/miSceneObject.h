@@ -6,7 +6,8 @@ class miPluginGUI;
 
 enum miSceneObjectFlag
 {
-	miSceneObjectFlag_CanConvertToEditableObject = BIT(0)
+	miSceneObjectFlag_CanConvertToEditableObject = BIT(0),
+	miSceneObjectFlag_NotDuplicate = BIT(1)
 };
 
 enum class miSceneObjectType : u32 {

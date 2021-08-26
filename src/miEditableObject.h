@@ -108,7 +108,6 @@ public:
 	miDefaultAllocator<miPolygon>* m_allocatorPolygon;
 	miDefaultAllocator<miEdge>* m_allocatorEdge;
 	miDefaultAllocator<miVertex>* m_allocatorVertex;
-	//miMeshBuilder<miDefaultAllocator<miPolygon>, miDefaultAllocator<miEdge>, miDefaultAllocator<miVertex>>* m_meshBuilder;
 	miMesh* m_mesh;
 
 	// always update rebuild edges after this

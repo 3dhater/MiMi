@@ -33,6 +33,7 @@
     <ClCompile Include="..\src\miApplication_selection.cpp" />
     <ClCompile Include="..\src\miApplication_transformObjects.cpp" />
     <ClCompile Include="..\src\miApplication_UV.cpp" />
+    <ClCompile Include="..\src\miAppPlugin.cpp" />
     <ClCompile Include="..\src\miEditableObject.cpp" />
     <ClCompile Include="..\src\miEditableObject_PolygonCalculateNormal.cpp" />
     <ClCompile Include="..\src\miEditableObject_PolygonDetach.cpp" />
@@ -62,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\miApplication.h" />
+    <ClInclude Include="..\src\miAppPlugin.h" />
     <ClInclude Include="..\src\miEditableObject.h" />
     <ClInclude Include="..\src\miGizmo.h" />
     <ClInclude Include="..\src\miGraphics2D.h" />

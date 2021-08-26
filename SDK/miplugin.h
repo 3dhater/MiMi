@@ -5,8 +5,6 @@ class miPlugin;
 
 #define miplCreatePlugin_funcName "miplCreatePlugin"
 typedef MI_API miPlugin* (MI_C_DECL*miplCreatePlugin_t)();
-//#define miplDestroyPlugin_funcName "miplDestroyPlugin"
-//typedef MI_API void (MI_C_DECL*miplDestroyPlugin_t)(miPlugin* plugin);
 
 class miSDK;
 class miSelectionFrust;
@@ -32,11 +30,8 @@ public:
 #endif
 	}
 
-	// I want to have only 1 export function (miplCreatePlugin_t)
-	// other functions can get through plugin
-	//virtual miplDestroyPlugin_t GetDestroyFunction() = 0;
-
 	virtual void Init(miSDK* sdk) = 0;
+
 	// return MI_SDK_VERSION
 	virtual int CheckVersion() {
 		return MI_SDK_VERSION;
@@ -54,6 +49,9 @@ public:
 	// when hold shift and first click on gizmo
 	// will be called on each selected object
 	virtual void OnClickGizmo(miKeyboardModifier, miGizmoMode, miEditMode, miSceneObject*) {}
+
+	// return: new object
+	virtual miSceneObject* OnDuplicate(miSceneObject* object) { return 0; }
 };
 
 #endif

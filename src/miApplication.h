@@ -58,17 +58,7 @@ struct miImporter;
 
 #define miEventId_ShowMainMenu 1
 
-class miApplicationPlugin : public miPlugin
-{
-public:
-	miApplicationPlugin();
-	virtual ~miApplicationPlugin();
-	virtual void Init(miSDK* sdk) override;
-
-	virtual void OnClickGizmo(miKeyboardModifier, miGizmoMode, miEditMode, miSceneObject*) override;
-
-	static u32 m_objectType_editableObject;
-};
+#include "miAppPlugin.h"
 
 // right side of GUI
 enum class miObjectParametersMode
@@ -204,12 +194,6 @@ class miApplication
 
 	v2f m_gpuDepthRange;
 
-	miRootObject* m_rootObject;
-	void AddObjectToScene(miSceneObject* o, const wchar_t* name);
-	void NameIsFree(const miString& name, miSceneObject*, u8*);
-	void DestroyAllSceneObjects(miSceneObject* o);
-	void RemoveObjectFromScene(miSceneObject* o);
-
 	miEditMode m_editMode;
 	miTransformMode m_transformMode;
 	miGizmoMode m_gizmoMode;
@@ -259,6 +243,12 @@ class miApplication
 public:
 	miApplication();
 	~miApplication();
+
+	miRootObject* m_rootObject;
+	void AddObjectToScene(miSceneObject* o, const wchar_t* name);
+	void NameIsFree(const miString& name, miSceneObject*, u8*);
+	void DestroyAllSceneObjects(miSceneObject* o);
+	void RemoveObjectFromScene(miSceneObject* o);
 
 	void SelectAll();
 	void DeselectAll();
@@ -331,6 +321,7 @@ public:
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
 	void CommandUVSelectAll();
+	void CommandEditDiplicate();
 
 	miVertex * m_mouseHoverVertex;
 	miSceneObject* m_mouseHoverVertexObject;

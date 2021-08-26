@@ -1,4 +1,3 @@
-- clone object
 - drag n drop texture
 - shaders
 - reference

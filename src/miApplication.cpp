@@ -1,4 +1,5 @@
 ﻿#include "miApplication.h"
+#include "miAppPlugin.h"
 #include "miGUIManager.h"
 #include "miViewport.h"
 #include "miShortcutManager.h"
@@ -21,40 +22,6 @@
 
 miApplication * g_app = 0;
 Mat4 g_emptyMatrix;
-
-u32 miApplicationPlugin::m_objectType_editableObject = 1;
-miApplicationPlugin::miApplicationPlugin() {
-}
-miApplicationPlugin::~miApplicationPlugin() {}
-void miApplicationPlugin::Init(miSDK* sdk) {
-}
-void miApplicationPlugin::OnClickGizmo(miKeyboardModifier km, miGizmoMode gm, miEditMode em, miSceneObject* o) {
-	if (o->GetPlugin() != this)
-		return;
-
-	if (km == miKeyboardModifier::ShiftCtrl)
-	{
-		switch (em)
-		{
-		case miEditMode::Vertex:
-			break;
-		case miEditMode::Edge: {
-			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-				((miEditableObject*)o)->EdgeExtrude();
-		}break;
-		case miEditMode::Polygon: {
-			if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-				((miEditableObject*)o)->PolygonExtrude();
-		}break;
-		case miEditMode::Object: {
-			/*if (o->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
-				printf("Clone object\n");*/
-		}break;
-		default:
-			break;
-		}
-	}
-}
 
 void log_writeToFile(const char* message) {
 	auto l = strlen(message);
@@ -91,6 +58,7 @@ void window_callbackOnCommand(s32 commandID) {
 	{
 	default:
 		break;
+	case miCommandID_EditDuplicate: g_app->CommandEditDiplicate(); break;
 	case miCommandID_CameraReset: g_app->CommandCameraReset(g_app->m_popupViewport); break;
 	case miCommandID_CameraMoveToSelection: g_app->CommandCameraMoveToSelection(g_app->m_popupViewport); break;
 	case miCommandID_ViewportViewPerspective: g_app->CommandViewportChangeView(g_app->m_popupViewport,miViewportCameraType::Perspective); break;
@@ -2395,4 +2363,32 @@ void miApplication::SetEditorType(miEditorType t){
 		m_activeViewportLayout->m_viewports.m_data[i]->OnWindowSize();
 	}
 	m_2d->UpdateClip();
+}
+
+void miApplication::CommandEditDiplicate() {
+	miArray<miSceneObject*> newObjects;
+
+	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
+	{
+		auto obj = m_selectedObjects.m_data[i];
+		auto flags = obj->GetFlags();
+
+		if (flags & miSceneObjectFlag_NotDuplicate)
+			continue;
+
+		auto new_o = obj->GetPlugin()->OnDuplicate(obj);
+		if (new_o)
+			newObjects.push_back(new_o);
+	}
+
+	if (newObjects.m_size)
+	{
+		DeselectAll();
+		for (u32 i = 0; i < newObjects.m_size; ++i)
+		{
+			newObjects.m_data[i]->m_isSelected = true;
+		}
+		UpdateSelectedObjectsArray();
+		UpdateSelectionAabb();
+	}
 }
