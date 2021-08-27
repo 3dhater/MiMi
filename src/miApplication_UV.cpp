@@ -143,11 +143,11 @@ void miApplication::UvSaveUVTemplate() {
 
 		float error = dx / 2.0f;
 		const int ystep = (y1 < y2) ? 1 : -1;
-		int y = (int)y1;
+		u32 y = (u32)y1;
 
-		const int maxX = (int)x2;
+		const u32 maxX = (u32)x2;
 
-		for (int x = (int)x1; x <= maxX; x++)
+		for (u32 x = (u32)x1; x <= maxX; x++)
 		{
 			if (steep)
 			{
@@ -188,7 +188,7 @@ void miApplication::UvSaveUVTemplate() {
 		auto o = m_selectedObjects.m_data[i];
 		if (o->m_objectType == miSceneObjectType::MeshObject)
 		{
-			auto mc = o->GetMeshCount();
+			u32 mc = o->GetMeshCount();
 			for (u32 i2 = 0; i2 < mc; ++i2)
 			{
 				auto m = o->GetMesh(i2);

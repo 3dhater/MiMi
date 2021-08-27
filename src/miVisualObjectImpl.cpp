@@ -870,7 +870,7 @@ void miVisualObjectImpl::Draw(bool uv) {
 	case miVisualObjectType::Polygon:
 	{
 		auto old_cullBF = default_polygon_material.m_cullBackFace;
-		default_polygon_material.m_cullBackFace = false; 
+		default_polygon_material.m_cullBackFace = m_parentSceneObject->m_cullBackFace; 
 		if (uv)
 		{
 			default_polygon_material.m_type = yyMaterialType::Simple;

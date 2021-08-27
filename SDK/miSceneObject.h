@@ -91,10 +91,12 @@ public:
 		m_distanceToCamera = 0.f;
 		m_cursorIntersectionPointDistance = 0.f;
 		m_objectType = miSceneObjectType::Helper;
+		m_cullBackFace = false;
 	}
 	virtual ~miSceneObject() {}
 	
 	v3f m_pivotOffset;
+	bool m_cullBackFace;
 
 	const miStringA& GetObjectTypeName() { return m_objectTypeName; }
 	miSceneObjectType GetObjectType() { return m_objectType; }

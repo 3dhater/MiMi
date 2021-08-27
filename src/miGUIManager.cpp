@@ -68,6 +68,13 @@ void gui_buttonTransformModeScaleLocal_onClick(yyGUIElement* elem, s32 m_id) {
 void gui_buttonTransformModeRotateLocal_onClick(yyGUIElement* elem, s32 m_id) {
 	g_app->SetTransformMode(miTransformMode::Rotate, true);
 }
+void gui_backfaceCheck_onClick(yyGUIElement* elem, s32 m_id) {
+	yyGUICheckBox* ch = (yyGUICheckBox*)elem;
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->m_cullBackFace = ch->m_isChecked;
+	}
+}
 void gui_buttonEditModeVertex_onClick(yyGUIElement* elem, s32 m_id) {
 	yyGUIButton* b = (yyGUIButton*)elem;
 	switch (m_id)
@@ -1075,6 +1082,13 @@ miGUIManager::miGUIManager(){
 		btn->m_textColorPress.set(0.6f);
 		m_gui_group_commonParams->AddElement(btn);
 	}
+	y += 18.f;
+	{
+		f32 x = window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize;
+		m_gui_commonParams_chck_cullBackface = yyGUICreateCheckBox(v2f(x,y), yyGUICheckBoxType::Type1, m_fontDefault, L"Cull Back Face", m_gui_drawGroup_commonParams);
+		m_gui_commonParams_chck_cullBackface->m_onClick = gui_backfaceCheck_onClick;
+		m_gui_group_commonParams->AddElement(m_gui_commonParams_chck_cullBackface);
+	}
 
 	// MATERIALS
 	{
@@ -1653,6 +1667,9 @@ void miGUIManager::SetCommonParamsRangePosition() {
 	m_gui_group_commonParams_range_PositionX->m_ptr_i = 0;
 	m_gui_group_commonParams_range_PositionY->m_ptr_i = 0;
 	m_gui_group_commonParams_range_PositionZ->m_ptr_i = 0;
+	
+	m_gui_commonParams_chck_cullBackface->m_isChecked = false;
+
 	if (g_app->m_selectedObjects.m_size == 1)
 	{
 		auto o = g_app->m_selectedObjects.m_data[0];
@@ -1664,6 +1681,8 @@ void miGUIManager::SetCommonParamsRangePosition() {
 		m_gui_group_commonParams_range_pivotOffsetX->m_ptr_f = &o->m_pivotOffset.x;
 		m_gui_group_commonParams_range_pivotOffsetY->m_ptr_f = &o->m_pivotOffset.y;
 		m_gui_group_commonParams_range_pivotOffsetZ->m_ptr_f = &o->m_pivotOffset.z;
+	
+		m_gui_commonParams_chck_cullBackface->m_isChecked = o->m_cullBackFace;
 	}
 	else
 	{

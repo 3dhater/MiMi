@@ -118,6 +118,8 @@ public:
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetX;
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetY;
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetZ;
+	yyGUICheckBox*    m_gui_commonParams_chck_cullBackface;
+
 	// call this when select/deselect object
 	void SetCommonParamsRangePosition();
 	v3f m_commonParams_range_Position_many;
