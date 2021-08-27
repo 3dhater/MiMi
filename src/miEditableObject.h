@@ -168,6 +168,8 @@ public:
 	virtual void ApplyPivotOffset() override;
 	virtual void PivotToObjectCenter() override;
 	virtual void PivotToSceneCenter() override;
+	virtual void MatrixReset() override;
+	virtual void MatrixApply() override;
 };
 
 #endif

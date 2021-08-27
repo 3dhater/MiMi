@@ -155,6 +155,23 @@ void gui_buttonPivotToSceneCenter_onRelease(yyGUIElement* elem, s32 m_id) {
 	g_app->UpdateSelectionAabb();
 }
 
+void gui_buttonMatrixReset_onRelease(yyGUIElement* elem, s32 m_id) {
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->MatrixReset();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+}
+void gui_buttonMatrixApply_onRelease(yyGUIElement* elem, s32 m_id) {
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->MatrixApply();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+}
+
 bool gui_textInput_onChar(wchar_t c) {
 	if(c >= 0 && c <= 0x1f)
 		return false;
@@ -1006,6 +1023,50 @@ miGUIManager::miGUIManager(){
 		btn->SetText(L"To Scene Center", m_fontDefault, false);
 		btn->m_isAnimated = true;
 		btn->m_onRelease = gui_buttonPivotToSceneCenter_onRelease;
+		btn->m_bgColor.set(0.5f);
+		btn->m_bgColorHover.set(0.65f);
+		btn->m_bgColorPress.set(0.35f);
+		btn->m_textColor.set(0.95f);
+		btn->m_textColorHover.set(1.f);
+		btn->m_textColorPress.set(0.6f);
+		m_gui_group_commonParams->AddElement(btn);
+	}
+
+	y += 18.f;
+
+	{
+		f32 x = window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize;
+		y += 3.f;
+		auto text = yyGUICreateText(v2f(x, y),
+			m_fontDefault, L"Matrix:", m_gui_drawGroup_commonParams);
+		text->IgnoreInput(true);
+		m_gui_group_commonParams->AddElement(text);
+
+		x += text->m_sensorRectInPixels.z - text->m_sensorRectInPixels.x + 10.f;
+
+		f32 btnSzx = 50.f;
+		f32 btnSzY = 15.f;
+		auto btn = yyGUICreateButton(
+			v4f(x, y, x + btnSzx, y + btnSzY),
+			0, -1, m_gui_drawGroup_commonParams, 0);
+		btn->SetText(L"Reset", m_fontDefault, false);
+		btn->m_isAnimated = true;
+		btn->m_onRelease = gui_buttonMatrixReset_onRelease;
+		btn->m_bgColor.set(0.5f);
+		btn->m_bgColorHover.set(0.65f);
+		btn->m_bgColorPress.set(0.35f);
+		btn->m_textColor.set(0.95f);
+		btn->m_textColorHover.set(1.f);
+		btn->m_textColorPress.set(0.6f);
+		m_gui_group_commonParams->AddElement(btn);
+
+		x += btnSzx + 5.f;
+		btn = yyGUICreateButton(
+			v4f(x, y, x + btnSzx, y + btnSzY),
+			0, -1, m_gui_drawGroup_commonParams, 0);
+		btn->SetText(L"Apply", m_fontDefault, false);
+		btn->m_isAnimated = true;
+		btn->m_onRelease = gui_buttonMatrixApply_onRelease;
 		btn->m_bgColor.set(0.5f);
 		btn->m_bgColorHover.set(0.65f);
 		btn->m_bgColorPress.set(0.35f);

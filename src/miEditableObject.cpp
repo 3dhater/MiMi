@@ -1447,3 +1447,55 @@ void miEditableObject::PivotToSceneCenter() {
 	ApplyPivotOffset();
 	m_localPosition.set(0.f);
 }
+
+void miEditableObject::MatrixReset() {
+	miSceneObject::MatrixReset();
+	UpdateTransform();
+	this->_updateModel();
+	this->UpdateAabb();
+}
+
+void miEditableObject::MatrixApply() {
+	///ApplyPivotOffset();
+
+	auto TIM = m_rotationScaleMatrix;
+	TIM.invert();
+	TIM.transpose();
+
+	if (m_mesh->m_first_vertex)
+	{
+		auto c = m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			c->m_position = math::mulBasis(c->m_position, m_worldMatrix);
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}
+
+	if (m_mesh->m_first_polygon)
+	{
+		auto c = m_mesh->m_first_polygon;
+		auto l = c->m_left;
+		while (true)
+		{
+			auto cv = c->m_verts.m_head;
+			auto lv = cv->m_left;
+			while (true)
+			{
+				cv->m_data.m_normal = math::mul(cv->m_data.m_normal, TIM);
+				if (cv == lv)
+					break;
+				cv = cv->m_right;
+			}
+
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}
+
+	MatrixReset();
+}

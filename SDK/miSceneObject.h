@@ -403,6 +403,13 @@ public:
 	virtual void PivotToSceneCenter() {
 		m_pivotOffset.set(0.f);
 	}
+
+	virtual void MatrixReset() {
+		m_rotationOnlyMatrix.identity();
+		m_rotationScaleMatrix.identity();
+	}
+	virtual void MatrixApply() {
+	}
 };
 
 #endif

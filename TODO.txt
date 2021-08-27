@@ -1,4 +1,3 @@
-- apply/reset matrix
 - mirror
 - FBX import/export
 - save file
