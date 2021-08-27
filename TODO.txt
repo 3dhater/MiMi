@@ -1,4 +1,4 @@
-- shaders
+- apply/reset matrix
 - mirror
 - FBX import/export
 - save file
@@ -7,7 +7,6 @@
 - новые иконки
 - Assimp plugin
 - размер для плоскости
-- rename project Pipa3D
 - documentation
 ...
 

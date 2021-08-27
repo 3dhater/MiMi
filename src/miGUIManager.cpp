@@ -20,6 +20,15 @@ void gui_editorTypeCombo_onSelect(yyGUIComboBox*, yyGUIComboBoxItem* item) {
 	}
 }
 
+void gui_group_commonParams_range_offsetOnRelease(yyGUIRangeSlider* slider) {
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->ApplyPivotOffset();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+}
+
 void gui_group_commonParams_range_Position(yyGUIRangeSlider* slider) {
 	if (g_app->m_selectedObjects.m_size > 1)
 	{
@@ -123,10 +132,27 @@ void gui_buttonMaterialsDeleteImage_onRelease(yyGUIElement* elem, s32 m_id) {
 }
 void gui_lbMaterials_onSelect(yyGUIListBox*, yyGUIListBoxItem* item) {
 	g_guiManager->UpdateMaterialMapPictureBox();
-	wprintf(L"%s\n", item->GetText());
+	//wprintf(L"%s\n", item->GetText());
 }
 void gui_lbMaps_onSelect(yyGUIListBox*, yyGUIListBoxItem*) {
 	g_guiManager->UpdateMaterialMapPictureBox();
+}
+
+void gui_buttonPivotToObjectCenter_onRelease(yyGUIElement* elem, s32 m_id) {
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->PivotToObjectCenter();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
+}
+void gui_buttonPivotToSceneCenter_onRelease(yyGUIElement* elem, s32 m_id) {
+	for (u32 i = 0; i < g_app->m_selectedObjects.m_size; ++i)
+	{
+		g_app->m_selectedObjects.m_data[i]->PivotToSceneCenter();
+	}
+	g_app->UpdateSceneAabb();
+	g_app->UpdateSelectionAabb();
 }
 
 bool gui_textInput_onChar(wchar_t c) {
@@ -328,7 +354,6 @@ void gui_renameMaterial_onEnter(yyGUIElement* elem, s32 m_id) {
 miGUIManager::miGUIManager(){
 	m_editorTypeCombo = 0;
 	m_gui_pictureBox_map = 0;
-	m_default_value_float = 0.f;
 	m_buttonGroup_transformMode = new yyGUIButtonGroup;
 	m_buttonGroup_rightSide = new yyGUIButtonGroup;
 	m_mainMenu_Y = 0.f;
@@ -356,6 +381,9 @@ miGUIManager::miGUIManager(){
 	m_gui_group_commonParams_range_PositionX = 0;
 	m_gui_group_commonParams_range_PositionY = 0;
 	m_gui_group_commonParams_range_PositionZ = 0;
+	m_gui_group_commonParams_range_pivotOffsetX = 0;
+	m_gui_group_commonParams_range_pivotOffsetY = 0;
+	m_gui_group_commonParams_range_pivotOffsetZ = 0;
 
 	m_button_materials = 0;
 	m_button_UV = 0;
@@ -835,7 +863,7 @@ miGUIManager::miGUIManager(){
 				window->m_creationSize.x,
 				y + 15.f
 			),
-			&m_default_value_float,
+			&m_commonParams_range_Position_many.x,
 			false, m_gui_drawGroup_commonParams);
 		m_gui_group_commonParams_range_PositionX->UseText(m_fontDefault);
 		m_gui_group_commonParams_range_PositionX->m_valueMultiplerNormal = 0.1f;
@@ -853,7 +881,7 @@ miGUIManager::miGUIManager(){
 				window->m_creationSize.x,
 				y + 15.f
 			),
-			&m_default_value_float,
+			&m_commonParams_range_Position_many.y,
 			false, m_gui_drawGroup_commonParams);
 		m_gui_group_commonParams_range_PositionY->UseText(m_fontDefault);
 		m_gui_group_commonParams_range_PositionY->m_valueMultiplerNormal = 0.1f;
@@ -871,7 +899,7 @@ miGUIManager::miGUIManager(){
 				window->m_creationSize.x,
 				y + 15.f
 			),
-			&m_default_value_float,
+			&m_commonParams_range_Position_many.z,
 			false, m_gui_drawGroup_commonParams);
 		m_gui_group_commonParams_range_PositionZ->UseText(m_fontDefault);
 		m_gui_group_commonParams_range_PositionZ->m_valueMultiplerNormal = 0.1f;
@@ -879,6 +907,112 @@ miGUIManager::miGUIManager(){
 		m_gui_group_commonParams_range_PositionZ->m_onValueChanged = gui_group_commonParams_range_Position;
 		m_gui_group_commonParams->AddElement(m_gui_group_commonParams_range_PositionZ);
 		y += 15.f;
+	}
+	{
+		y += 3.f;
+		auto text = yyGUICreateText(v2f(
+			window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize, y),
+			m_fontDefault, L"Pivot Offset:", m_gui_drawGroup_commonParams);
+		text->IgnoreInput(true);
+		m_gui_group_commonParams->AddElement(text);
+		auto range = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize +
+				text->m_sensorRectInPixels.z - text->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_commonParams_range_offset.x,
+			false, m_gui_drawGroup_commonParams);
+		range->UseText(m_fontDefault);
+		range->m_valueMultiplerNormal = 0.1f;
+		range->m_valueMultiplerAlt = 0.01f;
+		range->m_onValueChanged = gui_group_commonParams_range_Position;
+		range->m_onRelease = gui_group_commonParams_range_offsetOnRelease;
+
+		m_gui_group_commonParams->AddElement(range);
+		m_gui_group_commonParams_range_pivotOffsetX = range;
+		y += 15.f;
+		
+		range = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize +
+				text->m_sensorRectInPixels.z - text->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_commonParams_range_offset.y,
+			false, m_gui_drawGroup_commonParams);
+		range->UseText(m_fontDefault);
+		range->m_valueMultiplerNormal = 0.1f;
+		range->m_valueMultiplerAlt = 0.01f;
+		range->m_onValueChanged = gui_group_commonParams_range_Position;
+		range->m_onRelease = gui_group_commonParams_range_offsetOnRelease;
+		m_gui_group_commonParams->AddElement(range);
+		m_gui_group_commonParams_range_pivotOffsetY = range;
+		y += 15.f;
+
+		range = yyGUICreateRangeSliderFloatNoLimit(
+			v4f(
+				window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize +
+				text->m_sensorRectInPixels.z - text->m_sensorRectInPixels.x,
+				y,
+				window->m_creationSize.x,
+				y + 15.f
+			),
+			&m_commonParams_range_offset.z,
+			false, m_gui_drawGroup_commonParams);
+		range->UseText(m_fontDefault);
+		range->m_valueMultiplerNormal = 0.1f;
+		range->m_valueMultiplerAlt = 0.01f;
+		range->m_onValueChanged = gui_group_commonParams_range_Position;
+		range->m_onRelease = gui_group_commonParams_range_offsetOnRelease;
+		m_gui_group_commonParams->AddElement(range);
+		m_gui_group_commonParams_range_pivotOffsetZ = range;
+		y += 15.f;
+	}
+	{
+		f32 x = window->m_creationSize.x - miViewportRightIndent + miRightSideButtonSize;
+		y += 3.f;
+		auto text = yyGUICreateText(v2f(x, y),
+			m_fontDefault, L"Pivot:", m_gui_drawGroup_commonParams);
+		text->IgnoreInput(true);
+		m_gui_group_commonParams->AddElement(text);
+		
+		x += text->m_sensorRectInPixels.z - text->m_sensorRectInPixels.x + 10.f;
+
+		f32 btnSz = 15.f;
+		auto btn = yyGUICreateButton(
+			v4f(x, y, x + 100.f, y + btnSz),
+			0, -1, m_gui_drawGroup_commonParams, 0);
+		btn->SetText(L"To Object Center", m_fontDefault, false);
+		btn->m_isAnimated = true;
+		btn->m_onRelease = gui_buttonPivotToObjectCenter_onRelease;
+		btn->m_bgColor.set(0.5f);
+		btn->m_bgColorHover.set(0.65f);
+		btn->m_bgColorPress.set(0.35f);
+		btn->m_textColor.set(0.95f);
+		btn->m_textColorHover.set(1.f);
+		btn->m_textColorPress.set(0.6f);
+		m_gui_group_commonParams->AddElement(btn);
+
+		y += 18.f;
+
+		btn = yyGUICreateButton(
+			v4f(x, y, x + 100.f, y + btnSz),
+			0, -1, m_gui_drawGroup_commonParams, 0);
+		btn->SetText(L"To Scene Center", m_fontDefault, false);
+		btn->m_isAnimated = true;
+		btn->m_onRelease = gui_buttonPivotToSceneCenter_onRelease;
+		btn->m_bgColor.set(0.5f);
+		btn->m_bgColorHover.set(0.65f);
+		btn->m_bgColorPress.set(0.35f);
+		btn->m_textColor.set(0.95f);
+		btn->m_textColorHover.set(1.f);
+		btn->m_textColorPress.set(0.6f);
+		m_gui_group_commonParams->AddElement(btn);
 	}
 
 	// MATERIALS
@@ -1455,15 +1589,20 @@ void miGUIManager::UpdateTransformModeButtons() {
 
 void miGUIManager::SetCommonParamsRangePosition() {
 	//printf("SET\n");
-	m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_default_value_float;
-	m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_default_value_float;
-	m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_default_value_float;
+	m_gui_group_commonParams_range_PositionX->m_ptr_i = 0;
+	m_gui_group_commonParams_range_PositionY->m_ptr_i = 0;
+	m_gui_group_commonParams_range_PositionZ->m_ptr_i = 0;
 	if (g_app->m_selectedObjects.m_size == 1)
 	{
-		auto pos = g_app->m_selectedObjects.m_data[0]->GetLocalPosition();
+		auto o = g_app->m_selectedObjects.m_data[0];
+		auto pos = o->GetLocalPosition();
 		m_gui_group_commonParams_range_PositionX->m_ptr_f = &pos->x;
 		m_gui_group_commonParams_range_PositionY->m_ptr_f = &pos->y;
 		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &pos->z;
+
+		m_gui_group_commonParams_range_pivotOffsetX->m_ptr_f = &o->m_pivotOffset.x;
+		m_gui_group_commonParams_range_pivotOffsetY->m_ptr_f = &o->m_pivotOffset.y;
+		m_gui_group_commonParams_range_pivotOffsetZ->m_ptr_f = &o->m_pivotOffset.z;
 	}
 	else
 	{
@@ -1471,7 +1610,18 @@ void miGUIManager::SetCommonParamsRangePosition() {
 		m_gui_group_commonParams_range_PositionX->m_ptr_f = &m_commonParams_range_Position_many.x;
 		m_gui_group_commonParams_range_PositionY->m_ptr_f = &m_commonParams_range_Position_many.y;
 		m_gui_group_commonParams_range_PositionZ->m_ptr_f = &m_commonParams_range_Position_many.z;
+
+		m_gui_group_commonParams_range_pivotOffsetX->m_ptr_f = &m_commonParams_range_offset.x;
+		m_gui_group_commonParams_range_pivotOffsetY->m_ptr_f = &m_commonParams_range_offset.y;
+		m_gui_group_commonParams_range_pivotOffsetZ->m_ptr_f = &m_commonParams_range_offset.z;
 	}
+	m_gui_group_commonParams_range_PositionX->UseText(m_fontDefault);
+	m_gui_group_commonParams_range_PositionY->UseText(m_fontDefault);
+	m_gui_group_commonParams_range_PositionZ->UseText(m_fontDefault);
+
+	m_gui_group_commonParams_range_pivotOffsetX->UseText(m_fontDefault);
+	m_gui_group_commonParams_range_pivotOffsetY->UseText(m_fontDefault);
+	m_gui_group_commonParams_range_pivotOffsetZ->UseText(m_fontDefault);
 }
 
 void miGUIManager::OnNewMaterial(miMaterial* m) {

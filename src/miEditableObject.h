@@ -164,6 +164,10 @@ public:
 	virtual void UVMakePlanar(bool useScreenPlane) override;
 	virtual void UvFlattenMapping() override;
 	void RebuildUVModel();
+
+	virtual void ApplyPivotOffset() override;
+	virtual void PivotToObjectCenter() override;
+	virtual void PivotToSceneCenter() override;
 };
 
 #endif

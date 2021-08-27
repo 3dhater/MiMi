@@ -94,6 +94,8 @@ public:
 	}
 	virtual ~miSceneObject() {}
 	
+	v3f m_pivotOffset;
+
 	const miStringA& GetObjectTypeName() { return m_objectTypeName; }
 	miSceneObjectType GetObjectType() { return m_objectType; }
 	bool IsUVSelected() {return m_isUVSelected;}
@@ -390,6 +392,16 @@ public:
 		default:
 			break;
 		}
+	}
+
+	virtual void ApplyPivotOffset() {
+		m_pivotOffset.set(0.f);
+	}
+	virtual void PivotToObjectCenter() {
+		m_pivotOffset.set(0.f);
+	}
+	virtual void PivotToSceneCenter() {
+		m_pivotOffset.set(0.f);
 	}
 };
 

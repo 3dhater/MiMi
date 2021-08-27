@@ -1,4 +1,4 @@
-# Pipa3D
+# 3D editor
 
 New 3D editor. Polygonal modeling.
 

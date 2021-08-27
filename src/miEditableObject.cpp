@@ -1404,3 +1404,46 @@ void miEditableObject::_createMeshFromTMPMesh_meshBuilder(bool saveSelection, bo
 	m_mesh = importeHelper.m_meshBuilder->m_mesh;
 	importeHelper.m_meshBuilder->m_mesh = 0;
 }
+
+void miEditableObject::ApplyPivotOffset() {
+	auto RI = m_rotationOnlyMatrix;
+	RI.invert();
+
+	auto vec1 = math::mulBasis(m_pivotOffset, RI);
+
+	if (m_mesh->m_first_vertex)
+	{
+		auto c = m_mesh->m_first_vertex;
+		auto l = c->m_left;
+		while (true)
+		{
+			c->m_position -= vec1;
+			if (c == l)
+				break;
+			c = c->m_right;
+		}
+	}
+
+	m_localPosition += m_pivotOffset;
+	UpdateTransform();
+
+	m_pivotOffset.set(0.f);
+
+	this->_updateModel();
+	this->UpdateAabb();
+}
+
+void miEditableObject::PivotToObjectCenter() {
+	this->UpdateAabb();
+	v4f c;
+	m_aabbTransformed.center(c);
+	m_pivotOffset = c - m_localPosition;
+	ApplyPivotOffset();
+	m_localPosition = c;
+}
+
+void miEditableObject::PivotToSceneCenter() {
+	m_pivotOffset = -m_localPosition;
+	ApplyPivotOffset();
+	m_localPosition.set(0.f);
+}

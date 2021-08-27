@@ -897,8 +897,6 @@ void miApplication::MainLoop() {
 		_updateKeyboardModifier();
 		m_isCursorMove = (m_inputContext->m_mouseDelta.x != 0.f) || (m_inputContext->m_mouseDelta.y != 0.f);
 	
-		m_GUIManager->m_default_value_float = 0.f;
-
 		m_gizmo->OnStartFrame();
 
 		m_isCursorInWindow = false;
@@ -1871,6 +1869,7 @@ void miApplication::ConvertSelectedObjectsToEditableObjects() {
 			m_selectedObjects.m_data[i] = newEditableObject;
 	}
 	UpdateSelectedObjectsArray();
+	m_GUIManager->SetCommonParamsRangePosition();
 }
 
 void miApplication::NameIsFree(const miString& name, miSceneObject* o, u8* a) {

@@ -254,7 +254,9 @@ void miApplication::UpdateSelectionAabb() {
 	}
 
 	if (m_selectedObjects.m_size == 1)
-		m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition;
+	{
+		m_gizmo->m_position = m_selectedObjects.m_data[0]->m_globalPosition + m_selectedObjects.m_data[0]->m_pivotOffset;
+	}
 
 	m_selectionAabb.center(m_selectionAabb_center);
 	m_selectionAabb.extent(m_selectionAabb_extent);

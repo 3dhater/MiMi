@@ -115,11 +115,14 @@ public:
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionX;
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionY;
 	yyGUIRangeSlider*    m_gui_group_commonParams_range_PositionZ;
-	f32 m_default_value_float;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetX;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetY;
+	yyGUIRangeSlider*    m_gui_group_commonParams_range_pivotOffsetZ;
 	// call this when select/deselect object
 	void SetCommonParamsRangePosition();
 	v3f m_commonParams_range_Position_many;
 	v3f m_commonParams_range_Position_many_onClick;
+	v3f m_commonParams_range_offset;
 
 	yyGUIGroup*   m_gui_group_materials;
 	yyGUIDrawGroup* m_gui_drawGroup_materials;
