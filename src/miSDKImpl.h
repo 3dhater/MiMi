@@ -122,11 +122,11 @@ public:
 
 	virtual miStringA StringWideToMultiByte(const wchar_t* wstr) override;
 
-	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) override;
+	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other, bool isMirror, miAxis axis) override;
 	virtual void AppendMesh(miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* mesh_with_miPoolAllocator, miMesh* other)override;
 
 	template<typename AllocVertex, typename AllocEdge, typename AllocPolygon>
-	void _appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa);
+	void _appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa, bool isMirror, miAxis axis);
 
 	virtual void AddVertexToSelection(miVertex*, miSceneObject*) override;
 	virtual void AddEdgeToSelection(miEdge*, miSceneObject*) override;

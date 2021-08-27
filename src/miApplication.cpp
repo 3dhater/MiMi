@@ -58,7 +58,10 @@ void window_callbackOnCommand(s32 commandID) {
 	{
 	default:
 		break;
-	case miCommandID_EditDuplicate: g_app->CommandEditDiplicate(); break;
+	case miCommandID_EditDuplicate: g_app->CommandEditDiplicate(false, miAxis::X); break;
+	case miCommandID_EditDuplicateMirrorX: g_app->CommandEditDiplicate(true, miAxis::X); break;
+	case miCommandID_EditDuplicateMirrorY: g_app->CommandEditDiplicate(true, miAxis::Y); break;
+	case miCommandID_EditDuplicateMirrorZ: g_app->CommandEditDiplicate(true, miAxis::Z); break;
 	case miCommandID_CameraReset: g_app->CommandCameraReset(g_app->m_popupViewport); break;
 	case miCommandID_CameraMoveToSelection: g_app->CommandCameraMoveToSelection(g_app->m_popupViewport); break;
 	case miCommandID_ViewportViewPerspective: g_app->CommandViewportChangeView(g_app->m_popupViewport,miViewportCameraType::Perspective); break;
@@ -556,7 +559,13 @@ void miApplication::_initViewports() {
 
 void miApplication::_initPopups() {
 
-	m_popup_edit.AddItem(L"Duplicate selected objects", miCommandID_EditDuplicate, m_shortcutManager->GetText(miShortcutCommandType::edit_duplicate));
+	//m_popup_edit.AddItem(L"Duplicate selected objects", miCommandID_EditDuplicate, m_shortcutManager->GetText(miShortcutCommandType::edit_duplicate));
+	//m_popup_edit.AddItem(L"Duplicate selected objects", 0, 0);
+	miPopupInfo* subMenu = m_popup_edit.m_menu->CreateSubMenu(L"Duplicate");
+	subMenu->AddItem(L"Duplicate", miCommandID_EditDuplicate, m_shortcutManager->GetText(miShortcutCommandType::edit_duplicate));
+	subMenu->AddItem(L"Mirror X", miCommandID_EditDuplicateMirrorX, 0);
+	subMenu->AddItem(L"Mirror Y", miCommandID_EditDuplicateMirrorY, 0);
+	subMenu->AddItem(L"Mirror Z", miCommandID_EditDuplicateMirrorZ, 0);
 
 	m_popup_ViewportCamera.AddItem(L"Camera Reset", miCommandID_CameraReset, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraReset));
 	m_popup_ViewportCamera.AddItem(L"Camera Move to selection", miCommandID_CameraMoveToSelection, m_shortcutManager->GetText(miShortcutCommandType::viewport_cameraMoveToSelection));
@@ -1834,7 +1843,7 @@ miEditableObject* miApplication::ConvertObjectToEditableObject(miSceneObject* ob
 		{
 			auto mesh = obj->GetMesh(o);
 
-			m_sdk->AppendMesh(newEditableObject->m_mesh, mesh);
+			m_sdk->AppendMesh(newEditableObject->m_mesh, mesh, false, miAxis::X);
 		}
 		newEditableObject->m_visualObject_polygon->CreateNewGPUModels(newEditableObject->m_mesh);
 		newEditableObject->m_visualObject_vertex->CreateNewGPUModels(newEditableObject->m_mesh);
@@ -2379,7 +2388,7 @@ void miApplication::SetEditorType(miEditorType t){
 	m_2d->UpdateClip();
 }
 
-void miApplication::CommandEditDiplicate() {
+void miApplication::CommandEditDiplicate(bool isMirror, miAxis ax) {
 	miArray<miSceneObject*> newObjects;
 
 	for (u32 i = 0; i < m_selectedObjects.m_size; ++i)
@@ -2390,7 +2399,7 @@ void miApplication::CommandEditDiplicate() {
 		if (flags & miSceneObjectFlag_NotDuplicate)
 			continue;
 
-		auto new_o = obj->GetPlugin()->OnDuplicate(obj);
+		auto new_o = obj->GetPlugin()->OnDuplicate(obj, isMirror, ax);
 		if (new_o)
 			newObjects.push_back(new_o);
 	}

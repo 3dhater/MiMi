@@ -239,7 +239,7 @@ void miEditableObject::OnWeldApply() {
 
 	_destroyMesh();
 	m_mesh = miCreate<miMesh>();
-	g_app->m_sdk->AppendMesh(m_mesh, mesh);
+	g_app->m_sdk->AppendMesh(m_mesh, mesh, false, miAxis::X);
 	this->DestroyTMPModelWithPoolAllocator();
 
 	this->VertexBreak();

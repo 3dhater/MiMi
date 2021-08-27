@@ -51,7 +51,7 @@ public:
 	virtual void OnClickGizmo(miKeyboardModifier, miGizmoMode, miEditMode, miSceneObject*) {}
 
 	// return: new object
-	virtual miSceneObject* OnDuplicate(miSceneObject* object) { return 0; }
+	virtual miSceneObject* OnDuplicate(miSceneObject* object, bool isMirror, miAxis axis) { return 0; }
 };
 
 #endif

@@ -128,6 +128,12 @@ enum class miDirection : u32 {
 	NorthWest
 };
 
+enum class miAxis : u32 {
+	X,
+	Y,
+	Z
+};
+
 inline
 const char* miGetDirectionName(miDirection d) {
 	switch (d)
@@ -365,7 +371,7 @@ public:
 
 	// only for miDefaultAllocator for this mesh
 	// obviously
-	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) = 0;
+	virtual void AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other, bool isMirror = false, miAxis axis = miAxis::X) = 0;
 	// for version with pool allocator
 	// just for creating a copy of some other model
 	virtual void AppendMesh(miMeshBuilder<miPoolAllocator<miPolygon>, miPoolAllocator<miEdge>, miPoolAllocator<miVertex>>* mesh_with_miPoolAllocator, miMesh* other) = 0;

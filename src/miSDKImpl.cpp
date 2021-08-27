@@ -358,7 +358,7 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 	miEditableObject* newObject = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(newObject)miEditableObject(this, 0);
 	
-	this->AppendMesh(newObject->m_mesh, ih->m_meshBuilder->m_mesh);
+	this->AppendMesh(newObject->m_mesh, ih->m_meshBuilder->m_mesh, false, miAxis::X);
 
 	if (optionalMaterial)
 	{
@@ -384,7 +384,8 @@ void miSDKImpl::CreateSceneObjectFromHelper(miSDKImporterHelper* ih, const wchar
 }
 
 template<typename AllocVertex, typename AllocEdge, typename AllocPolygon>
-void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa){
+void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, AllocEdge* ea, AllocPolygon* pa,
+	bool isMirror, miAxis axis){
 	// 1. Create maps-dictionaries
 	// 2. Create verts/polys/edges and put addresses in maps
 	// 3. Change addresses using maps
@@ -454,6 +455,23 @@ void miSDKImpl::_appendMesh(miMesh* mesh1, miMesh* mesh2, AllocVertex* va, Alloc
 			}
 
 			new_V->CopyData(current_vertex);
+			if (isMirror)
+			{
+				switch (axis)
+				{
+				case miAxis::X:
+					new_V->m_position.x = -current_vertex->m_position.x;
+					break;
+				case miAxis::Y:
+					new_V->m_position.y = -current_vertex->m_position.y;
+					break;
+				case miAxis::Z:
+					new_V->m_position.z = -current_vertex->m_position.z;
+					break;
+				default:
+					break;
+				}
+			}
 
 			vmap.Add((uint64_t)current_vertex, (uint64_t)new_V);
 
@@ -675,14 +693,15 @@ void miSDKImpl::AppendMesh(
 		other, 
 		mesh_with_miPoolAllocator->m_allocatorVertex, 
 		mesh_with_miPoolAllocator->m_allocatorEdge, 
-		mesh_with_miPoolAllocator->m_allocatorPolygon);
+		mesh_with_miPoolAllocator->m_allocatorPolygon,
+		false, miAxis::X);
 }
 
-void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other) {
+void miSDKImpl::AppendMesh(miMesh* mesh_with_miDefaultAllocator, miMesh* other, bool isMirror, miAxis axis) {
 	miDefaultAllocator<miPolygon> pa(0);
 	miDefaultAllocator<miEdge> ea(0);
 	miDefaultAllocator<miVertex> va(0);
-	_appendMesh(mesh_with_miDefaultAllocator, other, &va, &ea, &pa);
+	_appendMesh(mesh_with_miDefaultAllocator, other, &va, &ea, &pa, isMirror, axis);
 }
 
 void miSDKImpl::AddVertexToSelection(miVertex* vertex, miSceneObject* o) {

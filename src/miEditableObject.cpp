@@ -392,7 +392,7 @@ miEditableObject::~miEditableObject() {
 void miEditableObject::_createMeshFromTMPMesh() {
 	_destroyMesh();
 	m_mesh = miCreate<miMesh>();
-	g_app->m_sdk->AppendMesh(m_mesh, m_meshBuilderTmpModelPool->m_mesh);
+	g_app->m_sdk->AppendMesh(m_mesh, m_meshBuilderTmpModelPool->m_mesh, false, miAxis::X);
 }
 
 void miEditableObject::CreateTMPModelWithPoolAllocator( s32 pc, s32 ec, s32 vc) {

@@ -41,31 +41,35 @@ void miApplicationPlugin::OnClickGizmo(miKeyboardModifier km, miGizmoMode gm, mi
 	}
 }
 
-miSceneObject* miApplicationPlugin::OnDuplicate(miSceneObject* object) {
+miSceneObject* miApplicationPlugin::OnDuplicate(miSceneObject* object, bool isMirror, miAxis axis) {
 	if (object->GetTypeForPlugin() == miApplicationPlugin::m_objectType_editableObject)
 	{
-		return _duplicateEditableObject(object);
+		return _duplicateEditableObject(object, isMirror, axis);
 	}
 
 	return 0;
 }
 
-miSceneObject* miApplicationPlugin::_duplicateEditableObject(miSceneObject* object) {
+miSceneObject* miApplicationPlugin::_duplicateEditableObject(miSceneObject* object, bool isMirror, miAxis axis) {
 	miEditableObject* eo = (miEditableObject*)object;
 	miEditableObject* new_eo = (miEditableObject*)miMalloc(sizeof(miEditableObject));
 	new(new_eo)miEditableObject((miSDK*)g_app->m_sdk, 0);
 	new_eo->CopyBase(eo);
 
-	g_app->m_sdk->AppendMesh(new_eo->m_mesh, eo->m_mesh);
+	g_app->m_sdk->AppendMesh(new_eo->m_mesh, eo->m_mesh, isMirror, axis);
 	new_eo->RebuildVisualObjects(false);
 
 	miString name = eo->GetName().data();
-	name += "_copy";
+	if(isMirror)
+		name += "_mirror";
+	else
+		name += "_copy";
 	
 	//auto newName = g_app->GetFreeName(name.data());
 	//new_eo->SetName(newName.data());
 
 	g_app->AddObjectToScene(new_eo, name.data());
+	new_eo->UpdateAabb();
 
 	return new_eo;
 }

@@ -58,6 +58,9 @@ struct miImporter;
 #define miCommandID_DeleteSelectedObjects 18
 #define miCommandID_ViewportToggleDrawAABB 19
 #define miCommandID_EditDuplicate 20
+#define miCommandID_EditDuplicateMirrorX 21
+#define miCommandID_EditDuplicateMirrorY 22
+#define miCommandID_EditDuplicateMirrorZ 23
 #define miCommandID_for_plugins 100
 
 #define miEventId_ShowMainMenu 1
@@ -327,7 +330,7 @@ public:
 	void CommandViewportSetDrawMode(miViewport* vp, miViewportDrawMode);
 	void CommandTransformModeSet(miTransformMode m);
 	void CommandUVSelectAll();
-	void CommandEditDiplicate();
+	void CommandEditDiplicate(bool isMirror, miAxis x);
 
 	miVertex * m_mouseHoverVertex;
 	miSceneObject* m_mouseHoverVertexObject;
